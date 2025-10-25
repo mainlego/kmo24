@@ -26,20 +26,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Install dependencies
-        run: |
-          cd frontend
-          npm install
+        working-directory: ./frontend
+        run: npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
       - name: Build
-        run: |
-          cd frontend
-          npm run generate
+        working-directory: ./frontend
+        run: npm run generate
 
       - name: Add .nojekyll file
-        run: touch frontend/.output/public/.nojekyll
+        run: touch ./frontend/.output/public/.nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -47,7 +45,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: frontend/.output/public
+          path: ./frontend/.output/public
 
   deploy:
     environment:
