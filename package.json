@@ -1,0 +1,33 @@
+{
+  "name": "onlineshop-monorepo",
+  "version": "1.0.0",
+  "description": "Интернет-магазин с интеграцией 1С и расширенным функционалом",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspaces",
+    "build:backend": "npm run build --workspace=backend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "start": "npm run start --workspaces",
+    "test": "npm run test --workspaces"
+  },
+  "keywords": [
+    "ecommerce",
+    "online-shop",
+    "nuxt",
+    "vue",
+    "express",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
