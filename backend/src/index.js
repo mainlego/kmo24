@@ -17,12 +17,12 @@ import notFound from './middleware/notFound.js';
 import authRoutes from './routes/auth.js';
 import productRoutes from './routes/products.js';
 import cartRoutes from './routes/cart.js';
-// import userRoutes from './routes/users.js';
-// import categoryRoutes from './routes/categories.js';
-// import orderRoutes from './routes/orders.js';
-// import reviewRoutes from './routes/reviews.js';
-// import newsRoutes from './routes/news.js';
-// import commercialOfferRoutes from './routes/commercialOffers.js';
+import userRoutes from './routes/users.js';
+import categoryRoutes from './routes/categories.js';
+import orderRoutes from './routes/orders.js';
+import reviewRoutes from './routes/reviews.js';
+import newsRoutes from './routes/news.js';
+import commercialOfferRoutes from './routes/commercialOffers.js';
 
 const app = express();
 
@@ -98,12 +98,12 @@ app.get(API_PREFIX, (req, res) => {
 app.use(`${API_PREFIX}/auth`, authRoutes);
 app.use(`${API_PREFIX}/products`, productRoutes);
 app.use(`${API_PREFIX}/cart`, cartRoutes);
-// app.use(`${API_PREFIX}/users`, userRoutes);
-// app.use(`${API_PREFIX}/categories`, categoryRoutes);
-// app.use(`${API_PREFIX}/orders`, orderRoutes);
-// app.use(`${API_PREFIX}/reviews`, reviewRoutes);
-// app.use(`${API_PREFIX}/news`, newsRoutes);
-// app.use(`${API_PREFIX}/commercial-offers`, commercialOfferRoutes);
+app.use(`${API_PREFIX}/users`, userRoutes);
+app.use(`${API_PREFIX}/categories`, categoryRoutes);
+app.use(`${API_PREFIX}/orders`, orderRoutes);
+app.use(`${API_PREFIX}/reviews`, reviewRoutes);
+app.use(`${API_PREFIX}/news`, newsRoutes);
+app.use(`${API_PREFIX}/commercial-offers`, commercialOfferRoutes);
 
 // Статические файлы
 app.use('/uploads', express.static('uploads'));
