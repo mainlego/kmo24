@@ -241,6 +241,137 @@
       </div>
     </section>
 
+    <!-- Testimonials / Social Proof -->
+    <section class="testimonials-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Нам доверяют</h2>
+          <p class="section-subtitle">Более 500 довольных клиентов по всей России</p>
+        </div>
+        <div class="testimonials-grid">
+          <div class="testimonial-card" data-index="0">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar">
+                <div class="avatar-circle">АП</div>
+              </div>
+              <div class="testimonial-author">
+                <h4 class="author-name">Алексей Петров</h4>
+                <p class="author-position">Владелец ресторана "Вкусно"</p>
+              </div>
+              <div class="testimonial-rating">
+                <svg v-for="i in 5" :key="i" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                </svg>
+              </div>
+            </div>
+            <p class="testimonial-text">
+              "Купили профессиональную печь для пиццы. Качество отличное, цена в 2 раза ниже новой.
+              Работает безупречно уже полгода. Очень довольны покупкой!"
+            </p>
+          </div>
+
+          <div class="testimonial-card" data-index="1">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar">
+                <div class="avatar-circle">МИ</div>
+              </div>
+              <div class="testimonial-author">
+                <h4 class="author-name">Мария Иванова</h4>
+                <p class="author-position">Управляющая кафе "24 часа"</p>
+              </div>
+              <div class="testimonial-rating">
+                <svg v-for="i in 5" :key="i" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                </svg>
+              </div>
+            </div>
+            <p class="testimonial-text">
+              "Оборудовали целую кухню через КМО24. Менеджеры помогли подобрать всё необходимое.
+              Сэкономили около 300 тысяч рублей. Рекомендую!"
+            </p>
+          </div>
+
+          <div class="testimonial-card" data-index="2">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar">
+                <div class="avatar-circle">СК</div>
+              </div>
+              <div class="testimonial-author">
+                <h4 class="author-name">Сергей Козлов</h4>
+                <p class="author-position">Директор пекарни "Свежий хлеб"</p>
+              </div>
+              <div class="testimonial-rating">
+                <svg v-for="i in 5" :key="i" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                </svg>
+              </div>
+            </div>
+            <p class="testimonial-text">
+              "Подовая печь работает как часы. Все оборудование было проверено и готово к работе.
+              Доставка быстрая, установка профессиональная. Отличный сервис!"
+            </p>
+          </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+          <div class="stat-item">
+            <div class="stat-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">500+</div>
+              <div class="stat-label">Довольных клиентов</div>
+            </div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">4.9/5</div>
+              <div class="stat-label">Средняя оценка</div>
+            </div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">5 лет</div>
+              <div class="stat-label">На рынке</div>
+            </div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                <line x1="12" y1="22.08" x2="12" y2="12"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">1000+</div>
+              <div class="stat-label">Единиц продано</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Premium CTA Section -->
     <section class="premium-cta">
       <div class="cta-background">
@@ -1409,5 +1540,267 @@ onUnmounted(() => {
   svg {
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
   }
+}
+
+// Testimonials Section
+.testimonials-section {
+  padding: 6rem 0;
+  background: $white;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -20%;
+    width: 140%;
+    height: 100%;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    padding: 4rem 0;
+  }
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-xl;
+  margin-bottom: $spacing-3xl;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+  }
+}
+
+.testimonial-card {
+  position: relative;
+  background: $white;
+  padding: $spacing-2xl;
+  border-radius: $radius-2xl;
+  border: 2px solid $gray-100;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default;
+
+  &::before {
+    content: '"';
+    position: absolute;
+    top: -20px;
+    left: $spacing-xl;
+    font-size: 6rem;
+    font-weight: $font-weight-bold;
+    color: rgba(99, 102, 241, 0.1);
+    line-height: 1;
+    font-family: Georgia, serif;
+  }
+
+  &:hover {
+    border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-8px);
+    box-shadow:
+      0 20px 40px rgba(99, 102, 241, 0.15),
+      0 0 0 1px rgba(99, 102, 241, 0.1);
+
+    .avatar-circle {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+    }
+
+    .testimonial-rating svg {
+      transform: scale(1.1);
+    }
+  }
+
+  @for $i from 0 through 2 {
+    &[data-index='#{$i}'] {
+      animation: fadeInUp 0.6s ease-out #{$i * 0.15s} backwards;
+    }
+  }
+}
+
+.testimonial-header {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+  position: relative;
+  z-index: 1;
+}
+
+.testimonial-avatar {
+  flex-shrink: 0;
+}
+
+.avatar-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  color: $white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-lg;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.testimonial-author {
+  flex: 1;
+}
+
+.author-name {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $gray-900;
+  margin: 0 0 0.25rem 0;
+}
+
+.author-position {
+  font-size: $font-size-sm;
+  color: $gray-600;
+  margin: 0;
+}
+
+.testimonial-rating {
+  display: flex;
+  gap: 0.25rem;
+  color: #f59e0b;
+
+  svg {
+    transition: transform 0.3s ease;
+  }
+}
+
+.testimonial-text {
+  font-size: $font-size-base;
+  line-height: $line-height-relaxed;
+  color: $gray-700;
+  margin: 0;
+  font-style: italic;
+  position: relative;
+  z-index: 1;
+}
+
+// Stats Bar
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-xl;
+  padding: $spacing-2xl;
+  background: linear-gradient(135deg,
+    rgba(99, 102, 241, 0.05) 0%,
+    rgba(236, 72, 153, 0.05) 100%
+  );
+  border-radius: $radius-2xl;
+  border: 2px solid rgba(99, 102, 241, 0.1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.5) 50%,
+      transparent 100%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.8s ease;
+  }
+
+  &:hover::before {
+    transform: translateX(100%);
+  }
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+  }
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  position: relative;
+  z-index: 1;
+
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -#{$spacing-xl / 2};
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 60%;
+    background: linear-gradient(180deg,
+      transparent 0%,
+      rgba(99, 102, 241, 0.3) 50%,
+      transparent 100%
+    );
+
+    @media (max-width: $breakpoint-lg) {
+      display: none;
+    }
+  }
+}
+
+.stat-icon {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: $radius-xl;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  color: $white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+
+  svg {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  }
+
+  .stat-item:hover & {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+  }
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: $font-size-sm;
+  color: $gray-600;
+  font-weight: $font-weight-medium;
 }
 </style>
