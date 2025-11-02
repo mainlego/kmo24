@@ -33,12 +33,12 @@
       <div class="sidebar-footer">
         <div v-if="!sidebarCollapsed" class="user-info">
           <div class="user-avatar">
-            <img v-if="user?.avatar" :src="user.avatar" :alt="user.name" />
+            <img v-if="user?.avatar" :src="user.avatar" :alt="user.fullName" />
             <span v-else>{{ userInitials }}</span>
           </div>
           <div class="user-details">
-            <p class="user-name">{{ user?.name || 'Admin' }}</p>
-            <p class="user-role">{{ user?.role || 'Администратор' }}</p>
+            <p class="user-name">{{ user?.fullName || 'Admin' }}</p>
+            <p class="user-role">{{ user?.role === 'admin' ? 'Администратор' : 'Менеджер' }}</p>
           </div>
         </div>
         <button class="logout-btn" @click="handleLogout" :title="sidebarCollapsed ? 'Выйти' : ''">
@@ -116,8 +116,8 @@ const notificationCount = ref(3);
 const user = computed(() => authStore.user);
 
 const userInitials = computed(() => {
-  if (!user.value?.name) return 'A';
-  return user.value.name
+  if (!user.value?.fullName) return 'A';
+  return user.value.fullName
     .split(' ')
     .map((n) => n[0])
     .join('')
@@ -197,7 +197,7 @@ const isActive = (path: string) => {
 
 const handleLogout = async () => {
   await authStore.logout();
-  router.push('/');
+  router.push('/login');
 };
 
 // Check mobile

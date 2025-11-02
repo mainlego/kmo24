@@ -14,7 +14,10 @@
       "Bash(wc:*)",
       "Bash(git add:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Реализована полная бизнес-логика backend и начата админ-панель\n\nBackend:\n- Созданы 6 новых контроллеров (~2100 строк):\n  * orders.js - управление заказами с резервированием товаров\n  * reviews.js - система отзывов с модерацией и голосованием\n  * categories.js - иерархические категории товаров\n  * users.js - управление пользователями и ролями\n  * news.js - новостной раздел с тегами\n  * commercialOffers.js - коммерческие предложения\n\n- Созданы все API маршруты с авторизацией:\n  * routes/orders.js - маршруты заказов\n  * routes/reviews.js - маршруты отзывов\n  * routes/categories.js - маршруты категорий\n  * routes/users.js - маршруты пользователей (admin only)\n  * routes/news.js - маршруты новостей\n  * routes/commercialOffers.js - маршруты КП\n\n- Реализован продвинутый middleware для загрузки файлов:\n  * upload.js (~270 строк)\n  * Поддержка загрузки изображений и документов\n  * Автоматическая обработка с Sharp (resize, optimize)\n  * Создание thumbnails\n  * Валидация типов файлов и размеров\n\n- Все маршруты подключены в index.js\n\nFrontend:\n- Создана система уведомлений:\n  * composables/useToast.ts - управление toast уведомлениями\n  * components/common/Toast.vue - компонент отображения\n\n- Создан layout для админ-панели:\n  * layouts/admin.vue - полноценный админ layout\n  * Sidebar с навигацией и коллапсом\n  * Header с быстрыми действиями\n  * Адаптивный дизайн для мобильных\n\nФункциональность:\n✅ CRUD операции для всех сущностей\n✅ Система ролей и прав доступа\n✅ Кэширование с Redis\n✅ Пагинация и фильтрация\n✅ Статистика и аналитика\n✅ Валидация и обработка ошибок\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run generate:*)"
     ],
     "deny": [],
     "ask": []

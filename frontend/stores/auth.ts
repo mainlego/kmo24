@@ -92,19 +92,75 @@ export const useAuthStore = defineStore('auth', {
       this.error = null;
 
       try {
-        const { apiFetch } = useApi();
-        const response = await apiFetch<AuthResponse>('/auth/login', {
-          method: 'POST',
-          body: credentials,
-        });
+        // MOCK LOGIN FOR DEVELOPMENT
+        // TODO: Replace with real API call when backend is ready
+        const mockUsers = [
+          {
+            id: '1',
+            email: 'admin@kmo24.ru',
+            password: 'admin123',
+            firstName: 'Админ',
+            lastName: 'Администраторов',
+            fullName: 'Админ Администраторов',
+            phone: '+7 (999) 123-45-67',
+            role: 'admin' as const,
+            avatar: '',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: '2',
+            email: 'manager@kmo24.ru',
+            password: 'manager123',
+            firstName: 'Менеджер',
+            lastName: 'Менеджеров',
+            fullName: 'Менеджер Менеджеров',
+            phone: '+7 (999) 123-45-68',
+            role: 'manager' as const,
+            avatar: '',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        ];
 
-        if (response.success && response.data) {
-          this.setAuth(response.data);
+        // Simulate API delay
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        const mockUser = mockUsers.find(
+          (u) => u.email === credentials.email && u.password === credentials.password
+        );
+
+        if (!mockUser) {
+          throw new Error('Неверный email или пароль');
         }
 
-        return response;
+        const { password, ...user } = mockUser;
+        const mockTokens = {
+          accessToken: `mock-access-token-${user.id}-${Date.now()}`,
+          refreshToken: `mock-refresh-token-${user.id}-${Date.now()}`,
+        };
+
+        this.setAuth({
+          user,
+          ...mockTokens,
+        });
+
+        return { success: true, data: { user, ...mockTokens } };
+
+        // REAL API CALL (commented out for now):
+        // const { apiFetch } = useApi();
+        // const response = await apiFetch<AuthResponse>('/auth/login', {
+        //   method: 'POST',
+        //   body: credentials,
+        // });
+        //
+        // if (response.success && response.data) {
+        //   this.setAuth(response.data);
+        // }
+        //
+        // return response;
       } catch (error: any) {
-        this.error = error.data?.error || 'Ошибка входа';
+        this.error = error.message || error.data?.error || 'Ошибка входа';
         throw error;
       } finally {
         this.isLoading = false;
