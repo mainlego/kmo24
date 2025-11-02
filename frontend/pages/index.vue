@@ -5,12 +5,14 @@
       <!-- Background Image with Parallax -->
       <div class="hero-background" :style="{ transform: `translateY(${parallaxOffset}px)` }">
         <img
-          src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=1920&q=80"
-          alt="Профессиональное оборудование для кафе и ресторанов"
+          src="https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?w=1920&q=85"
+          alt="Профессиональное кухонное оборудование"
           class="hero-bg-image"
         />
         <!-- Gradient Overlay with Blur -->
         <div class="hero-overlay"></div>
+        <!-- Animated Gradient Mesh -->
+        <div class="gradient-mesh"></div>
         <!-- Animated Particles -->
         <div class="particles">
           <div v-for="i in 20" :key="i" class="particle" :style="getParticleStyle(i)"></div>
@@ -128,6 +130,113 @@
               Экономия до 70% от стоимости нового оборудования. Комиссионная схема работы позволяет предлагать лучшие цены.
             </p>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories Showcase -->
+    <section class="categories-showcase">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Категории оборудования</h2>
+          <p class="section-subtitle">Всё необходимое для вашего бизнеса в одном месте</p>
+        </div>
+        <div class="categories-grid">
+          <NuxtLink to="/products?category=ovens" class="category-card">
+            <div class="category-image">
+              <img src="https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=600&q=80" alt="Печи" />
+              <div class="category-overlay"></div>
+            </div>
+            <div class="category-content">
+              <h3 class="category-title">Печи</h3>
+              <p class="category-count">50+ единиц</p>
+              <div class="category-arrow">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </NuxtLink>
+
+          <NuxtLink to="/products?category=refrigerators" class="category-card">
+            <div class="category-image">
+              <img src="https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=600&q=80" alt="Холодильники" />
+              <div class="category-overlay"></div>
+            </div>
+            <div class="category-content">
+              <h3 class="category-title">Холодильники</h3>
+              <p class="category-count">70+ единиц</p>
+              <div class="category-arrow">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </NuxtLink>
+
+          <NuxtLink to="/products?category=showcases" class="category-card">
+            <div class="category-image">
+              <img src="https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=600&q=80" alt="Витрины" />
+              <div class="category-overlay"></div>
+            </div>
+            <div class="category-content">
+              <h3 class="category-title">Витрины</h3>
+              <p class="category-count">40+ единиц</p>
+              <div class="category-arrow">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </NuxtLink>
+
+          <NuxtLink to="/products?category=dishwashers" class="category-card">
+            <div class="category-image">
+              <img src="https://images.unsplash.com/photo-1585659722983-3a675dabf23d?w=600&q=80" alt="Посудомойки" />
+              <div class="category-overlay"></div>
+            </div>
+            <div class="category-content">
+              <h3 class="category-title">Посудомойки</h3>
+              <p class="category-count">30+ единиц</p>
+              <div class="category-arrow">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </NuxtLink>
+
+          <NuxtLink to="/products?category=equipment" class="category-card">
+            <div class="category-image">
+              <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=600&q=80" alt="Кухонное оборудование" />
+              <div class="category-overlay"></div>
+            </div>
+            <div class="category-content">
+              <h3 class="category-title">Кухонное оборудование</h3>
+              <p class="category-count">60+ единиц</p>
+              <div class="category-arrow">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </NuxtLink>
+
+          <NuxtLink to="/products?category=bar" class="category-card">
+            <div class="category-image">
+              <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600&q=80" alt="Барное оборудование" />
+              <div class="category-overlay"></div>
+            </div>
+            <div class="category-content">
+              <h3 class="category-title">Барное оборудование</h3>
+              <p class="category-count">25+ единиц</p>
+              <div class="category-arrow">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </NuxtLink>
         </div>
       </div>
     </section>
@@ -324,19 +433,42 @@ onUnmounted(() => {
   inset: 0;
   background: linear-gradient(
     135deg,
-    rgba(245, 158, 11, 0.85) 0%,
-    rgba(234, 88, 12, 0.75) 50%,
-    rgba(124, 58, 237, 0.7) 100%
+    rgba(99, 102, 241, 0.88) 0%,
+    rgba(139, 92, 246, 0.85) 35%,
+    rgba(236, 72, 153, 0.82) 65%,
+    rgba(245, 158, 11, 0.8) 100%
   );
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(3px);
 
   &::before {
     content: '';
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+      radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  }
+}
+
+.gradient-mesh {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(99, 102, 241, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 0%, rgba(236, 72, 153, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(245, 158, 11, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 0% 100%, rgba(139, 92, 246, 0.4) 0%, transparent 50%);
+  filter: blur(80px);
+  opacity: 0.6;
+  animation: meshRotate 20s ease-in-out infinite;
+}
+
+@keyframes meshRotate {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
   }
 }
 
@@ -722,6 +854,8 @@ onUnmounted(() => {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   overflow: hidden;
+  transform-style: preserve-3d;
+  perspective: 1000px;
 
   &::before {
     content: '';
@@ -729,7 +863,11 @@ onUnmounted(() => {
     inset: 0;
     border-radius: $radius-2xl;
     padding: 2px;
-    background: linear-gradient(135deg, $primary, $secondary);
+    background: linear-gradient(135deg,
+      rgba(99, 102, 241, 1) 0%,
+      rgba(139, 92, 246, 1) 50%,
+      rgba(236, 72, 153, 1) 100%
+    );
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
@@ -738,17 +876,52 @@ onUnmounted(() => {
     transition: opacity 0.4s ease;
   }
 
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: $radius-2xl;
+    background: linear-gradient(135deg,
+      rgba(99, 102, 241, 0.1) 0%,
+      rgba(236, 72, 153, 0.1) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: -1;
+    filter: blur(20px);
+  }
+
   &:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: $shadow-colored;
+    transform: translateY(-16px) rotateX(5deg);
+    box-shadow:
+      0 30px 60px rgba(99, 102, 241, 0.25),
+      0 10px 25px rgba(0, 0, 0, 0.1);
 
     &::before {
       opacity: 1;
     }
 
+    &::after {
+      opacity: 1;
+    }
+
     .feature-icon {
-      transform: scale(1.1) rotate(5deg);
-      box-shadow: $shadow-glow;
+      transform: translateZ(20px) scale(1.15) rotate(10deg);
+      box-shadow:
+        0 20px 40px rgba(99, 102, 241, 0.4),
+        0 0 30px rgba(236, 72, 153, 0.3);
+    }
+
+    .feature-title {
+      transform: translateZ(10px);
+      color: transparent;
+      background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .feature-description {
+      transform: translateZ(5px);
     }
   }
 
@@ -765,16 +938,30 @@ onUnmounted(() => {
   margin: 0 auto $spacing-lg;
   padding: $spacing-lg;
   border-radius: $radius-2xl;
-  background: $gradient-primary;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
   color: $white;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: $radius-2xl;
+    background: inherit;
+    filter: blur(10px);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: -1;
+  }
 
   svg {
     width: 32px;
     height: 32px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
   }
 }
 
@@ -783,12 +970,14 @@ onUnmounted(() => {
   font-weight: $font-weight-semibold;
   color: $gray-900;
   margin-bottom: $spacing-md;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .feature-description {
   color: $gray-600;
   line-height: $line-height-relaxed;
   font-size: $font-size-base;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 // Premium CTA Section
@@ -1058,5 +1247,167 @@ onUnmounted(() => {
   max-width: $container-max-width;
   margin: 0 auto;
   padding: 0 $container-padding;
+}
+
+// Categories Showcase Section
+.categories-showcase {
+  padding: 6rem 0;
+  background: linear-gradient(180deg, $white 0%, #f8f9fa 100%);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1000px;
+    height: 1000px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    padding: 4rem 0;
+  }
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-xl;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+  }
+}
+
+.category-card {
+  position: relative;
+  height: 320px;
+  border-radius: $radius-2xl;
+  overflow: hidden;
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 2;
+  }
+
+  &:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .category-image {
+      img {
+        transform: scale(1.15);
+        filter: brightness(0.6);
+      }
+
+      .category-overlay {
+        opacity: 0.9;
+      }
+    }
+
+    .category-content {
+      transform: translateY(-10px);
+    }
+
+    .category-arrow {
+      transform: translateX(8px) scale(1.2);
+      opacity: 1;
+    }
+
+    .category-title {
+      color: $white;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+.category-image {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: brightness(0.75);
+  }
+
+  .category-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.4) 50%,
+      rgba(0, 0, 0, 0.8) 100%
+    );
+    opacity: 0.8;
+    transition: opacity 0.5s ease;
+  }
+}
+
+.category-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $spacing-xl;
+  z-index: 3;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.category-title {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin-bottom: $spacing-xs;
+  transition: all 0.3s ease;
+}
+
+.category-count {
+  font-size: $font-size-sm;
+  color: rgba($white, 0.9);
+  font-weight: $font-weight-medium;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.category-arrow {
+  position: absolute;
+  bottom: $spacing-xl;
+  right: $spacing-xl;
+  color: $white;
+  opacity: 0;
+  transform: translateX(0);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  svg {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
 }
 </style>
