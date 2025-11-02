@@ -1,0 +1,568 @@
+<template>
+  <div class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <!-- Hero Section -->
+    <section class="relative h-[50vh] overflow-hidden">
+      <div class="absolute inset-0">
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/90 via-purple-800/85 to-pink-900/90 z-10"></div>
+        <img
+          src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1920"
+          alt="News background"
+          class="w-full h-full object-cover"
+        />
+      </div>
+
+      <!-- Animated News Icons -->
+      <div class="absolute inset-0 z-20 overflow-hidden">
+        <div v-for="i in 5" :key="`icon-${i}`"
+          class="news-icon-animation absolute"
+          :style="`left: ${Math.random() * 100}%; top: ${Math.random() * 100}%; animation-delay: ${i * 0.5}s`">
+          <svg class="w-8 h-8 text-white/10" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z" clip-rule="evenodd"></path>
+            <path d="M15 7h1a2 2 0 012 2v5.5a1.5 1.5 0 01-3 0V7z"></path>
+          </svg>
+        </div>
+      </div>
+
+      <div class="relative z-30 h-full flex items-center justify-center text-center px-4">
+        <div class="max-w-4xl mx-auto">
+          <div class="inline-block animate-slide-down mb-6">
+            <span class="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm">
+              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+              </svg>
+              Свежие новости и обновления
+            </span>
+          </div>
+
+          <h1 class="text-5xl md:text-7xl font-bold mb-6 animate-fade-in-up">
+            <span class="text-white">Новости компании</span>
+          </h1>
+
+          <p class="text-xl md:text-2xl text-white/90 animate-fade-in-up animation-delay-1">
+            Будьте в курсе последних событий и новинок
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="py-8 px-4 bg-white border-b border-gray-200 sticky top-0 z-40 shadow-md">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row items-stretch md:items-center gap-4">
+          <!-- Search -->
+          <div class="flex-1 relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Поиск новостей..."
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            />
+          </div>
+
+          <!-- Category Filter -->
+          <select v-model="selectedCategory" class="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+            <option value="">Все категории</option>
+            <option value="company">Компания</option>
+            <option value="products">Продукты</option>
+            <option value="events">Мероприятия</option>
+            <option value="tech">Технологии</option>
+          </select>
+
+          <!-- Sort -->
+          <select v-model="sortBy" class="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+            <option value="newest">Сначала новые</option>
+            <option value="oldest">Сначала старые</option>
+            <option value="popular">Популярные</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured News -->
+    <section v-if="featuredNews" class="py-12 px-4">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex items-center mb-8">
+          <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mr-3">
+            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+            </svg>
+          </div>
+          <h2 class="text-3xl font-bold">Главная новость</h2>
+        </div>
+
+        <div class="featured-news-card group">
+          <div class="grid md:grid-cols-2 gap-8">
+            <!-- Image -->
+            <div class="relative overflow-hidden rounded-2xl h-80 md:h-auto">
+              <img
+                :src="featuredNews.image"
+                :alt="featuredNews.title"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+              />
+              <div class="absolute top-4 left-4">
+                <span class="inline-block px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-bold rounded-full">
+                  Главное
+                </span>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex flex-col justify-center">
+              <div class="flex items-center gap-4 mb-4">
+                <span class="text-sm text-gray-500">{{ formatDate(featuredNews.date) }}</span>
+                <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                  {{ getCategoryName(featuredNews.category) }}
+                </span>
+              </div>
+
+              <h3 class="text-3xl md:text-4xl font-bold mb-4 group-hover:text-blue-600 transition-colors">
+                {{ featuredNews.title }}
+              </h3>
+
+              <p class="text-gray-600 text-lg mb-6 line-clamp-3">
+                {{ featuredNews.excerpt }}
+              </p>
+
+              <div class="flex items-center gap-6 mb-6">
+                <div class="flex items-center text-gray-500">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  {{ featuredNews.views }} просмотров
+                </div>
+                <div class="flex items-center text-gray-500">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  {{ featuredNews.readTime }} мин чтения
+                </div>
+              </div>
+
+              <NuxtLink :to="`/news/${featuredNews.slug}`" class="premium-button w-fit">
+                Читать полностью
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- News Grid -->
+    <section class="py-12 px-4">
+      <div class="max-w-7xl mx-auto">
+        <div v-if="filteredNews.length === 0" class="text-center py-16">
+          <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">Новостей не найдено</h3>
+          <p class="text-gray-600">Попробуйте изменить параметры поиска</p>
+        </div>
+
+        <div v-else class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <article
+            v-for="(article, index) in filteredNews"
+            :key="article.id"
+            class="news-card group"
+            :style="{ animationDelay: `${index * 0.1}s` }"
+          >
+            <!-- Image -->
+            <div class="relative overflow-hidden rounded-t-2xl h-56">
+              <img
+                :src="article.image"
+                :alt="article.title"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+              <div class="absolute top-4 left-4">
+                <span class="inline-block px-3 py-1 text-white text-xs font-bold rounded-full"
+                  :class="getCategoryColor(article.category)">
+                  {{ getCategoryName(article.category) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6">
+              <div class="flex items-center text-sm text-gray-500 mb-3">
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                </svg>
+                {{ formatDate(article.date) }}
+              </div>
+
+              <h3 class="text-xl font-bold mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+                {{ article.title }}
+              </h3>
+
+              <p class="text-gray-600 mb-4 line-clamp-3">
+                {{ article.excerpt }}
+              </p>
+
+              <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div class="flex items-center gap-4 text-sm text-gray-500">
+                  <span class="flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    {{ article.views }}
+                  </span>
+                  <span class="flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    {{ article.readTime}} мин
+                  </span>
+                </div>
+
+                <NuxtLink :to="`/news/${article.slug}`" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center group-hover:translate-x-1 transition-transform">
+                  Читать
+                  <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </NuxtLink>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Load More -->
+        <div v-if="hasMore" class="text-center mt-12">
+          <button @click="loadMore" class="premium-button-outline">
+            <svg v-if="!loading" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            <svg v-else class="animate-spin w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ loading ? 'Загрузка...' : 'Загрузить еще' }}
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="py-20 px-4 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
+      <!-- Animated Background -->
+      <div class="absolute inset-0">
+        <div class="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full filter blur-3xl animate-float"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-pink-300/10 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
+      </div>
+
+      <div class="relative max-w-4xl mx-auto text-center text-white">
+        <svg class="w-16 h-16 mx-auto mb-6 text-white/80" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+        </svg>
+
+        <h2 class="text-4xl md:text-5xl font-bold mb-6">
+          Подпишитесь на рассылку
+        </h2>
+        <p class="text-xl mb-8 text-white/90">
+          Получайте свежие новости и эксклюзивные предложения первыми
+        </p>
+
+        <form @submit.prevent="subscribe" class="max-w-md mx-auto">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input
+              v-model="email"
+              type="email"
+              placeholder="Ваш email"
+              required
+              class="flex-1 px-6 py-4 rounded-xl text-gray-900 placeholder-gray-500 focus:ring-4 focus:ring-white/30 transition-all"
+            />
+            <button
+              type="submit"
+              class="px-8 py-4 bg-white text-blue-600 font-bold rounded-xl hover:bg-gray-100 transition-all hover:scale-105 shadow-xl"
+            >
+              Подписаться
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+
+// SEO
+useHead({
+  title: 'Новости - КМО24',
+  meta: [
+    { name: 'description', content: 'Последние новости и обновления от компании КМО24. Будьте в курсе событий индустрии комиссионного оборудования.' },
+    { name: 'keywords', content: 'новости, обновления, события, КМО24, оборудование' }
+  ]
+})
+
+const searchQuery = ref('')
+const selectedCategory = ref('')
+const sortBy = ref('newest')
+const loading = ref(false)
+const hasMore = ref(true)
+const email = ref('')
+
+// Featured News
+const featuredNews = ref({
+  id: 1,
+  title: 'Открытие нового склада в Екатеринбурге',
+  slug: 'opening-new-warehouse-ekaterinburg',
+  excerpt: 'Мы рады объявить об открытии нашего нового современного складского комплекса площадью 5000 кв.м. Это позволит нам значительно расширить ассортимент и улучшить сроки доставки для наших клиентов в Уральском регионе.',
+  image: 'https://images.unsplash.com/photo-1553413077-190dd305871c?w=800',
+  date: '2024-01-15',
+  category: 'company',
+  views: 1245,
+  readTime: 5
+})
+
+// Mock News Data
+const allNews = ref([
+  {
+    id: 2,
+    title: 'Новая линейка токарных станков с ЧПУ',
+    slug: 'new-cnc-lathe-lineup',
+    excerpt: 'Поступление партии современных токарных станков с числовым программным управлением от ведущих производителей.',
+    image: 'https://images.unsplash.com/photo-1565043666747-69f6646db940?w=600',
+    date: '2024-01-12',
+    category: 'products',
+    views: 856,
+    readTime: 3
+  },
+  {
+    id: 3,
+    title: 'Участие в выставке "Металлообработка 2024"',
+    slug: 'metalworking-exhibition-2024',
+    excerpt: 'Приглашаем посетить наш стенд на крупнейшей отраслевой выставке. Демонстрация новинок и специальные предложения.',
+    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600',
+    date: '2024-01-10',
+    category: 'events',
+    views: 634,
+    readTime: 4
+  },
+  {
+    id: 4,
+    title: 'Внедрение AI для диагностики оборудования',
+    slug: 'ai-equipment-diagnostics',
+    excerpt: 'Мы начали использовать искусственный интеллект для предварительной диагностики состояния комиссионного оборудования.',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600',
+    date: '2024-01-08',
+    category: 'tech',
+    views: 1123,
+    readTime: 6
+  },
+  {
+    id: 5,
+    title: 'Запуск программы трейд-ин',
+    slug: 'trade-in-program-launch',
+    excerpt: 'Обменяйте ваше старое оборудование на новое с выгодой до 30%. Подробности новой программы обмена.',
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600',
+    date: '2024-01-05',
+    category: 'company',
+    views: 945,
+    readTime: 4
+  },
+  {
+    id: 6,
+    title: 'Поступление фрезерных станков',
+    slug: 'new-milling-machines',
+    excerpt: 'В наличии появились высокоточные вертикально-фрезерные станки в отличном состоянии.',
+    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600',
+    date: '2024-01-03',
+    category: 'products',
+    views: 712,
+    readTime: 3
+  }
+])
+
+const filteredNews = computed(() => {
+  let news = allNews.value
+
+  // Filter by search
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    news = news.filter(n =>
+      n.title.toLowerCase().includes(query) ||
+      n.excerpt.toLowerCase().includes(query)
+    )
+  }
+
+  // Filter by category
+  if (selectedCategory.value) {
+    news = news.filter(n => n.category === selectedCategory.value)
+  }
+
+  // Sort
+  if (sortBy.value === 'newest') {
+    news = news.sort((a, b) => new Date(b.date) - new Date(a.date))
+  } else if (sortBy.value === 'oldest') {
+    news = news.sort((a, b) => new Date(a.date) - new Date(b.date))
+  } else if (sortBy.value === 'popular') {
+    news = news.sort((a, b) => b.views - a.views)
+  }
+
+  return news
+})
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+}
+
+const getCategoryName = (category) => {
+  const names = {
+    company: 'Компания',
+    products: 'Продукты',
+    events: 'Мероприятия',
+    tech: 'Технологии'
+  }
+  return names[category] || category
+}
+
+const getCategoryColor = (category) => {
+  const colors = {
+    company: 'bg-blue-500',
+    products: 'bg-green-500',
+    events: 'bg-purple-500',
+    tech: 'bg-orange-500'
+  }
+  return colors[category] || 'bg-gray-500'
+}
+
+const loadMore = async () => {
+  loading.value = true
+  // Simulate API call
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  loading.value = false
+  hasMore.value = false
+}
+
+const subscribe = () => {
+  if (email.value) {
+    alert(`Спасибо за подписку! Письмо отправлено на ${email.value}`)
+    email.value = ''
+  }
+}
+</script>
+
+<style scoped>
+/* News Icon Animation */
+.news-icon-animation {
+  animation: float-news 10s ease-in-out infinite;
+}
+
+@keyframes float-news {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(20px, -20px) rotate(90deg); }
+  50% { transform: translate(-10px, 10px) rotate(180deg); }
+  75% { transform: translate(15px, -15px) rotate(270deg); }
+}
+
+/* Featured News Card */
+.featured-news-card {
+  @apply bg-white rounded-2xl shadow-2xl overflow-hidden;
+  @apply transform transition-all duration-500;
+  @apply hover:shadow-3xl hover:-translate-y-2;
+}
+
+/* News Card */
+.news-card {
+  @apply bg-white rounded-2xl shadow-lg overflow-hidden;
+  @apply transform transition-all duration-300;
+  @apply hover:shadow-2xl hover:-translate-y-2;
+  opacity: 0;
+  animation: fade-in-up 0.6s ease forwards;
+}
+
+/* Premium Button */
+.premium-button {
+  @apply inline-flex items-center justify-center px-8 py-4;
+  @apply bg-gradient-to-r from-blue-600 to-purple-600;
+  @apply text-white font-bold rounded-xl;
+  @apply hover:from-blue-700 hover:to-purple-700;
+  @apply transition-all duration-300 hover:scale-105;
+  @apply shadow-lg hover:shadow-xl;
+}
+
+.premium-button-outline {
+  @apply inline-flex items-center justify-center px-8 py-4;
+  @apply bg-transparent text-gray-700 font-bold rounded-xl;
+  @apply border-2 border-gray-300 hover:bg-gray-50;
+  @apply transition-all duration-300 hover:scale-105;
+}
+
+/* Animations */
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease forwards;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.6s ease forwards;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animation-delay-1 { animation-delay: 0.1s; }
+.animation-delay-2 { animation-delay: 0.2s; }
+
+/* Float Animation */
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(30px, -30px) rotate(120deg); }
+  66% { transform: translate(-20px, 20px) rotate(240deg); }
+}
+
+.animate-float {
+  animation: float 20s ease-in-out infinite;
+}
+
+/* Line Clamp */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>
