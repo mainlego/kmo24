@@ -134,6 +134,14 @@
 
     <!-- Premium CTA Section -->
     <section class="premium-cta">
+      <div class="cta-background">
+        <img
+          src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=1920&q=80"
+          alt="Профессиональное кухонное оборудование"
+          class="cta-bg-image"
+        />
+        <div class="cta-overlay"></div>
+      </div>
       <div class="cta-gradient-orbs"></div>
       <div class="container">
         <div class="premium-cta-content">
@@ -786,13 +794,36 @@ onUnmounted(() => {
 // Premium CTA Section
 .premium-cta {
   padding: 8rem 0;
-  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #dc2626 100%);
   position: relative;
   overflow: hidden;
 
   @media (max-width: $breakpoint-md) {
     padding: 5rem 0;
   }
+}
+
+.cta-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  .cta-bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+}
+
+.cta-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+    rgba(245, 158, 11, 0.92) 0%,
+    rgba(234, 88, 12, 0.9) 50%,
+    rgba(220, 38, 38, 0.88) 100%
+  );
+  backdrop-filter: blur(2px);
 }
 
 .cta-gradient-orbs {

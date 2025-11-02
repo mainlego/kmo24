@@ -128,6 +128,7 @@ const userInitials = computed(() => {
 const pageTitle = computed(() => {
   const path = route.path;
   if (path === '/admin') return 'Дашборд';
+  if (path.includes('/crm')) return 'CRM';
   if (path.includes('/products')) return 'Товары';
   if (path.includes('/orders')) return 'Заказы';
   if (path.includes('/users')) return 'Пользователи';
@@ -143,6 +144,12 @@ const navigation = [
     label: 'Дашборд',
     path: '/admin',
     icon: 'IconDashboard',
+  },
+  {
+    label: 'CRM',
+    path: '/admin/crm',
+    icon: 'IconCRM',
+    badge: '38',
   },
   {
     label: 'Товары',
