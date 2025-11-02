@@ -7,12 +7,12 @@
         <p class="page-subtitle">Отслеживание лидов и сделок</p>
       </div>
       <div class="header-actions">
-        <button class="btn btn-secondary" @click="showFilters = !showFilters">
+        <NuxtLink to="/admin/crm/kanban" class="btn btn-secondary">
           <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
           </svg>
-          Фильтры
-        </button>
+          Канбан
+        </NuxtLink>
         <button class="btn btn-primary" @click="openLeadModal">
           <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -270,6 +270,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useCRMStore } from '~/stores/crm';
 import { useToast } from '~/composables/useToast';
 
 definePageMeta({
@@ -277,6 +278,7 @@ definePageMeta({
   middleware: ['auth', 'admin'],
 });
 
+const crmStore = useCRMStore();
 const { success, error } = useToast();
 
 // Data
@@ -286,109 +288,20 @@ const showFilters = ref(false);
 const currentPage = ref(1);
 const itemsPerPage = 10;
 
-// Stats
-const stats = ref({
-  totalLeads: 124,
-  activeDeals: 38,
-  totalValue: 4850000,
-  conversionRate: 32,
-});
+// Stats from store
+const stats = computed(() => ({
+  totalLeads: crmStore.totalLeads,
+  activeDeals: crmStore.activeDeals,
+  totalValue: crmStore.totalValue,
+  conversionRate: crmStore.conversionRate,
+}));
 
-// Sales Funnel
-const salesFunnel = ref([
-  { id: 1, name: 'Новые лиды', count: 124, value: 8200000 },
-  { id: 2, name: 'Контакт установлен', count: 89, value: 6100000 },
-  { id: 3, name: 'Квалифицированы', count: 62, value: 5300000 },
-  { id: 4, name: 'Предложение отправлено', count: 38, value: 4850000 },
-  { id: 5, name: 'Переговоры', count: 24, value: 3200000 },
-  { id: 6, name: 'Успешно закрыто', count: 18, value: 2400000 },
-]);
-
-// Mock Leads Data
-const leads = ref([
-  {
-    id: '1',
-    name: 'Алексей Петров',
-    email: 'petrov@restaurant.ru',
-    phone: '+7 (923) 456-78-90',
-    company: 'Ресторан "Вкусно"',
-    companyType: 'Ресторан',
-    dealValue: 450000,
-    status: 'qualified',
-    manager: 'Иван Менеджеров',
-    createdAt: '2025-10-25T10:30:00',
-    notes: 'Интересует профессиональная печь для пиццы',
-  },
-  {
-    id: '2',
-    name: 'Мария Иванова',
-    email: 'ivanova@cafe24.ru',
-    phone: '+7 (923) 123-45-67',
-    company: 'Кафе "24 часа"',
-    companyType: 'Кафе',
-    dealValue: 280000,
-    status: 'proposal',
-    manager: 'Иван Менеджеров',
-    createdAt: '2025-10-28T14:20:00',
-    notes: 'Нужен холодильный шкаф',
-  },
-  {
-    id: '3',
-    name: 'Сергей Козлов',
-    email: 'kozlov@bakery.ru',
-    phone: '+7 (923) 789-01-23',
-    company: 'Пекарня "Свежий хлеб"',
-    companyType: 'Пекарня',
-    dealValue: 620000,
-    status: 'negotiation',
-    manager: 'Менеджер Менеджеров',
-    createdAt: '2025-10-15T09:15:00',
-    notes: 'Ищет подовую печь',
-  },
-  {
-    id: '4',
-    name: 'Ольга Смирнова',
-    email: 'smirnova@bar.ru',
-    phone: '+7 (923) 456-12-34',
-    company: 'Бар "Веселый вечер"',
-    companyType: 'Бар',
-    dealValue: 180000,
-    status: 'contacted',
-    manager: 'Иван Менеджеров',
-    createdAt: '2025-10-30T16:45:00',
-    notes: 'Требуется барное оборудование',
-  },
-  {
-    id: '5',
-    name: 'Дмитрий Волков',
-    email: 'volkov@hotel.ru',
-    phone: '+7 (923) 567-89-01',
-    company: 'Отель "Комфорт"',
-    companyType: 'Отель',
-    dealValue: 850000,
-    status: 'won',
-    manager: 'Менеджер Менеджеров',
-    createdAt: '2025-09-20T11:00:00',
-    notes: 'Куплено оборудование для ресторана отеля',
-  },
-  {
-    id: '6',
-    name: 'Елена Новикова',
-    email: 'novikova@catering.ru',
-    phone: '+7 (923) 234-56-78',
-    company: 'Кейтеринг "Праздник"',
-    companyType: 'Кейтеринг',
-    dealValue: 320000,
-    status: 'new',
-    manager: 'Иван Менеджеров',
-    createdAt: '2025-11-01T13:30:00',
-    notes: 'Запрос на мобильное оборудование',
-  },
-]);
+// Sales Funnel from store
+const salesFunnel = computed(() => crmStore.salesFunnel);
 
 // Computed
 const filteredLeads = computed(() => {
-  let result = [...leads.value];
+  let result = [...crmStore.leads];
 
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
@@ -475,11 +388,8 @@ const viewLeadDetails = (lead: any) => {
 
 const deleteLead = (lead: any) => {
   if (confirm(`Удалить лида "${lead.name}"?`)) {
-    const index = leads.value.findIndex((l) => l.id === lead.id);
-    if (index !== -1) {
-      leads.value.splice(index, 1);
-      success('Лид успешно удален');
-    }
+    crmStore.deleteLead(lead.id);
+    success('Лид успешно удален');
   }
 };
 </script>

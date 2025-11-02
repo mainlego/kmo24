@@ -155,7 +155,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useCRMStore } from '~/stores/crm';
 
 definePageMeta({
   layout: 'admin',
@@ -169,41 +170,44 @@ useHead({
 const chartPeriod = ref('30');
 const loadingOrders = ref(false);
 
-// Mock data - в будущем заменить на реальные API запросы
-const stats = [
+// Import CRM store
+const crmStore = useCRMStore();
+
+// Stats with CRM data
+const stats = computed(() => [
   {
     id: 1,
-    label: 'Заказы за месяц',
-    value: '156',
+    label: 'Активные сделки',
+    value: String(crmStore.activeDeals),
     change: 12.5,
     color: 'blue',
     icon: 'IconOrders',
   },
   {
     id: 2,
-    label: 'Выручка',
-    value: '₽ 1,245,000',
-    change: 8.2,
+    label: 'Сумма сделок',
+    value: formatPrice(crmStore.totalValue),
+    change: 23.0,
     color: 'green',
     icon: 'IconRevenue',
   },
   {
     id: 3,
-    label: 'Новые клиенты',
-    value: '42',
-    change: -3.1,
+    label: 'Всего лидов',
+    value: String(crmStore.totalLeads),
+    change: 15.2,
     color: 'purple',
     icon: 'IconUsers',
   },
   {
     id: 4,
-    label: 'Товары в наличии',
-    value: '284',
-    change: 5.7,
+    label: 'Конверсия',
+    value: `${crmStore.conversionRate}%`,
+    change: 5.0,
     color: 'orange',
     icon: 'IconProducts',
   },
-];
+]);
 
 const recentOrders = ref([
   { id: 1, orderNumber: 'ORD-2024-001', customer: 'Иван Петров', total: 125000, status: 'pending' },
