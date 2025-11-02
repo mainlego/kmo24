@@ -82,6 +82,69 @@
       </div>
     </div>
 
+    <!-- CRM Section -->
+    <div class="crm-section">
+      <div class="card">
+        <div class="card-header">
+          <h3>Воронка продаж CRM</h3>
+          <NuxtLink to="/admin/crm/kanban" class="view-all-link">
+            Открыть Канбан
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+          </NuxtLink>
+        </div>
+        <div class="card-body">
+          <div class="funnel-stages">
+            <div
+              v-for="(stage, index) in crmStore.salesFunnel"
+              :key="stage.id"
+              class="funnel-stage-mini"
+              :class="`stage-${index + 1}`"
+            >
+              <div class="stage-label">{{ stage.name }}</div>
+              <div class="stage-stats">
+                <span class="stage-count">{{ stage.count }}</span>
+                <span class="stage-value">{{ formatPrice(stage.value) }}</span>
+              </div>
+              <div class="stage-bar" :style="{ width: `${(stage.count / crmStore.salesFunnel[0].count) * 100}%` }"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Недавние лиды</h3>
+          <NuxtLink to="/admin/crm" class="view-all-link">
+            Все лиды
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+          </NuxtLink>
+        </div>
+        <div class="card-body">
+          <div class="leads-list">
+            <div v-for="lead in recentLeads" :key="lead.id" class="lead-item">
+              <div class="lead-info">
+                <div class="lead-avatar">{{ getInitials(lead.name) }}</div>
+                <div class="lead-details">
+                  <p class="lead-name">{{ lead.name }}</p>
+                  <p class="lead-company">{{ lead.company }}</p>
+                </div>
+              </div>
+              <div class="lead-meta">
+                <span class="lead-value">{{ formatPrice(lead.dealValue) }}</span>
+                <span class="lead-status" :class="`status-${lead.status}`">
+                  {{ getLeadStatusLabel(lead.status) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Products and Reviews -->
     <div class="content-grid">
       <!-- Top Products -->
@@ -230,6 +293,13 @@ const recentReviews = ref([
   { id: 3, author: 'Алексей Иванов', rating: 5, text: 'Рекомендую! Профессиональный подход.', status: 'approved' },
 ]);
 
+// Recent leads from CRM
+const recentLeads = computed(() => {
+  return [...crmStore.leads]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
+});
+
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('ru-RU', {
     style: 'currency',
@@ -245,6 +315,19 @@ const getStatusLabel = (status: string) => {
     completed: 'Выполнен',
     shipped: 'Отправлен',
     cancelled: 'Отменен',
+  };
+  return labels[status] || status;
+};
+
+const getLeadStatusLabel = (status: string) => {
+  const labels: Record<string, string> = {
+    new: 'Новый',
+    contacted: 'Контакт',
+    qualified: 'Квалифицирован',
+    proposal: 'Предложение',
+    negotiation: 'Переговоры',
+    won: 'Успех',
+    lost: 'Проигран',
   };
   return labels[status] || status;
 };
@@ -375,6 +458,175 @@ const getInitials = (name: string) => {
     color: #6b7280;
     margin-left: 0.25rem;
   }
+}
+
+// CRM Section
+.crm-section {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.funnel-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.funnel-stage-mini {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border-left: 4px solid;
+  transition: all 0.2s;
+
+  &:hover {
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  &.stage-1 { border-left-color: #3b82f6; }
+  &.stage-2 { border-left-color: #8b5cf6; }
+  &.stage-3 { border-left-color: #f59e0b; }
+  &.stage-4 { border-left-color: #ec4899; }
+  &.stage-5 { border-left-color: #a855f7; }
+  &.stage-6 { border-left-color: #10b981; }
+}
+
+.stage-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.stage-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.stage-count {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.stage-value {
+  font-size: 0.875rem;
+  color: #10b981;
+  font-weight: 600;
+}
+
+.stage-bar {
+  height: 6px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.leads-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lead-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f3f4f6;
+    transform: translateX(4px);
+  }
+}
+
+.lead-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.lead-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.lead-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.lead-name {
+  font-weight: 600;
+  color: #111827;
+  font-size: 0.875rem;
+  margin: 0 0 0.125rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lead-company {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lead-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.lead-value {
+  font-weight: 700;
+  color: #10b981;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.lead-status {
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.status-new { background: #dbeafe; color: #1e40af; }
+  &.status-contacted { background: #e0e7ff; color: #4338ca; }
+  &.status-qualified { background: #fef3c7; color: #92400e; }
+  &.status-proposal { background: #fce7f3; color: #9f1239; }
+  &.status-negotiation { background: #f3e8ff; color: #6b21a8; }
+  &.status-won { background: #d1fae5; color: #065f46; }
+  &.status-lost { background: #fee2e2; color: #991b1b; }
 }
 
 .content-grid {
