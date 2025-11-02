@@ -1,0 +1,630 @@
+<template>
+  <div class="contacts-page">
+    <!-- Hero Section -->
+    <section class="contacts-hero">
+      <div class="hero-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-mesh"></div>
+      </div>
+      <div class="container">
+        <div class="hero-content">
+          <h1 class="hero-title">Свяжитесь с нами</h1>
+          <p class="hero-subtitle">
+            Мы всегда рады помочь подобрать оборудование для вашего бизнеса
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="contacts-content">
+      <div class="container">
+        <div class="contacts-grid">
+          <!-- Contact Form -->
+          <div class="contact-form-wrapper">
+            <div class="form-header">
+              <h2 class="form-title">Напишите нам</h2>
+              <p class="form-subtitle">Ответим в течение 1 часа в рабочее время</p>
+            </div>
+
+            <form @submit.prevent="handleSubmit" class="contact-form">
+              <div class="form-group">
+                <label for="name" class="form-label">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  Ваше имя
+                </label>
+                <input
+                  id="name"
+                  v-model="form.name"
+                  type="text"
+                  class="form-input"
+                  placeholder="Иван Иванов"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="phone" class="form-label">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                  Телефон
+                </label>
+                <input
+                  id="phone"
+                  v-model="form.phone"
+                  type="tel"
+                  class="form-input"
+                  placeholder="+7 (___) ___-__-__"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="email" class="form-label">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                  Email
+                </label>
+                <input
+                  id="email"
+                  v-model="form.email"
+                  type="email"
+                  class="form-input"
+                  placeholder="your@email.com"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="message" class="form-label">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  Сообщение
+                </label>
+                <textarea
+                  id="message"
+                  v-model="form.message"
+                  class="form-textarea"
+                  rows="5"
+                  placeholder="Расскажите, какое оборудование вас интересует..."
+                  required
+                ></textarea>
+              </div>
+
+              <button type="submit" class="submit-btn" :disabled="loading">
+                <span v-if="!loading">
+                  Отправить сообщение
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                  </svg>
+                </span>
+                <span v-else class="loading-text">
+                  Отправка...
+                </span>
+              </button>
+
+              <p v-if="success" class="success-message">
+                ✓ Сообщение отправлено! Мы свяжемся с вами в ближайшее время.
+              </p>
+            </form>
+          </div>
+
+          <!-- Contact Info -->
+          <div class="contact-info">
+            <!-- Address Card -->
+            <div class="info-card">
+              <div class="card-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+              </div>
+              <h3 class="card-title">Адрес</h3>
+              <p class="card-text">
+                г. Красноярск<br>
+                ул. Примерная, д. 123<br>
+                офис 456
+              </p>
+            </div>
+
+            <!-- Phone Card -->
+            <div class="info-card">
+              <div class="card-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+              </div>
+              <h3 class="card-title">Телефон</h3>
+              <p class="card-text">
+                <a href="tel:+73912345678" class="contact-link">+7 (391) 234-56-78</a><br>
+                <a href="tel:+79231234567" class="contact-link">+7 (923) 123-45-67</a>
+              </p>
+            </div>
+
+            <!-- Email Card -->
+            <div class="info-card">
+              <div class="card-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </div>
+              <h3 class="card-title">Email</h3>
+              <p class="card-text">
+                <a href="mailto:info@kmo24.ru" class="contact-link">info@kmo24.ru</a><br>
+                <a href="mailto:sales@kmo24.ru" class="contact-link">sales@kmo24.ru</a>
+              </p>
+            </div>
+
+            <!-- Working Hours Card -->
+            <div class="info-card">
+              <div class="card-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <h3 class="card-title">Режим работы</h3>
+              <p class="card-text">
+                Пн-Пт: 9:00 - 18:00<br>
+                Сб: 10:00 - 15:00<br>
+                Вс: выходной
+              </p>
+            </div>
+
+            <!-- Social Media -->
+            <div class="social-links">
+              <a href="#" class="social-link" aria-label="WhatsApp">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+              </a>
+              <a href="#" class="social-link" aria-label="Telegram">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                </svg>
+              </a>
+              <a href="#" class="social-link" aria-label="VK">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.391 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.864-.525-2.05-1.727-1.033-1-1.49-1.135-1.744-1.135-.356 0-.458.102-.458.593v1.575c0 .424-.135.678-1.253.678-1.846 0-3.896-1.118-5.335-3.202C4.624 10.857 4.03 8.57 4.03 8.096c0-.254.102-.491.593-.491h1.744c.44 0 .61.203.78.677.863 2.49 2.303 4.675 2.896 4.675.22 0 .322-.102.322-.66V9.721c-.068-1.186-.695-1.287-.695-1.71 0-.204.17-.407.44-.407h2.744c.373 0 .508.203.508.644v3.473c0 .372.17.508.271.508.22 0 .407-.136.813-.542 1.254-1.406 2.151-3.574 2.151-3.574.119-.254.322-.491.763-.491h1.744c.525 0 .644.27.525.643-.22 1.017-2.354 4.031-2.354 4.031-.186.305-.254.44 0 .78.186.254.796.78 1.203 1.253.745.847 1.32 1.558 1.473 2.05.17.49-.085.744-.576.744z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="map-section">
+          <div class="map-placeholder">
+            <div class="map-icon">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+            </div>
+            <p>Интерактивная карта</p>
+            <small>г. Красноярск, ул. Примерная, д. 123</small>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+
+useHead({
+  title: 'Контакты - КМО24',
+  meta: [
+    {
+      name: 'description',
+      content: 'Свяжитесь с нами для подбора оборудования. Телефон, email, адрес офиса в Красноярске.',
+    },
+  ],
+});
+
+const form = ref({
+  name: '',
+  phone: '',
+  email: '',
+  message: '',
+});
+
+const loading = ref(false);
+const success = ref(false);
+
+const handleSubmit = async () => {
+  loading.value = true;
+  success.value = false;
+
+  // Simulate API call
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+
+  loading.value = false;
+  success.value = true;
+
+  // Reset form
+  setTimeout(() => {
+    form.value = {
+      name: '',
+      phone: '',
+      email: '',
+      message: '',
+    };
+    success.value = false;
+  }, 3000);
+};
+</script>
+
+<style scoped lang="scss">
+@use 'assets/scss/variables' as *;
+
+.contacts-page {
+  min-height: 100vh;
+}
+
+// Hero Section
+.contacts-hero {
+  position: relative;
+  padding: 8rem 0 4rem;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  @media (max-width: $breakpoint-md) {
+    padding: 6rem 0 3rem;
+  }
+}
+
+.hero-background {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.gradient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  animation: float 15s ease-in-out infinite;
+
+  &.orb-1 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.8) 0%, transparent 70%);
+    top: -20%;
+    right: -10%;
+  }
+
+  &.orb-2 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.8) 0%, transparent 70%);
+    bottom: -30%;
+    left: -15%;
+    animation-delay: -7s;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.05);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.95);
+  }
+}
+
+.gradient-mesh {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: $white;
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-lg;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  opacity: 0.95;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+// Main Content
+.contacts-content {
+  padding: 4rem 0;
+  background: $gray-50;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 3rem 0;
+  }
+}
+
+.contacts-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: $spacing-3xl;
+  margin-bottom: $spacing-3xl;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+    gap: $spacing-2xl;
+  }
+}
+
+// Contact Form
+.contact-form-wrapper {
+  background: $white;
+  padding: $spacing-3xl;
+  border-radius: $radius-2xl;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $spacing-2xl;
+  }
+}
+
+.form-header {
+  margin-bottom: $spacing-2xl;
+}
+
+.form-title {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $gray-900;
+  margin-bottom: $spacing-sm;
+}
+
+.form-subtitle {
+  color: $gray-600;
+  font-size: $font-size-base;
+}
+
+.contact-form {
+  .form-group {
+    margin-bottom: $spacing-xl;
+  }
+
+  .form-label {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-weight: $font-weight-medium;
+    color: $gray-700;
+    margin-bottom: $spacing-sm;
+    font-size: $font-size-sm;
+
+    svg {
+      color: #6366f1;
+    }
+  }
+
+  .form-input,
+  .form-textarea {
+    width: 100%;
+    padding: $spacing-md;
+    border: 2px solid $gray-200;
+    border-radius: $radius-lg;
+    font-size: $font-size-base;
+    transition: all 0.3s ease;
+    font-family: inherit;
+
+    &:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    &::placeholder {
+      color: $gray-400;
+    }
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: $spacing-md $spacing-xl;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+    color: $white;
+    border: none;
+    border-radius: $radius-lg;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    svg {
+      transition: transform 0.3s ease;
+    }
+
+    &:hover:not(:disabled) svg {
+      transform: translateX(4px);
+    }
+  }
+
+  .success-message {
+    margin-top: $spacing-lg;
+    padding: $spacing-md;
+    background: #d1fae5;
+    color: #065f46;
+    border-radius: $radius-lg;
+    text-align: center;
+    font-weight: $font-weight-medium;
+  }
+}
+
+// Contact Info
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.info-card {
+  background: $white;
+  padding: $spacing-2xl;
+  border-radius: $radius-xl;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.15);
+
+    .card-icon {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+    }
+  }
+}
+
+.card-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: $radius-xl;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  color: $white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-lg;
+  transition: all 0.3s ease;
+
+  svg {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  }
+}
+
+.card-title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $gray-900;
+  margin-bottom: $spacing-sm;
+}
+
+.card-text {
+  color: $gray-600;
+  line-height: $line-height-relaxed;
+  margin: 0;
+}
+
+.contact-link {
+  color: #6366f1;
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #8b5cf6;
+    text-decoration: underline;
+  }
+}
+
+// Social Links
+.social-links {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.social-link {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: $white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px) scale(1.1);
+    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.4);
+  }
+}
+
+// Map Section
+.map-section {
+  background: $white;
+  border-radius: $radius-2xl;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+}
+
+.map-placeholder {
+  height: 400px;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: $gray-600;
+  gap: $spacing-md;
+
+  .map-icon {
+    color: #6366f1;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-medium;
+    margin: 0;
+  }
+
+  small {
+    color: $gray-500;
+  }
+}
+
+.container {
+  max-width: $container-max-width;
+  margin: 0 auto;
+  padding: 0 $container-padding;
+}
+</style>
