@@ -206,6 +206,20 @@
           </div>
         </div>
       </div>
+
+      <!-- Sticky Add to Cart -->
+      <ProductStickyAddToCart
+        v-if="product"
+        :product="{
+          _id: product._id,
+          name: product.name,
+          price: product.price,
+          oldPrice: product.oldPrice,
+          stock: product.stock.quantity,
+          images: product.images
+        }"
+        :scroll-threshold="400"
+      />
     </div>
   </div>
 </template>
