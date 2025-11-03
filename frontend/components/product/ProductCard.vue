@@ -32,6 +32,19 @@
           </svg>
         </div>
         <div class="product-card__image-overlay"></div>
+
+        <!-- Quick View Button -->
+        <button
+          class="product-card__quick-view"
+          @click.stop="openQuickView"
+          aria-label="Быстрый просмотр"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Быстрый просмотр
+        </button>
       </div>
     </template>
 
@@ -145,6 +158,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const emit = defineEmits(['openQuickView']);
 
 const router = useRouter();
 const cartStore = useCartStore();
@@ -222,6 +236,10 @@ const toggleFavorite = async () => {
   } catch (error) {
     console.error('Error toggling favorite:', error);
   }
+};
+
+const openQuickView = () => {
+  emit('openQuickView', props.product);
 };
 </script>
 
@@ -577,5 +595,62 @@ const toggleFavorite = async () => {
     rgba($black, 0.05) 100%
   );
   pointer-events: none;
+}
+
+// Quick View Button
+.product-card__quick-view {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-lg;
+  background: rgba($white, 0.95);
+  backdrop-filter: blur(12px);
+  border: 2px solid transparent;
+  border-radius: $radius-full;
+  color: $primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-slow $transition-ease;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+  box-shadow: $shadow-xl;
+
+  svg {
+    transition: transform $transition-base $transition-ease;
+  }
+
+  &:hover {
+    background: $gradient-primary;
+    color: $white;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: $shadow-2xl, $shadow-glow;
+
+    svg {
+      transform: scale(1.1);
+    }
+  }
+
+  .product-card:hover & {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  @media (max-width: $breakpoint-md) {
+    font-size: $font-size-xs;
+    padding: $spacing-xs $spacing-md;
+    gap: $spacing-xs;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
 }
 </style>

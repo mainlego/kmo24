@@ -41,8 +41,16 @@
         v-for="product in products"
         :key="product._id"
         :product="product"
+        @open-quick-view="handleOpenQuickView"
       />
     </div>
+
+    <!-- Quick View Modal -->
+    <ProductQuickView
+      :is-open="isQuickViewOpen"
+      :product="selectedProduct"
+      @close="handleCloseQuickView"
+    />
 
     <!-- Pagination -->
     <div v-if="showPagination && pagination" class="product-grid__pagination">
@@ -75,6 +83,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import type { Product, PaginatedResponse } from '~/types';
 
 interface Props {
@@ -100,6 +109,22 @@ const emit = defineEmits<{
   prevPage: [];
   reset: [];
 }>();
+
+// Quick View state
+const isQuickViewOpen = ref(false);
+const selectedProduct = ref<Product | null>(null);
+
+const handleOpenQuickView = (product: Product) => {
+  selectedProduct.value = product;
+  isQuickViewOpen.value = true;
+};
+
+const handleCloseQuickView = () => {
+  isQuickViewOpen.value = false;
+  setTimeout(() => {
+    selectedProduct.value = null;
+  }, 300); // Delay to allow modal transition
+};
 
 const handlePrevPage = () => {
   emit('prevPage');
