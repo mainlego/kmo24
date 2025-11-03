@@ -421,7 +421,7 @@ onUnmounted(() => {
 
     &:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: $shadow-colored-lg;
+      box-shadow: $shadow-2xl, $shadow-colored;
     }
 
     &:active:not(:disabled) {
