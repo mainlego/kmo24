@@ -364,6 +364,12 @@ useHead({
     margin-bottom: $spacing-xl;
     font-size: $font-size-sm;
     color: $gray-600;
+    flex-wrap: wrap;
+
+    @media (max-width: $breakpoint-md) {
+      margin-bottom: $spacing-lg;
+      font-size: $font-size-xs;
+    }
 
     a {
       color: $primary;
@@ -481,6 +487,15 @@ useHead({
     padding: $spacing-xl;
     border-radius: $radius-xl;
     box-shadow: $shadow-sm;
+
+    @media (max-width: $breakpoint-md) {
+      padding: $spacing-lg;
+      gap: $spacing-md;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      padding: $spacing-md;
+    }
   }
 
   &__title {
@@ -489,6 +504,14 @@ useHead({
     color: $gray-900;
     margin: 0;
     line-height: 1.2;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: $font-size-2xl;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: $font-size-xl;
+    }
   }
 
   &__rating {
@@ -540,6 +563,14 @@ useHead({
     font-size: $font-size-3xl;
     font-weight: $font-weight-bold;
     color: $primary;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: $font-size-2xl;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: $font-size-xl;
+    }
   }
 
   &__short-description {
@@ -656,6 +687,16 @@ useHead({
   &__tabs-header {
     display: flex;
     border-bottom: 1px solid $gray-200;
+    overflow-x: auto;
+
+    @media (max-width: $breakpoint-sm) {
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
   }
 
   &__tab {
@@ -669,6 +710,17 @@ useHead({
     cursor: pointer;
     transition: all $transition-base;
     position: relative;
+    white-space: nowrap;
+
+    @media (max-width: $breakpoint-md) {
+      padding: $spacing-md;
+      font-size: $font-size-sm;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      flex: 0 0 auto;
+      min-width: 120px;
+    }
 
     &:hover {
       color: $primary;
@@ -692,6 +744,14 @@ useHead({
 
   &__tabs-content {
     padding: $spacing-xl;
+
+    @media (max-width: $breakpoint-md) {
+      padding: $spacing-lg;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      padding: $spacing-md;
+    }
   }
 
   &__tab-panel {
@@ -722,6 +782,11 @@ useHead({
 
     td {
       padding: $spacing-md 0;
+
+      @media (max-width: $breakpoint-sm) {
+        padding: $spacing-sm 0;
+        font-size: $font-size-sm;
+      }
     }
   }
 
@@ -729,6 +794,10 @@ useHead({
     font-weight: $font-weight-medium;
     color: $gray-700;
     width: 40%;
+
+    @media (max-width: $breakpoint-sm) {
+      width: 35%;
+    }
   }
 
   &__spec-value {
@@ -748,6 +817,20 @@ useHead({
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: $spacing-xl;
+
+    @media (max-width: $breakpoint-lg) {
+      grid-template-columns: repeat(3, 1fr);
+      gap: $spacing-lg;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      grid-template-columns: 1fr;
+      gap: $spacing-md;
+    }
   }
 }
 
@@ -755,5 +838,13 @@ useHead({
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 $spacing-lg;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 0 $spacing-md;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 0 $spacing-sm;
+  }
 }
 </style>
