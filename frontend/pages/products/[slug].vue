@@ -316,6 +316,16 @@ onMounted(async () => {
       console.log('✅ Product found:', foundProduct.name);
       console.log('🖼️ Product images:', foundProduct.images);
 
+      // Add to recently viewed
+      const { addToRecentlyViewed } = useRecentlyViewed();
+      addToRecentlyViewed({
+        id: foundProduct._id,
+        slug: foundProduct.slug,
+        name: foundProduct.name,
+        price: foundProduct.price,
+        image: foundProduct.images[0]?.url || '/placeholder.jpg'
+      });
+
       // Get related products from the same category (excluding current product)
       relatedProducts.value = mockProducts
         .filter(p => p.category._id === foundProduct.category._id && p._id !== foundProduct._id)

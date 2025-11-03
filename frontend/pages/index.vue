@@ -241,6 +241,9 @@
       </div>
     </section>
 
+    <!-- Recently Viewed Products -->
+    <ProductRecentlyViewed />
+
     <!-- Testimonials / Social Proof -->
     <section class="testimonials-section">
       <div class="container">
