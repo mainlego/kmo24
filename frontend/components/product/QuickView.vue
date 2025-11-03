@@ -136,7 +136,6 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { useCart } from '~/composables/useCart';
 import { useToast } from '~/composables/useToast';
 
 interface Product {
@@ -162,7 +161,7 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits(['close']);
 
-const { addItem } = useCart();
+const cartStore = useCartStore();
 const { showToast } = useToast();
 
 const quantity = ref(1);
@@ -244,23 +243,25 @@ const decreaseQuantity = () => {
   }
 };
 
-const handleAddToCart = () => {
+const handleAddToCart = async () => {
   if (!props.product) return;
 
-  addItem({
-    id: props.product._id,
-    name: props.product.name,
-    price: props.product.price,
-    quantity: quantity.value,
-    image: props.product.images?.[0]?.url || '/placeholder.jpg'
-  });
+  try {
+    await cartStore.addItem(props.product._id, quantity.value);
 
-  showToast({
-    message: `${props.product.name} добавлен в корзину`,
-    type: 'success'
-  });
+    showToast({
+      message: `${props.product.name} добавлен в корзину`,
+      type: 'success'
+    });
 
-  close();
+    close();
+  } catch (error) {
+    showToast({
+      message: 'Ошибка при добавлении в корзину',
+      type: 'error'
+    });
+    console.error('Error adding to cart:', error);
+  }
 };
 </script>
 
