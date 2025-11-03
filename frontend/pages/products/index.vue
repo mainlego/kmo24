@@ -8,18 +8,109 @@
     />
 
     <div class="container">
+      <!-- Premium Stats Bar -->
       <div class="products-page__stats">
-        <p class="products-page__subtitle">
-          Найдено товаров: <strong>{{ productsStore.pagination.totalItems || 0 }}</strong>
-        </p>
-        <!-- Mobile Filter Button -->
-        <button class="mobile-filter-btn" @click="showMobileFilters = true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M3 4h18M3 12h12M3 20h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          <span>Фильтры</span>
-          <span v-if="hasActiveFilters" class="filter-badge">{{ activeFiltersCount }}</span>
-        </button>
+        <div class="stats-info">
+          <p class="products-page__subtitle">
+            Найдено товаров: <strong>{{ productsStore.pagination.totalItems || 0 }}</strong>
+          </p>
+
+          <!-- Active Filters Chips -->
+          <Transition name="slide-down">
+            <div v-if="hasActiveFilters" class="active-filters">
+              <span class="active-filters__label">Активные фильтры:</span>
+              <div class="active-filters__chips">
+                <button
+                  v-if="productsStore.filters.category"
+                  class="filter-chip"
+                  @click="removeFilter('category')"
+                >
+                  <span>{{ getCategoryName(productsStore.filters.category) }}</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </button>
+                <button
+                  v-if="productsStore.filters.search"
+                  class="filter-chip"
+                  @click="removeFilter('search')"
+                >
+                  <span>{{ productsStore.filters.search }}</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </button>
+                <button
+                  v-if="productsStore.filters.minPrice || productsStore.filters.maxPrice"
+                  class="filter-chip"
+                  @click="removeFilter('price')"
+                >
+                  <span>
+                    {{ productsStore.filters.minPrice || 0 }} ₽ - {{ productsStore.filters.maxPrice || '∞' }} ₽
+                  </span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </button>
+                <button
+                  v-if="productsStore.filters.inStock"
+                  class="filter-chip"
+                  @click="removeFilter('inStock')"
+                >
+                  <span>В наличии</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </button>
+                <button class="filter-chip filter-chip--reset" @click="handleReset">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M3 12H7M3 12L5 10M3 12L5 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>Сбросить все</span>
+                </button>
+              </div>
+            </div>
+          </Transition>
+        </div>
+
+        <div class="products-toolbar">
+          <!-- View Toggle -->
+          <div class="view-toggle">
+            <button
+              class="view-toggle__btn"
+              :class="{ 'view-toggle__btn--active': viewMode === 'grid' }"
+              @click="viewMode = 'grid'"
+              aria-label="Сетка"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <button
+              class="view-toggle__btn"
+              :class="{ 'view-toggle__btn--active': viewMode === 'list' }"
+              @click="viewMode = 'list'"
+              aria-label="Список"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M8 6H21M8 12H21M8 18H21M3 6H3.01M3 12H3.01M3 18H3.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Mobile Filter Button -->
+          <button class="mobile-filter-btn" @click="showMobileFilters = true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M3 4h18M3 12h12M3 20h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Фильтры</span>
+            <span v-if="hasActiveFilters" class="filter-badge">{{ activeFiltersCount }}</span>
+          </button>
+        </div>
       </div>
 
       <div class="products-page__layout">
@@ -44,7 +135,9 @@
         </aside>
 
         <!-- Mobile Filters Overlay -->
-        <div v-if="showMobileFilters" class="mobile-filter-overlay" @click="showMobileFilters = false"></div>
+        <Transition name="fade">
+          <div v-if="showMobileFilters" class="mobile-filter-overlay" @click="showMobileFilters = false"></div>
+        </Transition>
 
         <!-- Products Grid -->
         <main class="products-page__main">
@@ -52,6 +145,7 @@
             :products="productsStore.products"
             :is-loading="productsStore.isLoading"
             :pagination="productsStore.pagination"
+            :view-mode="viewMode"
             @next-page="productsStore.nextPage"
             @prev-page="productsStore.prevPage"
             @reset="handleReset"
@@ -74,6 +168,9 @@ const categories = ref(mockCategories);
 // Mobile filters state
 const showMobileFilters = ref(false);
 
+// View mode state
+const viewMode = ref<'grid' | 'list'>('grid');
+
 // Count active filters
 const hasActiveFilters = computed(() => {
   const f = productsStore.filters;
@@ -89,6 +186,33 @@ const activeFiltersCount = computed(() => {
   if (f.inStock) count++;
   return count;
 });
+
+const getCategoryName = (categoryId: string) => {
+  const category = categories.value.find(c => c._id === categoryId);
+  return category?.name || categoryId;
+};
+
+const removeFilter = async (filterType: string) => {
+  const updatedFilters = { ...productsStore.filters };
+
+  switch (filterType) {
+    case 'category':
+      delete updatedFilters.category;
+      break;
+    case 'search':
+      delete updatedFilters.search;
+      break;
+    case 'price':
+      delete updatedFilters.minPrice;
+      delete updatedFilters.maxPrice;
+      break;
+    case 'inStock':
+      delete updatedFilters.inStock;
+      break;
+  }
+
+  await productsStore.fetchProducts(updatedFilters);
+};
 
 const handleFiltersUpdate = async (filters: any) => {
   console.log('Filters updated:', filters);
@@ -168,6 +292,19 @@ useHead({
   }
 }
 
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+    transform: translateY(0);
+  }
+}
+
 .products-page {
   min-height: calc(100vh - 200px);
   padding: $spacing-2xl 0 $spacing-3xl;
@@ -203,16 +340,41 @@ useHead({
 
   &__stats {
     margin-bottom: $spacing-xl;
-    text-align: center;
     animation: fadeInUp 0.6s $transition-ease;
     position: relative;
     z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: $spacing-lg;
+    flex-wrap: wrap;
+
+    @media (max-width: $breakpoint-md) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  .stats-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .products-toolbar {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+
+    @media (max-width: $breakpoint-md) {
+      justify-content: space-between;
+      width: 100%;
+    }
   }
 
   &__subtitle {
     font-size: $font-size-lg;
     color: $gray-600;
-    margin: 0;
+    margin: 0 0 $spacing-md;
     font-weight: $font-weight-medium;
 
     strong {
@@ -299,6 +461,112 @@ useHead({
   &__main {
     @media (max-width: $breakpoint-md) {
       order: 1;
+    }
+  }
+}
+
+// Active Filters Chips
+.active-filters {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+  animation: slideDown 0.4s $transition-ease;
+  margin-top: $spacing-md;
+
+  &__label {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $gray-700;
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-xs;
+  }
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-md;
+  background: linear-gradient(135deg, rgba($primary, 0.1), rgba($secondary, 0.1));
+  border: 1px solid rgba($primary, 0.3);
+  border-radius: $radius-full;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $gray-800;
+  cursor: pointer;
+  transition: all $transition-base $transition-ease;
+
+  &:hover {
+    background: linear-gradient(135deg, rgba($primary, 0.15), rgba($secondary, 0.15));
+    border-color: rgba($primary, 0.5);
+    transform: translateY(-2px);
+    box-shadow: $shadow-sm;
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    opacity: 0.7;
+  }
+
+  &--reset {
+    background: linear-gradient(135deg, rgba($error, 0.1), rgba($error, 0.05));
+    border-color: rgba($error, 0.3);
+    color: $error;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba($error, 0.15), rgba($error, 0.1));
+      border-color: rgba($error, 0.5);
+    }
+  }
+}
+
+// View Toggle
+.view-toggle {
+  display: none;
+  background: $white;
+  border-radius: $radius-lg;
+  padding: 4px;
+  box-shadow: $shadow-sm;
+  border: 1px solid $gray-200;
+
+  @media (min-width: calc($breakpoint-md + 1px)) {
+    display: flex;
+    gap: 4px;
+  }
+
+  &__btn {
+    padding: $spacing-xs;
+    background: transparent;
+    border: none;
+    border-radius: $radius-md;
+    color: $gray-500;
+    cursor: pointer;
+    transition: all $transition-base $transition-ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      color: $primary;
+      background: rgba($primary, 0.05);
+    }
+
+    &--active {
+      background: $gradient-primary;
+      color: $white;
+      box-shadow: $shadow-sm;
+
+      &:hover {
+        background: $gradient-primary;
+        color: $white;
+      }
     }
   }
 }
@@ -449,17 +717,26 @@ useHead({
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 999;
-    animation: fadeIn 0.3s ease;
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+// Transitions
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.slide-down-enter-active {
+  animation: slideDown 0.4s $transition-ease;
+}
+
+.slide-down-leave-active {
+  animation: slideDown 0.4s $transition-ease reverse;
 }
 
 // Hide mobile elements on desktop
