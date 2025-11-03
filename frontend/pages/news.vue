@@ -477,7 +477,7 @@ const subscribe = () => {
 .featured-news-card {
   @apply bg-white rounded-2xl shadow-2xl overflow-hidden;
   @apply transform transition-all duration-500;
-  @apply hover:shadow-3xl hover:-translate-y-2;
+  @apply hover:shadow-2xl hover:-translate-y-2;
 }
 
 /* News Card */
