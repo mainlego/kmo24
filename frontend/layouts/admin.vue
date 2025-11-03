@@ -1,17 +1,17 @@
 <template>
   <div class="admin-layout">
     <!-- Sidebar -->
-    <aside class="admin-sidebar" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
+    <aside class="admin-sidebar" :class="{ 'sidebar-open': sidebarOpen, 'sidebar-closed': !sidebarOpen }">
       <div class="sidebar-header">
         <NuxtLink to="/admin" class="logo">
           <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
           </svg>
-          <span v-if="!sidebarCollapsed" class="logo-text">КМО24 Admin</span>
+          <span class="logo-text">КМО24 Admin</span>
         </NuxtLink>
-        <button class="sidebar-toggle" @click="toggleSidebar">
+        <button class="sidebar-close" @click="toggleSidebar">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
@@ -25,13 +25,13 @@
           :class="{ active: isActive(item.path) }"
         >
           <component :is="item.icon" class="nav-icon" />
-          <span v-if="!sidebarCollapsed" class="nav-text">{{ item.label }}</span>
-          <span v-if="item.badge && !sidebarCollapsed" class="nav-badge">{{ item.badge }}</span>
+          <span class="nav-text">{{ item.label }}</span>
+          <span v-if="item.badge" class="nav-badge">{{ item.badge }}</span>
         </NuxtLink>
       </nav>
 
       <div class="sidebar-footer">
-        <div v-if="!sidebarCollapsed" class="user-info">
+        <div class="user-info">
           <div class="user-avatar">
             <img v-if="user?.avatar" :src="user.avatar" :alt="user.fullName" />
             <span v-else>{{ userInitials }}</span>
@@ -41,11 +41,11 @@
             <p class="user-role">{{ user?.role === 'admin' ? 'Администратор' : 'Менеджер' }}</p>
           </div>
         </div>
-        <button class="logout-btn" @click="handleLogout" :title="sidebarCollapsed ? 'Выйти' : ''">
+        <button class="logout-btn" @click="handleLogout">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
-          <span v-if="!sidebarCollapsed">Выйти</span>
+          <span>Выйти</span>
         </button>
       </div>
     </aside>
@@ -89,7 +89,7 @@
 
     <!-- Mobile Overlay -->
     <div
-      v-if="sidebarCollapsed && isMobile"
+      v-if="sidebarOpen && isMobile"
       class="mobile-overlay"
       @click="toggleSidebar"
     ></div>
@@ -108,7 +108,7 @@ const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 
-const sidebarCollapsed = ref(false);
+const sidebarOpen = ref(false); // Changed: open/closed state for mobile
 const showNotifications = ref(false);
 const isMobile = ref(false);
 const notificationCount = ref(3);
@@ -192,7 +192,7 @@ const navigation = [
 ];
 
 const toggleSidebar = () => {
-  sidebarCollapsed.value = !sidebarCollapsed.value;
+  sidebarOpen.value = !sidebarOpen.value;
 };
 
 const isActive = (path: string) => {
@@ -210,13 +210,23 @@ const handleLogout = async () => {
 // Check mobile
 onMounted(() => {
   const checkMobile = () => {
-    isMobile.value = window.innerWidth < 768;
+    isMobile.value = window.innerWidth < 1024;
     if (isMobile.value) {
-      sidebarCollapsed.value = true;
+      sidebarOpen.value = false;
+    } else {
+      sidebarOpen.value = true;
     }
   };
   checkMobile();
   window.addEventListener('resize', checkMobile);
+
+  // Close sidebar when clicking on nav item on mobile
+  watch(() => route.path, () => {
+    if (isMobile.value) {
+      sidebarOpen.value = false;
+    }
+  });
+
   onUnmounted(() => window.removeEventListener('resize', checkMobile));
 });
 </script>
@@ -279,7 +289,7 @@ onMounted(() => {
   z-index: 40;
   display: flex;
   flex-direction: column;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   // Premium gradient background with animation
   background: linear-gradient(135deg,
@@ -322,33 +332,19 @@ onMounted(() => {
     z-index: 3;
   }
 
-  &.sidebar-collapsed {
-    width: 80px;
+  // Mobile: sidebar is hidden by default, shown when open
+  @media (max-width: 1023px) {
+    transform: translateX(-100%);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
 
-    .logo-text {
-      opacity: 0;
-      width: 0;
-    }
-
-    .nav-text,
-    .nav-badge {
-      opacity: 0;
-      width: 0;
-    }
-
-    .user-info,
-    .logout-btn span {
-      opacity: 0;
-    }
-
-    @media (max-width: 768px) {
-      transform: translateX(-100%);
+    &.sidebar-open {
+      transform: translateX(0);
     }
   }
 
-  @media (max-width: 768px) {
+  // Desktop: sidebar always visible
+  @media (min-width: 1024px) {
     transform: translateX(0);
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
   }
 }
 
@@ -395,7 +391,7 @@ onMounted(() => {
     }
   }
 
-  .sidebar-toggle {
+  .sidebar-close {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.12);
     color: white;
@@ -406,9 +402,9 @@ onMounted(() => {
     backdrop-filter: blur(10px);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 68, 68, 0.3);
       transform: rotate(90deg);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
     }
 
     svg {
@@ -417,7 +413,7 @@ onMounted(() => {
       display: block;
     }
 
-    @media (min-width: 769px) {
+    @media (min-width: 1024px) {
       display: none;
     }
   }
@@ -674,17 +670,16 @@ onMounted(() => {
 
 .admin-main {
   flex: 1;
-  margin-left: 280px;
-  transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 
-  .sidebar-collapsed ~ & {
-    margin-left: 80px;
+  @media (min-width: 1024px) {
+    margin-left: 280px;
+  }
 
-    @media (max-width: 768px) {
-      margin-left: 0;
-    }
+  @media (max-width: 1023px) {
+    margin-left: 0;
   }
 }
 
@@ -732,7 +727,7 @@ onMounted(() => {
         display: block;
       }
 
-      @media (min-width: 769px) {
+      @media (min-width: 1024px) {
         display: none;
       }
     }
@@ -746,8 +741,12 @@ onMounted(() => {
       -webkit-text-fill-color: transparent;
       background-clip: text;
 
-      @media (max-width: 768px) {
-        font-size: 1.375rem;
+      @media (max-width: 640px) {
+        font-size: 1.25rem;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 1.125rem;
       }
     }
   }
@@ -755,7 +754,11 @@ onMounted(() => {
   .header-right {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
+
+    @media (max-width: 640px) {
+      gap: 0.375rem;
+    }
 
     .header-btn {
       position: relative;
@@ -766,6 +769,10 @@ onMounted(() => {
       border-radius: 0.625rem;
       transition: all 0.3s ease;
       color: #6b7280;
+
+      @media (max-width: 640px) {
+        padding: 0.5rem;
+      }
 
       &:hover {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -783,6 +790,11 @@ onMounted(() => {
         width: 1.5rem;
         height: 1.5rem;
         display: block;
+
+        @media (max-width: 640px) {
+          width: 1.25rem;
+          height: 1.25rem;
+        }
       }
 
       .badge {
@@ -800,6 +812,13 @@ onMounted(() => {
         transition: transform 0.3s ease;
         min-width: 1.25rem;
         text-align: center;
+
+        @media (max-width: 640px) {
+          font-size: 0.5625rem;
+          padding: 0.125rem 0.3rem;
+          top: -2px;
+          right: -2px;
+        }
       }
     }
   }
@@ -811,8 +830,16 @@ onMounted(() => {
   overflow-y: auto;
   background: #f8f9fc;
 
-  @media (max-width: 768px) {
-    padding: 1.25rem;
+  @media (max-width: 1023px) {
+    padding: 1.5rem;
+  }
+
+  @media (max-width: 640px) {
+    padding: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.875rem;
   }
 
   // Custom scrollbar
@@ -851,7 +878,7 @@ onMounted(() => {
     }
   }
 
-  @media (min-width: 769px) {
+  @media (min-width: 1024px) {
     display: none;
   }
 }
