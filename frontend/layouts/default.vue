@@ -182,6 +182,9 @@
       </Transition>
     </Teleport>
 
+    <!-- Social Proof Notifications -->
+    <SocialProof :enabled="true" />
+
     <!-- Main Content -->
     <main class="main-content">
       <slot />
