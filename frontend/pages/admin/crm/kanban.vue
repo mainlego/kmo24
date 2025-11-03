@@ -4,7 +4,7 @@
     <div class="page-header">
       <div>
         <h1 class="page-title">CRM - Канбан доска</h1>
-        <p class="page-subtitle">Перетаскивайте сделки между этапами</p>
+        <p class="page-subtitle">Перетаскивайте сделки между этапами или доску для навигации</p>
       </div>
       <div class="header-actions">
         <NuxtLink to="/admin/crm" class="btn btn-secondary">
@@ -42,26 +42,48 @@
       </div>
     </div>
 
-    <!-- Kanban Board -->
-    <div class="kanban-board">
-      <div
-        v-for="stage in stages"
-        :key="stage.status"
-        class="kanban-column"
-        :class="`column-${stage.status}`"
-      >
-        <div class="column-header">
-          <h3 class="column-title">{{ stage.name }}</h3>
-          <span class="column-count">{{ getLeadsByStatus(stage.status).length }}</span>
+    <!-- Board Container with Hint -->
+    <div class="board-container">
+      <Transition name="fade">
+        <div v-if="!hasInteractedWithBoard" class="drag-hint">
+          <svg class="drag-hint-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+          </svg>
+          <span>Перетащите доску для навигации</span>
         </div>
+      </Transition>
 
+      <!-- Kanban Board -->
+      <div
+        ref="kanbanBoard"
+        class="kanban-board"
+        :class="{ 'is-dragging-board': isDraggingBoard }"
+        @mousedown="startBoardDrag"
+        @mousemove="onBoardDrag"
+        @mouseup="stopBoardDrag"
+        @mouseleave="stopBoardDrag"
+        @touchstart="startBoardDragTouch"
+        @touchmove="onBoardDragTouch"
+        @touchend="stopBoardDrag"
+      >
         <div
-          class="column-body"
-          @drop="handleDrop($event, stage.status)"
-          @dragover.prevent
-          @dragenter.prevent="handleDragEnter($event, stage.status)"
-          @dragleave="handleDragLeave($event)"
+          v-for="stage in stages"
+          :key="stage.status"
+          class="kanban-column"
+          :class="`column-${stage.status}`"
         >
+          <div class="column-header">
+            <h3 class="column-title">{{ stage.name }}</h3>
+            <span class="column-count">{{ getLeadsByStatus(stage.status).length }}</span>
+          </div>
+
+          <div
+            class="column-body"
+            @drop="handleDrop($event, stage.status)"
+            @dragover.prevent
+            @dragenter.prevent="handleDragEnter($event, stage.status)"
+            @dragleave="handleDragLeave($event)"
+          >
           <div
             v-for="lead in getLeadsByStatus(stage.status)"
             :key="lead.id"
@@ -107,6 +129,7 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
@@ -135,7 +158,85 @@ const stages = [
 const draggedLead = ref<Lead | null>(null);
 const draggedOverColumn = ref<Lead['status'] | null>(null);
 
+// Board drag-to-scroll
+const kanbanBoard = ref<HTMLElement | null>(null);
+const isDraggingBoard = ref(false);
+const boardDragStart = ref({ x: 0, scrollLeft: 0 });
+const hasInteractedWithBoard = ref(false);
+
 // Methods
+const startBoardDrag = (e: MouseEvent) => {
+  // Don't start board drag if we're dragging a card
+  if ((e.target as HTMLElement).closest('.lead-card')) {
+    return;
+  }
+
+  // Don't start if clicking on buttons or interactive elements
+  if ((e.target as HTMLElement).closest('button, a, input, select, textarea')) {
+    return;
+  }
+
+  const board = kanbanBoard.value;
+  if (!board) return;
+
+  isDraggingBoard.value = true;
+  hasInteractedWithBoard.value = true;
+  boardDragStart.value = {
+    x: e.pageX,
+    scrollLeft: board.scrollLeft,
+  };
+
+  e.preventDefault();
+};
+
+const onBoardDrag = (e: MouseEvent) => {
+  if (!isDraggingBoard.value) return;
+
+  const board = kanbanBoard.value;
+  if (!board) return;
+
+  const x = e.pageX;
+  const walk = (boardDragStart.value.x - x) * 1.5; // Multiply for faster scroll
+  board.scrollLeft = boardDragStart.value.scrollLeft + walk;
+};
+
+const stopBoardDrag = () => {
+  isDraggingBoard.value = false;
+};
+
+// Touch events for mobile
+const startBoardDragTouch = (e: TouchEvent) => {
+  // Don't start board drag if we're dragging a card
+  if ((e.target as HTMLElement).closest('.lead-card')) {
+    return;
+  }
+
+  const board = kanbanBoard.value;
+  if (!board) return;
+
+  const touch = e.touches[0];
+  isDraggingBoard.value = true;
+  hasInteractedWithBoard.value = true;
+  boardDragStart.value = {
+    x: touch.pageX,
+    scrollLeft: board.scrollLeft,
+  };
+};
+
+const onBoardDragTouch = (e: TouchEvent) => {
+  if (!isDraggingBoard.value) return;
+
+  const board = kanbanBoard.value;
+  if (!board) return;
+
+  const touch = e.touches[0];
+  const x = touch.pageX;
+  const walk = (boardDragStart.value.x - x) * 1.5;
+  board.scrollLeft = boardDragStart.value.scrollLeft + walk;
+
+  e.preventDefault();
+};
+
 const getLeadsByStatus = (status: Lead['status']) => {
   return crmStore.leadsByStatus(status);
 };
@@ -341,6 +442,64 @@ const openCardMenu = (lead: Lead) => {
   color: #111827;
 }
 
+// Board Container
+.board-container {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.drag-hint {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(59, 130, 246, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 0.5rem;
+  color: #3b82f6;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  z-index: 10;
+  pointer-events: none;
+  animation: fadeInOut 3s ease-in-out infinite;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.drag-hint-icon {
+  width: 1rem;
+  height: 1rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
 // Kanban Board
 .kanban-board {
   display: flex;
@@ -349,9 +508,40 @@ const openCardMenu = (lead: Lead) => {
   flex: 1;
   min-height: 0;
   padding-bottom: 1rem;
+  cursor: grab;
+  user-select: none;
+  scroll-behavior: smooth;
+
+  // Hide scrollbar but keep functionality
+  scrollbar-width: none; // Firefox
+  -ms-overflow-style: none; // IE/Edge
+
+  &::-webkit-scrollbar {
+    display: none; // Chrome/Safari
+  }
+
+  &.is-dragging-board {
+    cursor: grabbing;
+    scroll-behavior: auto;
+
+    .lead-card {
+      pointer-events: none;
+    }
+  }
 
   @media (max-width: 1024px) {
     padding-bottom: 2rem;
+    cursor: default; // On mobile, let native scroll behavior work
+  }
+
+  // Smooth momentum scrolling on mobile
+  @media (max-width: 768px) {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+
+    .kanban-column {
+      scroll-snap-align: start;
+    }
   }
 }
 
@@ -616,5 +806,16 @@ const openCardMenu = (lead: Lead) => {
 .empty-column p {
   margin: 0;
   font-size: 0.875rem;
+}
+
+// Transitions
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
