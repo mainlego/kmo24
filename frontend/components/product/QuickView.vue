@@ -145,7 +145,10 @@ interface Product {
   price: number;
   oldPrice?: number;
   stock: number;
-  description?: string;
+  description?: {
+    short?: string;
+    full?: string;
+  };
   category?: {
     name: string;
   };
@@ -210,11 +213,15 @@ const formatPrice = (price: number) => {
 
 const shortDescription = computed(() => {
   if (!props.product?.description) return '';
+
+  // description is an object with short and full properties
+  const desc = props.product.description.short || props.product.description.full || '';
   const maxLength = 200;
-  if (props.product.description.length <= maxLength) {
-    return props.product.description;
+
+  if (desc.length <= maxLength) {
+    return desc;
   }
-  return props.product.description.substring(0, maxLength) + '...';
+  return desc.substring(0, maxLength) + '...';
 });
 
 const stockStatusClass = computed(() => {

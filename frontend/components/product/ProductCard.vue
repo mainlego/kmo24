@@ -374,7 +374,6 @@ const openQuickView = () => {
       }
     }
   }
-}
 
   &__image-wrapper {
     position: relative;
