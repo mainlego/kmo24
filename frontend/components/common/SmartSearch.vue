@@ -51,7 +51,11 @@
             @mouseenter="selectedIndex = index"
           >
             <div class="smart-search__item-image">
-              <img :src="product.images[0]" :alt="product.name" loading="lazy" />
+              <img
+                :src="product.images?.[0]?.url || '/placeholder.jpg'"
+                :alt="product.images?.[0]?.alt || product.name"
+                loading="lazy"
+              />
             </div>
             <div class="smart-search__item-content">
               <h4 class="smart-search__item-title">{{ highlightMatch(product.name) }}</h4>
@@ -229,11 +233,16 @@ const performSearch = () => {
   // Имитация задержки поиска
   setTimeout(() => {
     const query = searchQuery.value.toLowerCase();
-    searchResults.value = mockProducts.filter((product) =>
-      product.name.toLowerCase().includes(query) ||
-      product.description.toLowerCase().includes(query) ||
-      product.category.name.toLowerCase().includes(query)
-    ).slice(0, 8); // Показываем максимум 8 результатов
+    searchResults.value = mockProducts.filter((product) => {
+      const name = product.name.toLowerCase();
+      const category = product.category.name.toLowerCase();
+      // description is an object with short and full properties
+      const description = (product.description?.short || product.description?.full || '').toLowerCase();
+
+      return name.includes(query) ||
+             description.includes(query) ||
+             category.includes(query);
+    }).slice(0, 8); // Показываем максимум 8 результатов
 
     isLoading.value = false;
   }, 300);
