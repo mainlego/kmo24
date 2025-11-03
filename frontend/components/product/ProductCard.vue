@@ -1,6 +1,7 @@
 <template>
   <BaseCard
     class="product-card"
+    :class="`product-card--${viewMode}`"
     hoverable
     clickable
     shadow
@@ -155,9 +156,12 @@ import type { Product } from '~/types';
 
 interface Props {
   product: Product;
+  viewMode?: 'grid' | 'list';
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  viewMode: 'grid',
+});
 const emit = defineEmits(['openQuickView']);
 
 const router = useRouter();
@@ -291,6 +295,86 @@ const openQuickView = () => {
       transform: scale(1.1);
     }
   }
+
+  // List view mode
+  &--list {
+    :deep(.base-card__container) {
+      display: grid;
+      grid-template-columns: 240px 1fr auto;
+      gap: $spacing-lg;
+      height: auto;
+
+      @media (max-width: $breakpoint-md) {
+        grid-template-columns: 160px 1fr;
+        gap: $spacing-md;
+      }
+
+      @media (max-width: $breakpoint-sm) {
+        grid-template-columns: 120px 1fr;
+        gap: $spacing-sm;
+      }
+    }
+
+    .product-card__image-wrapper {
+      padding-top: 0;
+      height: 200px;
+      border-radius: $radius-xl 0 0 $radius-xl;
+
+      @media (max-width: $breakpoint-md) {
+        height: 160px;
+      }
+
+      @media (max-width: $breakpoint-sm) {
+        height: 120px;
+      }
+    }
+
+    .product-card__content {
+      padding: $spacing-lg;
+      justify-content: center;
+
+      @media (max-width: $breakpoint-md) {
+        padding: $spacing-md;
+      }
+    }
+
+    .product-card__title {
+      font-size: $font-size-xl;
+
+      @media (max-width: $breakpoint-md) {
+        font-size: $font-size-lg;
+      }
+    }
+
+    .product-card__description {
+      display: block;
+      -webkit-line-clamp: 3;
+
+      @media (max-width: $breakpoint-sm) {
+        display: none;
+      }
+    }
+
+    :deep(.base-card__footer) {
+      flex-direction: column;
+      padding: $spacing-lg;
+      gap: $spacing-md;
+      justify-content: center;
+
+      @media (max-width: $breakpoint-md) {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        padding: $spacing-md;
+      }
+    }
+
+    :deep(.base-button) {
+      @media (max-width: $breakpoint-md) {
+        flex: 1;
+      }
+    }
+  }
+}
 
   &__image-wrapper {
     position: relative;

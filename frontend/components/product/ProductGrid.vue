@@ -36,11 +36,12 @@
     </div>
 
     <!-- Products Grid -->
-    <div v-else class="product-grid__list">
+    <div v-else class="product-grid__list" :class="`product-grid__list--${viewMode}`">
       <ProductCard
         v-for="product in products"
         :key="product._id"
         :product="product"
+        :view-mode="viewMode"
         @open-quick-view="handleOpenQuickView"
       />
     </div>
@@ -94,6 +95,7 @@ interface Props {
   emptyText?: string;
   showPagination?: boolean;
   showResetButton?: boolean;
+  viewMode?: 'grid' | 'list';
 }
 
 withDefaults(defineProps<Props>(), {
@@ -102,6 +104,7 @@ withDefaults(defineProps<Props>(), {
   emptyText: 'Попробуйте изменить параметры поиска или фильтры',
   showPagination: true,
   showResetButton: true,
+  viewMode: 'grid',
 });
 
 const emit = defineEmits<{
@@ -193,22 +196,37 @@ const scrollToTop = () => {
 
   &__list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: $spacing-xl;
+    transition: all $transition-base $transition-ease;
 
-    @media (max-width: $breakpoint-lg) {
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    // Grid Mode (default)
+    &--grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+
+      @media (max-width: $breakpoint-lg) {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: $spacing-lg;
+      }
+
+      @media (max-width: $breakpoint-md) {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: $spacing-md;
+      }
+
+      @media (max-width: $breakpoint-sm) {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: $spacing-sm;
+      }
+    }
+
+    // List Mode
+    &--list {
+      grid-template-columns: 1fr;
       gap: $spacing-lg;
-    }
 
-    @media (max-width: $breakpoint-md) {
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: $spacing-md;
-    }
-
-    @media (max-width: $breakpoint-sm) {
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: $spacing-sm;
+      @media (max-width: $breakpoint-md) {
+        gap: $spacing-md;
+      }
     }
   }
 
