@@ -37,34 +37,134 @@
           </div>
 
           <div class="nav-actions">
-            <button class="nav-icon" aria-label="Поиск" @click="isSearchOpen = true">
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" @click="isMobileMenuOpen = !isMobileMenuOpen" aria-label="Меню">
               <div class="nav-icon-wrapper">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <svg v-if="!isMobileMenuOpen" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
               </div>
             </button>
 
-            <NuxtLink to="/account" class="nav-icon" aria-label="Профиль">
-              <div class="nav-icon-wrapper">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-            </NuxtLink>
+            <div class="nav-actions-desktop">
+              <button class="nav-icon" aria-label="Поиск" @click="isSearchOpen = true">
+                <div class="nav-icon-wrapper">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+              </button>
 
-            <NuxtLink to="/cart" class="nav-icon nav-icon--cart" aria-label="Корзина">
-              <div class="nav-icon-wrapper">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 2L7 6M17 2L19 6M3.5 6H20.5L19 20H5L3.5 6ZM10 11V17M14 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span class="badge" v-if="cartCount > 0">{{ cartCount }}</span>
-              </div>
-            </NuxtLink>
+              <NuxtLink to="/account" class="nav-icon" aria-label="Профиль">
+                <div class="nav-icon-wrapper">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </NuxtLink>
+
+              <NuxtLink to="/cart" class="nav-icon nav-icon--cart" aria-label="Корзина">
+                <div class="nav-icon-wrapper">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 2L7 6M17 2L19 6M3.5 6H20.5L19 20H5L3.5 6ZM10 11V17M14 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="badge" v-if="cartCount > 0">{{ cartCount }}</span>
+                </div>
+              </NuxtLink>
+            </div>
           </div>
         </nav>
       </div>
     </header>
+
+    <!-- Mobile Menu -->
+    <Teleport to="body">
+      <Transition name="mobile-menu-fade">
+        <div v-if="isMobileMenuOpen" class="mobile-menu-overlay" @click="isMobileMenuOpen = false">
+          <div class="mobile-menu" @click.stop>
+            <div class="mobile-menu-header">
+              <div class="mobile-menu-logo">
+                <div class="logo-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <span class="logo-text">КМО<span class="logo-accent">24</span></span>
+              </div>
+              <button class="mobile-menu-close" @click="isMobileMenuOpen = false" aria-label="Закрыть меню">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+
+            <nav class="mobile-menu-nav">
+              <NuxtLink to="/products" class="mobile-nav-link" @click="isMobileMenuOpen = false">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Каталог</span>
+              </NuxtLink>
+              <NuxtLink to="/about" class="mobile-nav-link" @click="isMobileMenuOpen = false">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M13 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V9M13 2L20 9M13 2V9H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>О нас</span>
+              </NuxtLink>
+              <NuxtLink to="/delivery" class="mobile-nav-link" @click="isMobileMenuOpen = false">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M13 16V6C13 5.46957 13.2107 4.96086 13.5858 4.58579C13.9609 4.21071 14.4696 4 15 4H20L23 8V16C23 16.5304 22.7893 17.0391 22.4142 17.4142C22.0391 17.7893 21.5304 18 21 18H20M13 16C13 16.5304 12.7893 17.0391 12.4142 17.4142C12.0391 17.7893 11.5304 18 11 18C10.4696 18 9.96086 17.7893 9.58579 17.4142C9.21071 17.0391 9 16.5304 9 16M13 16H9M9 16C9 15.4696 8.78929 14.9609 8.41421 14.5858C8.03914 14.2107 7.53043 14 7 14C6.46957 14 5.96086 14.2107 5.58579 14.5858C5.21071 14.9609 5 15.4696 5 16M9 16H5M5 16C5 16.5304 4.78929 17.0391 4.41421 17.4142C4.03914 17.7893 3.53043 18 3 18C2.46957 18 1.96086 17.7893 1.58579 17.4142C1.21071 17.0391 1 16.5304 1 16V6C1 5.46957 1.21071 4.96086 1.58579 4.58579C1.96086 4.21071 2.46957 4 3 4H9V16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Доставка</span>
+              </NuxtLink>
+              <NuxtLink to="/contacts" class="mobile-nav-link" @click="isMobileMenuOpen = false">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 5C3 3.89543 3.89543 3 5 3H8.27924C8.70967 3 9.09181 3.27543 9.22792 3.68377L10.7257 8.17721C10.8831 8.64932 10.6694 9.16531 10.2243 9.38787L7.96701 10.5165C9.06925 12.9612 11.0388 14.9308 13.4835 16.033L14.6121 13.7757C14.8347 13.3306 15.3507 13.1169 15.8228 13.2743L20.3162 14.7721C20.7246 14.9082 21 15.2903 21 15.7208V19C21 20.1046 20.1046 21 19 21H18C9.71573 21 3 14.2843 3 6V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Контакты</span>
+              </NuxtLink>
+
+              <div class="mobile-menu-divider"></div>
+
+              <NuxtLink to="/account" class="mobile-nav-link" @click="isMobileMenuOpen = false">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Личный кабинет</span>
+              </NuxtLink>
+              <NuxtLink to="/cart" class="mobile-nav-link" @click="isMobileMenuOpen = false">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 2L7 6M17 2L19 6M3.5 6H20.5L19 20H5L3.5 6ZM10 11V17M14 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Корзина</span>
+                <span class="mobile-badge" v-if="cartCount > 0">{{ cartCount }}</span>
+              </NuxtLink>
+            </nav>
+
+            <div class="mobile-menu-footer">
+              <div class="mobile-menu-contacts">
+                <a href="tel:+79029239704" class="mobile-contact-link">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 5C3 3.89543 3.89543 3 5 3H8.27924C8.70967 3 9.09181 3.27543 9.22792 3.68377L10.7257 8.17721C10.8831 8.64932 10.6694 9.16531 10.2243 9.38787L7.96701 10.5165C9.06925 12.9612 11.0388 14.9308 13.4835 16.033L14.6121 13.7757C14.8347 13.3306 15.3507 13.1169 15.8228 13.2743L20.3162 14.7721C20.7246 14.9082 21 15.2903 21 15.7208V19C21 20.1046 20.1046 21 19 21H18C9.71573 21 3 14.2843 3 6V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  +7 (902) 923-97-04
+                </a>
+                <a href="mailto:kmo24@mail.ru" class="mobile-contact-link">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 8L10.89 13.26C11.2187 13.4793 11.6049 13.5963 12 13.5963C12.3951 13.5963 12.7813 13.4793 13.11 13.26L21 8M5 19H19C19.5304 19 20.0391 18.7893 20.4142 18.4142C20.7893 18.0391 21 17.5304 21 17V7C21 6.46957 20.7893 5.96086 20.4142 5.58579C20.0391 5.21071 19.5304 5 19 5H5C4.46957 5 3.96086 5.21071 3.58579 5.58579C3.21071 5.96086 3 6.46957 3 7V17C3 17.5304 3.21071 18.0391 3.58579 18.4142C3.96086 18.7893 4.46957 19 5 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  kmo24@mail.ru
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
 
     <!-- Search Modal -->
     <Teleport to="body">
@@ -204,9 +304,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useCartStore } from '~/stores/cart';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 const isScrolled = ref(false);
 const isSearchOpen = ref(false);
+const isMobileMenuOpen = ref(false);
 const cartStore = useCartStore();
 
 // Get cart count from store
@@ -220,7 +323,7 @@ const closeSearchModal = () => {
   isSearchOpen.value = false;
 };
 
-// Prevent body scroll when modal is open
+// Prevent body scroll when modal or mobile menu is open
 watch(isSearchOpen, (newValue) => {
   if (newValue) {
     document.body.style.overflow = 'hidden';
@@ -229,10 +332,27 @@ watch(isSearchOpen, (newValue) => {
   }
 });
 
-// Close modal on Escape key
+watch(isMobileMenuOpen, (newValue) => {
+  if (newValue) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+});
+
+// Close mobile menu on route change
+watch(() => route.path, () => {
+  isMobileMenuOpen.value = false;
+});
+
+// Close modal and mobile menu on Escape key
 const handleEscape = (event: KeyboardEvent) => {
-  if (event.key === 'Escape' && isSearchOpen.value) {
-    closeSearchModal();
+  if (event.key === 'Escape') {
+    if (isMobileMenuOpen.value) {
+      isMobileMenuOpen.value = false;
+    } else if (isSearchOpen.value) {
+      closeSearchModal();
+    }
   }
 };
 
@@ -416,6 +536,41 @@ onUnmounted(() => {
   gap: $spacing-xs;
 }
 
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: $gray-700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+  }
+
+  &:hover {
+    color: $primary;
+    transform: translateY(-2px);
+
+    .nav-icon-wrapper {
+      background: linear-gradient($white, $white) padding-box,
+                  $gradient-primary border-box;
+      box-shadow: $shadow-colored;
+    }
+  }
+}
+
+.nav-actions-desktop {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
 .nav-icon {
   position: relative;
   display: flex;
@@ -499,6 +654,14 @@ onUnmounted(() => {
   padding: 4rem 0 2rem;
   margin-top: auto;
   overflow: hidden;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 3rem 0 1.5rem;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 2rem 0 1rem;
+  }
 }
 
 .footer-gradient {
@@ -520,6 +683,10 @@ onUnmounted(() => {
   @media (max-width: $breakpoint-lg) {
     grid-template-columns: 1fr;
     gap: $spacing-2xl;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    gap: $spacing-xl;
   }
 }
 
@@ -566,6 +733,10 @@ onUnmounted(() => {
   line-height: $line-height-relaxed;
   margin-bottom: $spacing-xl;
   max-width: 400px;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: $font-size-sm;
+  }
 }
 
 .footer-social {
@@ -599,9 +770,14 @@ onUnmounted(() => {
   grid-template-columns: repeat(3, 1fr);
   gap: $spacing-2xl;
 
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-xl;
+  }
+
   @media (max-width: $breakpoint-md) {
     grid-template-columns: 1fr;
-    gap: $spacing-xl;
+    gap: $spacing-lg;
   }
 }
 
@@ -675,6 +851,7 @@ onUnmounted(() => {
     color: $gray-400;
     margin-bottom: $spacing-md;
     transition: color 0.3s ease;
+    font-size: $font-size-sm;
 
     svg {
       color: $primary;
@@ -683,6 +860,11 @@ onUnmounted(() => {
 
     &:hover {
       color: $white;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      align-items: flex-start;
+      font-size: $font-size-xs;
     }
   }
 }
@@ -732,6 +914,232 @@ onUnmounted(() => {
   max-width: $container-max-width;
   margin: 0 auto;
   padding: 0 $container-padding;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 0 $spacing-lg;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    padding: 0 $spacing-md;
+  }
+}
+
+// Mobile Menu
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba($gray-900, 0.75);
+  backdrop-filter: blur(8px);
+}
+
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 85%;
+  max-width: 400px;
+  background: linear-gradient(135deg, $white 0%, #f9fafb 100%);
+  box-shadow: $shadow-2xl;
+  display: flex;
+  flex-direction: column;
+  animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+}
+
+.mobile-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-xl $spacing-lg;
+  border-bottom: 1px solid rgba($gray-200, 0.8);
+  background: linear-gradient(135deg, #f59e0b, #ea580c);
+}
+
+.mobile-menu-logo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+
+  .logo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-lg;
+    background: rgba($white, 0.2);
+    color: $white;
+    border: 2px solid rgba($white, 0.3);
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .logo-text {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $white;
+
+    .logo-accent {
+      color: rgba($white, 0.9);
+    }
+  }
+}
+
+.mobile-menu-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-full;
+  background: rgba($white, 0.2);
+  border: 2px solid rgba($white, 0.3);
+  color: $white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba($white, 0.3);
+    transform: rotate(90deg);
+  }
+}
+
+.mobile-menu-nav {
+  flex: 1;
+  padding: $spacing-lg;
+  overflow-y: auto;
+}
+
+.mobile-nav-link {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  margin-bottom: $spacing-xs;
+  color: $gray-700;
+  text-decoration: none;
+  font-weight: $font-weight-semibold;
+  border-radius: $radius-xl;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+
+  svg {
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+  }
+
+  span {
+    flex: 1;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(#f59e0b, 0.1), rgba(#ea580c, 0.1));
+    color: $primary;
+    transform: translateX(8px);
+    box-shadow: $shadow-sm;
+
+    svg {
+      transform: scale(1.15);
+    }
+  }
+
+  &.router-link-active {
+    background: $gradient-primary;
+    color: $white;
+    box-shadow: $shadow-colored;
+
+    svg {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.mobile-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  background: linear-gradient(135deg, #f59e0b, #ea580c);
+  color: $white;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  border-radius: $radius-full;
+  box-shadow: 0 2px 12px rgba($primary, 0.4);
+}
+
+.mobile-menu-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba($gray-300, 0.5), transparent);
+  margin: $spacing-lg 0;
+}
+
+.mobile-menu-footer {
+  padding: $spacing-lg;
+  border-top: 1px solid rgba($gray-200, 0.8);
+  background: rgba($gray-50, 0.5);
+}
+
+.mobile-menu-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.mobile-contact-link {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm;
+  color: $gray-600;
+  text-decoration: none;
+  font-size: $font-size-sm;
+  border-radius: $radius-lg;
+  transition: all 0.3s ease;
+
+  svg {
+    flex-shrink: 0;
+    color: $primary;
+  }
+
+  &:hover {
+    background: $white;
+    color: $gray-900;
+    box-shadow: $shadow-sm;
+  }
+}
+
+.mobile-menu-fade-enter-active,
+.mobile-menu-fade-leave-active {
+  transition: opacity 0.3s ease;
+
+  .mobile-menu {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+.mobile-menu-fade-enter-from,
+.mobile-menu-fade-leave-to {
+  opacity: 0;
+
+  .mobile-menu {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 // Search Modal
