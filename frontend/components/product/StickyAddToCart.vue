@@ -87,7 +87,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useCart } from '~/composables/useCart';
 import { useToast } from '~/composables/useToast';
 
 interface Product {
@@ -108,13 +107,16 @@ const props = withDefaults(defineProps<Props>(), {
   scrollThreshold: 300
 });
 
-const { addItem } = useCart();
+const cartStore = useCartStore();
+const wishlistStore = useWishlistStore();
 const { showToast } = useToast();
 
 const isVisible = ref(false);
 const quantity = ref(1);
 const isAdding = ref(false);
-const isFavorite = ref(false);
+
+// Check if product is in wishlist
+const isFavorite = computed(() => wishlistStore.hasItem(props.product._id));
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('ru-RU', {
@@ -142,13 +144,7 @@ const handleAddToCart = async () => {
   isAdding.value = true;
 
   try {
-    addItem({
-      id: props.product._id,
-      name: props.product.name,
-      price: props.product.price,
-      quantity: quantity.value,
-      image: props.product.images?.[0]?.url || '/placeholder.jpg'
-    });
+    await cartStore.addItem(props.product._id, quantity.value);
 
     showToast({
       message: `${props.product.name} добавлен в корзину (${quantity.value} шт.)`,
@@ -168,15 +164,30 @@ const handleAddToCart = async () => {
   }
 };
 
-const toggleFavorite = () => {
-  isFavorite.value = !isFavorite.value;
+const toggleFavorite = async () => {
+  try {
+    // Create a minimal product object for wishlist
+    const productForWishlist = {
+      _id: props.product._id,
+      name: props.product.name,
+      price: props.product.price,
+      oldPrice: props.product.oldPrice,
+      images: props.product.images || []
+    };
 
-  showToast({
-    message: isFavorite.value
-      ? `${props.product.name} добавлен в избранное`
-      : `${props.product.name} удален из избранного`,
-    type: isFavorite.value ? 'success' : 'info'
-  });
+    await wishlistStore.toggleItem(productForWishlist as any);
+
+    const isNowFavorite = wishlistStore.hasItem(props.product._id);
+
+    showToast({
+      message: isNowFavorite
+        ? `${props.product.name} добавлен в избранное`
+        : `${props.product.name} удален из избранного`,
+      type: isNowFavorite ? 'success' : 'info'
+    });
+  } catch (error) {
+    console.error('Error toggling favorite:', error);
+  }
 };
 
 // Handle scroll visibility
