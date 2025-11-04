@@ -708,7 +708,7 @@ onMounted(() => {
   }
 
   &.shipped {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
   }
 
   &.revenue {
@@ -798,12 +798,12 @@ onMounted(() => {
 
   &.status-processing {
     background: #e0e7ff;
-    color: #4f46e5;
+    color: #c2410c;
   }
 
   &.status-shipped {
     background: #e9d5ff;
-    color: #7c3aed;
+    color: #ea580c;
   }
 
   &.status-delivered {

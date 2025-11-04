@@ -386,10 +386,10 @@ const getInitials = (name: string) => {
   }
 
   &.stat-purple {
-    border-left-color: #8b5cf6;
+    border-left-color: #f59e0b;
     .stat-icon {
       background: rgba(139, 92, 246, 0.1);
-      color: #8b5cf6;
+      color: #f59e0b;
     }
   }
 
@@ -491,9 +491,9 @@ const getInitials = (name: string) => {
   }
 
   &.stage-1 { border-left-color: #3b82f6; }
-  &.stage-2 { border-left-color: #8b5cf6; }
+  &.stage-2 { border-left-color: #f59e0b; }
   &.stage-3 { border-left-color: #f59e0b; }
-  &.stage-4 { border-left-color: #ec4899; }
+  &.stage-4 { border-left-color: #fb923c; }
   &.stage-5 { border-left-color: #a855f7; }
   &.stage-6 { border-left-color: #10b981; }
 }

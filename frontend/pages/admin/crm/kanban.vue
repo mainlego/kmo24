@@ -558,9 +558,9 @@ const openCardMenu = (lead: Lead) => {
   }
 
   &.column-new { border-top: 3px solid #3b82f6; }
-  &.column-contacted { border-top: 3px solid #8b5cf6; }
+  &.column-contacted { border-top: 3px solid #f59e0b; }
   &.column-qualified { border-top: 3px solid #f59e0b; }
-  &.column-proposal { border-top: 3px solid #ec4899; }
+  &.column-proposal { border-top: 3px solid #fb923c; }
   &.column-negotiation { border-top: 3px solid #a855f7; }
   &.column-won { border-top: 3px solid #10b981; }
 }

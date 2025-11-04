@@ -1049,7 +1049,7 @@ onUnmounted(() => {
     .feature-title {
       transform: translateZ(10px);
       color: transparent;
-      background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+      background: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
       -webkit-background-clip: text;
       background-clip: text;
     }
@@ -1072,7 +1072,7 @@ onUnmounted(() => {
   margin: 0 auto $spacing-lg;
   padding: $spacing-lg;
   border-radius: $radius-2xl;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #fb923c 100%);
   color: $white;
   display: flex;
   align-items: center;
@@ -1648,7 +1648,7 @@ onUnmounted(() => {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #fb923c 100%);
   color: $white;
   display: flex;
   align-items: center;
@@ -1770,7 +1770,7 @@ onUnmounted(() => {
   width: 60px;
   height: 60px;
   border-radius: $radius-xl;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #fb923c 100%);
   color: $white;
   display: flex;
   align-items: center;
@@ -1794,7 +1794,7 @@ onUnmounted(() => {
 .stat-value {
   font-size: $font-size-2xl;
   font-weight: $font-weight-bold;
-  background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

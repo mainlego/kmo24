@@ -468,7 +468,7 @@ const toggleFaq = (index) => {
 }
 
 .warranty-badge--extended {
-  @apply bg-purple-100 text-purple-700;
+  @apply bg-primary-100 text-primary-700;
 }
 
 .warranty-badge--premium {

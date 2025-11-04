@@ -422,7 +422,7 @@ const handleSubmit = async () => {
     font-size: $font-size-sm;
 
     svg {
-      color: #6366f1;
+      color: #f59e0b;
     }
   }
 
@@ -438,7 +438,7 @@ const handleSubmit = async () => {
 
     &:focus {
       outline: none;
-      border-color: #6366f1;
+      border-color: #f59e0b;
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
 
@@ -455,7 +455,7 @@ const handleSubmit = async () => {
   .submit-btn {
     width: 100%;
     padding: $spacing-md $spacing-xl;
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #fb923c 100%);
     color: $white;
     border: none;
     border-radius: $radius-lg;
@@ -527,7 +527,7 @@ const handleSubmit = async () => {
   width: 64px;
   height: 64px;
   border-radius: $radius-xl;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #fb923c 100%);
   color: $white;
   display: flex;
   align-items: center;
@@ -554,12 +554,12 @@ const handleSubmit = async () => {
 }
 
 .contact-link {
-  color: #6366f1;
+  color: #f59e0b;
   text-decoration: none;
   transition: all 0.2s ease;
 
   &:hover {
-    color: #8b5cf6;
+    color: #ea580c;
     text-decoration: underline;
   }
 }
@@ -574,7 +574,7 @@ const handleSubmit = async () => {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
   color: $white;
   display: flex;
   align-items: center;
@@ -607,7 +607,7 @@ const handleSubmit = async () => {
   gap: $spacing-md;
 
   .map-icon {
-    color: #6366f1;
+    color: #f59e0b;
     opacity: 0.5;
   }
 

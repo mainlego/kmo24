@@ -164,7 +164,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'bar',
-  colors: () => ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
+  colors: () => ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#fb923c', '#fbbf24'],
   lineColor: '#3b82f6',
   showArea: true,
 });

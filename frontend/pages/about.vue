@@ -181,7 +181,7 @@
             <div class="timeline-item relative flex items-center justify-between">
               <div class="w-full md:w-5/12 text-right pr-8 timeline-content-left">
                 <div class="glass-card p-6 hover-lift">
-                  <h3 class="text-2xl font-bold text-purple-600 mb-2">2019</h3>
+                  <h3 class="text-2xl font-bold text-primary-600 mb-2">2019</h3>
                   <h4 class="text-xl font-semibold mb-2">Открытие филиалов</h4>
                   <p class="text-gray-600">Филиалы в Москве, Санкт-Петербурге и Екатеринбурге</p>
                 </div>
@@ -375,7 +375,7 @@
       <!-- Animated Orbs -->
       <div class="absolute inset-0">
         <div class="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full filter blur-3xl animate-float"></div>
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-pink-300/10 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-primary-100/10 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
       </div>
 
       <div class="relative max-w-4xl mx-auto text-center text-white">

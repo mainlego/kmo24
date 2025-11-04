@@ -40,8 +40,8 @@
             <div class="color-card">
               <div class="color-preview bg-secondary"></div>
               <div class="color-info">
-                <span class="color-name">Secondary</span>
-                <span class="color-value">#8b5cf6</span>
+                <span class="color-name">Secondary (Gray)</span>
+                <span class="color-value">#4b5563</span>
                 <code class="color-code">$secondary</code>
               </div>
             </div>
@@ -104,22 +104,6 @@
           </div>
         </div>
 
-        <div class="color-group">
-          <h3 class="color-group-title">Акцентные цвета</h3>
-          <div v-for="colorGroup in accentColors" :key="colorGroup.name" class="mb-lg">
-            <h4 class="text-lg font-semibold text-gray-700 mb-md">{{ colorGroup.name }}</h4>
-            <div class="color-grid">
-              <div v-for="color in colorGroup.colors" :key="color.value" class="color-card">
-                <div :style="{ backgroundColor: color.hex }" class="color-preview"></div>
-                <div class="color-info">
-                  <span class="color-name">{{ colorGroup.name }} {{ color.value }}</span>
-                  <span class="color-value">{{ color.hex }}</span>
-                  <code class="color-code">${{ colorGroup.name.toLowerCase() }}-{{ color.value }}</code>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <div class="color-group">
           <h3 class="color-group-title">Gray Scale</h3>
@@ -136,42 +120,42 @@
         </div>
 
         <div class="color-group">
-          <h3 class="color-group-title">Градиенты - Семантические</h3>
+          <h3 class="color-group-title">Градиенты - только оранжевые</h3>
           <div class="gradient-grid">
             <div class="gradient-card">
               <div class="gradient-preview bg-gradient-primary"></div>
               <span class="gradient-name">Primary</span>
-              <small class="text-gray-500 text-xs">Кнопки, акценты</small>
+              <small class="text-gray-500 text-xs">Оранжевый градиент</small>
             </div>
             <div class="gradient-card">
               <div class="gradient-preview bg-gradient-hero"></div>
               <span class="gradient-name">Hero</span>
-              <small class="text-gray-500 text-xs">Hero секции</small>
+              <small class="text-gray-500 text-xs">Оранжевый Hero</small>
             </div>
             <div class="gradient-card">
               <div class="gradient-preview bg-gradient-cta"></div>
               <span class="gradient-name">CTA</span>
-              <small class="text-gray-500 text-xs">Призывы к действию</small>
+              <small class="text-gray-500 text-xs">Оранжевый → Красный</small>
             </div>
             <div class="gradient-card">
               <div class="gradient-preview bg-gradient-text"></div>
-              <span class="gradient-name">Text (Cold)</span>
-              <small class="text-gray-500 text-xs">Градиентный текст</small>
+              <span class="gradient-name">Text</span>
+              <small class="text-gray-500 text-xs">Оранжевый затемнение</small>
             </div>
             <div class="gradient-card">
               <div class="gradient-preview bg-gradient-text-warm"></div>
-              <span class="gradient-name">Text (Warm)</span>
-              <small class="text-gray-500 text-xs">Теплый текст</small>
+              <span class="gradient-name">Text Warm</span>
+              <small class="text-gray-500 text-xs">Яркий оранжевый</small>
             </div>
             <div class="gradient-card">
               <div class="gradient-preview bg-gradient-footer"></div>
               <span class="gradient-name">Footer</span>
-              <small class="text-gray-500 text-xs">Темные секции</small>
+              <small class="text-gray-500 text-xs">Серый темный</small>
             </div>
             <div class="gradient-card">
               <div class="gradient-preview bg-gradient-rainbow"></div>
-              <span class="gradient-name">Rainbow</span>
-              <small class="text-gray-500 text-xs">Декоративная линия</small>
+              <span class="gradient-name">Декор</span>
+              <small class="text-gray-500 text-xs">Оранжевая линия</small>
             </div>
           </div>
         </div>
@@ -390,22 +374,6 @@ const primaryShades = [
   { value: '900', hex: '#7c2d12', name: 'Самый темный' },
 ]
 
-const accentColors = [
-  { name: 'Indigo', colors: [
-    { value: '400', hex: '#818cf8' },
-    { value: '500', hex: '#6366f1' },
-    { value: '600', hex: '#4f46e5' },
-  ]},
-  { name: 'Pink', colors: [
-    { value: '400', hex: '#f472b6' },
-    { value: '500', hex: '#ec4899' },
-    { value: '600', hex: '#db2777' },
-  ]},
-  { name: 'Rose', colors: [
-    { value: '500', hex: '#f43f5e' },
-    { value: '600', hex: '#dc2626' },
-  ]},
-]
 </script>
 
 <style lang="scss" scoped>

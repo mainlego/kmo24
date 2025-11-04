@@ -257,7 +257,7 @@
       <!-- Animated Background -->
       <div class="absolute inset-0">
         <div class="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full filter blur-3xl animate-float"></div>
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-pink-300/10 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-primary-100/10 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
       </div>
 
       <div class="relative max-w-4xl mx-auto text-center text-white">
@@ -438,7 +438,7 @@ const getCategoryColor = (category) => {
   const colors = {
     company: 'bg-blue-500',
     products: 'bg-green-500',
-    events: 'bg-purple-500',
+    events: 'bg-primary-500',
     tech: 'bg-orange-500'
   }
   return colors[category] || 'bg-gray-500'

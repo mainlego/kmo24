@@ -4,8 +4,8 @@
     <div class="absolute inset-0 overflow-hidden">
       <!-- Floating Orbs -->
       <div class="absolute top-20 left-20 w-72 h-72 bg-blue-200/30 rounded-full filter blur-3xl animate-float"></div>
-      <div class="absolute bottom-20 right-20 w-96 h-96 bg-purple-200/30 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
-      <div class="absolute top-1/2 left-1/2 w-64 h-64 bg-pink-200/30 rounded-full filter blur-3xl animate-float animation-delay-4"></div>
+      <div class="absolute bottom-20 right-20 w-96 h-96 bg-primary-200/30 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
+      <div class="absolute top-1/2 left-1/2 w-64 h-64 bg-primary-100/30 rounded-full filter blur-3xl animate-float animation-delay-4"></div>
 
       <!-- Floating Icons -->
       <div v-for="i in 12" :key="`icon-${i}`"
@@ -36,7 +36,7 @@
 
           <!-- Floating Elements Around Number -->
           <div class="absolute -top-8 -left-8 w-16 h-16 bg-yellow-400 rounded-full animate-ping opacity-20"></div>
-          <div class="absolute -bottom-8 -right-8 w-20 h-20 bg-pink-400 rounded-full animate-ping opacity-20 animation-delay-1"></div>
+          <div class="absolute -bottom-8 -right-8 w-20 h-20 bg-primary-400 rounded-full animate-ping opacity-20 animation-delay-1"></div>
         </div>
       </div>
 

@@ -140,7 +140,7 @@
                 </div>
                 <div class="flex justify-between items-center">
                   <span class="text-gray-500">Стоимость:</span>
-                  <span class="font-bold text-2xl text-purple-600">Расчет</span>
+                  <span class="font-bold text-2xl text-primary-600">Расчет</span>
                 </div>
               </div>
             </div>
@@ -318,7 +318,7 @@
           <div class="process-step animation-delay-2">
             <div class="step-number">3</div>
             <div class="step-icon">
-              <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
               </svg>
             </div>

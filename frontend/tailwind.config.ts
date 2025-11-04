@@ -39,31 +39,9 @@ export default {
           dark: '#ea580c',     // = 600
         },
 
-        // Вторичный цвет (Purple/Violet)
+        // Вторичный цвет - нейтральный серый
         secondary: {
-          400: '#a78bfa',      // $secondary-400
-          500: '#8b5cf6',      // $secondary-500 - ВТОРИЧНЫЙ
-          600: '#7c3aed',      // $secondary-600
-          DEFAULT: '#8b5cf6',  // = 500
-        },
-
-        // Акцентные цвета
-        indigo: {
-          400: '#818cf8',      // $indigo-400
-          500: '#6366f1',      // $indigo-500 - Индиго
-          600: '#4f46e5',      // $indigo-600
-          DEFAULT: '#6366f1',
-        },
-        pink: {
-          400: '#f472b6',      // $pink-400
-          500: '#ec4899',      // $pink-500 - Розовый
-          600: '#db2777',      // $pink-600
-          DEFAULT: '#ec4899',
-        },
-        rose: {
-          500: '#f43f5e',      // $rose-500 - Коралловый
-          600: '#dc2626',      // $rose-600 - Темный красный
-          DEFAULT: '#dc2626',
+          DEFAULT: '#4b5563',  // = gray-600
         },
 
         // Системные цвета (Статусы)
@@ -218,28 +196,28 @@ export default {
         '2xl': '1536px',       // $breakpoint-2xl
       },
 
-      // Градиенты (через backgroundImage) - Семантические
+      // Градиенты (через backgroundImage) - только оранжевые
       backgroundImage: {
-        // Основной градиент (кнопки, акценты)
+        // Основной градиент (кнопки, акценты) - оранжевый
         'gradient-primary': 'linear-gradient(135deg, #f59e0b, #ea580c)',
 
-        // Hero секция (многоцветный премиум эффект)
-        'gradient-hero': 'linear-gradient(135deg, rgba(99, 102, 241, 0.88) 0%, rgba(139, 92, 246, 0.85) 35%, rgba(236, 72, 153, 0.82) 65%, rgba(245, 158, 11, 0.8) 100%)',
+        // Hero секция - оранжевый градиент
+        'gradient-hero': 'linear-gradient(135deg, #fb923c 0%, #f59e0b 50%, #ea580c 100%)',
 
-        // CTA секция (теплый градиент)
-        'gradient-cta': 'linear-gradient(135deg, rgba(245, 158, 11, 0.92) 0%, rgba(234, 88, 12, 0.9) 50%, rgba(220, 38, 38, 0.88) 100%)',
+        // CTA секция - оранжевый к красному
+        'gradient-cta': 'linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #ef4444 100%)',
 
-        // Градиент для текста (холодный)
-        'gradient-text': 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)',
+        // Градиент для текста - оранжевый с затемнением
+        'gradient-text': 'linear-gradient(135deg, #fbbf24 0%, #ea580c 100%)',
 
-        // Градиент для текста (теплый)
+        // Градиент для текста (теплый) - яркий оранжевый
         'gradient-text-warm': 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%)',
 
-        // Footer градиент (темный)
+        // Footer градиент (темный) - серый
         'gradient-footer': 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
 
-        // Декоративная линия (радуга)
-        'gradient-rainbow': 'linear-gradient(90deg, transparent, #f59e0b, #8b5cf6, transparent)',
+        // Декоративная линия - оранжевый с прозрачностью
+        'gradient-rainbow': 'linear-gradient(90deg, transparent, #f59e0b, #fb923c, transparent)',
       },
 
       // Анимации
