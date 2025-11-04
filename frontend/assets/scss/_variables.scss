@@ -61,42 +61,6 @@ $warning-light: #fef3c7; // Светлый оранжевый фон
 // Алиас для обратной совместимости
 $accent: $primary;
 
-// ----------------------------------------------------------------------------
-// ГРАДИЕНТЫ - СЕМАНТИЧЕСКИЕ
-// ----------------------------------------------------------------------------
-
-// Основной градиент (для кнопок, акцентов)
-$gradient-primary: linear-gradient(135deg, $primary-500, $primary-600);
-
-// Hero секция (многоцветный премиум эффект)
-$gradient-hero: linear-gradient(
-  135deg,
-  rgba($indigo-500, 0.88) 0%,
-  rgba($secondary-500, 0.85) 35%,
-  rgba($pink-500, 0.82) 65%,
-  rgba($primary-500, 0.8) 100%
-);
-
-// CTA секция (теплый градиент для призывов к действию)
-$gradient-cta: linear-gradient(
-  135deg,
-  rgba($primary-500, 0.92) 0%,
-  rgba($primary-600, 0.9) 50%,
-  rgba($rose-600, 0.88) 100%
-);
-
-// Градиент для текста (холодный)
-$gradient-text: linear-gradient(135deg, $indigo-500 0%, $pink-500 100%);
-
-// Градиент для текста (теплый)
-$gradient-text-warm: linear-gradient(135deg, $primary-light 0%, $primary-500 50%, $primary-light 100%);
-
-// Footer градиент (темный)
-$gradient-footer: linear-gradient(135deg, $gray-800 0%, $gray-900 100%);
-
-// Декоративная линия (радуга)
-$gradient-rainbow: linear-gradient(90deg, transparent, $primary-500, $secondary-500, transparent);
-
 // Нейтральные цвета
 $white: #ffffff;
 $black: #000000;
@@ -194,3 +158,40 @@ $container-padding: 1rem;
 // Сетка
 $grid-columns: 12;
 $grid-gutter: 1.5rem;
+
+// ----------------------------------------------------------------------------
+// ГРАДИЕНТЫ - СЕМАНТИЧЕСКИЕ
+// ----------------------------------------------------------------------------
+// ВАЖНО: Градиенты объявлены в конце, т.к. используют переменные выше
+
+// Основной градиент (для кнопок, акцентов)
+$gradient-primary: linear-gradient(135deg, $primary-500, $primary-600);
+
+// Hero секция (многоцветный премиум эффект)
+$gradient-hero: linear-gradient(
+  135deg,
+  rgba($indigo-500, 0.88) 0%,
+  rgba($secondary-500, 0.85) 35%,
+  rgba($pink-500, 0.82) 65%,
+  rgba($primary-500, 0.8) 100%
+);
+
+// CTA секция (теплый градиент для призывов к действию)
+$gradient-cta: linear-gradient(
+  135deg,
+  rgba($primary-500, 0.92) 0%,
+  rgba($primary-600, 0.9) 50%,
+  rgba($rose-600, 0.88) 100%
+);
+
+// Градиент для текста (холодный)
+$gradient-text: linear-gradient(135deg, $indigo-500 0%, $pink-500 100%);
+
+// Градиент для текста (теплый)
+$gradient-text-warm: linear-gradient(135deg, $primary-light 0%, $primary-500 50%, $primary-light 100%);
+
+// Footer градиент (темный)
+$gradient-footer: linear-gradient(135deg, $gray-800 0%, $gray-900 100%);
+
+// Декоративная линия (радуга)
+$gradient-rainbow: linear-gradient(90deg, transparent, $primary-500, $secondary-500, transparent);
