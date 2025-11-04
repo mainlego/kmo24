@@ -32,29 +32,47 @@
         <div class="checkout-page__main">
           <!-- Form Section -->
           <div class="checkout-page__form">
-            <!-- Step 1: Contact Info -->
+            <!-- Step 1: Company & Contact Info -->
             <div v-show="currentStep === 1" class="checkout-step">
-              <h2>Контактная информация</h2>
+              <h2>Реквизиты организации</h2>
               <div class="checkout-step__fields">
+                <BaseInput
+                  v-model="form.companyName"
+                  label="Наименование организации"
+                  placeholder="ООО 'Ваша компания'"
+                  required
+                />
                 <div class="checkout-step__row">
                   <BaseInput
-                    v-model="form.firstName"
-                    label="Имя"
-                    placeholder="Иван"
+                    v-model="form.inn"
+                    label="ИНН"
+                    placeholder="1234567890"
                     required
                   />
                   <BaseInput
-                    v-model="form.lastName"
-                    label="Фамилия"
-                    placeholder="Иванов"
+                    v-model="form.kpp"
+                    label="КПП"
+                    placeholder="123456789"
                     required
                   />
                 </div>
                 <BaseInput
+                  v-model="form.legalAddress"
+                  label="Юридический адрес"
+                  placeholder="г. Красноярск, ул. Ленина, д. 1"
+                  required
+                />
+                <BaseInput
+                  v-model="form.contactPerson"
+                  label="ФИО контактного лица"
+                  placeholder="Иванов Иван Иванович"
+                  required
+                />
+                <BaseInput
                   v-model="form.email"
                   type="email"
                   label="Email"
-                  placeholder="your@email.com"
+                  placeholder="company@email.com"
                   required
                 />
                 <BaseInput
@@ -71,55 +89,28 @@
             <div v-show="currentStep === 2" class="checkout-step">
               <h2>Адрес доставки</h2>
               <div class="checkout-step__fields">
-                <div class="checkout-step__row">
-                  <BaseInput
-                    v-model="form.city"
-                    label="Город"
-                    placeholder="Москва"
-                    required
-                  />
-                  <BaseInput
-                    v-model="form.postalCode"
-                    label="Индекс"
-                    placeholder="123456"
-                    required
-                  />
-                </div>
+                <BaseInput
+                  v-model="form.city"
+                  label="Город"
+                  placeholder="Красноярск"
+                  required
+                />
                 <BaseInput
                   v-model="form.street"
                   label="Улица"
-                  placeholder="Ленина"
+                  placeholder="ул. Ленина"
                   required
                 />
-                <div class="checkout-step__row">
-                  <BaseInput
-                    v-model="form.building"
-                    label="Дом"
-                    placeholder="12"
-                    required
-                  />
-                  <BaseInput
-                    v-model="form.apartment"
-                    label="Квартира"
-                    placeholder="45"
-                  />
-                </div>
-                <div class="checkout-step__row">
-                  <BaseInput
-                    v-model="form.entrance"
-                    label="Подъезд"
-                    placeholder="3"
-                  />
-                  <BaseInput
-                    v-model="form.floor"
-                    label="Этаж"
-                    placeholder="5"
-                  />
-                </div>
+                <BaseInput
+                  v-model="form.building"
+                  label="Дом/Офис"
+                  placeholder="д. 12, офис 45"
+                  required
+                />
                 <BaseInput
                   v-model="form.notes"
-                  label="Комментарий"
-                  placeholder="Код домофона, особые указания"
+                  label="Комментарий к доставке"
+                  placeholder="Особые указания, время доставки"
                 />
               </div>
             </div>
@@ -348,9 +339,10 @@ const deliveryCost = computed(() => {
 const isCurrentStepValid = computed(() => {
   switch (currentStep.value) {
     case 1:
-      return form.firstName && form.lastName && form.email && form.phone;
+      return form.companyName && form.inn && form.kpp && form.legalAddress &&
+             form.contactPerson && form.email && form.phone;
     case 2:
-      return form.city && form.postalCode && form.street && form.building;
+      return form.city && form.street && form.building;
     case 3:
       return !!form.deliveryMethod;
     case 4:
