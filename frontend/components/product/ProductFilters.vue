@@ -335,7 +335,7 @@ watch(
     right: -50px;
     width: 150px;
     height: 150px;
-    background: $gradient-cosmic;
+    background: $gradient-hero;
     opacity: 0.05;
     border-radius: 50%;
     filter: blur(40px);
@@ -379,7 +379,7 @@ watch(
     padding: $spacing-sm $spacing-lg;
     border: 2px solid transparent;
     background: linear-gradient($white, $white) padding-box,
-                $gradient-secondary border-box;
+                $gradient-primary border-box;
     color: $primary;
     font-size: $font-size-sm;
     font-weight: $font-weight-bold;
@@ -395,7 +395,7 @@ watch(
       content: '';
       position: absolute;
       inset: 0;
-      background: $gradient-secondary;
+      background: $gradient-primary;
       opacity: 0;
       transition: opacity $transition-base $transition-ease;
     }

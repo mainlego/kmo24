@@ -286,7 +286,7 @@ useHead({
 // Stats Section
 .stats-section {
   padding: 6rem 0;
-  background: $gradient-cosmic;
+  background: $gradient-hero;
   position: relative;
 
   @media (max-width: $breakpoint-md) {

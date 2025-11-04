@@ -512,7 +512,7 @@ const openQuickView = () => {
   &__rating-text {
     font-size: $font-size-sm;
     font-weight: $font-weight-semibold;
-    background: $gradient-sunset;
+    background: $gradient-text-warm;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -588,12 +588,12 @@ const openQuickView = () => {
 
     &--active {
       background: linear-gradient(rgba($error, 0.1), rgba($error, 0.15)) padding-box,
-                  $gradient-secondary border-box;
+                  $gradient-primary border-box;
       color: $error;
       animation: pulse 2s infinite;
 
       &::before {
-        background: $gradient-secondary;
+        background: $gradient-primary;
         opacity: 1;
       }
 

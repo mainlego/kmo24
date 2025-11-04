@@ -17,7 +17,15 @@
       "Bash(git push:*)",
       "Bash(git commit:*)",
       "Bash(npm install:*)",
-      "Bash(npm run generate:*)"
+      "Bash(npm run generate:*)",
+      "Bash(for file in pages/products/[slug].vue layouts/default.vue plugins/init.client.ts pages/checkout.vue pages/checkout/index.vue pages/account/favorites.vue pages/cart.vue pages/cart/index.vue)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(done)",
+      "Bash(cd:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run watch:*)",
+      "Bash(gh run view:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

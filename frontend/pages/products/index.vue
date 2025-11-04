@@ -331,7 +331,7 @@ useHead({
     right: -100px;
     width: 400px;
     height: 400px;
-    background: $gradient-cosmic;
+    background: $gradient-hero;
     opacity: 0.05;
     border-radius: 50%;
     filter: blur(80px);
@@ -378,7 +378,7 @@ useHead({
     font-weight: $font-weight-medium;
 
     strong {
-      background: $gradient-sunset;
+      background: $gradient-text-warm;
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -452,7 +452,7 @@ useHead({
         border-radius: $radius-full;
 
         &:hover {
-          background: $gradient-secondary;
+          background: $gradient-primary;
         }
       }
     }
