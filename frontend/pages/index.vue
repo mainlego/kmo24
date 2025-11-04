@@ -30,9 +30,43 @@
             <span class="gradient-text">для вашего бизнеса</span>
           </h1>
           <p class="hero-subtitle animate-fade-in-up delay-2" :class="{ 'is-visible': isVisible }">
-            КМО24 - комиссионный магазин проверенного оборудования для кафе и ресторанов в Красноярске
+            КМО24 - комиссионный магазин проверенного оборудования для кафе и ресторанов в Красноярске.<br>
+            <strong class="text-primary-500">Мы также покупаем ваше оборудование по выгодной цене!</strong>
           </p>
-          <div class="hero-actions animate-fade-in-up delay-3" :class="{ 'is-visible': isVisible }">
+
+          <!-- Категории товаров -->
+          <div class="hero-categories animate-fade-in-up delay-3" :class="{ 'is-visible': isVisible }">
+            <NuxtLink to="/products?category=plity" class="category-card">
+              <div class="category-icon">🔥</div>
+              <span>Плиты</span>
+            </NuxtLink>
+            <NuxtLink to="/products?category=pechi" class="category-card">
+              <div class="category-icon">🍕</div>
+              <span>Печи</span>
+            </NuxtLink>
+            <NuxtLink to="/products?category=holodilniki" class="category-card">
+              <div class="category-icon">❄️</div>
+              <span>Холодильники</span>
+            </NuxtLink>
+            <NuxtLink to="/products?category=morozilniki" class="category-card">
+              <div class="category-icon">🧊</div>
+              <span>Морозильники</span>
+            </NuxtLink>
+            <NuxtLink to="/products?category=frityurnicy" class="category-card">
+              <div class="category-icon">🍟</div>
+              <span>Фритюрницы</span>
+            </NuxtLink>
+            <NuxtLink to="/products?category=grili" class="category-card">
+              <div class="category-icon">🥩</div>
+              <span>Грили</span>
+            </NuxtLink>
+            <NuxtLink to="/products" class="category-card category-card--all">
+              <div class="category-icon">📦</div>
+              <span>Все категории</span>
+            </NuxtLink>
+          </div>
+
+          <div class="hero-actions animate-fade-in-up delay-4" :class="{ 'is-visible': isVisible }">
             <NuxtLink to="/products" class="btn btn-primary btn-glow">
               <span>Каталог оборудования</span>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -243,137 +277,6 @@
 
     <!-- Recently Viewed Products -->
     <ProductRecentlyViewed />
-
-    <!-- Testimonials / Social Proof -->
-    <section class="testimonials-section">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">Нам доверяют</h2>
-          <p class="section-subtitle">Более 500 довольных клиентов по всей России</p>
-        </div>
-        <div class="testimonials-grid">
-          <div class="testimonial-card" data-index="0">
-            <div class="testimonial-header">
-              <div class="testimonial-avatar">
-                <div class="avatar-circle">АП</div>
-              </div>
-              <div class="testimonial-author">
-                <h4 class="author-name">Алексей Петров</h4>
-                <p class="author-position">Владелец ресторана "Вкусно"</p>
-              </div>
-              <div class="testimonial-rating">
-                <svg v-for="i in 5" :key="i" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                </svg>
-              </div>
-            </div>
-            <p class="testimonial-text">
-              "Купили профессиональную печь для пиццы. Качество отличное, цена в 2 раза ниже новой.
-              Работает безупречно уже полгода. Очень довольны покупкой!"
-            </p>
-          </div>
-
-          <div class="testimonial-card" data-index="1">
-            <div class="testimonial-header">
-              <div class="testimonial-avatar">
-                <div class="avatar-circle">МИ</div>
-              </div>
-              <div class="testimonial-author">
-                <h4 class="author-name">Мария Иванова</h4>
-                <p class="author-position">Управляющая кафе "24 часа"</p>
-              </div>
-              <div class="testimonial-rating">
-                <svg v-for="i in 5" :key="i" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                </svg>
-              </div>
-            </div>
-            <p class="testimonial-text">
-              "Оборудовали целую кухню через КМО24. Менеджеры помогли подобрать всё необходимое.
-              Сэкономили около 300 тысяч рублей. Рекомендую!"
-            </p>
-          </div>
-
-          <div class="testimonial-card" data-index="2">
-            <div class="testimonial-header">
-              <div class="testimonial-avatar">
-                <div class="avatar-circle">СК</div>
-              </div>
-              <div class="testimonial-author">
-                <h4 class="author-name">Сергей Козлов</h4>
-                <p class="author-position">Директор пекарни "Свежий хлеб"</p>
-              </div>
-              <div class="testimonial-rating">
-                <svg v-for="i in 5" :key="i" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                </svg>
-              </div>
-            </div>
-            <p class="testimonial-text">
-              "Подовая печь работает как часы. Все оборудование было проверено и готово к работе.
-              Доставка быстрая, установка профессиональная. Отличный сервис!"
-            </p>
-          </div>
-        </div>
-
-        <!-- Stats Bar -->
-        <div class="stats-bar">
-          <div class="stat-item">
-            <div class="stat-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">500+</div>
-              <div class="stat-label">Довольных клиентов</div>
-            </div>
-          </div>
-
-          <div class="stat-item">
-            <div class="stat-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-              </svg>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">4.9/5</div>
-              <div class="stat-label">Средняя оценка</div>
-            </div>
-          </div>
-
-          <div class="stat-item">
-            <div class="stat-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 6v6l4 2"/>
-              </svg>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">5 лет</div>
-              <div class="stat-label">На рынке</div>
-            </div>
-          </div>
-
-          <div class="stat-item">
-            <div class="stat-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                <line x1="12" y1="22.08" x2="12" y2="12"/>
-              </svg>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">1000+</div>
-              <div class="stat-label">Единиц продано</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- Premium CTA Section -->
     <section class="premium-cta">
@@ -763,12 +666,79 @@ onUnmounted(() => {
   animation: fadeInUp 1s ease-out 0.4s backwards;
 }
 
+.hero-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: $spacing-md;
+  margin: $spacing-2xl 0;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .category-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    padding: $spacing-lg;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: $radius-xl;
+    color: $white;
+    text-decoration: none;
+    font-weight: $font-weight-semibold;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba($primary-light, 0.6);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba($primary-500, 0.3);
+
+      .category-icon {
+        transform: scale(1.2) rotate(5deg);
+      }
+    }
+
+    .category-icon {
+      font-size: 2rem;
+      transition: transform 0.3s ease;
+    }
+
+    span {
+      font-size: $font-size-sm;
+      text-align: center;
+    }
+
+    &--all {
+      background: rgba($primary-500, 0.2);
+      border-color: rgba($primary-light, 0.4);
+
+      &:hover {
+        background: rgba($primary-500, 0.3);
+        border-color: rgba($primary-light, 0.7);
+      }
+    }
+  }
+}
+
 .hero-actions {
   display: flex;
   gap: $spacing-md;
   justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: $spacing-3xl;
+  margin-bottom: $spacing-2xl;
 
   .btn {
     padding: $spacing-md $spacing-xl;

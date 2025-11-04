@@ -537,10 +537,7 @@ const openQuickView = () => {
   &__current-price {
     font-size: $font-size-2xl;
     font-weight: $font-weight-bold;
-    background: $gradient-primary;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: $black;
   }
 
   &__favorite {
