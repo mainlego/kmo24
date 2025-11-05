@@ -693,7 +693,7 @@ onMounted(() => {
 
   &.low-stock {
     .stock-value {
-      color: #f59e0b;
+      color: #f59e0be6;
     }
     .stock-label {
       color: #d97706;

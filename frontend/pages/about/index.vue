@@ -60,8 +60,8 @@
                   <path d="M60 110L100 140L140 110" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                   <defs>
                     <linearGradient id="gradient1" x1="0" y1="0" x2="200" y2="200">
-                      <stop offset="0%" stop-color="#f59e0b"/>
-                      <stop offset="100%" stop-color="#ea580c"/>
+                      <stop offset="0%" stop-color="#f59e0be6"/>
+                      <stop offset="100%" stop-color="#fbbf24"/>
                     </linearGradient>
                   </defs>
                 </svg>

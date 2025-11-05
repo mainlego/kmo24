@@ -14,7 +14,7 @@
               <div class="color-preview bg-primary"></div>
               <div class="color-info">
                 <span class="color-name">Primary</span>
-                <span class="color-value">#f59e0b</span>
+                <span class="color-value">#f59e0be6</span>
                 <code class="color-code">$primary</code>
               </div>
             </div>
@@ -32,7 +32,7 @@
               <div class="color-preview bg-primary-dark"></div>
               <div class="color-info">
                 <span class="color-name">Primary Dark</span>
-                <span class="color-value">#ea580c</span>
+                <span class="color-value">#fbbf24</span>
                 <code class="color-code">$primary-dark</code>
               </div>
             </div>
@@ -82,7 +82,7 @@
               <div class="color-preview bg-warning"></div>
               <div class="color-info">
                 <span class="color-name">Warning</span>
-                <span class="color-value">#f59e0b</span>
+                <span class="color-value">#f59e0be6</span>
                 <code class="color-code">$warning</code>
               </div>
             </div>
@@ -366,9 +366,9 @@ const primaryShades = [
   { value: '100', hex: '#ffedd5', name: 'Светлый фон' },
   { value: '200', hex: '#fed7aa', name: 'Светлый акцент' },
   { value: '300', hex: '#fdba74', name: 'Средний светлый' },
-  { value: '400', hex: '#fb923c', name: 'Светлый' },
-  { value: '500', hex: '#f59e0b', name: 'ОСНОВНОЙ' },
-  { value: '600', hex: '#ea580c', name: 'Темный' },
+  { value: '400', hex: '#fbbf24', name: 'Светлый' },
+  { value: '500', hex: '#f59e0be6', name: 'ОСНОВНОЙ' },
+  { value: '600', hex: '#fbbf24', name: 'Темный' },
   { value: '700', hex: '#c2410c', name: 'Более темный' },
   { value: '800', hex: '#9a3412', name: 'Очень темный' },
   { value: '900', hex: '#7c2d12', name: 'Самый темный' },

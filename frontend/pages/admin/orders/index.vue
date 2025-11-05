@@ -700,7 +700,7 @@ onMounted(() => {
   }
 
   &.pending {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: linear-gradient(135deg, #f59e0be6 0%, #d97706 100%);
   }
 
   &.processing {
@@ -708,7 +708,7 @@ onMounted(() => {
   }
 
   &.shipped {
-    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+    background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 100%);
   }
 
   &.revenue {
@@ -803,7 +803,7 @@ onMounted(() => {
 
   &.status-shipped {
     background: #e9d5ff;
-    color: #ea580c;
+    color: #fbbf24;
   }
 
   &.status-delivered {

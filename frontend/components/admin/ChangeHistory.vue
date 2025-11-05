@@ -586,8 +586,8 @@ onMounted(() => {
   }
 
   &.icon-restore {
-    border-color: #f59e0b;
-    color: #f59e0b;
+    border-color: #f59e0be6;
+    color: #f59e0be6;
   }
 }
 

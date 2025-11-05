@@ -96,10 +96,10 @@ const { toasts, remove } = useToast();
   }
 
   &-warning {
-    border-left-color: #f59e0b;
+    border-left-color: #f59e0be6;
 
     .toast-icon {
-      color: #f59e0b;
+      color: #f59e0be6;
     }
   }
 

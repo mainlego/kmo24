@@ -697,7 +697,7 @@ onMounted(() => {
   }
 
   &.pending {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: linear-gradient(135deg, #f59e0be6 0%, #d97706 100%);
   }
 
   &.approved {
@@ -709,7 +709,7 @@ onMounted(() => {
   }
 
   &.rating {
-    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    background: linear-gradient(135deg, #f59e0be6 0%, #f97316 100%);
   }
 }
 
@@ -740,7 +740,7 @@ onMounted(() => {
   border-left: 4px solid #e5e7eb;
 
   &.status-pending {
-    border-left-color: #f59e0b;
+    border-left-color: #f59e0be6;
   }
 
   &.status-approved {
@@ -900,7 +900,7 @@ onMounted(() => {
     color: #d1d5db;
 
     &.filled {
-      color: #f59e0b;
+      color: #f59e0be6;
     }
   }
 

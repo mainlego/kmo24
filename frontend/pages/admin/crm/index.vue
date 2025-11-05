@@ -504,7 +504,7 @@ const deleteLead = (lead: any) => {
 
   &.stat-yellow .stat-icon {
     background: #fef3c7;
-    color: #f59e0b;
+    color: #f59e0be6;
   }
 
   &.stat-purple .stat-icon {
