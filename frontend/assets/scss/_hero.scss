@@ -1,0 +1,535 @@
+// =====================================================
+// PREMIUM HERO SECTION WITH VIDEO BACKGROUND
+// =====================================================
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 8rem 0 4rem;
+  overflow: hidden;
+  background: #0a0a0a;
+
+  @media (max-width: $breakpoint-md) {
+    min-height: auto;
+    padding: 6rem 0 3rem;
+  }
+}
+
+// Video Background
+.hero-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.hero-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  opacity: 0.4;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 10, 10, 0.95) 0%,
+    rgba(20, 20, 20, 0.85) 50%,
+    rgba(10, 10, 10, 0.95) 100%
+  );
+  z-index: 1;
+}
+
+.gradient-mesh {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(251, 191, 36, 0.08) 0%, transparent 50%);
+  z-index: 2;
+  animation: meshPulse 8s ease-in-out infinite;
+}
+
+@keyframes meshPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+// Hero Wrapper - Two Column Layout
+.hero-wrapper {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: $spacing-3xl;
+  align-items: start;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+    gap: $spacing-2xl;
+  }
+}
+
+// Main Content
+.hero-content {
+  text-align: left;
+  padding-top: $spacing-2xl;
+
+  @media (max-width: $breakpoint-lg) {
+    text-align: center;
+    padding-top: 0;
+  }
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: $spacing-xs $spacing-lg;
+  border-radius: $radius-full;
+  color: #fbbf24;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  margin-bottom: $spacing-xl;
+  backdrop-filter: blur(10px);
+
+  svg {
+    stroke: #fbbf24;
+  }
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+  font-weight: 800;
+  color: $white;
+  margin-bottom: $spacing-lg;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+
+  @media (max-width: $breakpoint-lg) {
+    br {
+      display: none;
+    }
+  }
+
+  .gradient-text {
+    display: inline;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 4s linear infinite;
+  }
+}
+
+@keyframes shimmer {
+  to { background-position: 200% center; }
+}
+
+.hero-subtitle {
+  font-size: clamp(1rem, 1.5vw, 1.125rem);
+  color: rgba($white, 0.75);
+  margin-bottom: $spacing-2xl;
+  line-height: 1.7;
+  max-width: 540px;
+
+  @media (max-width: $breakpoint-lg) {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.hero-actions {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-3xl;
+
+  @media (max-width: $breakpoint-lg) {
+    justify-content: center;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+  }
+
+  .btn {
+    padding: 1rem 2rem;
+    border-radius: $radius-xl;
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-base;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    border: none;
+
+    @media (max-width: $breakpoint-sm) {
+      width: 100%;
+      justify-content: center;
+    }
+
+    svg {
+      transition: transform 0.3s ease;
+    }
+
+    &:hover svg {
+      transform: translateX(4px);
+    }
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: $white;
+    box-shadow: 0 10px 40px rgba(245, 158, 11, 0.3);
+
+    &:hover {
+      box-shadow: 0 20px 60px rgba(245, 158, 11, 0.4);
+      transform: translateY(-2px);
+    }
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: $white;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Advantages Grid (4 cards in a row)
+.hero-advantages {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-2xl;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.advantage-card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-lg;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: $radius-lg;
+  transition: all 0.3s ease;
+
+  @media (max-width: $breakpoint-lg) {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(245, 158, 11, 0.3);
+    transform: translateY(-2px);
+
+    .advantage-icon {
+      transform: scale(1.1);
+
+      svg {
+        stroke: #fbbf24;
+      }
+    }
+  }
+}
+
+.advantage-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: rgba(245, 158, 11, 0.1);
+  border-radius: $radius-lg;
+  transition: all 0.3s ease;
+
+  svg {
+    stroke: rgba(245, 158, 11, 0.8);
+    transition: stroke 0.3s ease;
+  }
+}
+
+.advantage-content {
+  flex: 1;
+
+  @media (max-width: $breakpoint-lg) {
+    text-align: center;
+  }
+}
+
+.advantage-title {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin-bottom: $spacing-xs;
+}
+
+.advantage-desc {
+  font-size: $font-size-sm;
+  color: rgba($white, 0.6);
+  line-height: 1.4;
+}
+
+// =====================================================
+// CATEGORIES BENTO GRID
+// =====================================================
+.hero-categories {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: $radius-2xl;
+  padding: $spacing-xl;
+  backdrop-filter: blur(20px);
+
+  @media (max-width: $breakpoint-lg) {
+    padding: $spacing-lg;
+  }
+}
+
+.categories-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+
+  h3 {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $white;
+    margin: 0;
+  }
+
+  .view-all {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    color: rgba(245, 158, 11, 0.9);
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    text-decoration: none;
+    transition: all 0.3s ease;
+
+    svg {
+      stroke: currentColor;
+      transition: transform 0.3s ease;
+    }
+
+    &:hover {
+      color: #fbbf24;
+
+      svg {
+        transform: translateX(3px);
+      }
+    }
+  }
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+  grid-auto-rows: 140px;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 120px;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+    grid-auto-rows: 100px;
+  }
+}
+
+.category-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: $spacing-lg;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: $radius-xl;
+  text-decoration: none;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(245, 158, 11, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(245, 158, 11, 0.2);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .category-icon {
+      transform: scale(1.2) rotate(-5deg);
+    }
+  }
+
+  &.category-large {
+    grid-column: span 2;
+    grid-row: span 2;
+
+    @media (max-width: $breakpoint-md) {
+      grid-column: span 1;
+      grid-row: span 1;
+    }
+
+    .category-icon {
+      font-size: 4rem;
+    }
+
+    .category-name {
+      font-size: $font-size-xl;
+    }
+  }
+
+  &.category-tall {
+    grid-row: span 2;
+
+    @media (max-width: $breakpoint-md) {
+      grid-row: span 1;
+    }
+
+    .category-icon {
+      font-size: 3rem;
+    }
+  }
+}
+
+.category-image {
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+}
+
+.category-icon {
+  font-size: 2.5rem;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+}
+
+.category-info {
+  position: relative;
+  z-index: 1;
+}
+
+.category-name {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin-bottom: $spacing-xs;
+}
+
+.category-count {
+  font-size: $font-size-sm;
+  color: rgba($white, 0.6);
+  font-weight: $font-weight-medium;
+}
+
+// Scroll Indicator
+.scroll-indicator {
+  position: absolute;
+  bottom: $spacing-2xl;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba($white, 0.5);
+  cursor: pointer;
+  z-index: 10;
+  animation: bounce 2s infinite;
+
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translate(-50%, 0);
+  }
+  40% {
+    transform: translate(-50%, -10px);
+  }
+  60% {
+    transform: translate(-50%, -5px);
+  }
+}
+
+// Animation Classes
+.animate-fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  &.delay-1 {
+    transition-delay: 0.1s;
+  }
+  &.delay-2 {
+    transition-delay: 0.2s;
+  }
+  &.delay-3 {
+    transition-delay: 0.3s;
+  }
+  &.delay-4 {
+    transition-delay: 0.4s;
+  }
+  &.delay-5 {
+    transition-delay: 0.5s;
+  }
+}
