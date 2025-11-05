@@ -306,7 +306,7 @@
   border-radius: $radius-2xl;
   padding: $spacing-xl;
   backdrop-filter: blur(20px);
-  grid-column: 1 / -1; // Занимает всю ширину hero-wrapper (обе колонки)
+  // Остается в правой колонке grid (не занимает всю ширину)
 
   @media (max-width: $breakpoint-lg) {
     padding: $spacing-lg;
