@@ -2,17 +2,13 @@
   <div class="home-page">
     <!-- Premium Hero Section with Video Background -->
     <section ref="heroSection" class="hero">
-      <!-- Video Background with Drone Footage -->
+      <!-- Background with Image -->
       <div class="hero-background">
-        <video
-          autoplay
-          muted
-          loop
-          playsinline
-          class="hero-video"
-        >
-          <source src="https://cdn.coverr.co/videos/coverr-aerial-view-of-a-commercial-kitchen-4637/1080p.mp4" type="video/mp4">
-        </video>
+        <img
+          src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=1920&q=80"
+          alt="Профессиональное кухонное оборудование"
+          class="hero-bg-image"
+        />
         <!-- Dark Overlay -->
         <div class="hero-overlay"></div>
         <!-- Animated Gradient Mesh -->
@@ -108,7 +104,7 @@
             </div>
           </div>
 
-          <!-- Categories Bento Grid -->
+          <!-- Categories Grid -->
           <div class="hero-categories animate-fade-in delay-5" :class="{ 'is-visible': isVisible }">
             <div class="categories-header">
               <h3>Популярные категории</h3>
@@ -122,8 +118,10 @@
 
             <div class="categories-grid">
               <NuxtLink to="/products?category=plity" class="category-item category-large">
-                <div class="category-image">
-                  <div class="category-icon">🔥</div>
+                <div class="category-icon-wrapper">
+                  <svg class="category-svg" viewBox="0 0 24 24" fill="none">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
                 </div>
                 <div class="category-info">
                   <div class="category-name">Плиты</div>
@@ -132,8 +130,11 @@
               </NuxtLink>
 
               <NuxtLink to="/products?category=pechi" class="category-item">
-                <div class="category-image">
-                  <div class="category-icon">🍕</div>
+                <div class="category-icon-wrapper">
+                  <svg class="category-svg" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" stroke="currentColor" stroke-width="1.5"/>
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
                 </div>
                 <div class="category-info">
                   <div class="category-name">Печи</div>
@@ -142,8 +143,13 @@
               </NuxtLink>
 
               <NuxtLink to="/products?category=holodilniki" class="category-item">
-                <div class="category-image">
-                  <div class="category-icon">❄️</div>
+                <div class="category-icon-wrapper">
+                  <svg class="category-svg" viewBox="0 0 24 24" fill="none">
+                    <rect x="5" y="2" width="14" height="20" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <line x1="5" y1="10" x2="19" y2="10" stroke="currentColor" stroke-width="1.5"/>
+                    <line x1="8" y1="6" x2="8" y2="8" stroke="currentColor" stroke-width="1.5"/>
+                    <line x1="8" y1="14" x2="8" y2="16" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
                 </div>
                 <div class="category-info">
                   <div class="category-name">Холодильники</div>
@@ -152,8 +158,11 @@
               </NuxtLink>
 
               <NuxtLink to="/products?category=frityurnicy" class="category-item">
-                <div class="category-image">
-                  <div class="category-icon">🍟</div>
+                <div class="category-icon-wrapper">
+                  <svg class="category-svg" viewBox="0 0 24 24" fill="none">
+                    <path d="M8 3v3M16 3v3M3 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M12 12v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
                 </div>
                 <div class="category-info">
                   <div class="category-name">Фритюрницы</div>
@@ -162,8 +171,10 @@
               </NuxtLink>
 
               <NuxtLink to="/products?category=grili" class="category-item category-tall">
-                <div class="category-image">
-                  <div class="category-icon">🥩</div>
+                <div class="category-icon-wrapper">
+                  <svg class="category-svg" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
                 </div>
                 <div class="category-info">
                   <div class="category-name">Грили</div>
@@ -172,8 +183,11 @@
               </NuxtLink>
 
               <NuxtLink to="/products?category=morozilniki" class="category-item">
-                <div class="category-image">
-                  <div class="category-icon">🧊</div>
+                <div class="category-icon-wrapper">
+                  <svg class="category-svg" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2v20M2 12h20M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
                 </div>
                 <div class="category-info">
                   <div class="category-name">Морозильники</div>
