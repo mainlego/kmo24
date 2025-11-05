@@ -194,7 +194,7 @@
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, $primary-500 0%, #d97706 100%);
+    background: $gradient-primary;
     color: $white;
     box-shadow: 0 10px 40px rgba($primary-500, 0.3);
 

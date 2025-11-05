@@ -597,9 +597,9 @@ onUnmounted(() => {
     border-radius: $radius-2xl;
     padding: 2px;
     background: linear-gradient(135deg,
-      rgba(99, 102, 241, 1) 0%,
-      rgba(139, 92, 246, 1) 50%,
-      rgba(236, 72, 153, 1) 100%
+      rgba($primary-500, 1) 0%,
+      rgba($primary-light, 1) 50%,
+      rgba($primary-light, 1) 100%
     );
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -615,8 +615,8 @@ onUnmounted(() => {
     inset: -2px;
     border-radius: $radius-2xl;
     background: linear-gradient(135deg,
-      rgba(99, 102, 241, 0.1) 0%,
-      rgba(236, 72, 153, 0.1) 100%
+      rgba($primary-500, 0.1) 0%,
+      rgba($primary-light, 0.1) 100%
     );
     opacity: 0;
     transition: opacity 0.4s ease;
@@ -627,7 +627,7 @@ onUnmounted(() => {
   &:hover {
     transform: translateY(-16px) rotateX(5deg);
     box-shadow:
-      0 30px 60px rgba(99, 102, 241, 0.25),
+      0 30px 60px rgba($primary-500, 0.25),
       0 10px 25px rgba(0, 0, 0, 0.1);
 
     &::before {
@@ -641,14 +641,14 @@ onUnmounted(() => {
     .feature-icon {
       transform: translateZ(20px) scale(1.15) rotate(10deg);
       box-shadow:
-        0 20px 40px rgba(99, 102, 241, 0.4),
-        0 0 30px rgba(236, 72, 153, 0.3);
+        0 20px 40px rgba($primary-500, 0.4),
+        0 0 30px rgba($primary-light, 0.3);
     }
 
     .feature-title {
       transform: translateZ(10px);
       color: transparent;
-      background: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
+      background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 100%);
       -webkit-background-clip: text;
       background-clip: text;
     }
@@ -671,7 +671,7 @@ onUnmounted(() => {
   margin: 0 auto $spacing-lg;
   padding: $spacing-lg;
   border-radius: $radius-2xl;
-  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #fb923c 100%);
+  background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 50%, #fbbf24 100%);
   color: $white;
   display: flex;
   align-items: center;
@@ -997,7 +997,7 @@ onUnmounted(() => {
     transform: translateX(-50%);
     width: 1000px;
     height: 1000px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba($primary-500, 0.05) 0%, transparent 70%);
     pointer-events: none;
   }
 
@@ -1036,7 +1036,7 @@ onUnmounted(() => {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+    background: linear-gradient(135deg, rgba($primary-500, 0.1) 0%, rgba($primary-light, 0.1) 100%);
     opacity: 0;
     transition: opacity 0.5s ease;
     z-index: 2;
@@ -1159,8 +1159,8 @@ onUnmounted(() => {
     width: 140%;
     height: 100%;
     background:
-      radial-gradient(ellipse at 30% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 70% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 50%);
+      radial-gradient(ellipse at 30% 20%, rgba($primary-500, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 80%, rgba($primary-light, 0.08) 0%, transparent 50%);
     pointer-events: none;
   }
 
@@ -1201,21 +1201,21 @@ onUnmounted(() => {
     left: $spacing-xl;
     font-size: 6rem;
     font-weight: $font-weight-bold;
-    color: rgba(99, 102, 241, 0.1);
+    color: rgba($primary-500, 0.1);
     line-height: 1;
     font-family: Georgia, serif;
   }
 
   &:hover {
-    border-color: rgba(99, 102, 241, 0.3);
+    border-color: rgba($primary-500, 0.3);
     transform: translateY(-8px);
     box-shadow:
-      0 20px 40px rgba(99, 102, 241, 0.15),
-      0 0 0 1px rgba(99, 102, 241, 0.1);
+      0 20px 40px rgba($primary-500, 0.15),
+      0 0 0 1px rgba($primary-500, 0.1);
 
     .avatar-circle {
       transform: scale(1.1) rotate(5deg);
-      box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 8px 16px rgba($primary-500, 0.3);
     }
 
     .testimonial-rating svg {
@@ -1247,14 +1247,14 @@ onUnmounted(() => {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #fb923c 100%);
+  background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 50%, #fbbf24 100%);
   color: $white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: $font-weight-bold;
   font-size: $font-size-lg;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 4px 12px rgba($primary-500, 0.2);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -1278,7 +1278,7 @@ onUnmounted(() => {
 .testimonial-rating {
   display: flex;
   gap: 0.25rem;
-  color: #f59e0b;
+  color: #f59e0be6;
 
   svg {
     transition: transform 0.3s ease;
@@ -1302,11 +1302,11 @@ onUnmounted(() => {
   gap: $spacing-xl;
   padding: $spacing-2xl;
   background: linear-gradient(135deg,
-    rgba(99, 102, 241, 0.05) 0%,
-    rgba(236, 72, 153, 0.05) 100%
+    rgba($primary-500, 0.05) 0%,
+    rgba($primary-light, 0.05) 100%
   );
   border-radius: $radius-2xl;
-  border: 2px solid rgba(99, 102, 241, 0.1);
+  border: 2px solid rgba($primary-500, 0.1);
   position: relative;
   overflow: hidden;
 
@@ -1354,7 +1354,7 @@ onUnmounted(() => {
     height: 60%;
     background: linear-gradient(180deg,
       transparent 0%,
-      rgba(99, 102, 241, 0.3) 50%,
+      rgba($primary-500, 0.3) 50%,
       transparent 100%
     );
 
@@ -1369,7 +1369,7 @@ onUnmounted(() => {
   width: 60px;
   height: 60px;
   border-radius: $radius-xl;
-  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #fb923c 100%);
+  background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 50%, #fbbf24 100%);
   color: $white;
   display: flex;
   align-items: center;
@@ -1382,7 +1382,7 @@ onUnmounted(() => {
 
   .stat-item:hover & {
     transform: scale(1.1) rotate(5deg);
-    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 8px 16px rgba($primary-500, 0.3);
   }
 }
 
@@ -1393,7 +1393,7 @@ onUnmounted(() => {
 .stat-value {
   font-size: $font-size-2xl;
   font-weight: $font-weight-bold;
-  background: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
+  background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

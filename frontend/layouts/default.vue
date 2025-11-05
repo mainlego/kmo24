@@ -449,7 +449,7 @@ onUnmounted(() => {
   width: 40px;
   height: 40px;
   border-radius: $radius-lg;
-  background: linear-gradient(135deg, #f59e0b, #ea580c);
+  background: linear-gradient(135deg, #f59e0be6, #fbbf24);
   color: $white;
   transition: transform 0.3s ease;
 
@@ -465,7 +465,7 @@ onUnmounted(() => {
   color: $gray-900;
 
   .logo-accent {
-    background: linear-gradient(135deg, #f59e0b, #ea580c);
+    background: linear-gradient(135deg, #f59e0be6, #fbbf24);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -707,7 +707,7 @@ onUnmounted(() => {
       width: 48px;
       height: 48px;
       border-radius: $radius-xl;
-      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      background: linear-gradient(135deg, #f59e0be6, #fbbf24);
       color: $white;
 
       svg {
@@ -722,7 +722,7 @@ onUnmounted(() => {
       color: $white;
 
       .logo-accent {
-        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        background: linear-gradient(135deg, #fbbf24, #f59e0be6);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -957,7 +957,7 @@ onUnmounted(() => {
   justify-content: space-between;
   padding: $spacing-xl $spacing-lg;
   border-bottom: 1px solid rgba($gray-200, 0.8);
-  background: linear-gradient(135deg, #f59e0b, #ea580c);
+  background: linear-gradient(135deg, #f59e0be6, #fbbf24);
 }
 
 .mobile-menu-logo {
@@ -1041,7 +1041,7 @@ onUnmounted(() => {
   }
 
   &:hover {
-    background: linear-gradient(135deg, rgba(#f59e0b, 0.1), rgba(#ea580c, 0.1));
+    background: linear-gradient(135deg, rgba(#f59e0be6, 0.1), rgba(#fbbf24, 0.1));
     color: $primary;
     transform: translateX(8px);
     box-shadow: $shadow-sm;
@@ -1069,7 +1069,7 @@ onUnmounted(() => {
   min-width: 24px;
   height: 24px;
   padding: 0 8px;
-  background: linear-gradient(135deg, #f59e0b, #ea580c);
+  background: linear-gradient(135deg, #f59e0be6, #fbbf24);
   color: $white;
   font-size: $font-size-xs;
   font-weight: $font-weight-bold;

@@ -301,7 +301,7 @@ const handleSubmit = async () => {
   &.orb-1 {
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(236, 72, 153, 0.8) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.8) 0%, transparent 70%);
     top: -20%;
     right: -10%;
   }
@@ -309,7 +309,7 @@ const handleSubmit = async () => {
   &.orb-2 {
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.8) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.8) 0%, transparent 70%);
     bottom: -30%;
     left: -15%;
     animation-delay: -7s;
@@ -422,7 +422,7 @@ const handleSubmit = async () => {
     font-size: $font-size-sm;
 
     svg {
-      color: #f59e0b;
+      color: #f59e0be6;
     }
   }
 
@@ -438,8 +438,8 @@ const handleSubmit = async () => {
 
     &:focus {
       outline: none;
-      border-color: #f59e0b;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      border-color: #f59e0be6;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
     }
 
     &::placeholder {
@@ -455,7 +455,7 @@ const handleSubmit = async () => {
   .submit-btn {
     width: 100%;
     padding: $spacing-md $spacing-xl;
-    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #fb923c 100%);
+    background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 50%, #fbbf24 100%);
     color: $white;
     border: none;
     border-radius: $radius-lg;
@@ -470,7 +470,7 @@ const handleSubmit = async () => {
 
     &:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
     }
 
     &:disabled {
@@ -514,11 +514,11 @@ const handleSubmit = async () => {
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 8px 16px rgba(245, 158, 11, 0.15);
 
     .card-icon {
       transform: scale(1.1) rotate(5deg);
-      box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 8px 16px rgba(245, 158, 11, 0.3);
     }
   }
 }
@@ -527,7 +527,7 @@ const handleSubmit = async () => {
   width: 64px;
   height: 64px;
   border-radius: $radius-xl;
-  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #fb923c 100%);
+  background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 50%, #fbbf24 100%);
   color: $white;
   display: flex;
   align-items: center;
@@ -554,12 +554,12 @@ const handleSubmit = async () => {
 }
 
 .contact-link {
-  color: #f59e0b;
+  color: #f59e0be6;
   text-decoration: none;
   transition: all 0.2s ease;
 
   &:hover {
-    color: #ea580c;
+    color: #fbbf24;
     text-decoration: underline;
   }
 }
@@ -574,7 +574,7 @@ const handleSubmit = async () => {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 100%);
   color: $white;
   display: flex;
   align-items: center;
@@ -584,7 +584,7 @@ const handleSubmit = async () => {
 
   &:hover {
     transform: translateY(-4px) scale(1.1);
-    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 8px 16px rgba(245, 158, 11, 0.4);
   }
 }
 
@@ -607,7 +607,7 @@ const handleSubmit = async () => {
   gap: $spacing-md;
 
   .map-icon {
-    color: #f59e0b;
+    color: #f59e0be6;
     opacity: 0.5;
   }
 
