@@ -1,99 +1,185 @@
 <template>
   <div class="home-page">
-    <!-- Hero Section with Image Background -->
+    <!-- Premium Hero Section with Video Background -->
     <section ref="heroSection" class="hero">
-      <!-- Background Image with Parallax -->
-      <div class="hero-background" :style="{ transform: `translateY(${parallaxOffset}px)` }">
-        <img
-          src="https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?w=1920&q=85"
-          alt="Профессиональное кухонное оборудование"
-          class="hero-bg-image"
-        />
-        <!-- Gradient Overlay with Blur -->
+      <!-- Video Background with Drone Footage -->
+      <div class="hero-background">
+        <video
+          autoplay
+          muted
+          loop
+          playsinline
+          class="hero-video"
+        >
+          <source src="https://cdn.coverr.co/videos/coverr-aerial-view-of-a-commercial-kitchen-4637/1080p.mp4" type="video/mp4">
+        </video>
+        <!-- Dark Overlay -->
         <div class="hero-overlay"></div>
         <!-- Animated Gradient Mesh -->
         <div class="gradient-mesh"></div>
-        <!-- Animated Particles -->
-        <div class="particles">
-          <div v-for="i in 20" :key="i" class="particle" :style="getParticleStyle(i)"></div>
-        </div>
       </div>
 
       <div class="container">
-        <div class="hero-content">
-          <div class="hero-badge animate-fade-in-up" :class="{ 'is-visible': isVisible }">
-            <span class="badge-icon">🔥</span>
-            <span>Б/У оборудование премиум качества</span>
-          </div>
-          <h1 class="hero-title animate-fade-in-up delay-1" :class="{ 'is-visible': isVisible }">
-            Профессиональное оборудование
-            <span class="gradient-text">для вашего бизнеса</span>
-          </h1>
-          <p class="hero-subtitle animate-fade-in-up delay-2" :class="{ 'is-visible': isVisible }">
-            КМО24 - комиссионный магазин проверенного оборудования для кафе и ресторанов в Красноярске.<br>
-            <strong class="text-primary-500">Мы также покупаем ваше оборудование по выгодной цене!</strong>
-          </p>
-
-          <!-- Категории товаров -->
-          <div class="hero-categories animate-fade-in-up delay-3" :class="{ 'is-visible': isVisible }">
-            <NuxtLink to="/products?category=plity" class="category-card">
-              <div class="category-icon">🔥</div>
-              <span>Плиты</span>
-            </NuxtLink>
-            <NuxtLink to="/products?category=pechi" class="category-card">
-              <div class="category-icon">🍕</div>
-              <span>Печи</span>
-            </NuxtLink>
-            <NuxtLink to="/products?category=holodilniki" class="category-card">
-              <div class="category-icon">❄️</div>
-              <span>Холодильники</span>
-            </NuxtLink>
-            <NuxtLink to="/products?category=morozilniki" class="category-card">
-              <div class="category-icon">🧊</div>
-              <span>Морозильники</span>
-            </NuxtLink>
-            <NuxtLink to="/products?category=frityurnicy" class="category-card">
-              <div class="category-icon">🍟</div>
-              <span>Фритюрницы</span>
-            </NuxtLink>
-            <NuxtLink to="/products?category=grili" class="category-card">
-              <div class="category-icon">🥩</div>
-              <span>Грили</span>
-            </NuxtLink>
-            <NuxtLink to="/products" class="category-card category-card--all">
-              <div class="category-icon">📦</div>
-              <span>Все категории</span>
-            </NuxtLink>
-          </div>
-
-          <div class="hero-actions animate-fade-in-up delay-4" :class="{ 'is-visible': isVisible }">
-            <NuxtLink to="/products" class="btn btn-primary btn-glow">
-              <span>Каталог оборудования</span>
+        <div class="hero-wrapper">
+          <!-- Main Content -->
+          <div class="hero-content">
+            <div class="hero-badge animate-fade-in" :class="{ 'is-visible': isVisible }">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
               </svg>
-            </NuxtLink>
-            <NuxtLink to="/contacts" class="btn btn-glass">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span>Связаться с нами</span>
-            </NuxtLink>
+              <span>Проверенное оборудование премиум-класса</span>
+            </div>
+
+            <h1 class="hero-title animate-fade-in delay-1" :class="{ 'is-visible': isVisible }">
+              Профессиональное<br>
+              <span class="gradient-text">кухонное оборудование</span><br>
+              для вашего бизнеса
+            </h1>
+
+            <p class="hero-subtitle animate-fade-in delay-2" :class="{ 'is-visible': isVisible }">
+              Крупнейший выбор б/у оборудования для HoReCa в Красноярске.<br>
+              Гарантия качества, техническая поддержка, выгодный обмен вашей техники.
+            </p>
+
+            <div class="hero-actions animate-fade-in delay-3" :class="{ 'is-visible': isVisible }">
+              <NuxtLink to="/products" class="btn btn-primary">
+                <span>Смотреть каталог</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </NuxtLink>
+              <NuxtLink to="/contacts" class="btn btn-secondary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <span>Получить консультацию</span>
+              </NuxtLink>
+            </div>
+
+            <!-- Advantages Grid -->
+            <div class="hero-advantages animate-fade-in delay-4" :class="{ 'is-visible': isVisible }">
+              <div class="advantage-card">
+                <div class="advantage-icon">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="advantage-content">
+                  <div class="advantage-title">100% проверка</div>
+                  <div class="advantage-desc">Полная диагностика перед продажей</div>
+                </div>
+              </div>
+
+              <div class="advantage-card">
+                <div class="advantage-icon">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="advantage-content">
+                  <div class="advantage-title">Выкуп техники</div>
+                  <div class="advantage-desc">Покупаем ваше оборудование</div>
+                </div>
+              </div>
+
+              <div class="advantage-card">
+                <div class="advantage-icon">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                    <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="advantage-content">
+                  <div class="advantage-title">Быстрая доставка</div>
+                  <div class="advantage-desc">По городу за 1-2 дня</div>
+                </div>
+              </div>
+
+              <div class="advantage-card">
+                <div class="advantage-icon">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                    <path d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414 1 1 0 01-1.414-1.414z" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <div class="advantage-content">
+                  <div class="advantage-title">Техподдержка</div>
+                  <div class="advantage-desc">Консультации специалистов</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="hero-stats animate-fade-in-up delay-4" :class="{ 'is-visible': isVisible }">
-            <div class="stat-item">
-              <div class="stat-number" ref="stat1">300+</div>
-              <div class="stat-label">Единиц оборудования</div>
+
+          <!-- Categories Bento Grid -->
+          <div class="hero-categories animate-fade-in delay-5" :class="{ 'is-visible': isVisible }">
+            <div class="categories-header">
+              <h3>Популярные категории</h3>
+              <NuxtLink to="/products" class="view-all">
+                Все категории
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </NuxtLink>
             </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item">
-              <div class="stat-number" ref="stat2">7</div>
-              <div class="stat-label">Категорий</div>
-            </div>
-            <div class="stat-divider"></div>
-            <div class="stat-item">
-              <div class="stat-number" ref="stat3">100%</div>
-              <div class="stat-label">Проверенное</div>
+
+            <div class="categories-grid">
+              <NuxtLink to="/products?category=plity" class="category-item category-large">
+                <div class="category-image">
+                  <div class="category-icon">🔥</div>
+                </div>
+                <div class="category-info">
+                  <div class="category-name">Плиты</div>
+                  <div class="category-count">45+ товаров</div>
+                </div>
+              </NuxtLink>
+
+              <NuxtLink to="/products?category=pechi" class="category-item">
+                <div class="category-image">
+                  <div class="category-icon">🍕</div>
+                </div>
+                <div class="category-info">
+                  <div class="category-name">Печи</div>
+                  <div class="category-count">32+</div>
+                </div>
+              </NuxtLink>
+
+              <NuxtLink to="/products?category=holodilniki" class="category-item">
+                <div class="category-image">
+                  <div class="category-icon">❄️</div>
+                </div>
+                <div class="category-info">
+                  <div class="category-name">Холодильники</div>
+                  <div class="category-count">58+</div>
+                </div>
+              </NuxtLink>
+
+              <NuxtLink to="/products?category=frityurnicy" class="category-item">
+                <div class="category-image">
+                  <div class="category-icon">🍟</div>
+                </div>
+                <div class="category-info">
+                  <div class="category-name">Фритюрницы</div>
+                  <div class="category-count">24+</div>
+                </div>
+              </NuxtLink>
+
+              <NuxtLink to="/products?category=grili" class="category-item category-tall">
+                <div class="category-image">
+                  <div class="category-icon">🥩</div>
+                </div>
+                <div class="category-info">
+                  <div class="category-name">Грили</div>
+                  <div class="category-count">28+ товаров</div>
+                </div>
+              </NuxtLink>
+
+              <NuxtLink to="/products?category=morozilniki" class="category-item">
+                <div class="category-image">
+                  <div class="category-icon">🧊</div>
+                </div>
+                <div class="category-info">
+                  <div class="category-name">Морозильники</div>
+                  <div class="category-count">19+</div>
+                </div>
+              </NuxtLink>
             </div>
           </div>
         </div>
