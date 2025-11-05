@@ -207,18 +207,18 @@
       </div>
     </section>
 
-    <!-- Features Section -->
+    <!-- Features Section (Hero Style) -->
     <section class="features">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title">Почему выбирают КМО24</h2>
+          <h2 class="section-title">Почему выбирают <span class="gradient-accent">КМО24</span></h2>
           <p class="section-subtitle">Надежный партнер для оснащения вашего заведения</p>
         </div>
         <div class="features-grid">
-          <div class="feature-card" data-index="0">
+          <div class="feature-card">
             <div class="feature-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor"/>
               </svg>
             </div>
             <h3 class="feature-title">Проверенное качество</h3>
@@ -227,12 +227,10 @@
             </p>
           </div>
 
-          <div class="feature-card" data-index="1">
+          <div class="feature-card">
             <div class="feature-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor"/>
               </svg>
             </div>
             <h3 class="feature-title">Широкий ассортимент</h3>
@@ -241,10 +239,10 @@
             </p>
           </div>
 
-          <div class="feature-card" data-index="2">
+          <div class="feature-card">
             <div class="feature-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor"/>
               </svg>
             </div>
             <h3 class="feature-title">Быстрая доставка</h3>
@@ -253,10 +251,10 @@
             </p>
           </div>
 
-          <div class="feature-card" data-index="3">
+          <div class="feature-card">
             <div class="feature-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor"/>
               </svg>
             </div>
             <h3 class="feature-title">Выгодные цены</h3>
@@ -527,6 +525,7 @@ onUnmounted(() => {
 <style scoped lang="scss">
 @use 'assets/scss/variables' as *;
 @use 'assets/scss/hero' as *;
+@use 'assets/scss/features' as *;
 
 .home-page {
   min-height: 100vh;
