@@ -84,11 +84,10 @@
 // Main Content
 .hero-content {
   text-align: left;
-  padding-top: $spacing-2xl;
+  // Убран padding-top для выравнивания с категориями
 
   @media (max-width: $breakpoint-lg) {
     text-align: center;
-    padding-top: 0;
   }
 }
 
