@@ -28,7 +28,8 @@
       "Bash(find:*)",
       "Bash(npm run dev:*)",
       "Bash(/tmp/index_top.vue)",
-      "Bash(/tmp/index_bottom.vue)"
+      "Bash(/tmp/index_bottom.vue)",
+      "Bash(xargs sed:*)"
     ],
     "deny": [],
     "ask": []

@@ -54,55 +54,58 @@
             </div>
 
             <!-- Info -->
-            <div class="product-detail__info">
-              <h1 class="product-detail__title">{{ product.name }}</h1>
+            <div class="product-info">
+              <div class="product-info__header">
+                <h1 class="product-info__title">{{ product.name }}</h1>
+                <p class="product-info__subtitle">{{ product.description }}</p>
 
-              <!-- Rating -->
-              <div class="product-detail__rating">
-                <div class="product-detail__stars">
-                  <svg
-                    v-for="star in 5"
-                    :key="star"
-                    :class="{ 'product-detail__star--filled': star <= Math.round(product.rating.average) }"
-                    class="product-detail__star"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <path
-                      d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-                      :fill="star <= Math.round(product.rating.average) ? 'currentColor' : 'none'"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    />
-                  </svg>
+                <!-- Rating -->
+                <div class="product-info__rating">
+                  <div class="stars">
+                    <svg
+                      v-for="star in 5"
+                      :key="star"
+                      :class="{ 'empty': star > Math.round(product.rating.average) }"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                    </svg>
+                  </div>
+                  <span class="rating-value">{{ product.rating.average.toFixed(1) }}</span>
+                  <span class="rating-count">({{ product.rating.count }} отзывов)</span>
                 </div>
-                <span class="product-detail__rating-text">
-                  {{ product.rating.average.toFixed(1) }} ({{ product.rating.count }} отзывов)
-                </span>
+
+                <!-- Tags -->
+                <div class="product-info__tags">
+                  <span class="tag">Гарантия качества</span>
+                  <span class="tag">Быстрая доставка</span>
+                  <span class="tag" v-if="product.stock.quantity > 0">В наличии</span>
+                </div>
               </div>
 
               <!-- Price -->
-              <div class="product-detail__price-block">
-                <div class="product-detail__price">
-                  <span v-if="hasDiscount" class="product-detail__old-price">
-                    {{ formatPrice(product.oldPrice!) }}
-                  </span>
-                  <span class="product-detail__current-price">
-                    {{ formatPrice(product.price) }}
-                  </span>
-                </div>
-                <BaseBadge
-                  v-if="isInStock"
-                  variant="success"
-                  size="md"
-                >
-                  В наличии: {{ product.stock.quantity }} шт.
-                </BaseBadge>
-                <BaseBadge v-else variant="danger" size="md">
-                  Нет в наличии
-                </BaseBadge>
+              <div class="product-price">
+                <span class="product-price__current">
+                  {{ formatPrice(product.price) }}
+                </span>
+                <span v-if="hasDiscount" class="product-price__old">
+                  {{ formatPrice(product.oldPrice!) }}
+                </span>
+                <span v-if="hasDiscount" class="product-price__discount">
+                  -{{ Math.round(((product.oldPrice! - product.price) / product.oldPrice!) * 100) }}%
+                </span>
+              </div>
+
+              <!-- Stock Status -->
+              <div v-if="isInStock" class="product-info__tags">
+                <span class="tag">В наличии: {{ product.stock.quantity }} шт.</span>
+              </div>
+              <div v-else class="product-info__tags">
+                <span class="tag" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">Нет в наличии</span>
               </div>
 
               <!-- Short Description -->
@@ -111,38 +114,32 @@
               </p>
 
               <!-- Actions -->
-              <div class="product-detail__actions">
-                <div class="product-detail__quantity">
-                  <label>Количество:</label>
-                  <div class="product-detail__quantity-controls">
-                    <button @click="decreaseQuantity" :disabled="quantity <= 1">-</button>
-                    <input v-model.number="quantity" type="number" min="1" :max="product.stock.quantity" />
-                    <button @click="increaseQuantity" :disabled="quantity >= product.stock.quantity">+</button>
-                  </div>
+              <div class="product-actions">
+                <div class="product-actions__quantity">
+                  <button @click="decreaseQuantity" :disabled="quantity <= 1">−</button>
+                  <input v-model.number="quantity" type="number" min="1" :max="product.stock.quantity" />
+                  <button @click="increaseQuantity" :disabled="quantity >= product.stock.quantity">+</button>
                 </div>
 
-                <BaseButton
-                  variant="primary"
-                  size="lg"
+                <button
+                  class="product-actions__buy"
                   :disabled="!isInStock"
-                  :loading="isAddingToCart"
                   @click="handleAddToCart"
-                  fullWidth
-                  class="product-detail__cart-button"
                 >
                   {{ isInStock ? 'Добавить в корзину' : 'Нет в наличии' }}
-                </BaseButton>
+                </button>
+              </div>
 
-                <BaseButton
-                  variant="outline"
-                  size="lg"
+              <!-- Favorite Button -->
+              <div class="product-info__tags" style="margin-top: 1rem;">
+                <button
                   @click="toggleFavorite"
-                  fullWidth
-                  class="product-detail__favorite-button"
+                  class="tag"
+                  style="cursor: pointer; border: none; font-size: 14px;"
                 >
                   <span v-if="isFavorite">❤️ В избранном</span>
                   <span v-else>🤍 В избранное</span>
-                </BaseButton>
+                </button>
               </div>
 
               <!-- Features -->
@@ -439,378 +436,5 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 @use 'assets/scss/variables' as *;
-
-.product-detail {
-  min-height: calc(100vh - 200px);
-  padding: $spacing-xl 0;
-  background: linear-gradient(180deg, $white 0%, $gray-50 100%);
-
-  // New wrapper with grid layout
-  &__wrapper {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: $spacing-2xl;
-    align-items: start;
-
-    @media (max-width: $breakpoint-lg) {
-      grid-template-columns: 1fr;
-      gap: $spacing-xl;
-    }
-  }
-
-  &__content {
-    width: 100%;
-  }
-
-  // Sidebar Styles
-  &__sidebar {
-    position: sticky;
-    top: $spacing-xl;
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-xl;
-
-    @media (max-width: $breakpoint-lg) {
-      display: none;
-    }
-  }
-
-  // Mobile related products (shown only on mobile)
-  &__related-mobile {
-    display: none;
-
-    @media (max-width: $breakpoint-lg) {
-      display: block;
-      margin-top: $spacing-2xl;
-    }
-
-    h2 {
-      font-size: $font-size-2xl;
-      font-weight: $font-weight-bold;
-      color: $gray-900;
-      margin-bottom: $spacing-xl;
-    }
-  }
-
-  // Keep all existing styles...
-  &__breadcrumbs {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    margin-bottom: $spacing-xl;
-    font-size: $font-size-sm;
-    color: $gray-600;
-    flex-wrap: wrap;
-
-    a {
-      color: $primary;
-      text-decoration: none;
-      transition: color $transition-base;
-
-      &:hover {
-        color: $primary-light;
-      }
-    }
-  }
-
-  &__main {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: $spacing-2xl;
-    margin-bottom: $spacing-2xl;
-    background: $white;
-    padding: $spacing-xl;
-    border-radius: $radius-2xl;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-
-    @media (max-width: $breakpoint-md) {
-      grid-template-columns: 1fr;
-      padding: $spacing-lg;
-    }
-  }
-
-  &__cart-button {
-    background: $gradient-primary !important;
-    border: none;
-    font-weight: $font-weight-semibold;
-
-    &:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba($primary-500, 0.3);
-    }
-  }
-
-  &__favorite-button {
-    border-color: $primary;
-    color: $primary;
-
-    &:hover {
-      background: rgba($primary-500, 0.05);
-      border-color: $primary-light;
-    }
-  }
-
-  // Existing styles remain the same...
-  &__gallery,
-  &__info,
-  &__tabs,
-  &__price-block,
-  &__actions {
-    // Keep all existing styles
-  }
-
-  &__current-price {
-    font-size: $font-size-3xl;
-    font-weight: $font-weight-bold;
-    color: $gray-900; // Changed from primary to black
-  }
-}
-
-// Sidebar Related Products Styles
-.sidebar-related {
-  background: $white;
-  border-radius: $radius-xl;
-  padding: $spacing-lg;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: $spacing-lg;
-
-    h3 {
-      font-size: $font-size-lg;
-      font-weight: $font-weight-bold;
-      color: $gray-900;
-      margin: 0;
-    }
-  }
-
-  &__badge {
-    background: linear-gradient(135deg, $primary-500 0%, $primary-light 100%);
-    color: $white;
-    padding: $spacing-xs $spacing-sm;
-    border-radius: $radius-full;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
-  }
-
-  &__list {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-md;
-  }
-
-  &__item {
-    display: flex;
-    gap: $spacing-md;
-    padding: $spacing-md;
-    background: $gray-50;
-    border-radius: $radius-lg;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-
-    &:hover {
-      background: linear-gradient(135deg, rgba($primary-500, 0.05) 0%, rgba($primary-light, 0.05) 100%);
-      transform: translateX(-4px);
-      box-shadow: 0 4px 20px rgba($primary-500, 0.15);
-
-      .sidebar-related__quick-add {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      .sidebar-related__image img {
-        transform: scale(1.05);
-      }
-    }
-  }
-
-  &__image {
-    position: relative;
-    width: 80px;
-    height: 80px;
-    flex-shrink: 0;
-    border-radius: $radius-md;
-    overflow: hidden;
-    background: $white;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-  }
-
-  &__discount {
-    position: absolute;
-    top: $spacing-xs;
-    right: $spacing-xs;
-    background: $error;
-    color: $white;
-    padding: 2px 6px;
-    border-radius: $radius-sm;
-    font-size: $font-size-xs;
-    font-weight: $font-weight-bold;
-  }
-
-  &__content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: $spacing-xs;
-  }
-
-  &__title {
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
-    color: $gray-900;
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.4;
-  }
-
-  &__rating {
-    display: flex;
-    align-items: center;
-    gap: $spacing-xs;
-    color: $warning;
-    font-size: $font-size-xs;
-
-    svg {
-      flex-shrink: 0;
-    }
-  }
-
-  &__price {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-  }
-
-  &__old-price {
-    font-size: $font-size-xs;
-    color: $gray-500;
-    text-decoration: line-through;
-  }
-
-  &__current-price {
-    font-size: $font-size-base;
-    font-weight: $font-weight-bold;
-    color: $gray-900;
-  }
-
-  &__actions {
-    position: absolute;
-    right: $spacing-md;
-    bottom: $spacing-md;
-  }
-
-  &__quick-add {
-    width: 36px;
-    height: 36px;
-    border-radius: $radius-full;
-    background: $gradient-primary;
-    color: $white;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    &:hover {
-      transform: scale(1.1) !important;
-      box-shadow: 0 4px 16px rgba($primary-500, 0.4);
-    }
-  }
-
-  &__view-all {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: $spacing-sm;
-    margin-top: $spacing-lg;
-    padding: $spacing-md;
-    background: linear-gradient(135deg, rgba($primary-500, 0.1) 0%, rgba($primary-light, 0.1) 100%);
-    color: $primary;
-    text-decoration: none;
-    border-radius: $radius-lg;
-    font-weight: $font-weight-semibold;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background: $gradient-primary;
-      color: $white;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba($primary-500, 0.3);
-    }
-  }
-}
-
-// Sticky Consultation Block
-.sidebar-sticky {
-  &__content {
-    background: $gradient-primary;
-    border-radius: $radius-xl;
-    padding: $spacing-lg;
-    color: $white;
-    text-align: center;
-
-    h4 {
-      font-size: $font-size-lg;
-      font-weight: $font-weight-bold;
-      margin: 0 0 $spacing-sm 0;
-    }
-
-    p {
-      font-size: $font-size-sm;
-      opacity: 0.95;
-      margin-bottom: $spacing-lg;
-      line-height: 1.5;
-    }
-  }
-
-  &__call {
-    width: 100%;
-    padding: $spacing-md;
-    background: $white;
-    color: $primary;
-    border: none;
-    border-radius: $radius-lg;
-    font-size: $font-size-base;
-    font-weight: $font-weight-semibold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: $spacing-sm;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background: rgba($white, 0.95);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    }
-  }
-}
-
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 $spacing-lg;
-
-  @media (max-width: $breakpoint-md) {
-    padding: 0 $spacing-md;
-  }
-}
+@use 'assets/scss/product' as *;
 </style>
