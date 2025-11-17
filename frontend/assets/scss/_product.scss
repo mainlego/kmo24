@@ -28,6 +28,20 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
 
+  &__main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 2rem;
+    background: $white;
+    border-radius: $radius-2xl;
+
+    @media (max-width: $breakpoint-md) {
+      grid-template-columns: 1fr;
+      padding: 1.5rem;
+    }
+  }
+
   &__sidebar {
     position: relative;
 

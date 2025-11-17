@@ -31,21 +31,21 @@
           <!-- Main Section -->
           <div class="product-detail__main">
             <!-- Gallery -->
-            <div class="product-detail__gallery">
-              <div class="product-detail__main-image">
+            <div class="product-gallery">
+              <div class="product-gallery__main-image">
                 <img
                   :src="currentImage.url"
                   :alt="currentImage.alt || product.name"
                 />
-                <div v-if="hasDiscount" class="product-detail__discount-badge">
+                <div v-if="hasDiscount" class="discount-badge">
                   -{{ discountPercent }}%
                 </div>
               </div>
-              <div v-if="product.images.length > 1" class="product-detail__thumbnails">
+              <div v-if="product.images.length > 1" class="product-gallery__thumbnails">
                 <button
                   v-for="(image, index) in product.images"
                   :key="index"
-                  :class="['product-detail__thumbnail', { 'product-detail__thumbnail--active': currentImageIndex === index }]"
+                  :class="['product-gallery__thumb', { 'active': currentImageIndex === index }]"
                   @click="currentImageIndex = index"
                 >
                   <img :src="image.url" :alt="image.alt || `${product.name} - изображение ${index + 1}`" />
@@ -57,7 +57,7 @@
             <div class="product-info">
               <div class="product-info__header">
                 <h1 class="product-info__title">{{ product.name }}</h1>
-                <p class="product-info__subtitle">{{ product.description }}</p>
+                <p class="product-info__subtitle">{{ typeof product.description === 'object' ? product.description.short : product.description }}</p>
 
                 <!-- Rating -->
                 <div class="product-info__rating">
