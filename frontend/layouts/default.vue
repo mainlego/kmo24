@@ -22,16 +22,20 @@
               <span class="nav-link-text">Каталог</span>
               <span class="nav-link-underline"></span>
             </NuxtLink>
-            <NuxtLink to="/about" class="nav-link">
-              <span class="nav-link-text">О нас</span>
-              <span class="nav-link-underline"></span>
-            </NuxtLink>
             <NuxtLink to="/delivery" class="nav-link">
               <span class="nav-link-text">Доставка</span>
               <span class="nav-link-underline"></span>
             </NuxtLink>
             <NuxtLink to="/contacts" class="nav-link">
               <span class="nav-link-text">Контакты</span>
+              <span class="nav-link-underline"></span>
+            </NuxtLink>
+            <NuxtLink to="/warranty" class="nav-link">
+              <span class="nav-link-text">Гарантия</span>
+              <span class="nav-link-underline"></span>
+            </NuxtLink>
+            <NuxtLink to="/news" class="nav-link">
+              <span class="nav-link-text">Новости</span>
               <span class="nav-link-underline"></span>
             </NuxtLink>
           </div>
@@ -109,12 +113,6 @@
                 </svg>
                 <span>Каталог</span>
               </NuxtLink>
-              <NuxtLink to="/about" class="mobile-nav-link" @click="isMobileMenuOpen = false">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M13 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V9M13 2L20 9M13 2V9H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>О нас</span>
-              </NuxtLink>
               <NuxtLink to="/delivery" class="mobile-nav-link" @click="isMobileMenuOpen = false">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M13 16V6C13 5.46957 13.2107 4.96086 13.5858 4.58579C13.9609 4.21071 14.4696 4 15 4H20L23 8V16C23 16.5304 22.7893 17.0391 22.4142 17.4142C22.0391 17.7893 21.5304 18 21 18H20M13 16C13 16.5304 12.7893 17.0391 12.4142 17.4142C12.0391 17.7893 11.5304 18 11 18C10.4696 18 9.96086 17.7893 9.58579 17.4142C9.21071 17.0391 9 16.5304 9 16M13 16H9M9 16C9 15.4696 8.78929 14.9609 8.41421 14.5858C8.03914 14.2107 7.53043 14 7 14C6.46957 14 5.96086 14.2107 5.58579 14.5858C5.21071 14.9609 5 15.4696 5 16M9 16H5M5 16C5 16.5304 4.78929 17.0391 4.41421 17.4142C4.03914 17.7893 3.53043 18 3 18C2.46957 18 1.96086 17.7893 1.58579 17.4142C1.21071 17.0391 1 16.5304 1 16V6C1 5.46957 1.21071 4.96086 1.58579 4.58579C1.96086 4.21071 2.46957 4 3 4H9V16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -126,6 +124,20 @@
                   <path d="M3 5C3 3.89543 3.89543 3 5 3H8.27924C8.70967 3 9.09181 3.27543 9.22792 3.68377L10.7257 8.17721C10.8831 8.64932 10.6694 9.16531 10.2243 9.38787L7.96701 10.5165C9.06925 12.9612 11.0388 14.9308 13.4835 16.033L14.6121 13.7757C14.8347 13.3306 15.3507 13.1169 15.8228 13.2743L20.3162 14.7721C20.7246 14.9082 21 15.2903 21 15.7208V19C21 20.1046 20.1046 21 19 21H18C9.71573 21 3 14.2843 3 6V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <span>Контакты</span>
+              </NuxtLink>
+              <NuxtLink to="/warranty" class="mobile-nav-link" @click="isMobileMenuOpen = false">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Гарантия</span>
+              </NuxtLink>
+              <NuxtLink to="/news" class="mobile-nav-link" @click="isMobileMenuOpen = false">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M8 10h8M8 14h8M8 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Новости</span>
               </NuxtLink>
 
               <div class="mobile-menu-divider"></div>

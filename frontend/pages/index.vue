@@ -51,6 +51,34 @@
                 <span>Получить консультацию</span>
               </NuxtLink>
             </div>
+
+            <!-- Contact Info Block -->
+            <div class="hero-contacts animate-fade-in delay-4" :class="{ 'is-visible': isVisible }">
+              <div class="contact-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <a href="tel:+79029239704">+7 (902) 923-97-04</a>
+              </div>
+              <div class="contact-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <span>г. Красноярск, ул. Павлова, 55</span>
+              </div>
+              <a
+                href="https://yandex.ru/maps/?rtext=~55.997354,92.944368&rtt=auto"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-directions"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2L19 21l-7-4-7 4 7-19z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Как проехать</span>
+              </a>
+            </div>
           </div>
 
           <!-- Categories Grid (Right Column) -->
