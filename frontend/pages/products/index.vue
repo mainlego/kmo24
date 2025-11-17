@@ -2,8 +2,7 @@
   <div class="products-page">
     <PageHeader
       title="Каталог оборудования"
-      description="Профессиональное оборудование для кафе и ресторанов по выгодным ценам"
-      background-image="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=1920&h=400&fit=crop"
+      description="Профессиональное медицинское оборудование по выгодным ценам"
       :breadcrumbs="[{ text: 'Каталог' }]"
     />
 

@@ -1,6 +1,5 @@
 <template>
-  <div class="page-header" :style="{ backgroundImage: `url(${backgroundImage})` }">
-    <div class="page-header__overlay"></div>
+  <div class="page-header">
     <div class="container">
       <div class="page-header__content">
         <div class="page-header__breadcrumbs" v-if="breadcrumbs && breadcrumbs.length">
@@ -31,6 +30,8 @@
         <p v-if="description" class="page-header__description">
           {{ description }}
         </p>
+
+        <div class="page-header__underline"></div>
       </div>
     </div>
   </div>
@@ -49,9 +50,9 @@ interface Props {
   breadcrumbs?: Breadcrumb[];
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   description: '',
-  backgroundImage: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1920&h=400&fit=crop',
+  backgroundImage: '',
   breadcrumbs: () => [],
 });
 </script>
@@ -60,46 +61,25 @@ const props = withDefaults(defineProps<Props>(), {
 @use 'assets/scss/variables' as *;
 
 .page-header {
-  position: relative;
-  background-size: cover;
-  background-position: center;
-  padding: 6rem 0 4rem;
-  margin-bottom: 3rem;
-  overflow: hidden;
+  background: $white;
+  padding: 5.5rem 0 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid $gray-100;
 
   @media (max-width: $breakpoint-md) {
-    padding: 4rem 0 3rem;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      135deg,
-      rgba($primary, 0.85) 0%,
-      rgba($secondary, 0.75) 100%
-    );
-    z-index: 1;
-  }
-
-  &__overlay {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-    z-index: 2;
+    padding: 4.5rem 0 0.75rem;
+    margin-bottom: 1.5rem;
   }
 }
 
 .container {
-  position: relative;
-  z-index: 3;
+  max-width: $container-max-width;
+  margin: 0 auto;
+  padding: 0 $container-padding;
 }
 
 .page-header__content {
-  max-width: 800px;
+  max-width: 600px;
   margin: 0 auto;
   text-align: center;
 }
@@ -110,57 +90,78 @@ const props = withDefaults(defineProps<Props>(), {
   justify-content: center;
   flex-wrap: wrap;
   gap: $spacing-xs;
-  margin-bottom: $spacing-lg;
-  font-size: $font-size-sm;
+  margin-bottom: $spacing-md;
+  font-size: $font-size-xs;
+  opacity: 0.8;
 
   .breadcrumb-item {
-    color: rgba($white, 0.9);
+    color: $gray-500;
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    font-weight: $font-weight-medium;
 
     &:hover:not(.breadcrumb-item--active) {
-      color: $white;
-      text-decoration: underline;
+      color: $primary-500;
     }
 
     &--active {
-      color: $white;
+      color: $gray-700;
       font-weight: $font-weight-semibold;
     }
   }
 
   .breadcrumb-separator {
-    color: rgba($white, 0.5);
+    color: $gray-300;
+    margin: 0 2px;
   }
 }
 
 .page-header__title {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: $font-weight-bold;
-  color: $white;
-  margin: 0 0 $spacing-lg;
+  color: $gray-900;
+  margin: 0 0 $spacing-xs;
   line-height: $line-height-tight;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-  animation: fadeInUp 0.6s ease-out;
+  letter-spacing: -0.02em;
+  animation: fadeInUp 0.4s ease-out;
 }
 
 .page-header__description {
-  font-size: clamp($font-size-base, 2vw, $font-size-lg);
-  color: rgba($white, 0.95);
-  margin: 0;
+  font-size: $font-size-sm;
+  color: $gray-500;
+  margin: 0 0 $spacing-md;
   line-height: $line-height-relaxed;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
-  animation: fadeInUp 0.6s ease-out 0.1s backwards;
+  animation: fadeInUp 0.4s ease-out 0.05s backwards;
+}
+
+.page-header__underline {
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, $primary-500, $primary-light);
+  margin: 0 auto;
+  border-radius: 2px;
+  animation: scaleIn 0.3s ease-out 0.1s backwards;
 }
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
   }
 }
 </style>

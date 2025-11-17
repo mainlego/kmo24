@@ -1,47 +1,11 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-    <!-- Hero Section -->
-    <section class="relative h-[50vh] overflow-hidden">
-      <div class="absolute inset-0">
-        <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/90 via-purple-800/85 to-pink-900/90 z-10"></div>
-        <img
-          src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1920"
-          alt="News background"
-          class="w-full h-full object-cover"
-        />
-      </div>
-
-      <!-- Animated News Icons -->
-      <div class="absolute inset-0 z-20 overflow-hidden">
-        <div v-for="i in 5" :key="`icon-${i}`"
-          class="news-icon-animation absolute"
-          :style="`left: ${Math.random() * 100}%; top: ${Math.random() * 100}%; animation-delay: ${i * 0.5}s`">
-          <svg class="w-8 h-8 text-white/10" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z" clip-rule="evenodd"></path>
-            <path d="M15 7h1a2 2 0 012 2v5.5a1.5 1.5 0 01-3 0V7z"></path>
-          </svg>
-        </div>
-      </div>
-
-      <div class="relative z-30 h-full flex items-center justify-center text-center px-4">
-        <div class="max-w-4xl mx-auto">
-          <div class="inline-block animate-slide-down mb-6">
-            <span class="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm">
-              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
-              </svg>
-              Свежие новости и обновления
-            </span>
-          </div>
-
-          <h1 class="text-5xl md:text-7xl font-bold mb-6 animate-fade-in-up">
-            <span class="text-white">Новости компании</span>
-          </h1>
-
-          <p class="text-xl md:text-2xl text-white/90 animate-fade-in-up animation-delay-1">
-            Будьте в курсе последних событий и новинок
-          </p>
-        </div>
+    <!-- Page Header - Minimalist -->
+    <section class="page-header">
+      <div class="max-w-7xl mx-auto px-4">
+        <h1 class="page-title">Новости компании</h1>
+        <p class="page-subtitle">Будьте в курсе последних событий и новинок</p>
+        <div class="title-underline"></div>
       </div>
     </section>
 
@@ -60,12 +24,12 @@
               v-model="searchQuery"
               type="text"
               placeholder="Поиск новостей..."
-              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
             />
           </div>
 
           <!-- Category Filter -->
-          <select v-model="selectedCategory" class="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+          <select v-model="selectedCategory" class="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white">
             <option value="">Все категории</option>
             <option value="company">Компания</option>
             <option value="products">Продукты</option>
@@ -74,7 +38,7 @@
           </select>
 
           <!-- Sort -->
-          <select v-model="sortBy" class="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+          <select v-model="sortBy" class="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white">
             <option value="newest">Сначала новые</option>
             <option value="oldest">Сначала старые</option>
             <option value="popular">Популярные</option>
@@ -87,7 +51,7 @@
     <section v-if="featuredNews" class="py-12 px-4">
       <div class="max-w-7xl mx-auto">
         <div class="flex items-center mb-8">
-          <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mr-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-light rounded-xl flex items-center justify-center mr-3">
             <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
             </svg>
@@ -105,7 +69,7 @@
                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
               />
               <div class="absolute top-4 left-4">
-                <span class="inline-block px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-bold rounded-full">
+                <span class="inline-block px-3 py-1 bg-gradient-to-r from-primary-600 to-primary-500 text-white text-sm font-bold rounded-full">
                   Главное
                 </span>
               </div>
@@ -115,12 +79,12 @@
             <div class="flex flex-col justify-center">
               <div class="flex items-center gap-4 mb-4">
                 <span class="text-sm text-gray-500">{{ formatDate(featuredNews.date) }}</span>
-                <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                <span class="px-3 py-1 bg-primary-100 text-primary-700 text-xs font-semibold rounded-full">
                   {{ getCategoryName(featuredNews.category) }}
                 </span>
               </div>
 
-              <h3 class="text-3xl md:text-4xl font-bold mb-4 group-hover:text-blue-600 transition-colors">
+              <h3 class="text-3xl md:text-4xl font-bold mb-4 group-hover:text-primary-600 transition-colors">
                 {{ featuredNews.title }}
               </h3>
 
@@ -200,7 +164,7 @@
                 {{ formatDate(article.date) }}
               </div>
 
-              <h3 class="text-xl font-bold mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+              <h3 class="text-xl font-bold mb-3 group-hover:text-primary-600 transition-colors line-clamp-2">
                 {{ article.title }}
               </h3>
 
@@ -225,7 +189,7 @@
                   </span>
                 </div>
 
-                <NuxtLink :to="`/news/${article.slug}`" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center group-hover:translate-x-1 transition-transform">
+                <NuxtLink :to="`/news/${article.slug}`" class="text-primary-600 hover:text-primary-700 font-semibold flex items-center group-hover:translate-x-1 transition-transform">
                   Читать
                   <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -253,11 +217,11 @@
     </section>
 
     <!-- Newsletter Section -->
-    <section class="py-20 px-4 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
+    <section class="py-20 px-4 bg-gradient-to-br from-primary-600 via-primary-500 to-primary-light relative overflow-hidden">
       <!-- Animated Background -->
       <div class="absolute inset-0">
         <div class="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full filter blur-3xl animate-float"></div>
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-primary-100/10 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-primary-light/10 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
       </div>
 
       <div class="relative max-w-4xl mx-auto text-center text-white">
@@ -284,7 +248,7 @@
             />
             <button
               type="submit"
-              class="px-8 py-4 bg-white text-blue-600 font-bold rounded-xl hover:bg-gray-100 transition-all hover:scale-105 shadow-xl"
+              class="px-8 py-4 bg-white text-primary-600 font-bold rounded-xl hover:bg-gray-100 transition-all hover:scale-105 shadow-xl"
             >
               Подписаться
             </button>
@@ -461,16 +425,21 @@ const subscribe = () => {
 </script>
 
 <style scoped>
-/* News Icon Animation */
-.news-icon-animation {
-  animation: float-news 10s ease-in-out infinite;
+/* Page Header - Minimalist */
+.page-header {
+  @apply pt-22 pb-4 text-center bg-white border-b border-gray-100 mb-8;
 }
 
-@keyframes float-news {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(20px, -20px) rotate(90deg); }
-  50% { transform: translate(-10px, 10px) rotate(180deg); }
-  75% { transform: translate(15px, -15px) rotate(270deg); }
+.page-title {
+  @apply text-2xl md:text-3xl font-bold text-gray-900 mb-1 tracking-tight;
+}
+
+.page-subtitle {
+  @apply text-sm text-gray-500 mb-4;
+}
+
+.title-underline {
+  @apply w-10 h-0.5 bg-gradient-to-r from-primary-500 to-primary-light mx-auto rounded-full;
 }
 
 /* Featured News Card */
@@ -492,9 +461,9 @@ const subscribe = () => {
 /* Premium Button */
 .premium-button {
   @apply inline-flex items-center justify-center px-8 py-4;
-  @apply bg-gradient-to-r from-blue-600 to-purple-600;
+  @apply bg-gradient-to-r from-primary-600 to-primary-500;
   @apply text-white font-bold rounded-xl;
-  @apply hover:from-blue-700 hover:to-purple-700;
+  @apply hover:from-primary-700 hover:to-primary-600;
   @apply transition-all duration-300 hover:scale-105;
   @apply shadow-lg hover:shadow-xl;
 }

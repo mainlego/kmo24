@@ -1,19 +1,11 @@
 <template>
   <div class="contacts-page">
-    <!-- Hero Section -->
-    <section class="contacts-hero">
-      <div class="hero-background">
-        <div class="gradient-orb orb-1"></div>
-        <div class="gradient-orb orb-2"></div>
-        <div class="gradient-mesh"></div>
-      </div>
+    <!-- Page Header - Minimalist -->
+    <section class="page-header">
       <div class="container">
-        <div class="hero-content">
-          <h1 class="hero-title">Свяжитесь с нами</h1>
-          <p class="hero-subtitle">
-            Мы всегда рады помочь подобрать оборудование для вашего бизнеса
-          </p>
-        </div>
+        <h1 class="page-title">Контакты</h1>
+        <p class="page-subtitle">Свяжитесь с нами для консультации</p>
+        <div class="title-underline"></div>
       </div>
     </section>
 
@@ -273,88 +265,42 @@ const handleSubmit = async () => {
   min-height: 100vh;
 }
 
-// Hero Section
-.contacts-hero {
-  position: relative;
-  padding: 8rem 0 4rem;
-  overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+// Page Header - Minimalist
+.page-header {
+  padding: 5.5rem 0 1rem;
+  text-align: center;
+  background: $white;
+  border-bottom: 1px solid $gray-100;
+  margin-bottom: 2rem;
 
   @media (max-width: $breakpoint-md) {
-    padding: 6rem 0 3rem;
+    padding: 4.5rem 0 0.75rem;
+    margin-bottom: 1.5rem;
   }
 }
 
-.hero-background {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
-
-.gradient-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.4;
-  animation: float 15s ease-in-out infinite;
-
-  &.orb-1 {
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(251, 191, 36, 0.8) 0%, transparent 70%);
-    top: -20%;
-    right: -10%;
-  }
-
-  &.orb-2 {
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(245, 158, 11, 0.8) 0%, transparent 70%);
-    bottom: -30%;
-    left: -15%;
-    animation-delay: -7s;
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    transform: translate(30px, -30px) scale(1.05);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.95);
-  }
-}
-
-.gradient-mesh {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 0% 0%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 100% 100%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-}
-
-.hero-content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  color: $white;
-}
-
-.hero-title {
-  font-size: clamp(2.5rem, 5vw, 4rem);
+.page-title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: $font-weight-bold;
-  margin-bottom: $spacing-lg;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  color: $gray-900;
+  margin: 0 0 $spacing-xs;
+  letter-spacing: -0.02em;
+  line-height: $line-height-tight;
 }
 
-.hero-subtitle {
-  font-size: clamp(1rem, 2vw, 1.25rem);
-  opacity: 0.95;
-  max-width: 600px;
+.page-subtitle {
+  font-size: $font-size-sm;
+  color: $gray-500;
+  margin: 0 0 $spacing-md;
+  line-height: $line-height-relaxed;
+}
+
+.title-underline {
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, $primary-500, $primary-light);
   margin: 0 auto;
+  border-radius: 2px;
 }
 
 // Main Content

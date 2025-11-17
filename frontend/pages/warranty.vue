@@ -1,42 +1,11 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-    <!-- Hero Section -->
-    <section class="relative h-[50vh] overflow-hidden">
-      <div class="absolute inset-0">
-        <div class="absolute inset-0 bg-gradient-to-br from-emerald-900/90 via-teal-800/85 to-cyan-900/90 z-10"></div>
-        <img
-          src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1920"
-          alt="Warranty background"
-          class="w-full h-full object-cover"
-        />
-      </div>
-
-      <!-- Shield Animation -->
-      <div class="absolute inset-0 z-20 flex items-center justify-center">
-        <svg class="w-64 h-64 text-white/10 animate-pulse-slow" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-        </svg>
-      </div>
-
-      <div class="relative z-30 h-full flex items-center justify-center text-center px-4">
-        <div class="max-w-4xl mx-auto">
-          <div class="inline-block animate-slide-down mb-6">
-            <span class="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm">
-              <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-              </svg>
-              Ваша надежная защита
-            </span>
-          </div>
-
-          <h1 class="text-5xl md:text-7xl font-bold mb-6 animate-fade-in-up">
-            <span class="text-white">Гарантии и возврат</span>
-          </h1>
-
-          <p class="text-xl md:text-2xl text-white/90 animate-fade-in-up animation-delay-1">
-            Мы гарантируем качество и защищаем ваши интересы
-          </p>
-        </div>
+    <!-- Page Header - Minimalist -->
+    <section class="page-header">
+      <div class="max-w-7xl mx-auto px-4">
+        <h1 class="page-title">Гарантии и возврат</h1>
+        <p class="page-subtitle">Мы гарантируем качество и защищаем ваши интересы</p>
+        <div class="title-underline"></div>
       </div>
     </section>
 
@@ -50,7 +19,7 @@
           <p class="text-xl text-gray-600">
             Выбирайте подходящий уровень защиты
           </p>
-          <div class="w-24 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 mx-auto rounded-full mt-4"></div>
+          <div class="w-24 h-1 bg-gradient-to-r from-primary-500 to-primary-light mx-auto rounded-full mt-4"></div>
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
@@ -182,14 +151,14 @@
           <h2 class="text-4xl md:text-5xl font-bold mb-4">
             Политика возврата
           </h2>
-          <div class="w-24 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 mx-auto rounded-full mt-4"></div>
+          <div class="w-24 h-1 bg-gradient-to-r from-primary-500 to-primary-light mx-auto rounded-full mt-4"></div>
         </div>
 
         <div class="grid md:grid-cols-2 gap-8 mb-12">
           <!-- Return Conditions -->
           <div class="glass-card p-8">
             <div class="flex items-center mb-6">
-              <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mr-4">
+              <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-light rounded-xl flex items-center justify-center mr-4">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
@@ -312,7 +281,7 @@
           <h2 class="text-4xl md:text-5xl font-bold mb-4">
             Часто задаваемые вопросы
           </h2>
-          <div class="w-24 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 mx-auto rounded-full mt-4"></div>
+          <div class="w-24 h-1 bg-gradient-to-r from-primary-500 to-primary-light mx-auto rounded-full mt-4"></div>
         </div>
 
         <div class="space-y-4">
@@ -341,11 +310,11 @@
 
     <!-- CTA Section -->
     <section class="py-20 px-4 relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-500 to-primary-light"></div>
 
       <div class="absolute inset-0">
         <div class="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full filter blur-3xl animate-float"></div>
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-cyan-300/10 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-primary-light/10 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
       </div>
 
       <div class="relative max-w-4xl mx-auto text-center text-white">
@@ -415,6 +384,23 @@ const toggleFaq = (index) => {
 </script>
 
 <style scoped>
+/* Page Header - Minimalist */
+.page-header {
+  @apply pt-22 pb-4 text-center bg-white border-b border-gray-100 mb-8;
+}
+
+.page-title {
+  @apply text-2xl md:text-3xl font-bold text-gray-900 mb-1 tracking-tight;
+}
+
+.page-subtitle {
+  @apply text-sm text-gray-500 mb-4;
+}
+
+.title-underline {
+  @apply w-10 h-0.5 bg-gradient-to-r from-primary-500 to-primary-light mx-auto rounded-full;
+}
+
 /* Glass Card */
 .glass-card {
   @apply bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-100;
@@ -495,7 +481,7 @@ const toggleFaq = (index) => {
 
 /* Premium Buttons */
 .premium-button-white {
-  @apply inline-block px-8 py-4 bg-white text-emerald-600 font-bold rounded-full;
+  @apply inline-block px-8 py-4 bg-white text-primary-600 font-bold rounded-full;
   @apply hover:bg-gray-100 transition-all duration-300 hover:scale-105;
   @apply shadow-xl hover:shadow-2xl;
 }
