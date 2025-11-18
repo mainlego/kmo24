@@ -29,7 +29,18 @@
       "Bash(npm run dev:*)",
       "Bash(/tmp/index_top.vue)",
       "Bash(/tmp/index_bottom.vue)",
-      "Bash(xargs sed:*)"
+      "Bash(xargs sed:*)",
+      "Bash(cd /home/lego/Git\\ Projects/kmo24 && git reset:*)",
+      "Bash(git reset frontend/public/assets/backgrounds/hero_bg.mov)",
+      "Bash(echo:*)",
+      "Bash(/home/lego/Git Projects/kmo24/.gitignore)",
+      "Bash(.gitignore.tmp)",
+      "Bash(cat:*)",
+      "Bash(for file in pages/delivery/index.vue pages/checkout/success.vue pages/checkout/index.vue pages/contacts.vue pages/cart/index.vue pages/about/index.vue pages/test-components.vue pages/checkout.vue \"pages/products/[slug]-old.vue\" pages/products/index.vue pages/cart.vue pages/account/favorites.vue pages/account/orders.vue pages/account/index.vue pages/contacts/index.vue components/common/PageHeader.vue)",
+      "Bash(do)",
+      "Bash(if [ -f \"$file\" ])",
+      "Bash(then)",
+      "Bash(fi)"
     ],
     "deny": [],
     "ask": []

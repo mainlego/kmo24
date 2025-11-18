@@ -858,17 +858,5 @@ useHead({
   }
 }
 
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 $spacing-lg;
-
-  @media (max-width: $breakpoint-md) {
-    padding: 0 $spacing-md;
-  }
-
-  @media (max-width: $breakpoint-sm) {
-    padding: 0 $spacing-sm;
-  }
-}
+// Container is defined globally in main.scss
 </style>

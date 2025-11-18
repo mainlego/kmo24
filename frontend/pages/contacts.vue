@@ -568,9 +568,5 @@ const handleSubmit = async () => {
   }
 }
 
-.container {
-  max-width: $container-max-width;
-  margin: 0 auto;
-  padding: 0 $container-padding;
-}
+// Container is defined globally in main.scss
 </style>

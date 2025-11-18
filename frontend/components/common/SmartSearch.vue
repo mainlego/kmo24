@@ -382,6 +382,11 @@ const handleClickOutside = (event: MouseEvent) => {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
+
+  // Auto-focus the search input when mounted
+  setTimeout(() => {
+    searchInput.value?.focus();
+  }, 100);
 });
 
 onUnmounted(() => {

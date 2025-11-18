@@ -131,6 +131,7 @@ const pageTitle = computed(() => {
   if (path.includes('/crm')) return 'CRM';
   if (path.includes('/products')) return 'Товары';
   if (path.includes('/orders')) return 'Заказы';
+  if (path.includes('/proposals')) return 'Коммерческие предложения';
   if (path.includes('/users')) return 'Пользователи';
   if (path.includes('/categories')) return 'Категории';
   if (path.includes('/reviews')) return 'Отзывы';
@@ -162,6 +163,11 @@ const navigation = [
     path: '/admin/orders',
     icon: 'IconOrders',
     badge: '5',
+  },
+  {
+    label: 'КП',
+    path: '/admin/proposals',
+    icon: 'IconProposals',
   },
   {
     label: 'Пользователи',

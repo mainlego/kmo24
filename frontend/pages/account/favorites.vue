@@ -303,9 +303,5 @@ useHead({
   }
 }
 
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 $spacing-lg;
-}
+// Container is defined globally in main.scss
 </style>

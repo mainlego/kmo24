@@ -570,23 +570,7 @@ useHead({
   }
 }
 
-.container {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 0 $spacing-2xl;
-
-  @media (max-width: $breakpoint-lg) {
-    padding: 0 $spacing-xl;
-  }
-
-  @media (max-width: $breakpoint-md) {
-    padding: 0 $spacing-lg;
-  }
-
-  @media (max-width: $breakpoint-sm) {
-    padding: 0 $spacing-md;
-  }
-}
+// Container is defined globally in main.scss
 
 // Mobile Filter Button
 .mobile-filter-btn {

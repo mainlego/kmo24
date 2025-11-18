@@ -199,6 +199,53 @@
                 Оформить заказ
               </BaseButton>
             </div>
+
+            <!-- Commercial Proposal Section -->
+            <div class="proposal-section">
+              <div class="proposal-section__header">
+                <h3>Коммерческое предложение</h3>
+                <p>Сформируйте КП для согласования с руководством</p>
+              </div>
+
+              <div class="proposal-section__options">
+                <label class="proposal-checkbox">
+                  <input v-model="generateProposalOnOrder" type="checkbox" />
+                  <span class="proposal-checkbox__mark"></span>
+                  <span class="proposal-checkbox__text">
+                    Сформировать КП при оформлении заказа
+                  </span>
+                </label>
+              </div>
+
+              <div class="proposal-section__actions">
+                <button
+                  type="button"
+                  class="proposal-btn"
+                  @click="generateProposalNow"
+                  :disabled="!isProposalFormValid"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="10,9 9,9 8,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Сформировать КП сейчас
+                </button>
+
+                <div v-if="proposalGenerated" class="proposal-success">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <polyline points="22,4 12,14.01 9,11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>КП {{ proposalNumber }} сформировано</span>
+                  <button type="button" @click="printGeneratedProposal" class="proposal-action-btn">
+                    Печать
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Order Summary Sidebar -->
@@ -259,6 +306,13 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useCartStore } from '~/stores/cart';
+import {
+  generateProposalPDF,
+  generateProposalHTML,
+  generateProposalNumber,
+  printProposal,
+  type ProposalData,
+} from '~/utils/commercialProposal';
 
 const cartStore = useCartStore();
 const router = useRouter();
@@ -267,6 +321,10 @@ const { items, totalItems, subtotal, total, isEmpty } = storeToRefs(cartStore);
 
 const currentStep = ref(1);
 const isSubmitting = ref(false);
+const generateProposalOnOrder = ref(false);
+const proposalGenerated = ref(false);
+const proposalNumber = ref('');
+const proposalUrl = ref('');
 
 const steps = [
   { id: 1, label: 'Контакты' },
@@ -336,6 +394,10 @@ const deliveryCost = computed(() => {
   return method?.price || 0;
 });
 
+const isProposalFormValid = computed(() => {
+  return form.companyName && form.contactPerson && form.phone && items.value.length > 0;
+});
+
 const isCurrentStepValid = computed(() => {
   switch (currentStep.value) {
     case 1:
@@ -372,12 +434,54 @@ const previousStep = () => {
   }
 };
 
+const generateProposalNow = async () => {
+  if (!isProposalFormValid.value) return;
+
+  const proposalData: ProposalData = {
+    companyName: form.companyName,
+    companyInn: form.inn,
+    contactPerson: form.contactPerson,
+    phone: form.phone,
+    email: form.email,
+    products: items.value.map(item => ({
+      product: item.product,
+      quantity: item.quantity,
+    })),
+    validUntil: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // Valid for 14 days
+    notes: form.notes,
+  };
+
+  try {
+    const result = await generateProposalPDF(proposalData);
+    proposalNumber.value = result.proposalNumber;
+    proposalUrl.value = result.pdfUrl;
+    proposalGenerated.value = true;
+
+    // Open in new window
+    window.open(result.pdfUrl, '_blank');
+  } catch (error) {
+    console.error('Error generating proposal:', error);
+    alert('Ошибка при формировании КП');
+  }
+};
+
+const printGeneratedProposal = () => {
+  if (proposalUrl.value) {
+    printProposal(proposalUrl.value);
+  }
+};
+
 const submitOrder = async () => {
   if (!isCurrentStepValid.value) return;
 
   isSubmitting.value = true;
 
   try {
+    // Generate proposal if requested
+    if (generateProposalOnOrder.value && !proposalGenerated.value) {
+      await generateProposalNow();
+    }
+
     // TODO: API call to create order
     await new Promise(resolve => setTimeout(resolve, 2000));
 
@@ -387,6 +491,7 @@ const submitOrder = async () => {
       items: items.value,
       total: total.value + deliveryCost.value,
       deliveryCost: deliveryCost.value,
+      proposalNumber: proposalNumber.value || null,
     };
 
     console.log('Order submitted:', orderData);
@@ -395,7 +500,7 @@ const submitOrder = async () => {
     await cartStore.clearCart();
 
     // Redirect to success page
-    alert('Заказ успешно оформлен! Номер заказа: #' + Date.now());
+    alert('Заказ успешно оформлен! Номер заказа: #' + Date.now() + (proposalNumber.value ? `\nКП: ${proposalNumber.value}` : ''));
     router.push('/account/orders');
   } catch (error) {
     console.error('Error submitting order:', error);
@@ -759,9 +864,154 @@ useHead({
   }
 }
 
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 $spacing-lg;
+// Container is defined globally in main.scss
+
+// Commercial Proposal Section
+.proposal-section {
+  margin-top: $spacing-xl;
+  padding: $spacing-lg;
+  background: linear-gradient(135deg, rgba($primary, 0.05) 0%, rgba($warning, 0.05) 100%);
+  border: 2px solid rgba($primary, 0.2);
+  border-radius: $radius-xl;
+
+  &__header {
+    margin-bottom: $spacing-lg;
+
+    h3 {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-bold;
+      color: $gray-900;
+      margin: 0 0 $spacing-xs;
+    }
+
+    p {
+      font-size: $font-size-sm;
+      color: $gray-600;
+      margin: 0;
+    }
+  }
+
+  &__options {
+    margin-bottom: $spacing-lg;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+}
+
+.proposal-checkbox {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  &__mark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid $gray-300;
+    border-radius: $radius-sm;
+    background: $white;
+    transition: all $transition-base;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 2px;
+      width: 5px;
+      height: 10px;
+      border: solid $white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+      opacity: 0;
+    }
+  }
+
+  input:checked + &__mark {
+    background: $primary;
+    border-color: $primary;
+
+    &::after {
+      opacity: 1;
+    }
+  }
+
+  &__text {
+    font-size: $font-size-base;
+    color: $gray-700;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.proposal-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-lg;
+  background: $white;
+  border: 2px solid $primary;
+  border-radius: $radius-lg;
+  color: $primary;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover:not(:disabled) {
+    background: $primary;
+    color: $white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($primary, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.proposal-success {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: $success-light;
+  border-radius: $radius-lg;
+  color: $success;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.proposal-action-btn {
+  margin-left: auto;
+  padding: $spacing-xs $spacing-sm;
+  background: $success;
+  border: none;
+  border-radius: $radius-md;
+  color: $white;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background: darken($success, 10%);
+  }
 }
 </style>

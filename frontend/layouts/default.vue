@@ -925,19 +925,7 @@ onUnmounted(() => {
   }
 }
 
-.container {
-  max-width: $container-max-width;
-  margin: 0 auto;
-  padding: 0 $container-padding;
-
-  @media (max-width: $breakpoint-md) {
-    padding: 0 $spacing-lg;
-  }
-
-  @media (max-width: $breakpoint-sm) {
-    padding: 0 $spacing-md;
-  }
-}
+// Container is defined globally in main.scss
 
 // Mobile Menu
 .mobile-menu-overlay {

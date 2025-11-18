@@ -111,16 +111,30 @@
     </template>
 
     <template #footer>
-      <BaseButton
-        variant="primary"
-        size="md"
-        :disabled="!isInStock"
-        :loading="isAddingToCart"
-        @click.stop="handleAddToCart"
-        fullWidth
-      >
-        {{ isInStock ? 'В корзину' : 'Нет в наличии' }}
-      </BaseButton>
+      <div class="product-card__footer-actions">
+        <BaseButton
+          variant="primary"
+          size="md"
+          :disabled="!isInStock"
+          :loading="isAddingToCart"
+          @click.stop="handleAddToCart"
+          fullWidth
+        >
+          {{ isInStock ? 'В корзину' : 'Нет в наличии' }}
+        </BaseButton>
+
+        <button
+          class="product-card__delivery-calc"
+          type="button"
+          @click.stop="openDeliveryCalc"
+          aria-label="Рассчитать доставку"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M18 18.5a1.5 1.5 0 01-1 1.415V21a1 1 0 11-2 0v-1.085a1.5 1.5 0 111-1.415zm-12 0a1.5 1.5 0 01-1 1.415V21a1 1 0 11-2 0v-1.085a1.5 1.5 0 111-1.415zM3 6a1 1 0 000 2h1v7a2 2 0 002 2h7v-2H6V8h12v2h2V8a2 2 0 00-2-2H3zm16 5h-3a1 1 0 00-1 1v3a1 1 0 001 1h5a1 1 0 001-1v-2a2 2 0 00-2-2h-1z" fill="currentColor"/>
+          </svg>
+          <span>Доставка</span>
+        </button>
+      </div>
 
       <button
         class="product-card__favorite"
@@ -162,7 +176,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   viewMode: 'grid',
 });
-const emit = defineEmits(['openQuickView']);
+const emit = defineEmits(['openQuickView', 'openDeliveryCalc']);
 
 const router = useRouter();
 const cartStore = useCartStore();
@@ -244,6 +258,10 @@ const toggleFavorite = async () => {
 
 const openQuickView = () => {
   emit('openQuickView', props.product);
+};
+
+const openDeliveryCalc = () => {
+  emit('openDeliveryCalc', props.product);
 };
 </script>
 
@@ -656,6 +674,48 @@ const openQuickView = () => {
         transform: none;
         box-shadow: none;
       }
+    }
+  }
+
+  &__footer-actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__delivery-calc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-xs;
+    padding: $spacing-sm $spacing-md;
+    background: $gray-100;
+    border: 2px solid $gray-200;
+    border-radius: $radius-lg;
+    color: $gray-700;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    transition: all $transition-base $transition-ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      background: $primary-50;
+      border-color: $primary-500;
+      color: $primary-600;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba($primary-500, 0.15);
+    }
+
+    &:active {
+      transform: translateY(0);
     }
   }
 }
