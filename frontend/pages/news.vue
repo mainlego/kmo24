@@ -427,7 +427,8 @@ const subscribe = () => {
 <style scoped>
 /* Page Header - Minimalist */
 .page-header {
-  @apply pt-22 pb-4 text-center bg-white border-b border-gray-100 mb-8;
+  padding-top: 5.5rem;
+  @apply pb-4 text-center bg-white border-b border-gray-100 mb-8;
 }
 
 .page-title {
