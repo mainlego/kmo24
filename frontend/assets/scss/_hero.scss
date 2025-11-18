@@ -5,16 +5,16 @@
 
 .hero {
   position: relative;
-  min-height: 100vh;
+  min-height: 85vh;
   display: flex;
   align-items: center;
-  padding: 8rem 0 4rem;
+  padding: 6rem 0 3rem;
   overflow: hidden;
   background: #0a0a0a;
 
   @media (max-width: $breakpoint-md) {
     min-height: auto;
-    padding: 6rem 0 3rem;
+    padding: 5rem 0 2rem;
   }
 }
 
@@ -98,28 +98,30 @@
 .hero-badge {
   display: inline-flex;
   align-items: center;
-  gap: $spacing-sm;
+  gap: $spacing-xs;
   background: rgba($primary-500, 0.1);
   border: 1px solid rgba($primary-500, 0.3);
-  padding: $spacing-xs $spacing-lg;
+  padding: $spacing-xs $spacing-md;
   border-radius: $radius-full;
   color: $primary-light;
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   font-weight: $font-weight-medium;
-  margin-bottom: $spacing-xl;
+  margin-bottom: $spacing-md;
   backdrop-filter: blur(10px);
 
   svg {
     stroke: $primary-light;
+    width: 16px;
+    height: 16px;
   }
 }
 
 .hero-title {
-  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
   font-weight: 800;
   color: $white;
-  margin-bottom: $spacing-lg;
-  line-height: 1.1;
+  margin-bottom: $spacing-md;
+  line-height: 1.15;
   letter-spacing: -0.02em;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -147,11 +149,11 @@
 }
 
 .hero-subtitle {
-  font-size: clamp(1rem, 1.5vw, 1.125rem);
+  font-size: clamp(0.9rem, 1.3vw, 1rem);
   color: rgba($white, 0.75);
-  margin-bottom: $spacing-2xl;
-  line-height: 1.7;
-  max-width: 540px;
+  margin-bottom: $spacing-lg;
+  line-height: 1.6;
+  max-width: 480px;
 
   @media (max-width: $breakpoint-lg) {
     max-width: 100%;
@@ -163,7 +165,7 @@
 .hero-actions {
   display: flex;
   gap: $spacing-md;
-  margin-bottom: $spacing-3xl;
+  margin-bottom: $spacing-xl;
 
   @media (max-width: $breakpoint-lg) {
     justify-content: center;
@@ -174,14 +176,14 @@
   }
 
   .btn {
-    padding: 1rem 2rem;
-    border-radius: $radius-xl;
+    padding: 0.75rem 1.5rem;
+    border-radius: $radius-lg;
     font-weight: $font-weight-semibold;
-    font-size: $font-size-base;
+    font-size: $font-size-sm;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    gap: $spacing-sm;
+    gap: $spacing-xs;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
     border: none;
@@ -193,6 +195,8 @@
 
     svg {
       transition: transform 0.3s ease;
+      width: 18px;
+      height: 18px;
     }
 
     &:hover svg {
@@ -392,8 +396,8 @@
 .hero-categories {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: $radius-2xl;
-  padding: $spacing-xl;
+  border-radius: $radius-xl;
+  padding: $spacing-md;
   backdrop-filter: blur(20px);
   min-width: 0; // Позволяет grid-элементу корректно сжиматься
   // Остается в правой колонке grid (не занимает всю ширину)
@@ -407,10 +411,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: $spacing-xl;
+  margin-bottom: $spacing-md;
 
   h3 {
-    font-size: $font-size-lg;
+    font-size: $font-size-base;
     font-weight: $font-weight-semibold;
     color: rgba($white, 0.9);
     margin: 0;
@@ -422,7 +426,7 @@
     align-items: center;
     gap: $spacing-xs;
     color: rgba($primary-500, 0.8);
-    font-size: $font-size-sm;
+    font-size: $font-size-xs;
     font-weight: $font-weight-medium;
     text-decoration: none;
     transition: all 0.3s ease;
@@ -430,6 +434,8 @@
     svg {
       stroke: currentColor;
       transition: transform 0.3s ease;
+      width: 14px;
+      height: 14px;
     }
 
     &:hover {
@@ -445,17 +451,17 @@
 .categories-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: $spacing-sm;
-  grid-auto-rows: minmax(80px, auto);
+  gap: $spacing-xs;
+  grid-auto-rows: minmax(60px, auto);
 
   @media (max-width: $breakpoint-md) {
     grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: minmax(80px, auto);
+    grid-auto-rows: minmax(65px, auto);
   }
 
   @media (max-width: $breakpoint-sm) {
     grid-template-columns: 1fr;
-    grid-auto-rows: minmax(70px, auto);
+    grid-auto-rows: minmax(60px, auto);
   }
 }
 
@@ -464,11 +470,11 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: $spacing-sm;
-  padding: $spacing-md $spacing-lg;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: $radius-lg;
+  border-radius: $radius-md;
   text-decoration: none;
   overflow: visible;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -509,17 +515,17 @@
     }
 
     .category-icon-wrapper {
-      width: 56px;
-      height: 56px;
+      width: 40px;
+      height: 40px;
 
       .category-svg {
-        width: 28px;
-        height: 28px;
+        width: 20px;
+        height: 20px;
       }
     }
 
     .category-name {
-      font-size: $font-size-lg;
+      font-size: $font-size-base;
     }
   }
 
@@ -537,12 +543,12 @@
     }
 
     .category-icon-wrapper {
-      width: 56px;
-      height: 56px;
+      width: 40px;
+      height: 40px;
 
       .category-svg {
-        width: 28px;
-        height: 28px;
+        width: 20px;
+        height: 20px;
       }
     }
 
@@ -558,19 +564,19 @@
 
 .category-icon-wrapper {
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba($primary-500, 0.08);
-  border-radius: $radius-md;
+  border-radius: $radius-sm;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .category-svg {
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   stroke: rgba($primary-500, 0.9);
   transition: stroke 0.3s ease;
 }
@@ -578,21 +584,22 @@
 .category-info {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xs;
+  gap: 2px;
   position: relative;
   z-index: 1;
+  min-width: 0;
 }
 
 .category-name {
-  font-size: $font-size-base;
+  font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
   color: $white;
-  line-height: 1.2;
+  line-height: 1.3;
   letter-spacing: -0.01em;
 }
 
 .category-count {
-  font-size: $font-size-xs;
+  font-size: 10px;
   color: rgba($white, 0.5);
   font-weight: $font-weight-medium;
   text-transform: uppercase;

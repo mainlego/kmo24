@@ -40,7 +40,8 @@
       "Bash(do)",
       "Bash(if [ -f \"$file\" ])",
       "Bash(then)",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []
