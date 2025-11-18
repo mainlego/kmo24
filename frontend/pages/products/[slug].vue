@@ -59,26 +59,6 @@
                 <h1 class="product-info__title">{{ product.name }}</h1>
                 <p class="product-info__subtitle">{{ typeof product.description === 'object' ? product.description.short : product.description }}</p>
 
-                <!-- Rating -->
-                <div class="product-info__rating">
-                  <div class="stars">
-                    <svg
-                      v-for="star in 5"
-                      :key="star"
-                      :class="{ 'empty': star > Math.round(product.rating.average) }"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                    </svg>
-                  </div>
-                  <span class="rating-value">{{ product.rating.average.toFixed(1) }}</span>
-                  <span class="rating-count">({{ product.rating.count }} отзывов)</span>
-                </div>
-
                 <!-- Tags -->
                 <div class="product-info__tags">
                   <span class="tag">Гарантия качества</span>
@@ -115,14 +95,8 @@
 
               <!-- Actions -->
               <div class="product-actions">
-                <div class="product-actions__quantity">
-                  <button @click="decreaseQuantity" :disabled="quantity <= 1">−</button>
-                  <input v-model.number="quantity" type="number" min="1" :max="product.stock.quantity" />
-                  <button @click="increaseQuantity" :disabled="quantity >= product.stock.quantity">+</button>
-                </div>
-
                 <button
-                  class="product-actions__buy"
+                  class="product-actions__buy product-actions__buy--full"
                   :disabled="!isInStock"
                   @click="handleAddToCart"
                 >
@@ -187,12 +161,6 @@
                 </table>
                 <p v-else>Характеристики не указаны</p>
               </div>
-
-              <!-- Reviews Tab -->
-              <div v-show="activeTab === 'reviews'" class="product-detail__tab-panel">
-                <h2>Отзывы ({{ product.rating.count }})</h2>
-                <p>Отзывы будут загружены с сервера</p>
-              </div>
             </div>
           </div>
 
@@ -235,12 +203,6 @@
                 <!-- Content -->
                 <div class="sidebar-related__content">
                   <h4 class="sidebar-related__title">{{ item.name }}</h4>
-                  <div class="sidebar-related__rating">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                    </svg>
-                    <span>{{ item.rating.average.toFixed(1) }}</span>
-                  </div>
                   <div class="sidebar-related__price">
                     <span v-if="item.oldPrice" class="sidebar-related__old-price">
                       {{ formatPrice(item.oldPrice) }}
@@ -339,7 +301,6 @@ const activeTab = ref('description');
 const tabs = [
   { id: 'description', label: 'Описание' },
   { id: 'specifications', label: 'Характеристики' },
-  { id: 'reviews', label: 'Отзывы' },
 ];
 
 const currentImage = computed(() => {
@@ -384,9 +345,9 @@ const handleAddToCart = async () => {
 
   isAddingToCart.value = true;
   try {
-    await cartStore.addItem(product.value._id, quantity.value);
+    await cartStore.addItem(product.value._id, 1);
     // TODO: Show success notification
-    console.log(`Added ${quantity.value} items to cart`);
+    console.log('Added 1 item to cart');
   } catch (err) {
     console.error('Error adding to cart:', err);
   } finally {
@@ -437,4 +398,63 @@ onMounted(async () => {
 <style scoped lang="scss">
 @use 'assets/scss/variables' as *;
 @use 'assets/scss/product' as *;
+
+// Mobile Related Products - Horizontal Carousel
+.product-detail__related-mobile {
+  margin-top: $spacing-3xl;
+  margin-bottom: $spacing-2xl;
+
+  @media (min-width: $breakpoint-lg) {
+    display: none; // Hide on desktop (sidebar is shown)
+  }
+
+  h2 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $gray-900;
+    margin-bottom: $spacing-lg;
+    padding: 0 $spacing-md;
+  }
+}
+
+.product-detail__related-grid {
+  display: flex;
+  gap: $spacing-md;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: $spacing-sm $spacing-md $spacing-lg;
+  margin: 0 (-$spacing-md);
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: $primary-500 $gray-200;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $gray-200;
+    border-radius: $radius-full;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $primary-500;
+    border-radius: $radius-full;
+
+    &:hover {
+      background: darken($primary-500, 10%);
+    }
+  }
+
+  // Each product card
+  :deep(.product-card) {
+    flex: 0 0 280px;
+    scroll-snap-align: start;
+
+    @media (max-width: $breakpoint-sm) {
+      flex: 0 0 240px;
+    }
+  }
+}
 </style>
