@@ -149,11 +149,24 @@
 // Product Info Section
 .product-info {
   padding: 2rem;
+  animation: fadeInRight 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 
   &__header {
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
     border-bottom: 2px solid $gray-100;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, $primary-500, $primary-light);
+      animation: expandWidth 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+    }
   }
 
   &__title {
@@ -162,12 +175,14 @@
     color: $gray-900;
     margin-bottom: 0.75rem;
     line-height: 1.3;
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
   }
 
   &__subtitle {
     font-size: $font-size-lg;
     color: $gray-600;
     margin-bottom: 1rem;
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
   }
 
   // Rating Section
@@ -225,13 +240,42 @@
       font-size: $font-size-sm;
       font-weight: $font-weight-medium;
       border: 1px solid rgba($primary-500, 0.2);
-      transition: all 0.2s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba($primary-500, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
 
       &:hover {
         background: linear-gradient(135deg, $primary-500, $primary-light);
         color: $white;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba($primary-500, 0.3);
+        box-shadow: 0 8px 16px rgba($primary-500, 0.4);
+
+        &::before {
+          width: 300px;
+          height: 300px;
+        }
+      }
+
+      &:nth-child(2) {
+        animation-delay: 0.4s;
+      }
+
+      &:nth-child(3) {
+        animation-delay: 0.5s;
       }
     }
   }
@@ -243,18 +287,38 @@
   align-items: baseline;
   gap: 1rem;
   margin: 1.5rem 0;
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
 
   &__current {
     font-size: clamp(2rem, 4vw, 2.5rem);
     font-weight: $font-weight-bold;
-    color: $gray-900;
+    background: linear-gradient(135deg, $gray-900, $gray-700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     letter-spacing: -0.02em;
+    position: relative;
+    animation: scaleIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.5s both;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, $primary-500, $primary-light);
+      opacity: 0.3;
+      border-radius: $radius-full;
+    }
   }
 
   &__old {
     font-size: $font-size-xl;
     color: $gray-400;
     text-decoration: line-through;
+    position: relative;
+    animation: fadeIn 0.6s ease 0.6s both;
   }
 
   &__discount {
@@ -264,7 +328,8 @@
     border-radius: $radius-full;
     font-size: $font-size-sm;
     font-weight: $font-weight-bold;
-    animation: pulse 2s infinite;
+    animation: pulse 2s infinite, bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.7s both;
+    box-shadow: 0 4px 12px rgba($primary-500, 0.4);
   }
 }
 
@@ -284,22 +349,49 @@
     font-size: $font-size-lg;
     font-weight: $font-weight-bold;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 12px rgba($primary-500, 0.3);
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.6s both;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba($primary-500, 0.4);
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 32px rgba($primary-500, 0.5);
+
+      &::before {
+        width: 400px;
+        height: 400px;
+      }
     }
 
     &:active {
-      transform: translateY(0);
+      transform: translateY(-1px) scale(0.98);
+      transition: all 0.1s ease;
     }
 
     &:disabled {
       opacity: 0.6;
       cursor: not-allowed;
       transform: none;
+
+      &:hover {
+        transform: none;
+        box-shadow: 0 4px 12px rgba($primary-500, 0.3);
+      }
     }
 
     // Full width variant
@@ -316,6 +408,7 @@
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   margin-bottom: 1.5rem;
+  animation: fadeInRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
 
   h3 {
     font-size: $font-size-xl;
@@ -324,6 +417,18 @@
     margin-bottom: 1.5rem;
     padding-bottom: 0.75rem;
     border-bottom: 2px solid $gray-100;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, $primary-500, $primary-light);
+      animation: expandWidth 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
+    }
   }
 
   &__list {
@@ -338,21 +443,53 @@
     padding: 0.75rem;
     background: $gray-50;
     border-radius: $radius-xl;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) calc(0.6s + var(--item-index) * 0.1s) both;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, $primary-500, $primary-light);
+      transform: scaleY(0);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
     &:hover {
       background: linear-gradient(135deg, rgba($primary-500, 0.08), rgba($primary-light, 0.08));
-      transform: translateX(4px);
-      box-shadow: 0 4px 12px rgba($primary-500, 0.15);
+      transform: translateX(6px);
+      box-shadow: 0 8px 20px rgba($primary-500, 0.2);
+
+      &::before {
+        transform: scaleY(1);
+      }
 
       .sidebar-related__image {
         border-color: $primary-500;
+        transform: scale(1.05) rotate(2deg);
       }
 
       .sidebar-related__price {
         color: $primary-500;
+      }
+
+      .sidebar-related__quick-add {
+        transform: scale(1.1) rotate(10deg);
+        box-shadow: 0 6px 16px rgba($primary-500, 0.5);
+      }
+    }
+
+    // Add staggered animation delay for each item
+    @for $i from 1 through 10 {
+      &:nth-child(#{$i}) {
+        --item-index: #{$i - 1};
       }
     }
   }
@@ -365,13 +502,24 @@
     background: $white;
     border: 2px solid $gray-200;
     flex-shrink: 0;
-    transition: border-color 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba($primary-500, 0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
 
     img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       padding: 0.5rem;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 
@@ -473,17 +621,39 @@
     border-radius: $radius-lg;
     color: $white;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
 
     svg {
       width: 18px;
       height: 18px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      z-index: 1;
     }
 
-    &:hover {
-      transform: scale(1.1);
-      box-shadow: 0 4px 12px rgba($primary-500, 0.4);
+    &:hover::before {
+      width: 80px;
+      height: 80px;
+    }
+
+    &:active {
+      transform: scale(0.9);
     }
   }
 
@@ -662,12 +832,95 @@
   }
 }
 
-// Animations
+// =====================================================
+// PREMIUM ANIMATIONS
+// =====================================================
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes expandWidth {
+  from {
+    width: 0;
+  }
+  to {
+    width: 60px;
+  }
+}
+
 @keyframes pulse {
   0%, 100% {
+    transform: scale(1);
     opacity: 1;
   }
   50% {
-    opacity: 0.8;
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-10deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) rotate(5deg);
+  }
+  70% {
+    transform: scale(0.9) rotate(-2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
   }
 }

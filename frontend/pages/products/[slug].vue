@@ -30,15 +30,30 @@
         <div class="product-detail__content">
           <!-- Main Section -->
           <div class="product-detail__main">
-            <!-- Gallery -->
+            <!-- Gallery with Interactive Features -->
             <div class="product-gallery">
-              <div class="product-gallery__main-image">
+              <div class="product-gallery__main-image" @click="toggleLightbox">
                 <img
                   :src="currentImage.url"
                   :alt="currentImage.alt || product.name"
+                  :class="{ 'zoomed': isImageZoomed }"
+                  @mouseenter="isImageHovered = true"
+                  @mouseleave="isImageHovered = false; isImageZoomed = false"
+                  @mousemove="handleImageZoom"
                 />
-                <div v-if="hasDiscount" class="discount-badge">
+                <div v-if="hasDiscount" class="discount-badge animate-pulse">
+                  <svg class="discount-badge__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                  </svg>
                   -{{ discountPercent }}%
+                </div>
+                <div class="zoom-hint" v-if="isImageHovered && !isLightboxOpen">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                    <path d="M11 8v6M8 11h6"/>
+                  </svg>
+                  Нажмите для увеличения
                 </div>
               </div>
               <div v-if="product.images.length > 1" class="product-gallery__thumbnails">
@@ -46,9 +61,10 @@
                   v-for="(image, index) in product.images"
                   :key="index"
                   :class="['product-gallery__thumb', { 'active': currentImageIndex === index }]"
-                  @click="currentImageIndex = index"
+                  @click="selectImage(index)"
                 >
                   <img :src="image.url" :alt="image.alt || `${product.name} - изображение ${index + 1}`" />
+                  <div class="thumb-overlay"></div>
                 </button>
               </div>
             </div>
@@ -271,6 +287,31 @@
         }"
         :scroll-threshold="400"
       />
+
+      <!-- Lightbox Modal -->
+      <Transition name="lightbox">
+        <div v-if="isLightboxOpen" class="lightbox" @click="closeLightbox">
+          <button class="lightbox__close" @click="closeLightbox">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+          <button v-if="product.images.length > 1" class="lightbox__prev" @click.stop="previousImage">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+          </button>
+          <button v-if="product.images.length > 1" class="lightbox__next" @click.stop="nextImage">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+          <div class="lightbox__content" @click.stop>
+            <img :src="currentImage.url" :alt="currentImage.alt || product.name" />
+            <div class="lightbox__counter">{{ currentImageIndex + 1 }} / {{ product.images.length }}</div>
+          </div>
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
@@ -297,6 +338,11 @@ const isAddingToCart = ref(false);
 const isFavorite = ref(false);
 const currentImageIndex = ref(0);
 const activeTab = ref('description');
+const isLightboxOpen = ref(false);
+const isImageHovered = ref(false);
+const isImageZoomed = ref(false);
+const zoomX = ref(0);
+const zoomY = ref(0);
 
 const tabs = [
   { id: 'description', label: 'Описание' },
@@ -369,6 +415,53 @@ const toggleFavorite = () => {
   console.log('Toggle favorite:', product.value?._id);
 };
 
+const selectImage = (index: number) => {
+  currentImageIndex.value = index;
+};
+
+const toggleLightbox = () => {
+  isLightboxOpen.value = !isLightboxOpen.value;
+  if (isLightboxOpen.value) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+};
+
+const closeLightbox = () => {
+  isLightboxOpen.value = false;
+  document.body.style.overflow = '';
+};
+
+const nextImage = () => {
+  if (product.value && currentImageIndex.value < product.value.images.length - 1) {
+    currentImageIndex.value++;
+  } else {
+    currentImageIndex.value = 0;
+  }
+};
+
+const previousImage = () => {
+  if (product.value && currentImageIndex.value > 0) {
+    currentImageIndex.value--;
+  } else if (product.value) {
+    currentImageIndex.value = product.value.images.length - 1;
+  }
+};
+
+const handleImageZoom = (event: MouseEvent) => {
+  if (!isImageHovered.value) return;
+
+  const target = event.currentTarget as HTMLElement;
+  const rect = target.getBoundingClientRect();
+  const x = ((event.clientX - rect.left) / rect.width) * 100;
+  const y = ((event.clientY - rect.top) / rect.height) * 100;
+
+  zoomX.value = x;
+  zoomY.value = y;
+  isImageZoomed.value = true;
+};
+
 onMounted(async () => {
   try {
     isLoading.value = true;
@@ -398,6 +491,248 @@ onMounted(async () => {
 <style scoped lang="scss">
 @use 'assets/scss/variables' as *;
 @use 'assets/scss/product' as *;
+
+// =====================================================
+// PREMIUM INTERACTIVE GALLERY
+// =====================================================
+
+.product-gallery__main-image {
+  position: relative;
+  cursor: zoom-in;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba($primary-500, 0.05), transparent);
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  img {
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.zoomed {
+      transform: scale(1.5);
+      transform-origin: v-bind('zoomX + "% " + zoomY + "%"');
+    }
+  }
+}
+
+.zoom-hint {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  color: $white;
+  padding: 0.75rem 1.25rem;
+  border-radius: $radius-full;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 2;
+  animation: slideInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.discount-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  &__icon {
+    animation: rotate 3s linear infinite;
+  }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.product-gallery__thumb {
+  position: relative;
+  overflow: hidden;
+
+  .thumb-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba($primary-500, 0.2), rgba($primary-light, 0.2));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover .thumb-overlay {
+    opacity: 1;
+  }
+
+  &.active .thumb-overlay {
+    opacity: 0.5;
+  }
+
+  &:hover {
+    transform: scale(1.05) translateY(-2px);
+  }
+}
+
+// =====================================================
+// LIGHTBOX MODAL
+// =====================================================
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(20px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+
+  &__content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    animation: zoomIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    img {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: $radius-2xl;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  &__counter {
+    position: absolute;
+    bottom: -3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    color: $white;
+    padding: 0.5rem 1.25rem;
+    border-radius: $radius-full;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+  }
+
+  &__close,
+  &__prev,
+  &__next {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: $white;
+    width: 3rem;
+    height: 3rem;
+    border-radius: $radius-full;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.1);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  &__close {
+    top: 2rem;
+    right: 2rem;
+  }
+
+  &__prev {
+    left: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+
+    &:hover {
+      transform: translateY(-50%) scale(1.1) translateX(-4px);
+    }
+  }
+
+  &__next {
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+
+    &:hover {
+      transform: translateY(-50%) scale(1.1) translateX(4px);
+    }
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.lightbox-enter-active,
+.lightbox-leave-active {
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lightbox-enter-from,
+.lightbox-leave-to {
+  opacity: 0;
+}
 
 // Mobile Related Products - Horizontal Carousel
 .product-detail__related-mobile {
