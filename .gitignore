@@ -67,3 +67,6 @@ generated/
 
 # Invalid filenames
 nul
+# Large video files
+frontend/public/assets/backgrounds/*.mov
+frontend/public/assets/backgrounds/*.mp4
