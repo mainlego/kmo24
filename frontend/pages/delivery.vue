@@ -1,48 +1,11 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-    <!-- Hero Section -->
-    <section class="relative h-[50vh] overflow-hidden">
-      <div class="absolute inset-0">
-        <div class="absolute inset-0 bg-gradient-to-br from-green-900/90 via-emerald-800/85 to-teal-900/90 z-10"></div>
-        <img
-          src="https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=1920"
-          alt="Delivery background"
-          class="w-full h-full object-cover"
-        />
-      </div>
-
-      <!-- Animated trucks -->
-      <div class="absolute inset-0 z-20 overflow-hidden">
-        <div v-for="i in 3" :key="`truck-${i}`"
-          class="truck-animation absolute"
-          :style="`top: ${20 + i * 25}%; animation-delay: ${i * 3}s`">
-          <svg class="w-12 h-12 text-white/20" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M18 18.5a1.5 1.5 0 01-1 1.415V21a1 1 0 11-2 0v-1.085a1.5 1.5 0 111-1.415zm-12 0a1.5 1.5 0 01-1 1.415V21a1 1 0 11-2 0v-1.085a1.5 1.5 0 111-1.415zM3 6a1 1 0 000 2h1v7a2 2 0 002 2h7v-2H6V8h12v2h2V8a2 2 0 00-2-2H3zm16 5h-3a1 1 0 00-1 1v3a1 1 0 001 1h5a1 1 0 001-1v-2a2 2 0 00-2-2h-1z"/>
-          </svg>
-        </div>
-      </div>
-
-      <div class="relative z-30 h-full flex items-center justify-center text-center px-4">
-        <div class="max-w-4xl mx-auto">
-          <div class="inline-block animate-slide-down mb-6">
-            <span class="inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-              Доставка по всей России
-            </span>
-          </div>
-
-          <h1 class="text-5xl md:text-7xl font-bold mb-6 animate-fade-in-up">
-            <span class="text-white">Доставка и оплата</span>
-          </h1>
-
-          <p class="text-xl md:text-2xl text-white/90 animate-fade-in-up animation-delay-1">
-            Быстрая и надежная доставка вашего оборудования
-          </p>
-        </div>
-      </div>
-    </section>
+    <!-- Page Header - Minimalist -->
+    <PageHeader
+      title="Доставка и оплата"
+      description="Удобные способы доставки и оплаты для вашего комфорта"
+      :breadcrumbs="[{ text: 'Доставка и оплата' }]"
+    />
 
     <!-- Delivery Methods -->
     <section class="py-20 px-4">
@@ -54,7 +17,7 @@
           <p class="text-xl text-gray-600">
             Выберите удобный для вас вариант
           </p>
-          <div class="w-24 h-1 bg-gradient-to-r from-green-500 to-teal-500 mx-auto rounded-full mt-4"></div>
+          <div class="w-24 h-1 bg-gradient-to-r from-primary-500 to-primary-light mx-auto rounded-full mt-4"></div>
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
@@ -193,31 +156,6 @@
       </div>
     </section>
 
-    <!-- Transport Companies Partners -->
-    <section class="py-20 px-4 bg-gray-50">
-      <div class="max-w-7xl mx-auto">
-        <div class="text-center mb-16">
-          <h2 class="text-4xl md:text-5xl font-bold mb-4">
-            Наши партнеры по доставке
-          </h2>
-          <div class="w-24 h-1 bg-gradient-to-r from-green-500 to-teal-500 mx-auto rounded-full mt-4"></div>
-        </div>
-
-        <div class="grid md:grid-cols-4 gap-8">
-          <div v-for="company in transportCompanies" :key="company.name"
-            class="partner-card group">
-            <div class="bg-white rounded-2xl p-8 h-full flex flex-col items-center justify-center hover:shadow-2xl transition-all">
-              <div class="w-20 h-20 mb-4 rounded-xl bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <span class="text-3xl font-bold text-blue-600">{{ company.logo }}</span>
-              </div>
-              <h3 class="text-xl font-bold mb-2">{{ company.name }}</h3>
-              <p class="text-gray-500 text-sm text-center">{{ company.description }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Payment Methods -->
     <section class="py-20 px-4">
       <div class="max-w-7xl mx-auto">
@@ -228,10 +166,10 @@
           <p class="text-xl text-gray-600">
             Выберите удобный способ оплаты
           </p>
-          <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mt-4"></div>
+          <div class="w-24 h-1 bg-gradient-to-r from-primary-500 to-primary-light mx-auto rounded-full mt-4"></div>
         </div>
 
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="grid md:grid-cols-3 gap-8">
           <!-- Payment Method 1 -->
           <div class="payment-card group">
             <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -264,17 +202,6 @@
             <h3 class="text-xl font-bold mb-2">Счет для юр. лиц</h3>
             <p class="text-gray-600 text-sm">Безналичный расчет</p>
           </div>
-
-          <!-- Payment Method 4 -->
-          <div class="payment-card group animation-delay-3">
-            <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
-            <h3 class="text-xl font-bold mb-2">Рассрочка</h3>
-            <p class="text-gray-600 text-sm">0% на 6 месяцев</p>
-          </div>
         </div>
       </div>
     </section>
@@ -286,7 +213,7 @@
           <h2 class="text-4xl md:text-5xl font-bold mb-4">
             Как происходит доставка
           </h2>
-          <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mt-4"></div>
+          <div class="w-24 h-1 bg-gradient-to-r from-primary-500 to-primary-light mx-auto rounded-full mt-4"></div>
         </div>
 
         <div class="grid md:grid-cols-4 gap-8">
@@ -353,7 +280,7 @@
           <h2 class="text-4xl md:text-5xl font-bold mb-4">
             Частые вопросы о доставке
           </h2>
-          <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mt-4"></div>
+          <div class="w-24 h-1 bg-gradient-to-r from-primary-500 to-primary-light mx-auto rounded-full mt-4"></div>
         </div>
 
         <div class="space-y-4">
@@ -382,11 +309,11 @@
 
     <!-- CTA Section -->
     <section class="py-20 px-4 relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-br from-green-600 via-teal-600 to-blue-600"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-500 to-primary-light"></div>
 
       <div class="absolute inset-0">
         <div class="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full filter blur-3xl animate-float"></div>
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-blue-300/10 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-primary-light/10 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
       </div>
 
       <div class="relative max-w-4xl mx-auto text-center text-white">
@@ -420,14 +347,6 @@ useHead({
     { name: 'keywords', content: 'доставка оборудования, оплата, курьерская доставка, транспортная компания, самовывоз' }
   ]
 })
-
-// Transport Companies
-const transportCompanies = [
-  { name: 'Деловые Линии', logo: 'ДЛ', description: 'По всей России' },
-  { name: 'ПЭК', logo: 'ПЭК', description: 'Быстрая доставка' },
-  { name: 'СДЭК', logo: 'СД', description: 'Экспресс-доставка' },
-  { name: 'Байкал Сервис', logo: 'БС', description: 'Крупногабарит' }
-]
 
 // FAQs
 const faqs = ref([
@@ -536,7 +455,7 @@ const toggleFaq = (index) => {
 
 /* Premium Buttons */
 .premium-button-white {
-  @apply inline-block px-8 py-4 bg-white text-green-600 font-bold rounded-full;
+  @apply inline-block px-8 py-4 bg-white text-primary-600 font-bold rounded-full;
   @apply hover:bg-gray-100 transition-all duration-300 hover:scale-105;
   @apply shadow-xl hover:shadow-2xl;
 }
