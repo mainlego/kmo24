@@ -1,3 +1,6 @@
+# Large video files
+frontend/public/assets/backgrounds/*.mov
+frontend/public/assets/backgrounds/*.mp4
 # Dependencies
 node_modules/
 .pnp

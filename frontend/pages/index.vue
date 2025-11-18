@@ -11,8 +11,7 @@
           playsinline
           class="hero-bg-video"
         >
-          <source src="/assets/backgrounds/hero_bg.mov" type="video/quicktime">
-          <source src="/assets/backgrounds/hero_bg.mp4" type="video/mp4">
+          <source src="/assets/backgrounds/hero_bg.webm" type="video/webm">
         </video>
         <!-- Dark Overlay -->
         <div class="hero-overlay"></div>
