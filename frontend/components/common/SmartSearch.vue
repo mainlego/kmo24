@@ -409,6 +409,7 @@ watch(searchResults, () => {
   position: relative;
   width: 100%;
   max-width: 500px;
+  z-index: 1;
 
   &__input-wrapper {
     position: relative;
@@ -421,6 +422,8 @@ watch(searchResults, () => {
     border-radius: $radius-full;
     transition: all $transition-base $transition-ease;
     backdrop-filter: blur(10px);
+    z-index: 2;
+    pointer-events: auto;
 
     .smart-search--open & {
       border-color: $primary;
@@ -437,6 +440,7 @@ watch(searchResults, () => {
     color: $gray-400;
     flex-shrink: 0;
     transition: color $transition-base $transition-ease;
+    pointer-events: none;
 
     .smart-search--open & {
       color: $primary;
@@ -452,6 +456,9 @@ watch(searchResults, () => {
     color: $gray-900;
     background: transparent;
     min-width: 0;
+    z-index: 3;
+    pointer-events: auto;
+    cursor: text;
 
     &::placeholder {
       color: $gray-400;
@@ -490,6 +497,7 @@ watch(searchResults, () => {
     z-index: 1000;
     max-height: 500px;
     overflow-y: auto;
+    pointer-events: auto;
   }
 
   &__loading {

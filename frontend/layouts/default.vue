@@ -181,7 +181,7 @@
     <!-- Search Modal -->
     <Teleport to="body">
       <Transition name="modal-fade">
-        <div v-if="isSearchOpen" class="search-modal" @click="closeSearchModal">
+        <div v-if="isSearchOpen" class="search-modal" @click.self="closeSearchModal">
           <div class="search-modal__content" @click.stop>
             <button class="search-modal__close" @click="closeSearchModal" aria-label="Закрыть">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -1173,6 +1173,8 @@ onUnmounted(() => {
     padding: $spacing-2xl;
     box-shadow: $shadow-2xl;
     animation: slideDown 0.3s ease-out;
+    pointer-events: auto;
+    z-index: 1;
 
     @media (max-width: $breakpoint-md) {
       margin-top: 0;
@@ -1196,7 +1198,8 @@ onUnmounted(() => {
     color: $gray-600;
     cursor: pointer;
     transition: all $transition-base $transition-ease;
-    z-index: 10;
+    z-index: 2;
+    pointer-events: auto;
 
     &:hover {
       background: $gray-200;
