@@ -116,7 +116,7 @@ const handleClose = () => {
   }
 
   &--success {
-    background: $success;
+    background: $primary;
     color: $white;
   }
 
@@ -131,7 +131,7 @@ const handleClose = () => {
   }
 
   &--info {
-    background: #3b82f6;
+    background: $primary;
     color: $white;
   }
 
@@ -155,8 +155,8 @@ const handleClose = () => {
     }
 
     &.base-badge--success {
-      border: 1px solid $success;
-      color: $success;
+      border: 1px solid $primary;
+      color: $primary-600;
     }
 
     &.base-badge--warning {
@@ -170,8 +170,8 @@ const handleClose = () => {
     }
 
     &.base-badge--info {
-      border: 1px solid #3b82f6;
-      color: #3b82f6;
+      border: 1px solid $primary;
+      color: $primary-600;
     }
 
     &.base-badge--neutral {

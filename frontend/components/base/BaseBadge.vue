@@ -67,8 +67,8 @@ const emit = defineEmits<{
   }
 
   &--success {
-    background: rgba($success, 0.1);
-    color: $success;
+    background: rgba($primary, 0.1);
+    color: $primary-600;
   }
 
   &--warning {
@@ -82,8 +82,8 @@ const emit = defineEmits<{
   }
 
   &--info {
-    background: rgba($info, 0.1);
-    color: $info;
+    background: rgba($primary, 0.1);
+    color: $primary-600;
   }
 
   // Sizes

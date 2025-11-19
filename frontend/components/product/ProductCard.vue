@@ -51,7 +51,7 @@
 
     <template #badge>
       <div class="product-card__badges">
-        <BaseBadge v-if="isNew" variant="info" size="sm" rounded>
+        <BaseBadge v-if="isNew" variant="primary" size="sm" rounded>
           Новинка
         </BaseBadge>
         <BaseBadge v-if="hasDiscount" variant="danger" size="sm" rounded>

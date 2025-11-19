@@ -673,10 +673,10 @@ const formatPrice = (price: number): string => {
   gap: $spacing-sm;
   margin-top: $spacing-md;
   padding: $spacing-sm $spacing-md;
-  background: $info-light;
+  background: rgba($primary, 0.1);
   border-radius: $radius-lg;
   font-size: $font-size-sm;
-  color: $info;
+  color: $primary;
 
   svg {
     flex-shrink: 0;

@@ -93,7 +93,7 @@
               </div>
               <BaseBadge
                 v-if="isInStock"
-                variant="success"
+                variant="primary"
                 size="md"
               >
                 В наличии: {{ product.stock.quantity }} шт.
@@ -693,7 +693,7 @@ useHead({
           content: '✓';
           position: absolute;
           left: 0;
-          color: $success;
+          color: $primary;
           font-weight: $font-weight-bold;
         }
       }

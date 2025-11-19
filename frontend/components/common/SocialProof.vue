@@ -223,20 +223,20 @@ onUnmounted(() => {
   }
 
   &--purchase {
-    border-left-color: $success;
+    border-left-color: $primary;
 
     .notification-icon {
-      background: rgba($success, 0.1);
-      color: $success;
+      background: rgba($primary, 0.1);
+      color: $primary-600;
     }
   }
 
   &--viewing {
-    border-left-color: $info;
+    border-left-color: $primary-light;
 
     .notification-icon {
-      background: rgba($info, 0.1);
-      color: $info;
+      background: rgba($primary-light, 0.1);
+      color: $primary-600;
     }
   }
 

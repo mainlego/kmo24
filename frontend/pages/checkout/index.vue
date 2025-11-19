@@ -76,7 +76,7 @@
                   <div class="checkout-page__delivery-name">
                     {{ method.name }}
                     <span v-if="method.price > 0">({{ formatPrice(method.price) }})</span>
-                    <BaseBadge v-else variant="success" size="sm">Бесплатно</BaseBadge>
+                    <BaseBadge v-else variant="primary" size="sm">Бесплатно</BaseBadge>
                   </div>
                   <p class="checkout-page__delivery-description">{{ method.description }}</p>
                 </div>
@@ -722,7 +722,7 @@ useHead({
     color: $gray-700;
 
     &--discount {
-      color: $success;
+      color: $primary;
       font-weight: $font-weight-medium;
     }
 

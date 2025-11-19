@@ -620,10 +620,10 @@ useHead({
     }
 
     &--completed {
-      border-color: $success;
+      border-color: $primary;
 
       .checkout-steps__number {
-        background: $success;
+        background: $primary;
         color: $white;
       }
     }
@@ -987,9 +987,9 @@ useHead({
   align-items: center;
   gap: $spacing-sm;
   padding: $spacing-md;
-  background: $success-light;
+  background: rgba($primary, 0.1);
   border-radius: $radius-lg;
-  color: $success;
+  color: $primary;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
 
@@ -1001,7 +1001,7 @@ useHead({
 .proposal-action-btn {
   margin-left: auto;
   padding: $spacing-xs $spacing-sm;
-  background: $success;
+  background: $primary;
   border: none;
   border-radius: $radius-md;
   color: $white;
@@ -1011,7 +1011,7 @@ useHead({
   transition: all $transition-base;
 
   &:hover {
-    background: darken($success, 10%);
+    background: darken($primary, 10%);
   }
 }
 </style>

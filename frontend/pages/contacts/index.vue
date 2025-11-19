@@ -588,10 +588,10 @@ const handleSubmit = async () => {
 
 .form-success {
   padding: $spacing-md;
-  background: rgba($success, 0.1);
-  border: 1px solid $success;
+  background: rgba($primary, 0.1);
+  border: 1px solid $primary;
   border-radius: $radius-lg;
-  color: $success;
+  color: $primary;
   font-weight: $font-weight-medium;
   text-align: center;
 }

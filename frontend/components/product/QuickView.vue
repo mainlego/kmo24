@@ -508,8 +508,8 @@ const handleAddToCart = async () => {
   align-self: flex-start;
 
   &.in-stock {
-    background: rgba($success, 0.1);
-    color: $success;
+    background: rgba($primary, 0.1);
+    color: $primary;
   }
 
   &.low-stock {

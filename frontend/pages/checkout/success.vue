@@ -108,8 +108,8 @@ useHead({
     width: 120px;
     height: 120px;
     border-radius: $radius-full;
-    background: rgba($success, 0.1);
-    color: $success;
+    background: rgba($primary, 0.1);
+    color: $primary;
 
     svg {
       width: 80px;
