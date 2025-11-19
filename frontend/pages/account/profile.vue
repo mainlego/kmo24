@@ -4,7 +4,7 @@
       <!-- Back Button -->
       <NuxtLink
         to="/account"
-        class="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6 group transition-all"
+        class="inline-flex items-center text-primary-600 hover:text-primary-700 mb-6 group transition-all"
       >
         <svg
           class="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform"
@@ -19,7 +19,7 @@
 
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <h1 class="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-primary-600 to-primary-light bg-clip-text text-transparent">
           Профиль
         </h1>
         <p class="text-gray-600">Управляйте вашей личной информацией</p>
@@ -30,8 +30,8 @@
         <div class="flex flex-col md:flex-row items-center gap-6">
           <!-- Avatar -->
           <div class="relative group">
-            <div class="w-32 h-32 rounded-full overflow-hidden ring-4 ring-blue-100 group-hover:ring-blue-300 transition-all">
-              <div v-if="!profile.avatar" class="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+            <div class="w-32 h-32 rounded-full overflow-hidden ring-4 ring-primary-100 group-hover:ring-primary-300 transition-all">
+              <div v-if="!profile.avatar" class="w-full h-full bg-gradient-to-br from-primary-400 to-primary-500 flex items-center justify-center">
                 <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
@@ -48,7 +48,7 @@
             </div>
 
             <!-- Status Badge -->
-            <div class="absolute bottom-0 right-0 w-8 h-8 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
+            <div class="absolute bottom-0 right-0 w-8 h-8 bg-orange-500 rounded-full border-4 border-white flex items-center justify-center">
               <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
               </svg>
@@ -60,14 +60,14 @@
             <h2 class="text-2xl font-bold text-gray-900">{{ profile.firstName }} {{ profile.lastName }}</h2>
             <p class="text-gray-600">{{ profile.email }}</p>
             <div class="flex flex-wrap gap-2 mt-3 justify-center md:justify-start">
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
                   <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
                 </svg>
                 Email подтвержден
               </span>
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
                 <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                 </svg>
@@ -93,7 +93,7 @@
         <!-- Personal Information -->
         <div class="glass-card p-8 animate-fade-in-up animation-delay-1">
           <div class="flex items-center mb-6">
-            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mr-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-light rounded-xl flex items-center justify-center mr-3">
               <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
               </svg>
@@ -183,7 +183,7 @@
         <!-- Security Section -->
         <div class="glass-card p-8 animate-fade-in-up animation-delay-2">
           <div class="flex items-center mb-6">
-            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-500 rounded-xl flex items-center justify-center mr-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-400 rounded-xl flex items-center justify-center mr-3">
               <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
               </svg>
@@ -252,7 +252,7 @@
         <!-- Notifications Settings -->
         <div class="glass-card p-8 animate-fade-in-up animation-delay-3">
           <div class="flex items-center mb-6">
-            <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mr-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-light rounded-xl flex items-center justify-center mr-3">
               <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
               </svg>
@@ -409,7 +409,7 @@ const passwordStrengthClass = computed(() => {
   if (strength <= 2) return 'text-red-600'
   if (strength <= 3) return 'text-orange-600'
   if (strength <= 4) return 'text-yellow-600'
-  return 'text-green-600'
+  return 'text-orange-600'
 })
 
 const passwordStrengthBarClass = computed(() => {
@@ -417,7 +417,7 @@ const passwordStrengthBarClass = computed(() => {
   if (strength <= 2) return 'bg-red-500'
   if (strength <= 3) return 'bg-orange-500'
   if (strength <= 4) return 'bg-yellow-500'
-  return 'bg-green-500'
+  return 'bg-orange-500'
 })
 
 const passwordStrengthWidth = computed(() => {
@@ -502,7 +502,7 @@ const deleteAccount = () => {
 
 .form-input {
   @apply w-full px-4 py-3 border border-gray-300 rounded-xl;
-  @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply focus:ring-2 focus:ring-primary-500 focus:border-transparent;
   @apply transition-all duration-200;
   @apply text-gray-900 placeholder-gray-400;
 }
@@ -513,7 +513,7 @@ const deleteAccount = () => {
 
 .form-select {
   @apply w-full px-4 py-3 border border-gray-300 rounded-xl;
-  @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply focus:ring-2 focus:ring-primary-500 focus:border-transparent;
   @apply transition-all duration-200;
   @apply text-gray-900 bg-white;
   appearance: none;
@@ -532,7 +532,7 @@ const deleteAccount = () => {
 }
 
 .notification-toggle input:checked ~ .toggle-bg {
-  @apply bg-blue-600;
+  @apply bg-primary-600;
 }
 
 .notification-toggle input:checked ~ .toggle-bg::after {
@@ -555,9 +555,9 @@ const deleteAccount = () => {
 /* Premium Buttons */
 .premium-button {
   @apply flex items-center justify-center px-8 py-4;
-  @apply bg-gradient-to-r from-blue-600 to-purple-600;
+  @apply bg-gradient-to-r from-primary-600 to-primary-light;
   @apply text-white font-bold rounded-xl;
-  @apply hover:from-blue-700 hover:to-purple-700;
+  @apply hover:from-primary-700 hover:to-primary-500;
   @apply transition-all duration-300 hover:scale-105;
   @apply shadow-lg hover:shadow-xl;
   @apply disabled:opacity-50 disabled:cursor-not-allowed;
@@ -565,9 +565,9 @@ const deleteAccount = () => {
 
 .premium-button-small {
   @apply inline-flex items-center px-4 py-2;
-  @apply bg-gradient-to-r from-blue-600 to-purple-600;
+  @apply bg-gradient-to-r from-primary-600 to-primary-light;
   @apply text-white font-semibold rounded-lg text-sm;
-  @apply hover:from-blue-700 hover:to-purple-700;
+  @apply hover:from-primary-700 hover:to-primary-500;
   @apply transition-all duration-300 hover:scale-105;
   @apply shadow-md hover:shadow-lg;
 }

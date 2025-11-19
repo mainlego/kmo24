@@ -243,7 +243,7 @@ const stats = computed(() => [
     label: 'Активные сделки',
     value: String(crmStore.activeDeals),
     change: 12.5,
-    color: 'blue',
+    color: 'orange',
     icon: 'IconOrders',
   },
   {
@@ -251,7 +251,7 @@ const stats = computed(() => [
     label: 'Сумма сделок',
     value: formatPrice(crmStore.totalValue),
     change: 23.0,
-    color: 'green',
+    color: 'orange',
     icon: 'IconRevenue',
   },
   {
@@ -259,7 +259,7 @@ const stats = computed(() => [
     label: 'Всего лидов',
     value: String(crmStore.totalLeads),
     change: 15.2,
-    color: 'purple',
+    color: 'orange',
     icon: 'IconUsers',
   },
   {
@@ -370,34 +370,34 @@ const getInitials = (name: string) => {
   }
 
   &.stat-blue {
-    border-left-color: #3b82f6;
+    border-left-color: #f59e0b;
     .stat-icon {
-      background: rgba(59, 130, 246, 0.1);
-      color: #3b82f6;
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
     }
   }
 
   &.stat-green {
-    border-left-color: #10b981;
+    border-left-color: #f59e0b;
     .stat-icon {
-      background: rgba(16, 185, 129, 0.1);
-      color: #10b981;
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
     }
   }
 
   &.stat-purple {
-    border-left-color: #f59e0be6;
+    border-left-color: #f59e0b;
     .stat-icon {
-      background: rgba(139, 92, 246, 0.1);
-      color: #f59e0be6;
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
     }
   }
 
   &.stat-orange {
-    border-left-color: #f59e0be6;
+    border-left-color: #f59e0b;
     .stat-icon {
       background: rgba(245, 158, 11, 0.1);
-      color: #f59e0be6;
+      color: #f59e0b;
     }
   }
 }
@@ -442,7 +442,7 @@ const getInitials = (name: string) => {
   font-weight: 500;
 
   &.positive {
-    color: #10b981;
+    color: #f59e0b;
   }
 
   &.negative {
@@ -490,12 +490,12 @@ const getInitials = (name: string) => {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
-  &.stage-1 { border-left-color: #3b82f6; }
-  &.stage-2 { border-left-color: #f59e0be6; }
-  &.stage-3 { border-left-color: #f59e0be6; }
-  &.stage-4 { border-left-color: #fbbf24; }
-  &.stage-5 { border-left-color: #a855f7; }
-  &.stage-6 { border-left-color: #10b981; }
+  &.stage-1 { border-left-color: #f59e0b; }
+  &.stage-2 { border-left-color: #f59e0b; }
+  &.stage-3 { border-left-color: #f59e0b; }
+  &.stage-4 { border-left-color: #f59e0b; }
+  &.stage-5 { border-left-color: #f59e0b; }
+  &.stage-6 { border-left-color: #f59e0b; }
 }
 
 .stage-label {
@@ -520,13 +520,13 @@ const getInitials = (name: string) => {
 
 .stage-value {
   font-size: 0.875rem;
-  color: #10b981;
+  color: #f59e0b;
   font-weight: 600;
 }
 
 .stage-bar {
   height: 6px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
   border-radius: 9999px;
   transition: width 0.3s ease;
 }
@@ -564,7 +564,7 @@ const getInitials = (name: string) => {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -608,7 +608,7 @@ const getInitials = (name: string) => {
 
 .lead-value {
   font-weight: 700;
-  color: #10b981;
+  color: #f59e0b;
   font-size: 0.875rem;
   white-space: nowrap;
 }
@@ -620,12 +620,12 @@ const getInitials = (name: string) => {
   font-weight: 600;
   white-space: nowrap;
 
-  &.status-new { background: #dbeafe; color: #1e40af; }
-  &.status-contacted { background: #e0e7ff; color: #4338ca; }
-  &.status-qualified { background: #fef3c7; color: #92400e; }
-  &.status-proposal { background: #fce7f3; color: #9f1239; }
-  &.status-negotiation { background: #f3e8ff; color: #6b21a8; }
-  &.status-won { background: #d1fae5; color: #065f46; }
+  &.status-new { background: #fed7aa; color: #92400e; }
+  &.status-contacted { background: #fed7aa; color: #92400e; }
+  &.status-qualified { background: #fed7aa; color: #92400e; }
+  &.status-proposal { background: #fed7aa; color: #92400e; }
+  &.status-negotiation { background: #fed7aa; color: #92400e; }
+  &.status-won { background: #fed7aa; color: #92400e; }
   &.status-lost { background: #fee2e2; color: #991b1b; }
 }
 
@@ -675,7 +675,7 @@ const getInitials = (name: string) => {
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: #f59e0b;
   }
 }
 
@@ -684,12 +684,12 @@ const getInitials = (name: string) => {
   align-items: center;
   gap: 0.25rem;
   font-size: 0.875rem;
-  color: #3b82f6;
+  color: #f59e0b;
   text-decoration: none;
   transition: color 0.2s;
 
   &:hover {
-    color: #2563eb;
+    color: #d97706;
   }
 
   svg {
@@ -775,23 +775,23 @@ const getInitials = (name: string) => {
   font-weight: 500;
 
   &.status-pending {
-    background: #fef3c7;
+    background: #fed7aa;
     color: #92400e;
   }
 
   &.status-processing {
-    background: #dbeafe;
-    color: #1e40af;
+    background: #fed7aa;
+    color: #92400e;
   }
 
   &.status-completed {
-    background: #d1fae5;
-    color: #065f46;
+    background: #fed7aa;
+    color: #92400e;
   }
 
   &.status-shipped {
-    background: #e0e7ff;
-    color: #3730a3;
+    background: #fed7aa;
+    color: #92400e;
   }
 }
 
@@ -859,7 +859,7 @@ const getInitials = (name: string) => {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background: #3b82f6;
+  background: #f59e0b;
   color: white;
   display: flex;
   align-items: center;
@@ -896,13 +896,13 @@ const getInitials = (name: string) => {
   font-weight: 500;
 
   &.status-pending {
-    background: #fef3c7;
+    background: #fed7aa;
     color: #92400e;
   }
 
   &.status-approved {
-    background: #d1fae5;
-    color: #065f46;
+    background: #fed7aa;
+    color: #92400e;
   }
 }
 
@@ -926,7 +926,7 @@ const getInitials = (name: string) => {
     width: 2rem;
     height: 2rem;
     border: 3px solid #e5e7eb;
-    border-top-color: #3b82f6;
+    border-top-color: #f59e0b;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;

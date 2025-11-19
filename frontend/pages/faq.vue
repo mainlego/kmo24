@@ -3,7 +3,7 @@
     <!-- Hero Section -->
     <section class="relative h-[50vh] overflow-hidden">
       <div class="absolute inset-0">
-        <div class="absolute inset-0 bg-gradient-to-br from-purple-900/90 via-indigo-800/85 to-blue-900/90 z-10"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-primary-900/90 via-primary-800/85 to-primary-900/90 z-10"></div>
         <img
           src="https://images.unsplash.com/photo-1
 
@@ -57,7 +57,7 @@
             v-model="searchQuery"
             type="text"
             placeholder="Поиск по вопросам..."
-            class="w-full pl-14 pr-6 py-5 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500 transition-all text-lg shadow-lg"
+            class="w-full pl-14 pr-6 py-5 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary-500/30 focus:border-primary-500 transition-all text-lg shadow-lg"
           />
           <div v-if="searchQuery" class="absolute inset-y-0 right-0 pr-6 flex items-center">
             <button @click="searchQuery = ''" class="text-gray-400 hover:text-gray-600">
@@ -115,7 +115,7 @@
             <button @click="toggleFaq(faq.id)" class="w-full text-left">
               <div class="flex items-start justify-between gap-4 mb-3">
                 <div class="flex items-start flex-1">
-                  <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mr-3">
+                  <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-light rounded-xl flex items-center justify-center mr-3">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
@@ -123,7 +123,7 @@
                   <div class="flex-1">
                     <h3 class="text-lg font-bold text-gray-900 mb-1">{{ faq.question }}</h3>
                     <div class="flex items-center gap-2">
-                      <span class="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
+                      <span class="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded-full font-medium">
                         {{ getCategoryName(faq.category) }}
                       </span>
                       <span v-if="faq.popular" class="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full font-medium flex items-center">
@@ -173,9 +173,9 @@
     </section>
 
     <!-- Contact CTA -->
-    <section class="py-20 px-4 bg-gradient-to-br from-gray-50 to-blue-50">
+    <section class="py-20 px-4 bg-gradient-to-br from-gray-50 to-orange-50">
       <div class="max-w-4xl mx-auto text-center">
-        <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+        <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-light rounded-2xl flex items-center justify-center mx-auto mb-6">
           <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
           </svg>
@@ -506,12 +506,12 @@ const resetFilters = () => {
   @apply inline-flex items-center px-6 py-3 rounded-full;
   @apply bg-white text-gray-700 border-2 border-gray-200;
   @apply font-semibold transition-all duration-200;
-  @apply hover:border-blue-500 hover:text-blue-600 hover:scale-105;
+  @apply hover:border-primary-500 hover:text-primary-600 hover:scale-105;
   @apply shadow-md hover:shadow-lg;
 }
 
 .category-pill--active {
-  @apply bg-gradient-to-r from-blue-600 to-purple-600;
+  @apply bg-gradient-to-r from-primary-600 to-primary-light;
   @apply text-white border-transparent;
   @apply scale-105 shadow-lg;
 }
@@ -529,16 +529,16 @@ const resetFilters = () => {
 .helpful-button {
   @apply inline-flex items-center px-3 py-2 text-sm font-medium;
   @apply bg-gray-100 text-gray-700 rounded-lg;
-  @apply hover:bg-blue-50 hover:text-blue-600;
+  @apply hover:bg-orange-50 hover:text-orange-600;
   @apply transition-colors duration-200;
 }
 
 /* Premium Buttons */
 .premium-button {
   @apply inline-flex items-center justify-center px-8 py-4;
-  @apply bg-gradient-to-r from-blue-600 to-purple-600;
+  @apply bg-gradient-to-r from-primary-600 to-primary-light;
   @apply text-white font-bold rounded-xl;
-  @apply hover:from-blue-700 hover:to-purple-700;
+  @apply hover:from-primary-700 hover:to-primary-600;
   @apply transition-all duration-300 hover:scale-105;
   @apply shadow-lg hover:shadow-xl;
 }

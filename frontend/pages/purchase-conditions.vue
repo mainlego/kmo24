@@ -36,25 +36,25 @@
                 </p>
                 <ul class="space-y-3">
                   <li class="flex items-start">
-                    <svg class="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                     <span>Полная диагностика перед продажей</span>
                   </li>
                   <li class="flex items-start">
-                    <svg class="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                     <span>Проверка работоспособности всех узлов</span>
                   </li>
                   <li class="flex items-start">
-                    <svg class="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                     <span>Честное описание состояния</span>
                   </li>
                   <li class="flex items-start">
-                    <svg class="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                     <span>Выгодная цена по сравнению с новым</span>
@@ -66,7 +66,7 @@
             <!-- Purchase Process -->
             <div class="bg-white rounded-2xl p-8 shadow-md">
               <h2 class="text-2xl font-bold mb-6 flex items-center">
-                <span class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+                <span class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center mr-3">
                   <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                   </svg>
@@ -126,7 +126,7 @@
                 </div>
 
                 <div class="flex items-start">
-                  <div class="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0">
+                  <div class="w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0">
                     6
                   </div>
                   <div>
@@ -157,17 +157,17 @@
                   </p>
                 </div>
 
-                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                  <h3 class="font-semibold text-blue-800 mb-2">Возврат и обмен</h3>
-                  <p class="text-blue-700 text-sm">
+                <div class="bg-orange-50 border border-orange-200 rounded-xl p-4">
+                  <h3 class="font-semibold text-orange-800 mb-2">Возврат и обмен</h3>
+                  <p class="text-orange-700 text-sm">
                     Возврат возможен в течение 14 дней при сохранении товарного вида.
                     Обмен по согласованию с менеджером.
                   </p>
                 </div>
 
-                <div class="bg-green-50 border border-green-200 rounded-xl p-4">
-                  <h3 class="font-semibold text-green-800 mb-2">Документация</h3>
-                  <p class="text-green-700 text-sm">
+                <div class="bg-orange-50 border border-orange-200 rounded-xl p-4">
+                  <h3 class="font-semibold text-orange-800 mb-2">Документация</h3>
+                  <p class="text-orange-700 text-sm">
                     К каждому оборудованию предоставляются: товарный чек,
                     акт приема-передачи, паспорт изделия (при наличии).
                   </p>
@@ -394,7 +394,7 @@ const formMessageType = ref('success')
 
 const formMessageClass = computed(() => {
   return formMessageType.value === 'success'
-    ? 'bg-green-100 text-green-700 border border-green-200'
+    ? 'bg-orange-100 text-orange-700 border border-orange-200'
     : 'bg-red-100 text-red-700 border border-red-200'
 })
 

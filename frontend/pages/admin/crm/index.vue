@@ -24,7 +24,7 @@
 
     <!-- Stats -->
     <div class="stats-grid">
-      <div class="stat-card stat-blue">
+      <div class="stat-card stat-orange">
         <div class="stat-icon">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -42,7 +42,7 @@
         </div>
       </div>
 
-      <div class="stat-card stat-green">
+      <div class="stat-card stat-orange">
         <div class="stat-icon">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -78,7 +78,7 @@
         </div>
       </div>
 
-      <div class="stat-card stat-purple">
+      <div class="stat-card stat-orange">
         <div class="stat-icon">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -451,11 +451,11 @@ const deleteLead = (lead: any) => {
   }
 
   &.btn-primary {
-    background: #3b82f6;
+    background: #f59e0b;
     color: white;
 
     &:hover {
-      background: #2563eb;
+      background: #d97706;
     }
   }
 
@@ -493,23 +493,28 @@ const deleteLead = (lead: any) => {
   }
 
   &.stat-blue .stat-icon {
-    background: #dbeafe;
-    color: #3b82f6;
+    background: #fed7aa;
+    color: #f59e0b;
   }
 
   &.stat-green .stat-icon {
-    background: #d1fae5;
-    color: #10b981;
+    background: #fed7aa;
+    color: #f59e0b;
   }
 
   &.stat-yellow .stat-icon {
-    background: #fef3c7;
-    color: #f59e0be6;
+    background: #fed7aa;
+    color: #f59e0b;
   }
 
   &.stat-purple .stat-icon {
-    background: #e9d5ff;
-    color: #a855f7;
+    background: #fed7aa;
+    color: #f59e0b;
+  }
+
+  &.stat-orange .stat-icon {
+    background: #fed7aa;
+    color: #f59e0b;
   }
 }
 
@@ -558,7 +563,7 @@ const deleteLead = (lead: any) => {
   }
 
   &.positive {
-    color: #10b981;
+    color: #f59e0b;
   }
 
   &.negative {
@@ -590,7 +595,7 @@ const deleteLead = (lead: any) => {
 }
 
 .funnel-stage {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
   border-radius: 0.5rem;
   padding: 1.25rem;
   color: white;
@@ -599,31 +604,31 @@ const deleteLead = (lead: any) => {
 
   &:hover {
     transform: scale(1.02);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
   }
 
   &.stage-1 {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
   }
 
   &.stage-2 {
-    background: linear-gradient(135deg, #667eea 10%, #764ba2 100%);
+    background: linear-gradient(135deg, #f59e0b 10%, #f97316 100%);
   }
 
   &.stage-3 {
-    background: linear-gradient(135deg, #667eea 20%, #764ba2 100%);
+    background: linear-gradient(135deg, #f59e0b 20%, #f97316 100%);
   }
 
   &.stage-4 {
-    background: linear-gradient(135deg, #667eea 30%, #764ba2 100%);
+    background: linear-gradient(135deg, #f59e0b 30%, #f97316 100%);
   }
 
   &.stage-5 {
-    background: linear-gradient(135deg, #667eea 40%, #764ba2 100%);
+    background: linear-gradient(135deg, #f59e0b 40%, #f97316 100%);
   }
 
   &.stage-6 {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
   }
 }
 
@@ -733,8 +738,8 @@ const deleteLead = (lead: any) => {
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
   }
 }
 
@@ -748,8 +753,8 @@ const deleteLead = (lead: any) => {
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
   }
 }
 
@@ -797,7 +802,7 @@ const deleteLead = (lead: any) => {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -864,33 +869,33 @@ const deleteLead = (lead: any) => {
   white-space: nowrap;
 
   &.status-new {
-    background: #dbeafe;
-    color: #1e40af;
+    background: #fed7aa;
+    color: #92400e;
   }
 
   &.status-contacted {
-    background: #e0e7ff;
-    color: #4338ca;
+    background: #fed7aa;
+    color: #92400e;
   }
 
   &.status-qualified {
-    background: #fef3c7;
+    background: #fed7aa;
     color: #92400e;
   }
 
   &.status-proposal {
-    background: #fce7f3;
-    color: #9f1239;
+    background: #fed7aa;
+    color: #92400e;
   }
 
   &.status-negotiation {
-    background: #f3e8ff;
-    color: #6b21a8;
+    background: #fed7aa;
+    color: #92400e;
   }
 
   &.status-won {
-    background: #d1fae5;
-    color: #065f46;
+    background: #fed7aa;
+    color: #92400e;
   }
 
   &.status-lost {

@@ -23,7 +23,7 @@
         <div class="grid md:grid-cols-3 gap-8">
           <!-- Courier Delivery -->
           <div class="delivery-card group">
-            <div class="relative overflow-hidden rounded-t-2xl h-48 bg-gradient-to-br from-blue-500 to-blue-600">
+            <div class="relative overflow-hidden rounded-t-2xl h-48 bg-gradient-to-br from-primary-500 to-primary-600">
               <div class="absolute inset-0 flex items-center justify-center">
                 <svg class="w-24 h-24 text-white/20 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M18 18.5a1.5 1.5 0 01-1 1.415V21a1 1 0 11-2 0v-1.085a1.5 1.5 0 111-1.415zm-12 0a1.5 1.5 0 01-1 1.415V21a1 1 0 11-2 0v-1.085a1.5 1.5 0 111-1.415zM3 6a1 1 0 000 2h1v7a2 2 0 002 2h7v-2H6V8h12v2h2V8a2 2 0 00-2-2H3zm16 5h-3a1 1 0 00-1 1v3a1 1 0 001 1h5a1 1 0 001-1v-2a2 2 0 00-2-2h-1z"/>
@@ -34,19 +34,19 @@
               <h3 class="text-2xl font-bold mb-3">Курьерская доставка</h3>
               <div class="space-y-3 mb-6">
                 <div class="flex items-start">
-                  <svg class="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span class="text-gray-600">Доставка до двери</span>
                 </div>
                 <div class="flex items-start">
-                  <svg class="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span class="text-gray-600">Удобное время доставки</span>
                 </div>
                 <div class="flex items-start">
-                  <svg class="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span class="text-gray-600">Подъем на этаж</span>
@@ -59,7 +59,7 @@
                 </div>
                 <div class="flex justify-between items-center">
                   <span class="text-gray-500">Стоимость:</span>
-                  <span class="font-bold text-2xl text-blue-600">от 500₽</span>
+                  <span class="font-bold text-2xl text-primary-600">от 500₽</span>
                 </div>
               </div>
             </div>
@@ -67,7 +67,7 @@
 
           <!-- Transport Company -->
           <div class="delivery-card group animation-delay-1">
-            <div class="relative overflow-hidden rounded-t-2xl h-48 bg-gradient-to-br from-purple-500 to-purple-600">
+            <div class="relative overflow-hidden rounded-t-2xl h-48 bg-gradient-to-br from-primary-500 to-primary-600">
               <div class="absolute inset-0 flex items-center justify-center">
                 <svg class="w-24 h-24 text-white/20 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
@@ -78,19 +78,19 @@
               <h3 class="text-2xl font-bold mb-3">Транспортной компанией</h3>
               <div class="space-y-3 mb-6">
                 <div class="flex items-start">
-                  <svg class="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span class="text-gray-600">Доставка по всей России</span>
                 </div>
                 <div class="flex items-start">
-                  <svg class="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span class="text-gray-600">Трек-номер для отслеживания</span>
                 </div>
                 <div class="flex items-start">
-                  <svg class="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span class="text-gray-600">Страхование груза</span>
@@ -111,7 +111,7 @@
 
           <!-- Pickup -->
           <div class="delivery-card group animation-delay-2">
-            <div class="relative overflow-hidden rounded-t-2xl h-48 bg-gradient-to-br from-green-500 to-green-600">
+            <div class="relative overflow-hidden rounded-t-2xl h-48 bg-gradient-to-br from-primary-500 to-primary-600">
               <div class="absolute inset-0 flex items-center justify-center">
                 <svg class="w-24 h-24 text-white/20 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
@@ -122,19 +122,19 @@
               <h3 class="text-2xl font-bold mb-3">Самовывоз</h3>
               <div class="space-y-3 mb-6">
                 <div class="flex items-start">
-                  <svg class="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span class="text-gray-600">Получите сразу</span>
                 </div>
                 <div class="flex items-start">
-                  <svg class="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span class="text-gray-600">Проверьте товар на месте</span>
                 </div>
                 <div class="flex items-start">
-                  <svg class="w-5 h-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
                   <span class="text-gray-600">Консультация специалиста</span>
@@ -147,7 +147,7 @@
                 </div>
                 <div class="flex justify-between items-center">
                   <span class="text-gray-500">Стоимость:</span>
-                  <span class="font-bold text-2xl text-green-600">Бесплатно</span>
+                  <span class="font-bold text-2xl text-primary-600">Бесплатно</span>
                 </div>
               </div>
             </div>
@@ -172,7 +172,7 @@
         <div class="grid md:grid-cols-3 gap-8">
           <!-- Payment Method 1 -->
           <div class="payment-card group">
-            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <div class="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-light rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
               </svg>
@@ -183,7 +183,7 @@
 
           <!-- Payment Method 2 -->
           <div class="payment-card group animation-delay-1">
-            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <div class="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-light rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
               </svg>
@@ -194,7 +194,7 @@
 
           <!-- Payment Method 3 -->
           <div class="payment-card group animation-delay-2">
-            <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <div class="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-light rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
               </svg>
@@ -207,7 +207,7 @@
     </section>
 
     <!-- Delivery Process -->
-    <section class="py-20 px-4 bg-gradient-to-br from-blue-50 to-purple-50">
+    <section class="py-20 px-4 bg-gradient-to-br from-orange-50 to-orange-50">
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
           <h2 class="text-4xl md:text-5xl font-bold mb-4">
@@ -221,7 +221,7 @@
           <div class="process-step">
             <div class="step-number">1</div>
             <div class="step-icon">
-              <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
               </svg>
             </div>
@@ -233,7 +233,7 @@
           <div class="process-step animation-delay-1">
             <div class="step-number">2</div>
             <div class="step-icon">
-              <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
             </div>
@@ -268,7 +268,7 @@
 
         <!-- Progress Line -->
         <div class="relative mt-8 hidden md:block">
-          <div class="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-green-500 via-purple-500 to-orange-500 transform -translate-y-1/2 rounded-full"></div>
+          <div class="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-primary-light via-primary-600 to-orange-500 transform -translate-y-1/2 rounded-full"></div>
         </div>
       </div>
     </section>
@@ -436,7 +436,7 @@ const toggleFaq = (index) => {
 
 .step-number {
   @apply absolute -top-4 left-1/2 transform -translate-x-1/2;
-  @apply w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full;
+  @apply w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-light rounded-full;
   @apply flex items-center justify-center text-white font-bold text-xl;
   @apply shadow-lg;
   @apply z-10;

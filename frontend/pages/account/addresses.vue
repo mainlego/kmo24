@@ -4,7 +4,7 @@
       <!-- Back Button -->
       <NuxtLink
         to="/account"
-        class="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6 group transition-all"
+        class="inline-flex items-center text-primary-600 hover:text-primary-700 mb-6 group transition-all"
       >
         <svg
           class="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform"
@@ -20,7 +20,7 @@
       <!-- Header -->
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 class="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 class="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-primary-600 to-primary-light bg-clip-text text-transparent">
             Адреса доставки
           </h1>
           <p class="text-gray-600">Управляйте адресами для быстрого оформления заказов</p>
@@ -39,7 +39,7 @@
       <!-- Loading State -->
       <div v-if="isLoading" class="flex items-center justify-center min-h-[400px]">
         <div class="text-center">
-          <div class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
+          <div class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-600 mb-4"></div>
           <p class="text-gray-600">Загрузка адресов...</p>
         </div>
       </div>
@@ -50,9 +50,9 @@
           <!-- Animated Icon -->
           <div class="relative mb-8">
             <div class="absolute inset-0 flex items-center justify-center">
-              <div class="w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full animate-pulse"></div>
+              <div class="w-32 h-32 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full animate-pulse"></div>
             </div>
-            <svg class="relative w-32 h-32 mx-auto text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="relative w-32 h-32 mx-auto text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
@@ -87,7 +87,7 @@
         >
           <!-- Default Badge -->
           <div v-if="address.isDefault" class="absolute -top-2 -right-2 z-10">
-            <div class="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center">
+            <div class="bg-gradient-to-r from-primary-500 to-primary-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center">
               <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
               </svg>
@@ -96,7 +96,7 @@
           </div>
 
           <!-- Icon -->
-          <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <div class="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-light rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -606,11 +606,11 @@ onMounted(async () => {
 }
 
 .address-card--default {
-  @apply border-green-300 bg-gradient-to-br from-green-50 to-white;
+  @apply border-primary-300 bg-gradient-to-br from-primary-50 to-white;
 }
 
 .address-card:hover {
-  @apply border-blue-300;
+  @apply border-primary-300;
 }
 
 /* Action Buttons */
@@ -620,7 +620,7 @@ onMounted(async () => {
 }
 
 .action-button--primary {
-  @apply bg-blue-50 text-blue-700 hover:bg-blue-100;
+  @apply bg-primary-50 text-primary-700 hover:bg-primary-100;
 }
 
 .action-button--secondary {
@@ -634,9 +634,9 @@ onMounted(async () => {
 /* Premium Button */
 .premium-button {
   @apply inline-flex items-center justify-center px-6 py-3;
-  @apply bg-gradient-to-r from-blue-600 to-purple-600;
+  @apply bg-gradient-to-r from-primary-600 to-primary-light;
   @apply text-white font-bold rounded-xl;
-  @apply hover:from-blue-700 hover:to-purple-700;
+  @apply hover:from-primary-700 hover:to-primary-500;
   @apply transition-all duration-300 hover:scale-105;
   @apply shadow-lg hover:shadow-xl;
   @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
@@ -683,7 +683,7 @@ onMounted(async () => {
 
 .form-input {
   @apply w-full px-4 py-3 border border-gray-300 rounded-xl;
-  @apply focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply focus:ring-2 focus:ring-primary-500 focus:border-transparent;
   @apply transition-all duration-200;
   @apply text-gray-900 placeholder-gray-400;
 }
@@ -709,7 +709,7 @@ onMounted(async () => {
 }
 
 .checkbox-input:checked ~ .checkbox-custom {
-  @apply bg-blue-600 border-blue-600;
+  @apply bg-primary-600 border-primary-600;
 }
 
 .checkbox-input:checked ~ .checkbox-custom::after {

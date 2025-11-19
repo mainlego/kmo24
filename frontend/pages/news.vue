@@ -400,8 +400,8 @@ const getCategoryName = (category) => {
 
 const getCategoryColor = (category) => {
   const colors = {
-    company: 'bg-blue-500',
-    products: 'bg-green-500',
+    company: 'bg-orange-500',
+    products: 'bg-orange-500',
     events: 'bg-primary-500',
     tech: 'bg-orange-500'
   }

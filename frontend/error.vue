@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-primary-100 to-orange-50 relative overflow-hidden">
     <!-- Animated Background Elements -->
     <div class="absolute inset-0 overflow-hidden">
       <!-- Floating Orbs -->
-      <div class="absolute top-20 left-20 w-72 h-72 bg-blue-200/30 rounded-full filter blur-3xl animate-float"></div>
-      <div class="absolute bottom-20 right-20 w-96 h-96 bg-primary-200/30 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
+      <div class="absolute top-20 left-20 w-72 h-72 bg-primary-200/30 rounded-full filter blur-3xl animate-float"></div>
+      <div class="absolute bottom-20 right-20 w-96 h-96 bg-orange-200/30 rounded-full filter blur-3xl animate-float animation-delay-2"></div>
       <div class="absolute top-1/2 left-1/2 w-64 h-64 bg-primary-100/30 rounded-full filter blur-3xl animate-float animation-delay-4"></div>
 
       <!-- Floating Icons -->
@@ -24,19 +24,19 @@
         <div class="relative inline-block">
           <!-- Glowing Effect -->
           <div class="absolute inset-0 blur-3xl opacity-30">
-            <span class="text-9xl md:text-[20rem] font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <span class="text-9xl md:text-[20rem] font-black bg-gradient-to-r from-primary-600 via-primary-500 to-orange-600 bg-clip-text text-transparent">
               404
             </span>
           </div>
 
           <!-- Main Number -->
-          <h1 class="relative text-9xl md:text-[20rem] font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-gradient">
+          <h1 class="relative text-9xl md:text-[20rem] font-black bg-gradient-to-r from-primary-600 via-primary-500 to-orange-600 bg-clip-text text-transparent animate-gradient">
             404
           </h1>
 
           <!-- Floating Elements Around Number -->
-          <div class="absolute -top-8 -left-8 w-16 h-16 bg-yellow-400 rounded-full animate-ping opacity-20"></div>
-          <div class="absolute -bottom-8 -right-8 w-20 h-20 bg-primary-400 rounded-full animate-ping opacity-20 animation-delay-1"></div>
+          <div class="absolute -top-8 -left-8 w-16 h-16 bg-orange-400 rounded-full animate-ping opacity-20"></div>
+          <div class="absolute -bottom-8 -right-8 w-20 h-20 bg-orange-400 rounded-full animate-ping opacity-20 animation-delay-1"></div>
         </div>
       </div>
 
@@ -54,7 +54,7 @@
       <div class="mb-12 animate-fade-in-up animation-delay-2">
         <div class="inline-flex flex-col sm:flex-row items-center gap-4 p-6 bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200">
           <div class="flex-shrink-0">
-            <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-12 h-12 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
             </svg>
           </div>
@@ -123,7 +123,7 @@
             v-model="searchQuery"
             type="text"
             placeholder="Или попробуйте найти то, что искали..."
-            class="w-full pl-12 pr-4 py-4 bg-white/90 backdrop-blur-md border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500 transition-all shadow-lg"
+            class="w-full pl-12 pr-4 py-4 bg-white/90 backdrop-blur-md border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary-500/30 focus:border-primary-500 transition-all shadow-lg"
             @keyup.enter="handleSearch"
           />
         </div>
@@ -302,9 +302,9 @@ const handleSearch = () => {
 /* Premium Buttons */
 .premium-button {
   @apply inline-flex items-center justify-center px-8 py-4;
-  @apply bg-gradient-to-r from-blue-600 to-purple-600;
+  @apply bg-gradient-to-r from-primary-600 to-primary-light;
   @apply text-white font-bold rounded-xl;
-  @apply hover:from-blue-700 hover:to-purple-700;
+  @apply hover:from-primary-700 hover:to-primary-500;
   @apply transition-all duration-300 hover:scale-105;
   @apply shadow-xl hover:shadow-2xl;
 }
@@ -321,9 +321,9 @@ const handleSearch = () => {
 .quick-link {
   @apply inline-flex items-center gap-2 px-4 py-2;
   @apply bg-white/80 backdrop-blur-sm text-gray-700 rounded-lg;
-  @apply border border-gray-200 hover:border-blue-500;
+  @apply border border-gray-200 hover:border-primary-500;
   @apply transition-all duration-200 hover:scale-105;
   @apply text-sm font-medium;
-  @apply hover:text-blue-600 hover:shadow-md;
+  @apply hover:text-primary-600 hover:shadow-md;
 }
 </style>
