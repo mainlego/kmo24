@@ -427,6 +427,17 @@ useHead({
   &__promo-input {
     display: flex;
     gap: $spacing-sm;
+    align-items: stretch;
+
+    :deep(.base-input) {
+      flex: 1;
+      min-width: 0;
+    }
+
+    button {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
   }
 
   &__summary-lines {
@@ -445,7 +456,10 @@ useHead({
     color: $gray-700;
 
     &--discount {
-      color: $success;
+      background: $gradient-primary;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
       font-weight: $font-weight-medium;
     }
 
@@ -475,7 +489,7 @@ useHead({
     font-size: $font-size-sm;
 
     svg {
-      color: $success;
+      color: $primary-500;
       flex-shrink: 0;
     }
   }

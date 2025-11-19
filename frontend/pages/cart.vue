@@ -52,7 +52,7 @@
                 <div class="cart-item__status">
                   <BaseBadge
                     v-if="item.product.stock.available >= item.quantity"
-                    variant="success"
+                    variant="primary"
                     size="sm"
                   >
                     В наличии
@@ -655,7 +655,10 @@ useHead({
 
   &__savings {
     font-size: $font-size-xs;
-    color: $success;
+    background: $gradient-primary;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     font-weight: $font-weight-medium;
   }
 
@@ -716,7 +719,10 @@ useHead({
     color: $gray-700;
 
     &--discount {
-      color: $success;
+      background: $gradient-primary;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
       font-weight: $font-weight-medium;
     }
   }
@@ -779,7 +785,10 @@ useHead({
 
   &__promo-success {
     font-size: $font-size-sm;
-    color: $success;
+    background: $gradient-primary;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     font-weight: $font-weight-medium;
     margin-top: $spacing-xs;
   }
@@ -813,10 +822,14 @@ useHead({
   &__free-delivery {
     text-align: center;
     padding: $spacing-md;
-    background: linear-gradient(135deg, rgba($success, 0.1) 0%, rgba($success, 0.2) 100%);
+    background: linear-gradient(135deg, rgba($primary-500, 0.1) 0%, rgba($primary-light, 0.15) 100%);
+    border: 1px solid rgba($primary-500, 0.2);
     border-radius: $radius-lg;
-    color: $success;
     font-weight: $font-weight-semibold;
+
+    // Orange gradient text
+    background: linear-gradient(135deg, rgba($primary-500, 0.1) 0%, rgba($primary-light, 0.15) 100%);
+    color: $primary-600;
   }
 
   &__badges {
