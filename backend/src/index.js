@@ -23,6 +23,8 @@ import orderRoutes from './routes/orders.js';
 import reviewRoutes from './routes/reviews.js';
 import newsRoutes from './routes/news.js';
 import commercialOfferRoutes from './routes/commercialOffers.js';
+import integration1cRoutes from './routes/integration1c.js';
+import apiKeysRoutes from './routes/apiKeys.js';
 
 const app = express();
 
@@ -104,6 +106,8 @@ app.use(`${API_PREFIX}/orders`, orderRoutes);
 app.use(`${API_PREFIX}/reviews`, reviewRoutes);
 app.use(`${API_PREFIX}/news`, newsRoutes);
 app.use(`${API_PREFIX}/commercial-offers`, commercialOfferRoutes);
+app.use(`${API_PREFIX}/integration/1c`, integration1cRoutes);
+app.use(`${API_PREFIX}/admin/api-keys`, apiKeysRoutes);
 
 // Статические файлы
 app.use('/uploads', express.static('uploads'));
