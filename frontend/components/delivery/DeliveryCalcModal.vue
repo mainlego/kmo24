@@ -29,9 +29,9 @@
               <div class="product-details">
                 <h3 class="product-name">{{ product.name }}</h3>
                 <div class="product-specs">
-                  <span v-if="product.weight">Вес: {{ product.weight }} кг</span>
-                  <span v-if="product.dimensions">
-                    Габариты: {{ product.dimensions.length }}x{{ product.dimensions.width }}x{{ product.dimensions.height }} см
+                  <span v-if="formData.weight">Вес: {{ formData.weight }} кг</span>
+                  <span v-if="formData.length && formData.width && formData.height">
+                    Габариты: {{ formData.length }}x{{ formData.width }}x{{ formData.height }} см
                   </span>
                 </div>
               </div>
@@ -39,72 +39,128 @@
 
             <!-- Delivery Form -->
             <form @submit.prevent="calculateDelivery" class="delivery-form">
+              <!-- Город отправления -->
               <div class="form-group">
-                <label class="form-label">Город доставки</label>
+                <label class="form-label">Город отправления</label>
                 <div class="city-input-wrapper">
                   <input
-                    v-model="deliveryCity"
+                    v-model="originCityInput"
                     type="text"
                     placeholder="Начните вводить город..."
                     class="form-input"
-                    @input="searchCity"
+                    @input="searchOriginCity"
+                    @focus="showOriginSuggestions = true"
                   />
-                  <div v-if="isSearchingCity" class="input-spinner">
+                  <div v-if="isSearchingOriginCity" class="input-spinner">
                     <svg class="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.25"/>
                       <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"/>
                     </svg>
                   </div>
                 </div>
-                <ul v-if="citySuggestions.length" class="city-suggestions">
+                <ul v-if="showOriginSuggestions && originCitySuggestions.length" class="city-suggestions">
                   <li
-                    v-for="city in citySuggestions"
+                    v-for="city in originCitySuggestions"
                     :key="city.code"
-                    @click="selectCity(city)"
+                    @click="selectOriginCity(city)"
                     class="suggestion-item"
                   >
-                    {{ city.name }}, {{ city.region }}
+                    {{ city.name }}
                   </li>
                 </ul>
               </div>
 
+              <!-- Город назначения -->
               <div class="form-group">
-                <label class="form-label">Тип доставки</label>
-                <div class="delivery-types">
-                  <label class="delivery-type">
-                    <input
-                      v-model="deliveryType"
-                      type="radio"
-                      value="address"
-                      class="radio-input"
-                    />
-                    <span class="type-content">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z" fill="currentColor"/>
-                      </svg>
-                      <span>До адреса</span>
-                    </span>
-                  </label>
-                  <label class="delivery-type">
-                    <input
-                      v-model="deliveryType"
-                      type="radio"
-                      value="terminal"
-                      class="radio-input"
-                    />
-                    <span class="type-content">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                      <span>До терминала</span>
-                    </span>
-                  </label>
+                <label class="form-label">Город назначения</label>
+                <div class="city-input-wrapper">
+                  <input
+                    v-model="destinationCityInput"
+                    type="text"
+                    placeholder="Начните вводить город..."
+                    class="form-input"
+                    @input="searchDestinationCity"
+                    @focus="showDestinationSuggestions = true"
+                  />
+                  <div v-if="isSearchingDestinationCity" class="input-spinner">
+                    <svg class="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.25"/>
+                      <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"/>
+                    </svg>
+                  </div>
                 </div>
+                <ul v-if="showDestinationSuggestions && destinationCitySuggestions.length" class="city-suggestions">
+                  <li
+                    v-for="city in destinationCitySuggestions"
+                    :key="city.code"
+                    @click="selectDestinationCity(city)"
+                    class="suggestion-item"
+                  >
+                    {{ city.name }}
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Вес -->
+              <div class="form-group">
+                <label class="form-label">Вес (кг) *</label>
+                <input
+                  v-model.number="formData.weight"
+                  type="number"
+                  step="0.1"
+                  min="0.1"
+                  placeholder="Вес груза в килограммах"
+                  class="form-input"
+                  required
+                />
+              </div>
+
+              <!-- Габариты (опционально) -->
+              <div class="form-group">
+                <label class="form-label">Габариты (см) - опционально</label>
+                <div class="dimensions-grid">
+                  <input
+                    v-model.number="formData.length"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    placeholder="Длина"
+                    class="form-input"
+                  />
+                  <input
+                    v-model.number="formData.width"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    placeholder="Ширина"
+                    class="form-input"
+                  />
+                  <input
+                    v-model.number="formData.height"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    placeholder="Высота"
+                    class="form-input"
+                  />
+                </div>
+              </div>
+
+              <!-- Объявленная стоимость (опционально) -->
+              <div class="form-group">
+                <label class="form-label">Объявленная стоимость (₽) - опционально</label>
+                <input
+                  v-model.number="formData.declaredValue"
+                  type="number"
+                  min="0"
+                  placeholder="Стоимость груза для страхования"
+                  class="form-input"
+                />
               </div>
 
               <button
                 type="submit"
-                :disabled="!selectedCity || isCalculating"
+                :disabled="!isFormValid || isCalculating"
                 class="calc-button"
               >
                 <span v-if="!isCalculating">Рассчитать стоимость</span>
@@ -122,16 +178,32 @@
             <div v-if="deliveryResult" class="delivery-result">
               <h3 class="result-title">Стоимость доставки</h3>
 
-              <div class="result-cards">
-                <div v-for="option in deliveryResult.options" :key="option.type" class="result-card">
-                  <div class="result-header">
-                    <span class="result-type">{{ option.name }}</span>
-                    <span class="result-days">{{ option.days }} дн.</span>
-                  </div>
-                  <div class="result-price">{{ formatPrice(option.price) }}</div>
-                  <div class="result-info">
-                    <span v-if="option.insurance">Страховка включена</span>
-                    <span v-if="option.terminal">Терминал: {{ option.terminal }}</span>
+              <div class="result-main">
+                <div class="result-price-block">
+                  <span class="price-label">Стоимость</span>
+                  <div class="result-price">{{ formatPrice(deliveryResult.price) }}</div>
+                </div>
+                <div class="result-delivery-time">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span>{{ deliveryResult.deliveryTime }}</span>
+                </div>
+              </div>
+
+              <!-- Информация о терминалах -->
+              <div v-if="deliveryResult.terminals?.length" class="terminals-info">
+                <h4 class="terminals-title">Терминалы доставки</h4>
+                <div class="terminals-list">
+                  <div
+                    v-for="(terminal, index) in deliveryResult.terminals"
+                    :key="index"
+                    class="terminal-card"
+                  >
+                    <div class="terminal-name">{{ terminal.name }}</div>
+                    <div v-if="terminal.address" class="terminal-address">{{ terminal.address }}</div>
+                    <div v-if="terminal.workTime" class="terminal-hours">{{ terminal.workTime }}</div>
                   </div>
                 </div>
               </div>
@@ -159,7 +231,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import type { Product } from '~/types'
 
 interface Props {
@@ -170,36 +242,82 @@ interface Props {
 interface City {
   code: string
   name: string
-  region: string
 }
 
-interface DeliveryOption {
-  type: string
+interface Terminal {
   name: string
-  price: number
-  days: string
-  insurance?: boolean
-  terminal?: string
+  address?: string
+  workTime?: string
 }
 
 interface DeliveryResult {
-  options: DeliveryOption[]
+  price: number
+  deliveryTime: string
+  terminals?: Terminal[]
+}
+
+interface FormData {
+  weight: number | null
+  length: number | null
+  width: number | null
+  height: number | null
+  declaredValue: number | null
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits(['close'])
 
-const deliveryCity = ref('')
-const deliveryType = ref('terminal')
-const selectedCity = ref<City | null>(null)
-const citySuggestions = ref<City[]>([])
-const isSearchingCity = ref(false)
+// Города
+const originCityInput = ref('')
+const destinationCityInput = ref('')
+const selectedOriginCity = ref<City | null>(null)
+const selectedDestinationCity = ref<City | null>(null)
+const originCitySuggestions = ref<City[]>([])
+const destinationCitySuggestions = ref<City[]>([])
+const showOriginSuggestions = ref(false)
+const showDestinationSuggestions = ref(false)
+const isSearchingOriginCity = ref(false)
+const isSearchingDestinationCity = ref(false)
+
+// Форма
+const formData = ref<FormData>({
+  weight: null,
+  length: null,
+  width: null,
+  height: null,
+  declaredValue: null
+})
+
+// Результаты и состояние
 const isCalculating = ref(false)
 const deliveryResult = ref<DeliveryResult | null>(null)
 const error = ref('')
 
-// Debounce timer
-let searchTimeout: ReturnType<typeof setTimeout> | null = null
+// Debounce timers
+let originSearchTimeout: ReturnType<typeof setTimeout> | null = null
+let destinationSearchTimeout: ReturnType<typeof setTimeout> | null = null
+
+// Computed
+const isFormValid = computed(() => {
+  return (
+    selectedOriginCity.value !== null &&
+    selectedDestinationCity.value !== null &&
+    formData.value.weight !== null &&
+    formData.value.weight > 0
+  )
+})
+
+// Инициализация данных из продукта
+watch(() => props.product, (product) => {
+  if (product) {
+    formData.value.weight = product.weight || null
+    if (product.dimensions) {
+      formData.value.length = product.dimensions.length || null
+      formData.value.width = product.dimensions.width || null
+      formData.value.height = product.dimensions.height || null
+    }
+  }
+}, { immediate: true })
 
 const closeModal = () => {
   emit('close')
@@ -207,11 +325,34 @@ const closeModal = () => {
 }
 
 const resetForm = () => {
-  deliveryCity.value = ''
-  selectedCity.value = null
-  citySuggestions.value = []
+  originCityInput.value = ''
+  destinationCityInput.value = ''
+  selectedOriginCity.value = null
+  selectedDestinationCity.value = null
+  originCitySuggestions.value = []
+  destinationCitySuggestions.value = []
+  showOriginSuggestions.value = false
+  showDestinationSuggestions.value = false
   deliveryResult.value = null
   error.value = ''
+
+  // Сбросить formData, но восстановить данные из продукта
+  if (props.product) {
+    formData.value.weight = props.product.weight || null
+    if (props.product.dimensions) {
+      formData.value.length = props.product.dimensions.length || null
+      formData.value.width = props.product.dimensions.width || null
+      formData.value.height = props.product.dimensions.height || null
+    }
+  } else {
+    formData.value = {
+      weight: null,
+      length: null,
+      width: null,
+      height: null,
+      declaredValue: null
+    }
+  }
 }
 
 watch(() => props.isOpen, (newVal) => {
@@ -220,110 +361,143 @@ watch(() => props.isOpen, (newVal) => {
   }
 })
 
-const searchCity = async () => {
-  if (searchTimeout) {
-    clearTimeout(searchTimeout)
+// Поиск города отправления
+const searchOriginCity = async () => {
+  if (originSearchTimeout) {
+    clearTimeout(originSearchTimeout)
   }
 
-  if (deliveryCity.value.length < 2) {
-    citySuggestions.value = []
+  if (originCityInput.value.length < 2) {
+    originCitySuggestions.value = []
+    showOriginSuggestions.value = false
     return
   }
 
-  searchTimeout = setTimeout(async () => {
-    isSearchingCity.value = true
+  originSearchTimeout = setTimeout(async () => {
+    isSearchingOriginCity.value = true
+    showOriginSuggestions.value = true
 
     try {
-      // TODO: Integrate with DelLin API for city search
-      // const response = await $fetch('/api/dellin/cities', {
-      //   params: { query: deliveryCity.value }
-      // })
+      const response = await $fetch('/api/v1/delivery/cities/search', {
+        params: { query: originCityInput.value }
+      })
 
-      // Mock data for demonstration
-      await new Promise(resolve => setTimeout(resolve, 300))
-
-      const mockCities: City[] = [
-        { code: '7700000000000', name: 'Москва', region: 'Московская область' },
-        { code: '7800000000000', name: 'Санкт-Петербург', region: 'Ленинградская область' },
-        { code: '5400000100000', name: 'Новосибирск', region: 'Новосибирская область' },
-        { code: '6600000100000', name: 'Екатеринбург', region: 'Свердловская область' },
-        { code: '1600000100000', name: 'Казань', region: 'Республика Татарстан' },
-        { code: '2400000100000', name: 'Красноярск', region: 'Красноярский край' },
-      ].filter(city =>
-        city.name.toLowerCase().includes(deliveryCity.value.toLowerCase())
-      )
-
-      citySuggestions.value = mockCities
-    } catch (err) {
-      console.error('Error searching cities:', err)
+      originCitySuggestions.value = response.cities || []
+    } catch (err: any) {
+      console.error('Error searching origin cities:', err)
+      error.value = 'Ошибка при поиске города отправления'
+      originCitySuggestions.value = []
     } finally {
-      isSearchingCity.value = false
+      isSearchingOriginCity.value = false
     }
   }, 300)
 }
 
-const selectCity = (city: City) => {
-  selectedCity.value = city
-  deliveryCity.value = `${city.name}, ${city.region}`
-  citySuggestions.value = []
+// Поиск города назначения
+const searchDestinationCity = async () => {
+  if (destinationSearchTimeout) {
+    clearTimeout(destinationSearchTimeout)
+  }
+
+  if (destinationCityInput.value.length < 2) {
+    destinationCitySuggestions.value = []
+    showDestinationSuggestions.value = false
+    return
+  }
+
+  destinationSearchTimeout = setTimeout(async () => {
+    isSearchingDestinationCity.value = true
+    showDestinationSuggestions.value = true
+
+    try {
+      const response = await $fetch('/api/v1/delivery/cities/search', {
+        params: { query: destinationCityInput.value }
+      })
+
+      destinationCitySuggestions.value = response.cities || []
+    } catch (err: any) {
+      console.error('Error searching destination cities:', err)
+      error.value = 'Ошибка при поиске города назначения'
+      destinationCitySuggestions.value = []
+    } finally {
+      isSearchingDestinationCity.value = false
+    }
+  }, 300)
+}
+
+const selectOriginCity = (city: City) => {
+  selectedOriginCity.value = city
+  originCityInput.value = city.name
+  originCitySuggestions.value = []
+  showOriginSuggestions.value = false
+  error.value = ''
+}
+
+const selectDestinationCity = (city: City) => {
+  selectedDestinationCity.value = city
+  destinationCityInput.value = city.name
+  destinationCitySuggestions.value = []
+  showDestinationSuggestions.value = false
+  error.value = ''
 }
 
 const calculateDelivery = async () => {
-  if (!selectedCity.value || !props.product) return
+  if (!isFormValid.value) return
 
   isCalculating.value = true
   error.value = ''
   deliveryResult.value = null
 
   try {
-    // TODO: Integrate with DelLin API
-    // const response = await $fetch('/api/dellin/calculate', {
-    //   method: 'POST',
-    //   body: {
-    //     productId: props.product._id,
-    //     cityCode: selectedCity.value.code,
-    //     deliveryType: deliveryType.value,
-    //     weight: props.product.weight,
-    //     dimensions: props.product.dimensions
-    //   }
-    // })
+    // Подготовка данных для запроса
+    const requestData: any = {
+      originCity: selectedOriginCity.value!.code,
+      destinationCity: selectedDestinationCity.value!.code,
+      weight: formData.value.weight
+    }
 
-    // Mock calculation for demonstration
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // Добавить габариты если указаны все три измерения
+    if (
+      formData.value.length &&
+      formData.value.width &&
+      formData.value.height
+    ) {
+      requestData.dimensions = {
+        length: formData.value.length,
+        width: formData.value.width,
+        height: formData.value.height
+      }
+    }
 
-    // Simulate distance-based calculation
-    const basePrice = deliveryType.value === 'terminal' ? 2500 : 4500
-    const weightFactor = props.product.weight ? props.product.weight * 50 : 500
+    // Добавить объявленную стоимость если указана
+    if (formData.value.declaredValue) {
+      requestData.declaredValue = formData.value.declaredValue
+    }
+
+    // Запрос к API
+    const response = await $fetch('/api/v1/delivery/calculate', {
+      method: 'POST',
+      body: requestData
+    })
 
     deliveryResult.value = {
-      options: [
-        {
-          type: 'standard',
-          name: 'Стандартная доставка',
-          price: basePrice + weightFactor,
-          days: '5-7',
-          insurance: true
-        },
-        {
-          type: 'express',
-          name: 'Экспресс доставка',
-          price: (basePrice + weightFactor) * 1.5,
-          days: '2-3',
-          insurance: true
-        },
-        ...(deliveryType.value === 'terminal' ? [{
-          type: 'economy',
-          name: 'Экономичная',
-          price: (basePrice + weightFactor) * 0.7,
-          days: '7-10',
-          insurance: false,
-          terminal: 'Терминал Деловые Линии'
-        }] : [])
-      ]
+      price: response.price,
+      deliveryTime: response.deliveryTime,
+      terminals: response.terminals || []
     }
   } catch (err: any) {
-    error.value = 'Не удалось рассчитать стоимость доставки. Попробуйте позже.'
     console.error('Delivery calculation error:', err)
+
+    // Обработка различных типов ошибок
+    if (err.statusCode === 400) {
+      error.value = err.data?.message || 'Неверные параметры запроса. Проверьте введенные данные.'
+    } else if (err.statusCode === 404) {
+      error.value = 'Не удалось найти маршрут доставки для указанных городов.'
+    } else if (err.statusCode === 503) {
+      error.value = 'Сервис расчета доставки временно недоступен. Попробуйте позже.'
+    } else {
+      error.value = 'Не удалось рассчитать стоимость доставки. Попробуйте позже или обратитесь к менеджеру.'
+    }
   } finally {
     isCalculating.value = false
   }
@@ -336,6 +510,23 @@ const formatPrice = (price: number): string => {
     minimumFractionDigits: 0,
   }).format(price)
 }
+
+// Закрытие выпадающих списков при клике вне компонента
+const handleClickOutside = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  if (!target.closest('.city-input-wrapper')) {
+    showOriginSuggestions.value = false
+    showDestinationSuggestions.value = false
+  }
+}
+
+watch(() => props.isOpen, (newVal) => {
+  if (newVal) {
+    document.addEventListener('click', handleClickOutside)
+  } else {
+    document.removeEventListener('click', handleClickOutside)
+  }
+})
 </script>
 
 <style scoped lang="scss">
@@ -517,6 +708,12 @@ const formatPrice = (price: number): string => {
   }
 }
 
+.dimensions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-sm;
+}
+
 .delivery-types {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -612,6 +809,100 @@ const formatPrice = (price: number): string => {
   margin: 0 0 $spacing-md;
 }
 
+.result-main {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  background: linear-gradient(135deg, $primary-50 0%, $primary-100 100%);
+  border-radius: $radius-xl;
+  margin-bottom: $spacing-md;
+}
+
+.result-price-block {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.price-label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $gray-600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.result-price {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $primary-600;
+}
+
+.result-delivery-time {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: $white;
+  border-radius: $radius-lg;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $gray-700;
+
+  svg {
+    color: $primary-500;
+  }
+}
+
+.terminals-info {
+  margin-top: $spacing-md;
+}
+
+.terminals-title {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $gray-900;
+  margin: 0 0 $spacing-sm;
+}
+
+.terminals-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.terminal-card {
+  padding: $spacing-md;
+  background: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $radius-lg;
+  transition: all $transition-base $transition-ease;
+
+  &:hover {
+    border-color: $primary-300;
+    background: $primary-50;
+  }
+}
+
+.terminal-name {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $gray-900;
+  margin-bottom: $spacing-xs;
+}
+
+.terminal-address {
+  font-size: $font-size-xs;
+  color: $gray-600;
+  margin-bottom: $spacing-xs;
+}
+
+.terminal-hours {
+  font-size: $font-size-xs;
+  color: $gray-500;
+}
+
 .result-cards {
   display: flex;
   flex-direction: column;
@@ -650,13 +941,6 @@ const formatPrice = (price: number): string => {
   background: $white;
   padding: $spacing-xs $spacing-sm;
   border-radius: $radius-full;
-}
-
-.result-price {
-  font-size: $font-size-2xl;
-  font-weight: $font-weight-bold;
-  color: $primary-600;
-  margin-bottom: $spacing-xs;
 }
 
 .result-info {
