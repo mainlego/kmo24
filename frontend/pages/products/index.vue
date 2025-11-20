@@ -338,9 +338,13 @@ useHead({
     pointer-events: none;
 
     @media (max-width: $breakpoint-md) {
-      right: -200px;
-      width: 300px;
-      height: 300px;
+      right: -50px;
+      width: 250px;
+      height: 250px;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      display: none;
     }
   }
 
@@ -609,8 +613,8 @@ useHead({
 
     .filter-badge {
       position: absolute;
-      top: -8px;
-      right: -8px;
+      top: -6px;
+      right: -6px;
       min-width: 20px;
       height: 20px;
       display: flex;
@@ -622,6 +626,7 @@ useHead({
       font-size: $font-size-xs;
       font-weight: $font-weight-bold;
       padding: 0 6px;
+      box-shadow: 0 2px 8px rgba($error, 0.3);
     }
   }
 }
