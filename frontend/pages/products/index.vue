@@ -309,6 +309,7 @@ useHead({
   padding: $spacing-2xl 0 $spacing-3xl;
   background: linear-gradient(180deg, $white 0%, $gray-50 100%);
   position: relative;
+  overflow-x: hidden;
 
   // Premium background decoration
   &::before {
@@ -335,6 +336,12 @@ useHead({
     border-radius: 50%;
     filter: blur(80px);
     pointer-events: none;
+
+    @media (max-width: $breakpoint-md) {
+      right: -200px;
+      width: 300px;
+      height: 300px;
+    }
   }
 
   &__stats {
