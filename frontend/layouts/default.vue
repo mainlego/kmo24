@@ -628,8 +628,8 @@ onUnmounted(() => {
 
   .badge {
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: 0;
+    right: 0;
     min-width: 20px;
     height: 20px;
     display: flex;

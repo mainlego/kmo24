@@ -310,7 +310,7 @@ watch(
   border-radius: $radius-2xl;
   box-shadow: $shadow-lg;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   transition: all $transition-slow $transition-ease;
 
   // Premium gradient border
@@ -340,6 +340,13 @@ watch(
     border-radius: 50%;
     filter: blur(40px);
     pointer-events: none;
+
+    @media (max-width: $breakpoint-md) {
+      top: -30px;
+      right: -30px;
+      width: 100px;
+      height: 100px;
+    }
   }
 
   &:hover {

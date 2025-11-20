@@ -667,18 +667,19 @@ onMounted(() => {
 /* Mobile Optimization */
 @media (max-width: 768px) {
   .timeline-item {
-    margin-left: 40px;
+    margin-left: 30px;
   }
 
   .timeline-item::before {
     content: '';
-    @apply absolute left-0 w-1 h-full bg-gradient-to-b from-primary-500 to-primary-light;
-    transform: translateX(-20px);
+    @apply absolute w-1 h-full bg-gradient-to-b from-primary-500 to-primary-light;
+    left: 0;
+    transform: translateX(0);
   }
 
   .timeline-dot {
     @apply block;
-    left: -20px;
+    left: 0;
     transform: translateX(0);
   }
 }

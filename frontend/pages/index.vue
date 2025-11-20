@@ -773,6 +773,13 @@ onUnmounted(() => {
     top: -200px;
     right: -100px;
     animation: float 20s infinite ease-in-out;
+
+    @media (max-width: $breakpoint-md) {
+      width: 400px;
+      height: 400px;
+      top: -150px;
+      right: -50px;
+    }
   }
 
   &::after {
@@ -781,6 +788,13 @@ onUnmounted(() => {
     bottom: -150px;
     left: -100px;
     animation: float 25s infinite ease-in-out reverse;
+
+    @media (max-width: $breakpoint-md) {
+      width: 350px;
+      height: 350px;
+      bottom: -100px;
+      left: -50px;
+    }
   }
 }
 
@@ -999,6 +1013,12 @@ onUnmounted(() => {
     height: 1000px;
     background: radial-gradient(circle, rgba($primary-500, 0.05) 0%, transparent 70%);
     pointer-events: none;
+
+    @media (max-width: $breakpoint-md) {
+      width: 600px;
+      height: 600px;
+      top: -50px;
+    }
   }
 
   @media (max-width: $breakpoint-md) {

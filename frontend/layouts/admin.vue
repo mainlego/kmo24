@@ -805,8 +805,8 @@ onMounted(() => {
 
       .badge {
         position: absolute;
-        top: -4px;
-        right: -4px;
+        top: 0;
+        right: 0;
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
         font-size: 0.625rem;
@@ -818,13 +818,6 @@ onMounted(() => {
         transition: transform 0.3s ease;
         min-width: 1.25rem;
         text-align: center;
-
-        @media (max-width: 640px) {
-          font-size: 0.5625rem;
-          padding: 0.125rem 0.3rem;
-          top: -2px;
-          right: -2px;
-        }
       }
     }
   }

@@ -127,6 +127,7 @@ onUnmounted(() => {
   padding: $spacing-3xl 0;
   background: $gray-50;
   position: relative;
+  overflow-x: hidden;
 
   @media (max-width: $breakpoint-md) {
     padding: $spacing-2xl 0;
@@ -368,11 +369,19 @@ onUnmounted(() => {
   }
 
   &--left {
-    left: -24px;
+    left: $spacing-sm;
+
+    @media (max-width: $breakpoint-lg) {
+      left: 0;
+    }
   }
 
   &--right {
-    right: -24px;
+    right: $spacing-sm;
+
+    @media (max-width: $breakpoint-lg) {
+      right: 0;
+    }
   }
 }
 </style>
