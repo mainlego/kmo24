@@ -49,25 +49,14 @@ services:
       mountPath: /var/data/uploads
       sizeGB: 10
 
-  # Frontend Static Site
+  # Frontend SSR Service
   - type: web
     name: kmo24-frontend
-    env: static
+    env: node
     region: frankfurt
     plan: starter
-    buildCommand: cd frontend && npm install && npm run generate
-    staticPublishPath: frontend/.output/public
-    headers:
-      - path: /*
-        name: Cache-Control
-        value: public, max-age=3600
-      - path: /_nuxt/*
-        name: Cache-Control
-        value: public, max-age=31536000, immutable
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    buildCommand: cd frontend && npm install && npm run build
+    startCommand: cd frontend && node .output/server/index.mjs
     envVars:
       - key: NODE_ENV
         value: production
@@ -85,7 +74,6 @@ services:
   # Redis Cache Service
   - type: redis
     name: kmo24-redis
-    region: frankfurt
     plan: starter
     maxmemoryPolicy: allkeys-lru
     ipAllowList: []

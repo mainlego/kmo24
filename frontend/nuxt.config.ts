@@ -36,7 +36,11 @@ export default defineNuxtConfig({
   // Runtime Config
   runtimeConfig: {
     public: {
-      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:3001/api/v1',
+      apiBaseUrl: (() => {
+        const baseUrl = process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
+        // Автоматически добавляем /api/v1 если его нет
+        return baseUrl.includes('/api/') ? baseUrl : `${baseUrl}/api/v1`;
+      })(),
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     },
   },
