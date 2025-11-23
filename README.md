@@ -314,8 +314,8 @@ npm run test:e2e
 2. **Подключите GitHub репозиторий**
 3. **New → Blueprint** - Render автоматически найдет `render.yaml`
 4. **Apply** - автоматически создастся:
-   - ✅ Backend API сервис (Node.js)
-   - ✅ Frontend статический сайт (Nuxt SSR)
+   - ✅ Backend API сервис (Node.js/Express)
+   - ✅ Frontend SSR сервис (Node.js/Nuxt)
    - ✅ Redis для кеширования
    - ✅ Persistent disk для uploads (10GB)
 

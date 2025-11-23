@@ -30,9 +30,9 @@
    ```
    ✅ Blueprint detected: render.yaml
    Services to create:
-   - kmo24-backend (Web Service)
-   - kmo24-frontend (Static Site)
-   - kmo24-redis (Redis)
+   - kmo24-backend (Web Service - Node.js/Express API)
+   - kmo24-frontend (Web Service - Node.js/Nuxt SSR)
+   - kmo24-redis (Redis Cache)
    ```
 
 4. **Нажмите "Apply"**
