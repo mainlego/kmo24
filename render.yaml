@@ -5,9 +5,10 @@ services:
     env: node
     region: frankfurt
     plan: starter
-    buildCommand: cd backend && npm install && npm run build
+    buildCommand: cd backend && npm install --omit=dev --prefer-offline --no-audit
     startCommand: cd backend && npm start
     healthCheckPath: /health
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
@@ -55,8 +56,9 @@ services:
     env: node
     region: frankfurt
     plan: starter
-    buildCommand: cd frontend && npm install --include=dev --ignore-scripts && npm run build
+    buildCommand: cd frontend && npm install --include=dev --ignore-scripts --prefer-offline --no-audit && npm run build
     startCommand: cd frontend && node .output/server/index.mjs
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
