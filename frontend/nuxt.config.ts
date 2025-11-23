@@ -43,7 +43,7 @@ export default defineNuxtConfig({
 
   // Настройки приложения
   app: {
-    baseURL: '/kmo24/',
+    baseURL: '/',
     head: {
       title: 'КМО24 - Профессиональное оборудование для кафе и ресторанов',
       htmlAttrs: {
@@ -59,14 +59,14 @@ export default defineNuxtConfig({
         },
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/kmo24/favicon.ico' },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       ],
     },
     pageTransition: { name: 'page', mode: 'out-in' },
   },
 
-  // Настройки SSR (отключаем для GitHub Pages)
-  ssr: false,
+  // Настройки SSR (включаем для production, выключаем для dev)
+  ssr: process.env.NODE_ENV === 'production',
 
   // Настройки совместимости
   compatibilityDate: '2024-01-01',

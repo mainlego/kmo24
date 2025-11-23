@@ -68,7 +68,7 @@
 |-----------|--------|----------|
 | **Node.js** | 18 LTS+ | JavaScript runtime |
 | **Express.js** | 4.18 | Web framework |
-| **MongoDB** | 7.0 | NoSQL база данных |
+| **MongoDB Atlas** | 7.0 | Cloud NoSQL база данных |
 | **Mongoose** | 8.0 | MongoDB ODM |
 | **Redis** | 7.0 | In-memory кэш |
 | **JWT** | 9.0 | Аутентификация |
@@ -78,6 +78,8 @@
 ### DevOps & Infrastructure
 | Технология | Описание |
 |-----------|----------|
+| **Render.com** | Cloud Platform для deployment |
+| **MongoDB Atlas** | Cloud база данных |
 | **Docker** | Контейнеризация |
 | **Docker Compose** | Оркестрация контейнеров |
 | **Nginx** | Reverse proxy |
@@ -304,7 +306,22 @@ npm run test:e2e
 
 ## 🚢 Deployment
 
-### Production сборка
+### Render.com (Рекомендуется для Production)
+
+Проект готов к автоматическому развертыванию на Render.com с использованием Blueprint:
+
+1. **Создайте аккаунт на [Render.com](https://render.com)**
+2. **Подключите GitHub репозиторий**
+3. **New → Blueprint** - Render автоматически найдет `render.yaml`
+4. **Apply** - автоматически создастся:
+   - ✅ Backend API сервис (Node.js)
+   - ✅ Frontend статический сайт (Nuxt SSR)
+   - ✅ Redis для кеширования
+   - ✅ Persistent disk для uploads (10GB)
+
+📖 **Полная инструкция:** См. [DEPLOYMENT.md](./DEPLOYMENT.md) для детального руководства
+
+### Production сборка (локально)
 
 ```bash
 # Backend
@@ -326,15 +343,15 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 **Безопасность:**
 - ✅ Смените все секретные ключи в .env
-- ✅ Настройте SSL/TLS сертификаты
+- ✅ Настройте SSL/TLS сертификаты (автоматически на Render)
 - ✅ Настройте firewall
-- ✅ Ограничьте доступ к БД
+- ✅ Ограничьте доступ к БД (MongoDB Atlas whitelist)
 - ✅ Включите регулярные backup
 
 **Производительность:**
 - ✅ Настройте CDN для статики
 - ✅ Оптимизируйте изображения
-- ✅ Включите кэширование
+- ✅ Включите кэширование (Redis настроен)
 - ✅ Мониторинг и логирование
 
 ---

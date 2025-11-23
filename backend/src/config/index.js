@@ -12,8 +12,9 @@ const config = {
   mongodb: {
     uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/onlineshop',
     options: {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+      // Mongoose 6+ не требует useNewUrlParser и useUnifiedTopology
+      retryWrites: true,
+      w: 'majority',
     },
   },
 
