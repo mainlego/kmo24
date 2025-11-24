@@ -8,12 +8,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       await fetchCurrentUser();
     }
 
-    // Если все еще не авторизован, редирект на страницу входа
-    if (!isAuthenticated.value) {
-      return navigateTo({
-        path: '/login',
-        query: { redirect: to.fullPath },
-      });
+    // Если авторизован, редирект на главную
+    if (isAuthenticated.value) {
+      const redirect = to.query.redirect as string;
+      return navigateTo(redirect || '/');
     }
   }
 });
