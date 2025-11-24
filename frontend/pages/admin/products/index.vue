@@ -186,8 +186,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useToast } from '~/composables/useToast';
+import type { Product } from '~/composables/useProducts';
 
 definePageMeta({
   layout: 'admin',
@@ -195,43 +196,41 @@ definePageMeta({
 });
 
 const { success, error } = useToast();
+const { getProducts, deleteProduct, bulkDeleteProducts, bulkUpdateProducts, getProductStats } = useProducts();
+const { getCategories } = useCategories();
 
 // Data
 const loading = ref(false);
 const selectedProducts = ref<string[]>([]);
+const products = ref<Product[]>([]);
+const pagination = ref({
+  page: 1,
+  limit: 20,
+  total: 0,
+  pages: 0,
+});
 
 // Filters
 const filters = ref({
   search: '',
   category: '',
-  condition: '',
   status: '',
-  availability: '',
+  isActive: undefined as boolean | undefined,
+  page: 1,
+  limit: 20,
 });
 
 // Filter Options
 const categories = ref([
   { value: '', label: 'Все категории' },
-  { value: 'cnc-machines', label: 'ЧПУ станки' },
-  { value: 'metalworking', label: 'Металлообработка' },
-  { value: 'woodworking', label: 'Деревообработка' },
-  { value: 'welding', label: 'Сварочное оборудование' },
-  { value: 'measuring', label: 'Измерительное оборудование' },
-]);
-
-const conditionOptions = ref([
-  { value: '', label: 'Любое состояние' },
-  { value: 'new', label: 'Новое' },
-  { value: 'excellent', label: 'Отличное' },
-  { value: 'good', label: 'Хорошее' },
-  { value: 'fair', label: 'Удовлетворительное' },
 ]);
 
 const statusOptions = ref([
   { value: '', label: 'Любой статус' },
-  { value: 'active', label: 'Активен' },
-  { value: 'draft', label: 'Черновик' },
-  { value: 'archived', label: 'Архив' },
+  { value: 'available', label: 'В наличии' },
+  { value: 'out_of_stock', label: 'Нет в наличии' },
+  { value: 'on_order', label: 'Под заказ' },
+  { value: 'discontinued', label: 'Снято с производства' },
 ]);
 
 const availabilityOptions = ref([
@@ -241,12 +240,23 @@ const availabilityOptions = ref([
   { value: 'out-of-stock', label: 'Нет в наличии' },
 ]);
 
+// Для обратной совместимости с UI
+const conditionOptions = ref([
+  { value: '', label: 'Любое состояние' },
+  { value: 'new', label: 'Новое' },
+  { value: 'excellent', label: 'Отличное' },
+  { value: 'good', label: 'Хорошее' },
+  { value: 'fair', label: 'Удовлетворительное' },
+]);
+
 // Stats
 const stats = ref({
-  total: 284,
-  active: 256,
-  outOfStock: 12,
-  draft: 16,
+  total: 0,
+  active: 0,
+  outOfStock: 0,
+  draft: 0,
+  lowStock: 0,
+  inactive: 0,
 });
 
 // Table columns
