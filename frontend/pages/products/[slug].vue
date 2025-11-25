@@ -111,16 +111,9 @@
 
               <!-- Actions -->
               <div class="product-actions">
-                <QuantitySelector
-                  v-if="isInStock"
-                  v-model="quantity"
-                  :min="1"
-                  :max="product.stock.quantity"
-                  class="product-actions__quantity"
-                />
                 <button
                   class="product-actions__buy"
-                  :class="{ 'product-actions__buy--full': !isInStock }"
+                  :class="{ 'product-actions__buy--full': true }"
                   :disabled="!isInStock"
                   @click="handleAddToCart"
                 >
@@ -339,7 +332,6 @@ const isLoading = ref(true);
 const error = ref('');
 const product = ref<Product | null>(null);
 const relatedProducts = ref<Product[]>([]);
-const quantity = ref(1);
 const isAddingToCart = ref(false);
 const isFavorite = ref(false);
 const currentImageIndex = ref(0);
@@ -380,27 +372,13 @@ const formatPrice = (price: number): string => {
   }).format(price);
 };
 
-const increaseQuantity = () => {
-  if (product.value && quantity.value < product.value.stock.quantity) {
-    quantity.value++;
-  }
-};
-
-const decreaseQuantity = () => {
-  if (quantity.value > 1) {
-    quantity.value--;
-  }
-};
-
 const handleAddToCart = async () => {
   if (!product.value || !isInStock.value || isAddingToCart.value) return;
 
   isAddingToCart.value = true;
   try {
-    await cartStore.addItem(product.value._id, quantity.value);
-    console.log(`Added ${quantity.value} item(s) to cart`);
-    // Reset quantity after adding
-    quantity.value = 1;
+    await cartStore.addItem(product.value._id, 1);
+    console.log('Added 1 item to cart');
   } catch (err) {
     console.error('Error adding to cart:', err);
   } finally {
@@ -801,10 +779,6 @@ onMounted(async () => {
   align-items: center;
   gap: $spacing-md;
   margin-top: $spacing-lg;
-
-  &__quantity {
-    flex-shrink: 0;
-  }
 
   &__buy {
     flex: 1;

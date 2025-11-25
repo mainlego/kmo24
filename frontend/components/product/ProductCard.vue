@@ -112,13 +112,6 @@
 
     <template #footer>
       <div class="product-card__footer-actions">
-        <QuantitySelector
-          v-if="isInStock"
-          v-model="quantity"
-          :min="1"
-          :max="product.stock"
-          class="product-card__quantity"
-        />
         <BaseButton
           variant="primary"
           size="md"
@@ -178,7 +171,6 @@ const cartStore = useCartStore();
 const wishlistStore = useWishlistStore();
 
 const isAddingToCart = ref(false);
-const quantity = ref(1);
 
 // Check if product is in wishlist
 const isFavorite = computed(() => wishlistStore.hasItem(props.product._id));
@@ -235,9 +227,7 @@ const handleAddToCart = async () => {
   isAddingToCart.value = true;
 
   try {
-    await cartStore.addItem(props.product._id, quantity.value);
-    // Reset quantity after adding
-    quantity.value = 1;
+    await cartStore.addItem(props.product._id, 1);
   } catch (error) {
     console.error('Error adding to cart:', error);
   } finally {
@@ -677,10 +667,6 @@ const openQuickView = () => {
     gap: $spacing-sm;
     flex: 1;
     min-width: 0;
-  }
-
-  &__quantity {
-    align-self: flex-start;
   }
 }
 

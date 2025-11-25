@@ -370,6 +370,11 @@ const paymentMethods = [
 ];
 
 const deliveryPrice = computed(() => {
+  // If transport company is selected, use calculated price
+  if (formData.value.deliveryMethod === 'transport_company') {
+    return formData.value.transportCompanyDelivery.price || 0;
+  }
+
   const method = deliveryMethods.find(m => m.id === formData.value.deliveryMethod);
   return method?.price || 0;
 });
@@ -388,7 +393,9 @@ const isFormValid = computed(() => {
     formData.value.paymentMethod &&
     formData.value.agreeToTerms &&
     (formData.value.deliveryMethod !== 'courier' ||
-      (formData.value.address.street.trim() && formData.value.address.house.trim()))
+      (formData.value.address.street.trim() && formData.value.address.house.trim())) &&
+    (formData.value.deliveryMethod !== 'transport_company' ||
+      formData.value.transportCompanyDelivery.price > 0)
   );
 });
 
