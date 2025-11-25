@@ -1,7 +1,7 @@
-const Product = require('../models/Product');
-const Category = require('../models/Category');
-const Order = require('../models/Order');
-const IntegrationLog = require('../models/IntegrationLog');
+import Product from '../models/Product.js';
+import Category from '../models/Category.js';
+import Order from '../models/Order.js';
+import IntegrationLog from '../models/IntegrationLog.js';
 
 /**
  * Sync products from 1C
@@ -9,7 +9,7 @@ const IntegrationLog = require('../models/IntegrationLog');
  *
  * Expected body: { products: [...] }
  */
-exports.syncProducts = async (req, res) => {
+const syncProducts = async (req, res) => {
   const startTime = Date.now();
   const { products } = req.body;
 
@@ -95,7 +95,7 @@ exports.syncProducts = async (req, res) => {
  * Sync categories from 1C
  * POST /api/integration/1c/categories/sync
  */
-exports.syncCategories = async (req, res) => {
+const syncCategories = async (req, res) => {
   const { categories } = req.body;
 
   if (!Array.isArray(categories)) {
@@ -166,7 +166,7 @@ exports.syncCategories = async (req, res) => {
  * Update product stock from 1C
  * POST /api/integration/1c/stock/update
  */
-exports.updateStock = async (req, res) => {
+const updateStock = async (req, res) => {
   const { items } = req.body;
 
   if (!Array.isArray(items)) {
@@ -222,7 +222,7 @@ exports.updateStock = async (req, res) => {
  * Update product prices from 1C
  * POST /api/integration/1c/prices/update
  */
-exports.updatePrices = async (req, res) => {
+const updatePrices = async (req, res) => {
   const { items } = req.body;
 
   if (!Array.isArray(items)) {
@@ -280,7 +280,7 @@ exports.updatePrices = async (req, res) => {
  * Get new orders for 1C
  * GET /api/integration/1c/orders/new
  */
-exports.getNewOrders = async (req, res) => {
+const getNewOrders = async (req, res) => {
   try {
     const { since, limit = 100 } = req.query;
 
@@ -343,7 +343,7 @@ exports.getNewOrders = async (req, res) => {
  * Update order status from 1C
  * POST /api/integration/1c/orders/:id/status
  */
-exports.updateOrderStatus = async (req, res) => {
+const updateOrderStatus = async (req, res) => {
   try {
     const { status, tracking, notes, external1CId } = req.body;
 
@@ -398,7 +398,7 @@ exports.updateOrderStatus = async (req, res) => {
  * Batch mark orders as exported
  * POST /api/integration/1c/orders/mark-exported
  */
-exports.markOrdersAsExported = async (req, res) => {
+const markOrdersAsExported = async (req, res) => {
   try {
     const { orderIds, external1CIds } = req.body;
 
@@ -438,7 +438,7 @@ exports.markOrdersAsExported = async (req, res) => {
  * Health check endpoint
  * GET /api/integration/1c/health
  */
-exports.healthCheck = async (req, res) => {
+const healthCheck = async (req, res) => {
   try {
     // Check database connection
     const productsCount = await Product.countDocuments();
@@ -471,7 +471,7 @@ exports.healthCheck = async (req, res) => {
  * Get integration statistics
  * GET /api/integration/1c/stats
  */
-exports.getStats = async (req, res) => {
+const getStats = async (req, res) => {
   try {
     const stats = {
       products: {
@@ -503,4 +503,16 @@ exports.getStats = async (req, res) => {
       error: error.message,
     });
   }
+};
+
+export default {
+  syncProducts,
+  syncCategories,
+  updateStock,
+  updatePrices,
+  getNewOrders,
+  updateOrderStatus,
+  markOrdersAsExported,
+  healthCheck,
+  getStats,
 };
