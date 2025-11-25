@@ -47,7 +47,6 @@
               v-for="item in cartStore.items"
               :key="item.product._id"
               :item="item"
-              @update-quantity="handleUpdateQuantity"
               @remove="handleRemoveItem"
             />
           </div>
@@ -206,14 +205,6 @@ const formatPrice = (price: number): string => {
     currency: 'RUB',
     minimumFractionDigits: 0,
   }).format(price);
-};
-
-const handleUpdateQuantity = async (productId: string, quantity: number) => {
-  try {
-    await cartStore.updateItemQuantity(productId, quantity);
-  } catch (error) {
-    console.error('Error updating quantity:', error);
-  }
 };
 
 const handleRemoveItem = async (productId: string) => {

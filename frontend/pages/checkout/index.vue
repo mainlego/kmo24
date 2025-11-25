@@ -193,10 +193,9 @@
                   </div>
                   <div class="checkout-page__summary-item-info">
                     <div class="checkout-page__summary-item-name">{{ item.product.name }}</div>
-                    <div class="checkout-page__summary-item-quantity">{{ item.quantity }} шт.</div>
                   </div>
                   <div class="checkout-page__summary-item-price">
-                    {{ formatPrice(item.product.price * item.quantity) }}
+                    {{ formatPrice(item.product.price) }}
                   </div>
                 </div>
               </div>

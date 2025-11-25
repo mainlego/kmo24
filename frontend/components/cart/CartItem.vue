@@ -15,31 +15,13 @@
         Вариант: {{ item.variant.name }}
       </p>
       <p class="cart-item__price">
-        {{ formatPrice(item.product.price) }} × {{ item.quantity }}
+        {{ formatPrice(item.product.price) }}
       </p>
     </div>
 
     <div class="cart-item__actions">
-      <div class="cart-item__quantity">
-        <button
-          @click="decreaseQuantity"
-          :disabled="item.quantity <= 1 || isUpdating"
-          aria-label="Уменьшить количество"
-        >
-          -
-        </button>
-        <span>{{ item.quantity }}</span>
-        <button
-          @click="increaseQuantity"
-          :disabled="isUpdating"
-          aria-label="Увеличить количество"
-        >
-          +
-        </button>
-      </div>
-
       <div class="cart-item__total">
-        {{ formatPrice(item.product.price * item.quantity) }}
+        {{ formatPrice(item.product.price) }}
       </div>
 
       <button
@@ -73,11 +55,9 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  updateQuantity: [productId: string, quantity: number];
   remove: [productId: string];
 }>();
 
-const isUpdating = ref(false);
 const isRemoving = ref(false);
 
 const formatPrice = (price: number): string => {
@@ -86,28 +66,6 @@ const formatPrice = (price: number): string => {
     currency: 'RUB',
     minimumFractionDigits: 0,
   }).format(price);
-};
-
-const increaseQuantity = async () => {
-  isUpdating.value = true;
-  try {
-    emit('updateQuantity', props.item.product._id, props.item.quantity + 1);
-    await new Promise(resolve => setTimeout(resolve, 300));
-  } finally {
-    isUpdating.value = false;
-  }
-};
-
-const decreaseQuantity = async () => {
-  if (props.item.quantity <= 1) return;
-
-  isUpdating.value = true;
-  try {
-    emit('updateQuantity', props.item.product._id, props.item.quantity - 1);
-    await new Promise(resolve => setTimeout(resolve, 300));
-  } finally {
-    isUpdating.value = false;
-  }
 };
 
 const handleRemove = async () => {
@@ -207,42 +165,6 @@ const handleRemove = async () => {
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
-    }
-  }
-
-  &__quantity {
-    display: flex;
-    align-items: center;
-    border: 1px solid $gray-300;
-    border-radius: $radius-md;
-    overflow: hidden;
-
-    button {
-      width: 32px;
-      height: 32px;
-      border: none;
-      background: $gray-100;
-      color: $gray-700;
-      font-size: $font-size-lg;
-      font-weight: $font-weight-bold;
-      cursor: pointer;
-      transition: all $transition-base;
-
-      &:hover:not(:disabled) {
-        background: $gray-200;
-      }
-
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-    }
-
-    span {
-      min-width: 40px;
-      text-align: center;
-      font-weight: $font-weight-medium;
-      font-size: $font-size-base;
     }
   }
 
