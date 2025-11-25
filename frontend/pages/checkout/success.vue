@@ -64,9 +64,41 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
-const orderNumber = ref(Math.floor(100000 + Math.random() * 900000).toString());
+const route = useRoute();
+const orderNumber = ref('');
+const orderData = ref<any>(null);
+const isLoading = ref(false);
+
+onMounted(async () => {
+  const orderId = route.query.orderId as string;
+
+  if (orderId) {
+    isLoading.value = true;
+    try {
+      const { apiFetch } = useApi();
+      const response = await apiFetch<{ success: boolean; data: any }>(`/orders/${orderId}`);
+
+      if (response.success && response.data) {
+        orderData.value = response.data;
+        orderNumber.value = response.data.orderNumber || orderId;
+      } else {
+        // Fallback to orderId if request fails
+        orderNumber.value = orderId;
+      }
+    } catch (error) {
+      console.error('Error loading order:', error);
+      // Fallback to orderId
+      orderNumber.value = orderId;
+    } finally {
+      isLoading.value = false;
+    }
+  } else {
+    // Fallback to random number if no orderId provided
+    orderNumber.value = Math.floor(100000 + Math.random() * 900000).toString();
+  }
+});
 
 // SEO
 useHead({

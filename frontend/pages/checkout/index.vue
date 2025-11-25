@@ -466,29 +466,59 @@ const handleSubmitOrder = async () => {
   isSubmitting.value = true;
 
   try {
-    // TODO: Submit order to API
-    const orderData = {
-      ...formData.value,
-      items: cartStore.items,
-      subtotal: cartStore.subtotal,
-      delivery: deliveryPrice.value,
-      discount: cartStore.discount,
-      total: totalWithDelivery.value,
+    const { apiFetch } = useApi();
+
+    // Подготовка данных заказа по формату API
+    const shippingAddress = {
+      firstName: formData.value.firstName,
+      lastName: formData.value.lastName,
+      email: formData.value.email,
+      phone: formData.value.phone,
+      street: formData.value.address.street || '',
+      house: formData.value.address.house || '',
+      apartment: formData.value.address.apartment || '',
+      entrance: formData.value.address.entrance || '',
+      floor: formData.value.address.floor || '',
+      intercom: formData.value.address.intercom || '',
+      city: 'Красноярск', // Default city
+      postalCode: '',
+      country: 'Россия',
     };
 
-    console.log('Submitting order:', orderData);
+    const orderPayload = {
+      shippingAddress,
+      billingAddress: shippingAddress, // Same as shipping for now
+      paymentMethod: formData.value.paymentMethod,
+      deliveryMethod: formData.value.deliveryMethod,
+      deliveryPrice: deliveryPrice.value,
+      notes: formData.value.comment || '',
+    };
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    console.log('Submitting order:', orderPayload);
 
-    // Clear cart
-    await cartStore.clearCart();
+    // Отправка заказа на API
+    const response = await apiFetch<{ success: boolean; data: any }>('/orders', {
+      method: 'POST',
+      body: orderPayload,
+    });
 
-    // Redirect to success page
-    router.push('/checkout/success');
-  } catch (error) {
+    if (response.success && response.data) {
+      console.log('Order created:', response.data);
+
+      // Сохраняем ID заказа для страницы успеха
+      const orderId = response.data._id || response.data.id || response.data.orderNumber;
+
+      // Clear cart
+      await cartStore.clearCart();
+
+      // Redirect to success page with order ID
+      router.push(`/checkout/success?orderId=${orderId}`);
+    } else {
+      throw new Error('Не удалось создать заказ');
+    }
+  } catch (error: any) {
     console.error('Error submitting order:', error);
-    alert('Произошла ошибка при оформлении заказа');
+    alert(error.message || 'Произошла ошибка при оформлении заказа');
   } finally {
     isSubmitting.value = false;
   }
