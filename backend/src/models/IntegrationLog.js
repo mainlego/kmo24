@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const integrationLogSchema = new mongoose.Schema({
   apiKey: {
@@ -153,4 +153,5 @@ integrationLogSchema.statics.getErrorRate = async function(endpoint, hours = 24)
   return result[0] || { total: 0, errors: 0, errorRate: 0 };
 };
 
-module.exports = mongoose.model('IntegrationLog', integrationLogSchema);
+const IntegrationLog = mongoose.model('IntegrationLog', integrationLogSchema);
+export default IntegrationLog;

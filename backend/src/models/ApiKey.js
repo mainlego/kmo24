@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const crypto = require('crypto');
+import mongoose from 'mongoose';
+import crypto from 'crypto';
 
 const apiKeySchema = new mongoose.Schema({
   name: {
@@ -139,4 +139,5 @@ apiKeySchema.set('toObject', { virtuals: true });
 apiKeySchema.index({ createdAt: -1 });
 apiKeySchema.index({ type: 1, isActive: 1 });
 
-module.exports = mongoose.model('ApiKey', apiKeySchema);
+const ApiKey = mongoose.model('ApiKey', apiKeySchema);
+export default ApiKey;

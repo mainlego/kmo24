@@ -1,5 +1,5 @@
-const ApiKey = require('../models/ApiKey');
-const IntegrationLog = require('../models/IntegrationLog');
+import ApiKey from '../models/ApiKey.js';
+import IntegrationLog from '../models/IntegrationLog.js';
 
 /**
  * Middleware для аутентификации API запросов (1С и других внешних систем)
@@ -181,7 +181,4 @@ const requirePermissions = (...permissions) => {
   return apiAuth(permissions);
 };
 
-module.exports = {
-  apiAuth,
-  requirePermissions,
-};
+export { apiAuth, requirePermissions };
