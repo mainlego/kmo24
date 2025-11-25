@@ -36,7 +36,7 @@ services:
         fromService:
           type: web
           name: kmo24-frontend
-          property: host
+          envVarKey: RENDER_EXTERNAL_URL
       - key: DL_API_KEY
         value: 6CA4665F-F1F1-40AF-BF06-E3CD2B452599
       - key: MAX_FILE_SIZE
@@ -71,7 +71,7 @@ services:
         fromService:
           type: web
           name: kmo24-frontend
-          property: host
+          envVarKey: RENDER_EXTERNAL_URL
 
   # Redis Cache Service
   - type: redis
