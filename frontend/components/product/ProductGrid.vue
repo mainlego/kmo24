@@ -43,7 +43,6 @@
         :product="product"
         :view-mode="viewMode"
         @open-quick-view="handleOpenQuickView"
-        @open-delivery-calc="handleOpenDeliveryCalc"
       />
     </div>
 
@@ -52,13 +51,6 @@
       :is-open="isQuickViewOpen"
       :product="selectedProduct"
       @close="handleCloseQuickView"
-    />
-
-    <!-- Delivery Calculation Modal -->
-    <DeliveryCalcModal
-      :is-open="isDeliveryCalcOpen"
-      :product="selectedProductForDelivery"
-      @close="handleCloseDeliveryCalc"
     />
 
     <!-- Pagination -->
@@ -125,10 +117,6 @@ const emit = defineEmits<{
 const isQuickViewOpen = ref(false);
 const selectedProduct = ref<Product | null>(null);
 
-// Delivery Calc state
-const isDeliveryCalcOpen = ref(false);
-const selectedProductForDelivery = ref<Product | null>(null);
-
 const handleOpenQuickView = (product: Product) => {
   selectedProduct.value = product;
   isQuickViewOpen.value = true;
@@ -139,18 +127,6 @@ const handleCloseQuickView = () => {
   setTimeout(() => {
     selectedProduct.value = null;
   }, 300); // Delay to allow modal transition
-};
-
-const handleOpenDeliveryCalc = (product: Product) => {
-  selectedProductForDelivery.value = product;
-  isDeliveryCalcOpen.value = true;
-};
-
-const handleCloseDeliveryCalc = () => {
-  isDeliveryCalcOpen.value = false;
-  setTimeout(() => {
-    selectedProductForDelivery.value = null;
-  }, 300);
 };
 
 const handlePrevPage = () => {

@@ -117,6 +117,11 @@
                   <span>{{ formatPrice(cartStore.total) }}</span>
                 </div>
               </div>
+
+              <!-- Delivery Estimate -->
+              <div class="cart-page__delivery">
+                <CartDeliveryEstimate :cart-items="cartStore.items" />
+              </div>
             </div>
 
             <template #footer>
@@ -470,6 +475,11 @@ useHead({
       padding-top: $spacing-md;
       border-top: 2px solid $gray-200;
     }
+  }
+
+  &__delivery {
+    padding-top: $spacing-lg;
+    border-top: 1px solid $gray-200;
   }
 
   &__info {

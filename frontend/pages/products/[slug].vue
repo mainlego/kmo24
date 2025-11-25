@@ -111,8 +111,16 @@
 
               <!-- Actions -->
               <div class="product-actions">
+                <QuantitySelector
+                  v-if="isInStock"
+                  v-model="quantity"
+                  :min="1"
+                  :max="product.stock.quantity"
+                  class="product-actions__quantity"
+                />
                 <button
-                  class="product-actions__buy product-actions__buy--full"
+                  class="product-actions__buy"
+                  :class="{ 'product-actions__buy--full': !isInStock }"
                   :disabled="!isInStock"
                   @click="handleAddToCart"
                 >
@@ -389,9 +397,10 @@ const handleAddToCart = async () => {
 
   isAddingToCart.value = true;
   try {
-    await cartStore.addItem(product.value._id, 1);
-    // TODO: Show success notification
-    console.log('Added 1 item to cart');
+    await cartStore.addItem(product.value._id, quantity.value);
+    console.log(`Added ${quantity.value} item(s) to cart`);
+    // Reset quantity after adding
+    quantity.value = 1;
   } catch (err) {
     console.error('Error adding to cart:', err);
   } finally {
@@ -782,6 +791,53 @@ onMounted(async () => {
 
     @media (max-width: $breakpoint-sm) {
       flex: 0 0 240px;
+    }
+  }
+}
+
+// Product Actions
+.product-actions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
+
+  &__quantity {
+    flex-shrink: 0;
+  }
+
+  &__buy {
+    flex: 1;
+    padding: $spacing-md $spacing-xl;
+    background: $primary-500;
+    color: $white;
+    border: none;
+    border-radius: $radius-lg;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    transition: all $transition-base $transition-ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &:hover:not(:disabled) {
+      background: darken($primary-500, 5%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba($primary-500, 0.3);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      background: $gray-300;
+      color: $gray-500;
+      cursor: not-allowed;
+    }
+
+    &--full {
+      flex: 1 1 100%;
     }
   }
 }
