@@ -342,22 +342,6 @@ const duplicateProduct = async (id: string) => {
   }
 };
 
-const deleteProduct = async (id: string) => {
-  if (!confirm('Вы уверены, что хотите удалить этот товар?')) return;
-
-  try {
-    loading.value = true;
-    // TODO: API call to delete product
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    products.value = products.value.filter((p) => p.id !== id);
-    success('Товар успешно удален');
-  } catch (err) {
-    error('Ошибка при удалении товара');
-  } finally {
-    loading.value = false;
-  }
-};
-
 const bulkActivate = async () => {
   try {
     loading.value = true;
