@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 interface City {
   code: string;
@@ -211,14 +211,14 @@ const formatPrice = (price: number): string => {
 };
 
 // Close suggestions when clicking outside
-if (process.client) {
+onMounted(() => {
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     if (!target.closest('.delivery-estimate__field')) {
       showSuggestions.value = false;
     }
   });
-}
+});
 </script>
 
 <style scoped lang="scss">
@@ -362,10 +362,10 @@ if (process.client) {
   &__error {
     margin-top: $spacing-md;
     padding: $spacing-sm $spacing-md;
-    background: $error-50;
-    border: 1px solid $error-200;
+    background: $error-light;
+    border: 1px solid $error;
     border-radius: $radius-md;
-    color: $error-700;
+    color: $error;
     font-size: $font-size-sm;
   }
 }
