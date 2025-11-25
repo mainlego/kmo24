@@ -6,15 +6,7 @@
       <div class="container">
         <nav class="navbar">
           <NuxtLink to="/" class="logo">
-            <div class="logo-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <span class="logo-text">
-              КМО<span class="logo-accent">24</span>
-            </span>
+            <img src="/assets/logo.png" alt="КМО24" class="logo-image" />
           </NuxtLink>
 
           <div class="nav-menu">
@@ -91,13 +83,7 @@
           <div class="mobile-menu" @click.stop>
             <div class="mobile-menu-header">
               <div class="mobile-menu-logo">
-                <div class="logo-icon">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                    <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <span class="logo-text">КМО<span class="logo-accent">24</span></span>
+                <img src="/assets/logo.png" alt="КМО24" class="logo-image-mobile" />
               </div>
               <button class="mobile-menu-close" @click="isMobileMenuOpen = false" aria-label="Закрыть меню">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -209,13 +195,7 @@
         <div class="footer-top">
           <div class="footer-brand">
             <div class="footer-logo">
-              <div class="logo-icon">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <span class="logo-text">КМО<span class="logo-accent">24</span></span>
+              <img src="/assets/logo.png" alt="КМО24" class="logo-image-footer" />
             </div>
             <p class="footer-description">
               Комиссионный магазин оборудования для кафе и ресторанов. Реализация б/у пищевого и хлебопекарного оборудования.
@@ -447,11 +427,24 @@ onUnmounted(() => {
 
   &:hover {
     transform: scale(1.05);
-
-    .logo-icon {
-      transform: rotate(5deg);
-    }
   }
+}
+
+.logo-image {
+  height: 40px;
+  width: auto;
+  transition: transform 0.3s ease;
+}
+
+.logo-image-mobile {
+  height: 36px;
+  width: auto;
+}
+
+.logo-image-footer {
+  height: 50px;
+  width: auto;
+  margin-bottom: $spacing-md;
 }
 
 .logo-icon {

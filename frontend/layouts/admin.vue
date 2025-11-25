@@ -4,10 +4,7 @@
     <aside class="admin-sidebar" :class="{ 'sidebar-open': sidebarOpen, 'sidebar-closed': !sidebarOpen }">
       <div class="sidebar-header">
         <NuxtLink to="/admin" class="logo">
-          <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-          </svg>
-          <span class="logo-text">КМО24 Admin</span>
+          <img src="/assets/logo.png" alt="КМО24 Admin" class="logo-image-admin" />
         </NuxtLink>
         <button class="sidebar-close" @click="toggleSidebar">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -374,11 +371,20 @@ onMounted(() => {
     &:hover {
       transform: scale(1.05);
 
-      .logo-icon {
+      .logo-image-admin {
         filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.6));
       }
     }
+  }
 
+  .logo-image-admin {
+    height: 40px;
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    transition: all 0.3s ease;
+  }
+
+  .logo {
     &-icon {
       width: 2.25rem;
       height: 2.25rem;
