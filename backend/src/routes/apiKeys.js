@@ -1,7 +1,6 @@
 import express from 'express';
 import apiKeysController from '../controllers/apiKeys.js';
-import { authenticate } from '../middleware/auth.js';
-import { authorize } from '../middleware/authorize.js';
+import { protect as authenticate, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
