@@ -1,11 +1,11 @@
-const ApiKey = require('../models/ApiKey');
-const IntegrationLog = require('../models/IntegrationLog');
+import ApiKey from '../models/ApiKey.js';
+import IntegrationLog from '../models/IntegrationLog.js';
 
 /**
  * Get all API keys
  * GET /api/admin/api-keys
  */
-exports.getAllApiKeys = async (req, res) => {
+const getAllApiKeys = async (req, res) => {
   try {
     const { page = 1, limit = 20, type, isActive } = req.query;
 
@@ -43,7 +43,7 @@ exports.getAllApiKeys = async (req, res) => {
  * Get single API key with statistics
  * GET /api/admin/api-keys/:id
  */
-exports.getApiKey = async (req, res) => {
+const getApiKey = async (req, res) => {
   try {
     const apiKey = await ApiKey.findById(req.params.id)
       .populate('createdBy', 'name email')
@@ -78,7 +78,7 @@ exports.getApiKey = async (req, res) => {
  * Create new API key
  * POST /api/admin/api-keys
  */
-exports.createApiKey = async (req, res) => {
+const createApiKey = async (req, res) => {
   try {
     const {
       name,
@@ -138,7 +138,7 @@ exports.createApiKey = async (req, res) => {
  * Update API key
  * PUT /api/admin/api-keys/:id
  */
-exports.updateApiKey = async (req, res) => {
+const updateApiKey = async (req, res) => {
   try {
     const {
       name,
@@ -184,7 +184,7 @@ exports.updateApiKey = async (req, res) => {
  * Regenerate API secret
  * POST /api/admin/api-keys/:id/regenerate
  */
-exports.regenerateSecret = async (req, res) => {
+const regenerateSecret = async (req, res) => {
   try {
     const apiKey = await ApiKey.findById(req.params.id);
 
@@ -222,7 +222,7 @@ exports.regenerateSecret = async (req, res) => {
  * Delete API key
  * DELETE /api/admin/api-keys/:id
  */
-exports.deleteApiKey = async (req, res) => {
+const deleteApiKey = async (req, res) => {
   try {
     const apiKey = await ApiKey.findById(req.params.id);
 
@@ -251,7 +251,7 @@ exports.deleteApiKey = async (req, res) => {
  * Get integration logs for an API key
  * GET /api/admin/api-keys/:id/logs
  */
-exports.getApiKeyLogs = async (req, res) => {
+const getApiKeyLogs = async (req, res) => {
   try {
     const { page = 1, limit = 50, status, endpoint } = req.query;
 
@@ -287,7 +287,7 @@ exports.getApiKeyLogs = async (req, res) => {
  * Get integration statistics
  * GET /api/admin/api-keys/stats/overview
  */
-exports.getIntegrationStats = async (req, res) => {
+const getIntegrationStats = async (req, res) => {
   try {
     const { days = 7 } = req.query;
     const startDate = new Date();
@@ -363,4 +363,15 @@ exports.getIntegrationStats = async (req, res) => {
       error: error.message,
     });
   }
+};
+
+export default {
+  getAllApiKeys,
+  getApiKey,
+  createApiKey,
+  updateApiKey,
+  regenerateSecret,
+  deleteApiKey,
+  getApiKeyLogs,
+  getIntegrationStats,
 };
