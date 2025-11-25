@@ -55,6 +55,10 @@ const config = {
 
   // Transport Companies
   delivery: {
+    storeAddress: {
+      city: 'Красноярск',
+      terminal: 'Красноярск',
+    },
     dellin: {
       apiUrl: process.env.DL_API_URL || 'https://api.dellin.ru/v2',
       apiKey: process.env.DL_API_KEY,

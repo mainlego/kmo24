@@ -173,7 +173,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import type { Product } from '~/types';
-import { mockProducts } from '~/mocks/products';
 
 const searchQuery = ref('');
 const isOpen = ref(false);
@@ -222,7 +221,7 @@ const formatPrice = (price: number): string => {
   }).format(price);
 };
 
-const performSearch = () => {
+const performSearch = async () => {
   if (!searchQuery.value.trim()) {
     searchResults.value = [];
     return;
@@ -230,22 +229,23 @@ const performSearch = () => {
 
   isLoading.value = true;
 
-  // Имитация задержки поиска
-  setTimeout(() => {
-    const query = searchQuery.value.toLowerCase();
-    searchResults.value = mockProducts.filter((product) => {
-      const name = product.name.toLowerCase();
-      const category = product.category.name.toLowerCase();
-      // description is an object with short and full properties
-      const description = (product.description?.short || product.description?.full || '').toLowerCase();
+  try {
+    const { apiFetch } = useApi();
+    const response = await apiFetch<{ success: boolean; data: Product[] }>(
+      `/products?search=${encodeURIComponent(searchQuery.value)}&limit=8`
+    );
 
-      return name.includes(query) ||
-             description.includes(query) ||
-             category.includes(query);
-    }).slice(0, 8); // Показываем максимум 8 результатов
-
+    if (response.success && response.data) {
+      searchResults.value = response.data;
+    } else {
+      searchResults.value = [];
+    }
+  } catch (error) {
+    console.error('Search error:', error);
+    searchResults.value = [];
+  } finally {
     isLoading.value = false;
-  }, 300);
+  }
 };
 
 const handleInput = () => {

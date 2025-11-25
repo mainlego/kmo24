@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import type { Product } from '~/types';
-import { mockProducts } from '~/mocks/products';
 
 interface CartItem {
   productId: string;
@@ -67,12 +66,17 @@ export const useCartStore = defineStore('cart', {
 
     async addItem(productId: string, quantity: number = 1) {
       try {
-        // Find product in mock data
-        const product = mockProducts.find(p => p._id === productId);
+        // Fetch product from API
+        const { apiFetch } = useApi();
+        const response = await apiFetch<{ success: boolean; data: Product }>(
+          `/products/${productId}`
+        );
 
-        if (!product) {
+        if (!response.success || !response.data) {
           throw new Error('Product not found');
         }
+
+        const product = response.data;
 
         // Check if product already in cart
         const existingItemIndex = this.items.findIndex(item => item.productId === productId);
@@ -198,26 +202,36 @@ export const useCartStore = defineStore('cart', {
       }
     },
 
-    loadFromLocalStorage() {
+    async loadFromLocalStorage() {
       if (process.client) {
         try {
           const stored = localStorage.getItem('cart');
           if (stored) {
             const cartData = JSON.parse(stored);
+            const { apiFetch } = useApi();
 
-            // Reconstruct cart items with current product data
-            this.items = cartData
-              .map((item: { productId: string; quantity: number }) => {
-                const product = mockProducts.find(p => p._id === item.productId);
-                if (!product) return null;
+            // Fetch product data for each cart item from API
+            const itemPromises = cartData.map(async (item: { productId: string; quantity: number }) => {
+              try {
+                const response = await apiFetch<{ success: boolean; data: Product }>(
+                  `/products/${item.productId}`
+                );
+
+                if (!response.success || !response.data) return null;
 
                 return {
                   productId: item.productId,
-                  product,
+                  product: response.data,
                   quantity: item.quantity,
                 };
-              })
-              .filter(Boolean) as CartItem[];
+              } catch (error) {
+                console.error(`Error loading product ${item.productId}:`, error);
+                return null;
+              }
+            });
+
+            const items = await Promise.all(itemPromises);
+            this.items = items.filter(Boolean) as CartItem[];
           }
         } catch (error) {
           console.error('Error loading cart from localStorage:', error);

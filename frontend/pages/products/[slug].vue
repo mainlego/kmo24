@@ -320,8 +320,6 @@
 import { ref, computed, onMounted } from 'vue';
 import type { Product } from '~/types';
 
-import { mockProducts } from '~/mocks/products';
-
 const route = useRoute();
 const router = useRouter();
 const cartStore = useCartStore();
@@ -466,20 +464,15 @@ onMounted(async () => {
   try {
     isLoading.value = true;
 
-    const foundProduct = mockProducts.find(p => p.slug === slug.value);
+    // Fetch product from store/API
+    const result = await productsStore.fetchProduct(slug.value);
 
-    if (foundProduct) {
-      product.value = foundProduct;
-
-      // Get related products (up to 6 for sidebar)
-      relatedProducts.value = mockProducts
-        .filter(p => p.category._id === foundProduct.category._id && p._id !== foundProduct._id)
-        .slice(0, 6);
+    if (result.success && result.data) {
+      product.value = result.data;
+      relatedProducts.value = productsStore.relatedProducts.slice(0, 6);
     } else {
       error.value = 'Товар не найден';
     }
-
-    await new Promise(resolve => setTimeout(resolve, 300));
   } catch (err: any) {
     error.value = err.message || 'Не удалось загрузить товар';
   } finally {

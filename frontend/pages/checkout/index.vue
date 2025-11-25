@@ -120,6 +120,14 @@
                 placeholder="125"
               />
             </div>
+
+            <!-- Delivery Calculator for Transport Company -->
+            <div v-if="formData.deliveryMethod === 'transport_company'" class="checkout-page__calculator">
+              <CheckoutDeliveryCalculator
+                :cart-items="cartStore.items"
+                @delivery-calculated="handleDeliveryCalculated"
+              />
+            </div>
           </BaseCard>
 
           <!-- Payment -->
@@ -302,6 +310,13 @@ const formData = ref({
     floor: '',
     intercom: '',
   },
+  transportCompanyDelivery: {
+    city: null,
+    cityCode: '',
+    price: 0,
+    deliveryTime: 0,
+    distance: 0,
+  },
   paymentMethod: 'card_online',
   comment: '',
   agreeToTerms: false,
@@ -320,6 +335,12 @@ const deliveryMethods = [
     id: 'pickup',
     name: 'Самовывоз',
     description: 'Забрать из пункта выдачи',
+    price: 0,
+  },
+  {
+    id: 'transport_company',
+    name: 'Транспортная компания',
+    description: 'Доставка через Деловые Линии (рассчитывается отдельно)',
     price: 0,
   },
   {
@@ -377,6 +398,17 @@ const formatPrice = (price: number): string => {
     currency: 'RUB',
     minimumFractionDigits: 0,
   }).format(price);
+};
+
+// Handle delivery calculation result
+const handleDeliveryCalculated = (result: any) => {
+  formData.value.transportCompanyDelivery = {
+    city: result.city.name,
+    cityCode: result.city.code,
+    price: result.price,
+    deliveryTime: result.deliveryTime,
+    distance: result.distance || 0,
+  };
 };
 
 const validateForm = (): boolean => {
@@ -765,6 +797,10 @@ useHead({
       color: $success;
       flex-shrink: 0;
     }
+  }
+
+  &__calculator {
+    margin-top: $spacing-lg;
   }
 }
 

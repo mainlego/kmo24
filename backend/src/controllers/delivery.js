@@ -1,9 +1,10 @@
 import axios from 'axios';
+import config from '../config/index.js';
 import logger from '../utils/logger.js';
 
 // Конфигурация Деловых Линий
 const DELLIN_API_URL = 'https://api.dellin.ru/v3/public';
-const DELLIN_APP_KEY = '6CA4665F-F1F1-40AF-BF06-E3CD2B452599';
+const DELLIN_APP_KEY = config.delivery.dellin.apiKey;
 
 /**
  * Расчет стоимости доставки через Деловые Линии
@@ -12,30 +13,43 @@ const DELLIN_APP_KEY = '6CA4665F-F1F1-40AF-BF06-E3CD2B452599';
 export const calculateDelivery = async (req, res) => {
   try {
     const {
-      derivalCity,      // Город отправления
       arrivalCity,      // Город доставки
-      weight,           // Вес в кг
-      volume,           // Объем в м³
-      length,           // Длина в см
-      width,            // Ширина в см
-      height,           // Высота в см
-      declaredValue,    // Объявленная стоимость груза
+      cargo,            // Массив товаров с габаритами
     } = req.body;
 
     // Валидация
-    if (!derivalCity || !arrivalCity) {
+    if (!arrivalCity) {
       return res.status(400).json({
         success: false,
-        error: 'Не указаны города отправления или доставки',
+        error: 'Не указан город доставки',
       });
     }
 
-    if (!weight && !volume) {
+    if (!cargo || !Array.isArray(cargo) || cargo.length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'Необходимо указать вес или объем груза',
+        error: 'Необходимо указать товары для расчета',
       });
     }
+
+    // Используем адрес магазина из конфигурации
+    const storeCity = config.delivery.storeAddress.city;
+
+    // Подсчитываем общий вес и объем
+    let totalWeight = 0;
+    let totalVolume = 0;
+
+    cargo.forEach((item) => {
+      const weight = item.weight || 10;
+      const length = item.length || 50;
+      const width = item.width || 50;
+      const height = item.height || 50;
+      const quantity = item.quantity || 1;
+
+      totalWeight += weight * quantity;
+      // Объем = длина × ширина × высота (в м³)
+      totalVolume += (length / 100) * (width / 100) * (height / 100) * quantity;
+    });
 
     // Подготовка данных для API Деловых Линий
     const requestData = {
@@ -45,28 +59,14 @@ export const calculateDelivery = async (req, res) => {
         derivalTerminal: true,     // Забор с терминала
         arrivalDoor: false,        // Доставка до двери получателя
         arrivalTerminal: true,     // Доставка на терминал
-        derivalCity: derivalCity,  // КЛАДР код города отправления
+        derivalCity: storeCity,    // Город магазина из конфига
         arrivalCity: arrivalCity,  // КЛАДР код города доставки
       },
       cargo: {
-        weight: weight || 1,       // Вес в кг (минимум 1 кг)
+        weight: totalWeight || 1,  // Общий вес в кг (минимум 1 кг)
+        volume: totalVolume || 0.1, // Общий объем в м³
       },
     };
-
-    // Добавляем габариты если указаны
-    if (length && width && height) {
-      requestData.cargo.oversizedWeight = weight;
-      requestData.cargo.length = length / 100;  // Переводим см в метры
-      requestData.cargo.width = width / 100;
-      requestData.cargo.height = height / 100;
-    } else if (volume) {
-      requestData.cargo.volume = volume;
-    }
-
-    // Объявленная стоимость
-    if (declaredValue) {
-      requestData.cargo.freightValue = declaredValue;
-    }
 
     logger.info('Dellin API request:', requestData);
 

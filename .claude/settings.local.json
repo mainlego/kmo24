@@ -41,7 +41,9 @@
       "Bash(if [ -f \"$file\" ])",
       "Bash(then)",
       "Bash(fi)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(npm run seed:*)",
+      "Bash(MONGODB_URI=\"mongodb+srv://omlineadmin:5MOHI036wc4yf3vh@kmo24.e0o4igm.mongodb.net/kmo24?retryWrites=true&w=majority&appName=kmo24\" npm run seed)"
     ],
     "deny": [],
     "ask": []

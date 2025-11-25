@@ -157,12 +157,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { mockCategories } from '~/mocks/products';
 
 const productsStore = useProductsStore();
+const categoriesStore = useCategoriesStore();
 
-// Use real categories from КМО24
-const categories = ref(mockCategories);
+// Categories from API
+const categories = computed(() => categoriesStore.activeCategories);
 
 // Mobile filters state
 const showMobileFilters = ref(false);
@@ -244,15 +244,18 @@ const applyMobileFilters = () => {
   showMobileFilters.value = false;
 };
 
-// Load products on mount
+// Load products and categories on mount
 onMounted(async () => {
   try {
-    console.log('🚀 Products page mounted, fetching products...');
-    await productsStore.fetchProducts();
+    console.log('🚀 Products page mounted, fetching data...');
+    await Promise.all([
+      categoriesStore.fetchCategories(),
+      productsStore.fetchProducts(),
+    ]);
     console.log('✅ Products loaded:', productsStore.products.length);
-    console.log('📊 Products data:', productsStore.products);
+    console.log('✅ Categories loaded:', categories.value.length);
   } catch (error) {
-    console.error('Error loading products:', error);
+    console.error('Error loading data:', error);
   }
 });
 

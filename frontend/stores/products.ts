@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import type { Product, PaginatedResponse, ProductFilters } from '~/types';
-import { mockProducts } from '~/mocks/products';
 
 interface ProductsState {
   products: Product[];
@@ -71,7 +70,7 @@ export const useProductsStore = defineStore('products', {
 
   actions: {
     /**
-     * Получение списка товаров (с mock данными)
+     * Получение списка товаров из API
      */
     async fetchProducts(filters?: ProductFilters) {
       this.isLoading = true;
@@ -83,98 +82,44 @@ export const useProductsStore = defineStore('products', {
       }
 
       try {
-        // Имитация задержки сети
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        const { apiFetch } = useApi();
 
-        console.log('📦 Loading mock products:', mockProducts.length);
-        console.log('🖼️ First product images:', mockProducts[0]?.images);
+        // Формируем query параметры
+        const params = new URLSearchParams();
+        if (this.filters.page) params.append('page', String(this.filters.page));
+        if (this.filters.limit) params.append('limit', String(this.filters.limit));
+        if (this.filters.sort) params.append('sort', this.filters.sort);
+        if (this.filters.category) params.append('category', this.filters.category);
+        if (this.filters.minPrice) params.append('minPrice', String(this.filters.minPrice));
+        if (this.filters.maxPrice) params.append('maxPrice', String(this.filters.maxPrice));
+        if (this.filters.inStock) params.append('inStock', 'true');
+        if (this.filters.search) params.append('search', this.filters.search);
 
-        let filteredProducts = [...mockProducts];
+        const response = await apiFetch<PaginatedResponse<Product>>(
+          `/products?${params.toString()}`
+        );
 
-        // Фильтрация по категории
-        if (this.filters.category) {
-          filteredProducts = filteredProducts.filter(
-            (p) => p.category._id === this.filters.category
-          );
+        if (response.success && response.data) {
+          this.products = response.data;
+
+          if (response.pagination) {
+            this.pagination = {
+              currentPage: response.pagination.currentPage,
+              totalPages: response.pagination.totalPages,
+              totalItems: response.pagination.totalItems,
+              hasNextPage: response.pagination.hasNextPage,
+              hasPrevPage: response.pagination.hasPrevPage,
+            };
+          }
+
+          return {
+            success: true,
+            data: response.data,
+            pagination: this.pagination,
+          };
         }
 
-        // Фильтрация по цене
-        if (this.filters.minPrice) {
-          filteredProducts = filteredProducts.filter(
-            (p) => p.price >= this.filters.minPrice!
-          );
-        }
-        if (this.filters.maxPrice) {
-          filteredProducts = filteredProducts.filter(
-            (p) => p.price <= this.filters.maxPrice!
-          );
-        }
-
-        // Фильтрация по наличию
-        if (this.filters.inStock) {
-          filteredProducts = filteredProducts.filter(
-            (p) => p.stock.available > 0
-          );
-        }
-
-        // Поиск
-        if (this.filters.search) {
-          const searchLower = this.filters.search.toLowerCase();
-          filteredProducts = filteredProducts.filter(
-            (p) =>
-              p.name.toLowerCase().includes(searchLower) ||
-              (p.description && p.description.toLowerCase().includes(searchLower))
-          );
-        }
-
-        // Сортировка
-        if (this.filters.sort) {
-          const sortField = this.filters.sort.replace('-', '');
-          const isDesc = this.filters.sort.startsWith('-');
-
-          filteredProducts.sort((a, b) => {
-            let aVal: any, bVal: any;
-
-            if (sortField === 'price') {
-              aVal = a.price;
-              bVal = b.price;
-            } else if (sortField === 'name') {
-              aVal = a.name;
-              bVal = b.name;
-            } else if (sortField === 'rating') {
-              aVal = a.rating.average;
-              bVal = b.rating.average;
-            } else {
-              return 0;
-            }
-
-            if (aVal < bVal) return isDesc ? 1 : -1;
-            if (aVal > bVal) return isDesc ? -1 : 1;
-            return 0;
-          });
-        }
-
-        // Пагинация
-        const limit = this.filters.limit || 12;
-        const page = this.filters.page || 1;
-        const startIndex = (page - 1) * limit;
-        const endIndex = startIndex + limit;
-        const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-
-        this.products = paginatedProducts;
-        this.pagination = {
-          currentPage: page,
-          totalPages: Math.ceil(filteredProducts.length / limit),
-          totalItems: filteredProducts.length,
-          hasNextPage: endIndex < filteredProducts.length,
-          hasPrevPage: page > 1,
-        };
-
-        return {
-          success: true,
-          data: paginatedProducts,
-          pagination: this.pagination,
-        };
+        throw new Error('Не удалось загрузить товары');
       } catch (error: any) {
         this.error = error.message || 'Ошибка загрузки товаров';
         console.error('Fetch products error:', error);
@@ -185,33 +130,29 @@ export const useProductsStore = defineStore('products', {
     },
 
     /**
-     * Получение одного товара (с mock данными)
+     * Получение одного товара из API
      */
     async fetchProduct(idOrSlug: string) {
       this.isLoading = true;
       this.error = null;
 
       try {
-        // Имитация задержки сети
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        const { apiFetch } = useApi();
 
-        const product = mockProducts.find(
-          (p) => p._id === idOrSlug || p.slug === idOrSlug
+        const response = await apiFetch<{ success: boolean; data: Product }>(
+          `/products/${idOrSlug}`
         );
 
-        if (!product) {
-          throw new Error('Товар не найден');
+        if (response.success && response.data) {
+          this.currentProduct = response.data;
+
+          // Загружаем похожие товары
+          await this.fetchRelatedProducts(response.data._id);
+
+          return { success: true, data: response.data };
         }
 
-        this.currentProduct = product;
-
-        // Загружаем похожие товары
-        const related = mockProducts
-          .filter((p) => p.category._id === product.category._id && p._id !== product._id)
-          .slice(0, 4);
-        this.relatedProducts = related;
-
-        return { success: true, data: product };
+        throw new Error('Товар не найден');
       } catch (error: any) {
         this.error = error.message || 'Товар не найден';
         console.error('Fetch product error:', error);
