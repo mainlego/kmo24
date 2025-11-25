@@ -1,11 +1,10 @@
-import type { UseFetchOptions } from 'nuxt/app';
-
 export const useApi = () => {
   const config = useRuntimeConfig();
   const baseURL = config.public.apiBaseUrl;
 
   /**
    * Wrapper для $fetch с базовыми настройками
+   * ВАЖНО: Используйте только apiFetch из этого composable
    */
   const apiFetch = $fetch.create({
     baseURL,
@@ -43,57 +42,7 @@ export const useApi = () => {
     },
   });
 
-  /**
-   * GET запрос
-   */
-  const get = async <T>(url: string, options?: UseFetchOptions<T>) => {
-    return await useFetch<T>(url, {
-      baseURL,
-      method: 'GET',
-      ...options,
-    });
-  };
-
-  /**
-   * POST запрос
-   */
-  const post = async <T>(url: string, body?: any, options?: UseFetchOptions<T>) => {
-    return await useFetch<T>(url, {
-      baseURL,
-      method: 'POST',
-      body,
-      ...options,
-    });
-  };
-
-  /**
-   * PUT запрос
-   */
-  const put = async <T>(url: string, body?: any, options?: UseFetchOptions<T>) => {
-    return await useFetch<T>(url, {
-      baseURL,
-      method: 'PUT',
-      body,
-      ...options,
-    });
-  };
-
-  /**
-   * DELETE запрос
-   */
-  const del = async <T>(url: string, options?: UseFetchOptions<T>) => {
-    return await useFetch<T>(url, {
-      baseURL,
-      method: 'DELETE',
-      ...options,
-    });
-  };
-
   return {
     apiFetch,
-    get,
-    post,
-    put,
-    delete: del,
   };
 };
