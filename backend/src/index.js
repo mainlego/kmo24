@@ -113,6 +113,7 @@ app.use(`${API_PREFIX}/delivery`, deliveryRoutes);
 
 // Статические файлы
 app.use('/uploads', express.static('uploads'));
+app.use(express.static('public'));
 
 // Обработка несуществующих роутов
 app.use(notFound);
