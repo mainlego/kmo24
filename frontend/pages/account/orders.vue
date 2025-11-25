@@ -65,10 +65,9 @@
               />
               <div class="orders-page__order-item-info">
                 <div class="orders-page__order-item-name">{{ item.product.name }}</div>
-                <div class="orders-page__order-item-quantity">{{ item.quantity }} шт.</div>
               </div>
               <div class="orders-page__order-item-price">
-                {{ formatPrice(item.price * item.quantity) }}
+                {{ formatPrice(item.price) }}
               </div>
             </div>
           </div>
@@ -115,64 +114,7 @@ interface Order {
 
 const orders = ref<Order[]>([]);
 const isLoading = ref(true);
-
-// Mock data
-const mockOrders: Order[] = [
-  {
-    _id: '1',
-    orderNumber: '123456',
-    status: 'delivered',
-    items: [
-      {
-        _id: '1',
-        product: {
-          name: 'Смартфон XYZ Premium',
-          images: [{ url: 'https://via.placeholder.com/60/3b82f6/ffffff?text=Phone' }],
-        },
-        quantity: 1,
-        price: 79990,
-      },
-    ],
-    total: 80490,
-    createdAt: '2025-10-20T10:00:00Z',
-  },
-  {
-    _id: '2',
-    orderNumber: '123457',
-    status: 'processing',
-    items: [
-      {
-        _id: '2',
-        product: {
-          name: 'Наушники Wireless Pro',
-          images: [{ url: 'https://via.placeholder.com/60/8b5cf6/ffffff?text=Headphones' }],
-        },
-        quantity: 2,
-        price: 15990,
-      },
-    ],
-    total: 31980,
-    createdAt: '2025-10-22T14:30:00Z',
-  },
-  {
-    _id: '3',
-    orderNumber: '123458',
-    status: 'pending',
-    items: [
-      {
-        _id: '3',
-        product: {
-          name: 'Умные часы SmartWatch X',
-          images: [{ url: 'https://via.placeholder.com/60/ec4899/ffffff?text=Watch' }],
-        },
-        quantity: 1,
-        price: 24990,
-      },
-    ],
-    total: 24990,
-    createdAt: '2025-10-24T09:15:00Z',
-  },
-];
+const { apiFetch } = useApi();
 
 const getStatusVariant = (status: string) => {
   const variants: Record<string, any> = {
@@ -223,16 +165,34 @@ const viewOrder = (orderId: string) => {
 const cancelOrder = async (orderId: string) => {
   if (!confirm('Вы уверены, что хотите отменить заказ?')) return;
 
-  // TODO: API call to cancel order
-  console.log('Cancel order:', orderId);
+  try {
+    const response = await apiFetch<{ success: boolean; data: Order }>(`/orders/${orderId}/cancel`, {
+      method: 'PATCH',
+    });
+
+    if (response.success) {
+      // Update order status in local state
+      const orderIndex = orders.value.findIndex(o => o._id === orderId);
+      if (orderIndex !== -1) {
+        orders.value[orderIndex].status = 'cancelled';
+      }
+    }
+  } catch (error: any) {
+    console.error('Error canceling order:', error);
+    alert(error.message || 'Не удалось отменить заказ');
+  }
 };
 
 onMounted(async () => {
   try {
     isLoading.value = true;
-    // TODO: Fetch orders from API
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    orders.value = mockOrders;
+
+    // Fetch orders from API
+    const response = await apiFetch<{ success: boolean; data: Order[] }>('/orders/my');
+
+    if (response.success && response.data) {
+      orders.value = response.data;
+    }
   } catch (error) {
     console.error('Error loading orders:', error);
   } finally {
