@@ -25,8 +25,16 @@
         <p class="text-gray-600">Управляйте вашей личной информацией</p>
       </div>
 
+      <!-- Loading State -->
+      <div v-if="isLoading" class="flex items-center justify-center min-h-[400px]">
+        <div class="text-center">
+          <div class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-600 mb-4"></div>
+          <p class="text-gray-600">Загрузка профиля...</p>
+        </div>
+      </div>
+
       <!-- Avatar Section -->
-      <div class="glass-card p-8 mb-6 animate-fade-in-up">
+      <div v-else class="glass-card p-8 mb-6 animate-fade-in-up">
         <div class="flex flex-col md:flex-row items-center gap-6">
           <!-- Avatar -->
           <div class="relative group">
@@ -347,7 +355,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 
 // SEO
 useHead({
@@ -357,13 +365,17 @@ useHead({
   ]
 })
 
+const { apiFetch } = useApi()
+const toast = useToast()
+const router = useRouter()
+
 const profile = reactive({
-  firstName: 'Иван',
-  lastName: 'Иванов',
-  email: 'ivan@example.com',
-  phone: '+7 (999) 123-45-67',
-  birthDate: '1990-01-15',
-  gender: 'male',
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  birthDate: '',
+  gender: '',
   avatar: '',
   notifications: {
     email: true,
@@ -379,6 +391,8 @@ const passwordForm = reactive({
 })
 
 const isSaving = ref(false)
+const isLoading = ref(true)
+const originalProfile = ref(null)
 
 // Password Strength
 const passwordStrength = computed(() => {
@@ -424,60 +438,130 @@ const passwordStrengthWidth = computed(() => {
   return `${(passwordStrength.value / 5) * 100}%`
 })
 
+// Загрузка данных пользователя
+const loadProfile = async () => {
+  try {
+    isLoading.value = true
+    const response = await apiFetch('/auth/me')
+
+    if (response.data) {
+      const userData = response.data
+      profile.firstName = userData.firstName || ''
+      profile.lastName = userData.lastName || ''
+      profile.email = userData.email || ''
+      profile.phone = userData.phone || ''
+      profile.birthDate = userData.birthDate ? userData.birthDate.split('T')[0] : ''
+      profile.gender = userData.gender || ''
+      profile.avatar = userData.avatar || ''
+      profile.notifications = {
+        email: userData.notifications?.email !== undefined ? userData.notifications.email : true,
+        sms: userData.notifications?.sms !== undefined ? userData.notifications.sms : true,
+        newsletter: userData.notifications?.newsletter !== undefined ? userData.notifications.newsletter : false
+      }
+
+      // Сохраняем оригинальные данные
+      originalProfile.value = JSON.parse(JSON.stringify(profile))
+    }
+  } catch (error) {
+    console.error('Error loading profile:', error)
+    toast.error('Ошибка загрузки профиля')
+  } finally {
+    isLoading.value = false
+  }
+}
+
 const uploadAvatar = () => {
   // TODO: Implement avatar upload
-  console.log('Upload avatar')
+  toast.info('Функция загрузки аватара будет добавлена позже')
 }
 
 const saveProfile = async () => {
   isSaving.value = true
 
   try {
-    // Validate password if changing
+    // Сохранение изменений профиля
+    const profileData = {
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      phone: profile.phone || null,
+      birthDate: profile.birthDate || null,
+      gender: profile.gender || '',
+      notifications: profile.notifications
+    }
+
+    await apiFetch('/auth/profile', {
+      method: 'PUT',
+      body: profileData
+    })
+
+    // Если есть пароль для изменения
     if (passwordForm.newPassword) {
       if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-        alert('Пароли не совпадают')
+        toast.error('Пароли не совпадают')
         isSaving.value = false
         return
       }
       if (passwordForm.newPassword.length < 8) {
-        alert('Пароль должен содержать минимум 8 символов')
+        toast.error('Пароль должен содержать минимум 8 символов')
         isSaving.value = false
         return
       }
+      if (!passwordForm.currentPassword) {
+        toast.error('Введите текущий пароль')
+        isSaving.value = false
+        return
+      }
+
+      await apiFetch('/auth/change-password', {
+        method: 'PUT',
+        body: {
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword
+        }
+      })
+
+      // Очищаем поля пароля
+      passwordForm.currentPassword = ''
+      passwordForm.newPassword = ''
+      passwordForm.confirmPassword = ''
+
+      toast.success('Профиль и пароль успешно обновлены!')
+    } else {
+      toast.success('Профиль успешно обновлен!')
     }
 
-    // TODO: API call to save profile
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
-    console.log('Profile saved:', profile)
-    alert('Профиль успешно обновлен!')
-
-    // Clear password fields
-    passwordForm.currentPassword = ''
-    passwordForm.newPassword = ''
-    passwordForm.confirmPassword = ''
-  } catch (error) {
+    // Обновляем оригинальные данные
+    originalProfile.value = JSON.parse(JSON.stringify(profile))
+  } catch (error: any) {
     console.error('Error saving profile:', error)
-    alert('Ошибка при сохранении профиля')
+    const errorMessage = error?.data?.message || 'Ошибка при сохранении профиля'
+    toast.error(errorMessage)
   } finally {
     isSaving.value = false
   }
 }
 
 const resetForm = () => {
-  // TODO: Reset to original values from API
+  if (originalProfile.value) {
+    Object.assign(profile, JSON.parse(JSON.stringify(originalProfile.value)))
+  }
   passwordForm.currentPassword = ''
   passwordForm.newPassword = ''
   passwordForm.confirmPassword = ''
+  toast.info('Изменения отменены')
 }
 
 const deleteAccount = () => {
   if (!confirm('Вы уверены, что хотите удалить аккаунт? Это действие необратимо.')) return
 
   // TODO: API call to delete account
-  console.log('Delete account')
+  toast.warning('Функция удаления аккаунта будет добавлена позже')
 }
+
+// Загружаем профиль при монтировании
+onMounted(() => {
+  loadProfile()
+})
 </script>
 
 <style scoped>

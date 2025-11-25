@@ -35,6 +35,15 @@ const userSchema = new mongoose.Schema(
       trim: true,
       match: [/^\+?[1-9]\d{1,14}$/, 'Некорректный номер телефона'],
     },
+    birthDate: {
+      type: Date,
+      default: null,
+    },
+    gender: {
+      type: String,
+      enum: ['male', 'female', 'other', ''],
+      default: '',
+    },
     role: {
       type: String,
       enum: ['user', 'admin', 'manager'],
@@ -69,17 +78,45 @@ const userSchema = new mongoose.Schema(
     // Адреса доставки
     addresses: [
       {
-        type: {
+        label: {
           type: String,
-          enum: ['home', 'work', 'other'],
-          default: 'home',
+          required: true,
+          trim: true,
         },
-        country: String,
-        city: String,
-        street: String,
-        building: String,
+        recipientName: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        phone: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        city: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        postalCode: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        street: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        building: {
+          type: String,
+          required: true,
+          trim: true,
+        },
         apartment: String,
-        postalCode: String,
+        entrance: String,
+        floor: String,
+        notes: String,
         isDefault: {
           type: Boolean,
           default: false,
@@ -89,12 +126,16 @@ const userSchema = new mongoose.Schema(
     // Настройки уведомлений
     notifications: {
       email: {
-        orders: { type: Boolean, default: true },
-        promotions: { type: Boolean, default: true },
-        news: { type: Boolean, default: false },
+        type: Boolean,
+        default: true,
       },
       sms: {
-        orders: { type: Boolean, default: false },
+        type: Boolean,
+        default: true,
+      },
+      newsletter: {
+        type: Boolean,
+        default: false,
       },
     },
   },
@@ -149,10 +190,13 @@ userSchema.methods.toPublicJSON = function () {
     lastName: this.lastName,
     fullName: this.fullName,
     phone: this.phone,
+    birthDate: this.birthDate,
+    gender: this.gender,
     role: this.role,
     avatar: this.avatar,
     isEmailVerified: this.isEmailVerified,
     addresses: this.addresses,
+    notifications: this.notifications,
     createdAt: this.createdAt,
   };
 };

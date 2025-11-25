@@ -205,7 +205,7 @@ export const getMe = async (req, res, next) => {
  */
 export const updateProfile = async (req, res, next) => {
   try {
-    const { firstName, lastName, phone } = req.body;
+    const { firstName, lastName, phone, birthDate, gender, notifications } = req.body;
     const user = await User.findById(req.user._id);
 
     if (!user) {
@@ -213,9 +213,18 @@ export const updateProfile = async (req, res, next) => {
     }
 
     // Обновление полей
-    if (firstName) user.firstName = firstName;
-    if (lastName) user.lastName = lastName;
+    if (firstName !== undefined) user.firstName = firstName;
+    if (lastName !== undefined) user.lastName = lastName;
     if (phone !== undefined) user.phone = phone;
+    if (birthDate !== undefined) user.birthDate = birthDate;
+    if (gender !== undefined) user.gender = gender;
+    if (notifications !== undefined) {
+      user.notifications = {
+        email: notifications.email !== undefined ? notifications.email : user.notifications.email,
+        sms: notifications.sms !== undefined ? notifications.sms : user.notifications.sms,
+        newsletter: notifications.newsletter !== undefined ? notifications.newsletter : user.notifications.newsletter,
+      };
+    }
 
     await user.save();
 
@@ -268,6 +277,183 @@ export const changePassword = async (req, res, next) => {
   }
 };
 
+/**
+ * Получение всех адресов текущего пользователя
+ * GET /api/v1/auth/addresses
+ */
+export const getMyAddresses = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return errorResponse(res, 'Пользователь не найден', 404);
+    }
+
+    return successResponse(res, user.addresses);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Добавление адреса текущему пользователю
+ * POST /api/v1/auth/addresses
+ */
+export const addMyAddress = async (req, res, next) => {
+  try {
+    const address = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return errorResponse(res, 'Пользователь не найден', 404);
+    }
+
+    // Если это первый адрес или задан по умолчанию
+    if (address.isDefault || user.addresses.length === 0) {
+      // Сброс других адресов
+      user.addresses.forEach((addr) => {
+        addr.isDefault = false;
+      });
+      address.isDefault = true;
+    }
+
+    user.addresses.push(address);
+    await user.save();
+
+    // Очистка кэша
+    await deleteCache(`user:${user._id}`);
+
+    logger.info(`Address added for user: ${user.email}`);
+
+    return successResponse(res, user.addresses, 'Адрес добавлен', 201);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Обновление адреса текущего пользователя
+ * PUT /api/v1/auth/addresses/:addressId
+ */
+export const updateMyAddress = async (req, res, next) => {
+  try {
+    const { addressId } = req.params;
+    const updates = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return errorResponse(res, 'Пользователь не найден', 404);
+    }
+
+    const address = user.addresses.id(addressId);
+    if (!address) {
+      return errorResponse(res, 'Адрес не найден', 404);
+    }
+
+    // Обновление полей адреса
+    Object.keys(updates).forEach((key) => {
+      if (key !== '_id') {
+        address[key] = updates[key];
+      }
+    });
+
+    // Если устанавливаем как основной, сбрасываем другие
+    if (updates.isDefault) {
+      user.addresses.forEach((addr) => {
+        if (addr._id.toString() !== addressId) {
+          addr.isDefault = false;
+        }
+      });
+    }
+
+    await user.save();
+
+    // Очистка кэша
+    await deleteCache(`user:${user._id}`);
+
+    logger.info(`Address updated for user: ${user.email}`);
+
+    return successResponse(res, user.addresses, 'Адрес обновлен');
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Удаление адреса текущего пользователя
+ * DELETE /api/v1/auth/addresses/:addressId
+ */
+export const deleteMyAddress = async (req, res, next) => {
+  try {
+    const { addressId } = req.params;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return errorResponse(res, 'Пользователь не найден', 404);
+    }
+
+    const address = user.addresses.id(addressId);
+    if (!address) {
+      return errorResponse(res, 'Адрес не найден', 404);
+    }
+
+    const wasDefault = address.isDefault;
+    address.remove();
+
+    // Если удалили основной адрес, делаем первый оставшийся основным
+    if (wasDefault && user.addresses.length > 0) {
+      user.addresses[0].isDefault = true;
+    }
+
+    await user.save();
+
+    // Очистка кэша
+    await deleteCache(`user:${user._id}`);
+
+    logger.info(`Address deleted for user: ${user.email}`);
+
+    return successResponse(res, user.addresses, 'Адрес удален');
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Установка адреса как основного
+ * PATCH /api/v1/auth/addresses/:addressId/default
+ */
+export const setDefaultAddress = async (req, res, next) => {
+  try {
+    const { addressId } = req.params;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return errorResponse(res, 'Пользователь не найден', 404);
+    }
+
+    const address = user.addresses.id(addressId);
+    if (!address) {
+      return errorResponse(res, 'Адрес не найден', 404);
+    }
+
+    // Сброс всех адресов
+    user.addresses.forEach((addr) => {
+      addr.isDefault = addr._id.toString() === addressId;
+    });
+
+    await user.save();
+
+    // Очистка кэша
+    await deleteCache(`user:${user._id}`);
+
+    logger.info(`Default address set for user: ${user.email}`);
+
+    return successResponse(res, user.addresses, 'Адрес установлен как основной');
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   register,
   login,
@@ -276,4 +462,9 @@ export default {
   getMe,
   updateProfile,
   changePassword,
+  getMyAddresses,
+  addMyAddress,
+  updateMyAddress,
+  deleteMyAddress,
+  setDefaultAddress,
 };

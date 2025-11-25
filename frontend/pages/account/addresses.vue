@@ -409,6 +409,9 @@ useHead({
   ]
 })
 
+const { apiFetch } = useApi()
+const toast = useToast()
+
 const addresses = ref<Address[]>([])
 const isLoading = ref(true)
 const showModal = ref(false)
@@ -430,39 +433,6 @@ const form = reactive({
   isDefault: false
 })
 
-// Mock data
-const mockAddresses: Address[] = [
-  {
-    _id: '1',
-    label: 'Дом',
-    recipientName: 'Иван Иванов',
-    phone: '+7 (999) 123-45-67',
-    city: 'Москва',
-    postalCode: '123456',
-    street: 'ул. Ленина',
-    building: '12',
-    apartment: '45',
-    entrance: '3',
-    floor: '5',
-    notes: 'Код домофона: 1234',
-    isDefault: true
-  },
-  {
-    _id: '2',
-    label: 'Работа',
-    recipientName: 'Иван Иванов',
-    phone: '+7 (999) 123-45-67',
-    city: 'Москва',
-    postalCode: '654321',
-    street: 'ул. Пушкина',
-    building: '5',
-    apartment: '101',
-    entrance: '1',
-    floor: '3',
-    isDefault: false
-  }
-]
-
 const formatAddress = (address: Address): string => {
   const parts = [
     address.city,
@@ -475,6 +445,23 @@ const formatAddress = (address: Address): string => {
   return parts.join(', ')
 }
 
+// Загрузка адресов
+const loadAddresses = async () => {
+  try {
+    isLoading.value = true
+    const response = await apiFetch('/auth/addresses')
+
+    if (response.data) {
+      addresses.value = response.data
+    }
+  } catch (error) {
+    console.error('Error loading addresses:', error)
+    toast.error('Ошибка загрузки адресов')
+  } finally {
+    isLoading.value = false
+  }
+}
+
 const openAddModal = () => {
   editingAddress.value = null
   resetForm()
@@ -483,7 +470,20 @@ const openAddModal = () => {
 
 const editAddress = (address: Address) => {
   editingAddress.value = address
-  Object.assign(form, address)
+  Object.assign(form, {
+    label: address.label,
+    recipientName: address.recipientName,
+    phone: address.phone,
+    city: address.city,
+    postalCode: address.postalCode,
+    street: address.street,
+    building: address.building,
+    apartment: address.apartment || '',
+    entrance: address.entrance || '',
+    floor: address.floor || '',
+    notes: address.notes || '',
+    isDefault: address.isDefault
+  })
   showModal.value = true
 }
 
@@ -512,37 +512,52 @@ const saveAddress = async () => {
   isSaving.value = true
 
   try {
-    // TODO: API call to save address
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    if (editingAddress.value) {
-      // Update existing
-      const index = addresses.value.findIndex(a => a._id === editingAddress.value!._id)
-      if (index !== -1) {
-        addresses.value[index] = { ...editingAddress.value, ...form }
-      }
-    } else {
-      // Add new
-      addresses.value.push({
-        _id: Date.now().toString(),
-        ...form
-      })
+    const addressData = {
+      label: form.label,
+      recipientName: form.recipientName,
+      phone: form.phone,
+      city: form.city,
+      postalCode: form.postalCode,
+      street: form.street,
+      building: form.building,
+      apartment: form.apartment || undefined,
+      entrance: form.entrance || undefined,
+      floor: form.floor || undefined,
+      notes: form.notes || undefined,
+      isDefault: form.isDefault
     }
 
-    // If set as default, unset others
-    if (form.isDefault) {
-      addresses.value.forEach(addr => {
-        if (addr._id !== editingAddress.value?._id) {
-          addr.isDefault = false
-        }
+    if (editingAddress.value) {
+      // Обновление существующего адреса
+      const response = await apiFetch(`/auth/addresses/${editingAddress.value._id}`, {
+        method: 'PUT',
+        body: addressData
       })
+
+      if (response.data) {
+        addresses.value = response.data
+      }
+
+      toast.success('Адрес успешно обновлен!')
+    } else {
+      // Добавление нового адреса
+      const response = await apiFetch('/auth/addresses', {
+        method: 'POST',
+        body: addressData
+      })
+
+      if (response.data) {
+        addresses.value = response.data
+      }
+
+      toast.success('Адрес успешно добавлен!')
     }
 
     closeModal()
-    alert('Адрес успешно сохранен!')
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error saving address:', error)
-    alert('Ошибка при сохранении адреса')
+    const errorMessage = error?.data?.message || 'Ошибка при сохранении адреса'
+    toast.error(errorMessage)
   } finally {
     isSaving.value = false
   }
@@ -550,13 +565,19 @@ const saveAddress = async () => {
 
 const setDefault = async (addressId: string) => {
   try {
-    // TODO: API call to set default address
-    addresses.value.forEach(addr => {
-      addr.isDefault = addr._id === addressId
+    const response = await apiFetch(`/auth/addresses/${addressId}/default`, {
+      method: 'PATCH'
     })
-    alert('Адрес установлен как основной')
-  } catch (error) {
+
+    if (response.data) {
+      addresses.value = response.data
+    }
+
+    toast.success('Адрес установлен как основной')
+  } catch (error: any) {
     console.error('Error setting default address:', error)
+    const errorMessage = error?.data?.message || 'Ошибка при установке основного адреса'
+    toast.error(errorMessage)
   }
 }
 
@@ -564,29 +585,25 @@ const deleteAddress = async (addressId: string) => {
   if (!confirm('Вы уверены, что хотите удалить этот адрес?')) return
 
   try {
-    // TODO: API call to delete address
-    const index = addresses.value.findIndex(a => a._id === addressId)
-    if (index !== -1) {
-      addresses.value.splice(index, 1)
-      alert('Адрес удален')
+    const response = await apiFetch(`/auth/addresses/${addressId}`, {
+      method: 'DELETE'
+    })
+
+    if (response.data) {
+      addresses.value = response.data
     }
-  } catch (error) {
+
+    toast.success('Адрес удален')
+  } catch (error: any) {
     console.error('Error deleting address:', error)
-    alert('Ошибка при удалении адреса')
+    const errorMessage = error?.data?.message || 'Ошибка при удалении адреса'
+    toast.error(errorMessage)
   }
 }
 
-onMounted(async () => {
-  try {
-    isLoading.value = true
-    // TODO: Fetch addresses from API
-    await new Promise(resolve => setTimeout(resolve, 800))
-    addresses.value = mockAddresses
-  } catch (error) {
-    console.error('Error loading addresses:', error)
-  } finally {
-    isLoading.value = false
-  }
+// Загружаем адреса при монтировании
+onMounted(() => {
+  loadAddresses()
 })
 </script>
 
