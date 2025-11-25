@@ -63,10 +63,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: NUXT_PUBLIC_API_BASE_URL
-        fromService:
-          type: web
-          name: kmo24-backend
-          envVarKey: RENDER_EXTERNAL_URL
+        value: https://kmo24-backend.onrender.com/api/v1
       - key: NUXT_PUBLIC_SITE_URL
         fromService:
           type: web
