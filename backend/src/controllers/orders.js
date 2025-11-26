@@ -1,16 +1,23 @@
+import mongoose from 'mongoose';
 import Order from '../models/Order.js';
 import Cart from '../models/Cart.js';
 import Product from '../models/Product.js';
+import PromoCode from '../models/PromoCode.js';
 import { successResponse, errorResponse, paginatedResponse, createPagination } from '../utils/response.js';
 import { getCache, setCache, deleteCache, deleteCachePattern } from '../config/redis.js';
 import logger from '../utils/logger.js';
 
 /**
- * Создание заказа из корзины
+ * Создание заказа из корзины с использованием транзакций
  * POST /api/v1/orders
  */
 export const createOrder = async (req, res, next) => {
+  // Запускаем сессию для транзакции
+  const session = await mongoose.startSession();
+
   try {
+    // Начинаем транзакцию
+    session.startTransaction();
     const {
       shippingAddress,
       billingAddress,
@@ -23,19 +30,20 @@ export const createOrder = async (req, res, next) => {
     const userId = req.user?._id;
     const sessionId = req.headers['x-session-id'];
 
-    // Получение корзины
+    // Получение корзины с блокировкой (для предотвращения race conditions)
     const cart = userId
-      ? await Cart.findOne({ user: userId }).populate('items.product')
-      : await Cart.findOne({ sessionId }).populate('items.product');
+      ? await Cart.findOne({ user: userId }).populate('items.product').session(session)
+      : await Cart.findOne({ sessionId }).populate('items.product').session(session);
 
     if (!cart || cart.items.length === 0) {
       return errorResponse(res, 'Корзина пуста', 400);
     }
 
-    // Проверка наличия всех товаров
+    // Проверка наличия всех товаров с блокировкой
     for (const item of cart.items) {
-      const product = await Product.findById(item.product._id);
+      const product = await Product.findById(item.product._id).session(session);
       if (!product || !product.isActive) {
+        await session.abortTransaction();
         return errorResponse(
           res,
           `Товар "${item.product.name}" больше не доступен`,
@@ -43,6 +51,7 @@ export const createOrder = async (req, res, next) => {
         );
       }
       if (product.stock.available < item.quantity) {
+        await session.abortTransaction();
         return errorResponse(
           res,
           `Недостаточно товара "${product.name}". Доступно: ${product.stock.available}`,
@@ -54,70 +63,141 @@ export const createOrder = async (req, res, next) => {
     // Подготовка данных заказа
     const orderData = {
       user: userId || null,
-      isGuestOrder: !userId,
+      isGuest: !userId,
+      customer: {
+        firstName: shippingAddress.firstName,
+        lastName: shippingAddress.lastName,
+        email: shippingAddress.email,
+        phone: shippingAddress.phone,
+      },
       items: cart.items.map((item) => ({
         product: item.product._id,
         name: item.product.name,
-        slug: item.product.slug,
+        sku: item.product.sku || '',
+        image: item.product.images?.[0]?.url || '',
         quantity: item.quantity,
         price: item.price,
         variant: item.variant,
         total: item.price * item.quantity,
       })),
-      shippingAddress,
-      billingAddress: billingAddress || shippingAddress,
+      shippingAddress: {
+        country: shippingAddress.country || 'Россия',
+        city: shippingAddress.city,
+        street: shippingAddress.street,
+        building: shippingAddress.building,
+        apartment: shippingAddress.apartment,
+        postalCode: shippingAddress.postalCode,
+        comment: shippingAddress.comment,
+      },
+      shipping: {
+        method: deliveryMethod,
+        cost: deliveryPrice || 0,
+      },
       payment: {
         method: paymentMethod,
         status: 'pending',
       },
-      delivery: {
-        method: deliveryMethod,
-        price: deliveryPrice || 0,
-      },
       pricing: {
         subtotal: cart.subtotal,
-        deliveryPrice: deliveryPrice || 0,
+        shipping: deliveryPrice || 0,
         discount: cart.discount?.amount || 0,
         total: cart.total + (deliveryPrice || 0),
       },
-      notes,
+      customerComment: notes,
     };
 
     // Применение промокода если есть
     if (cart.discount?.code) {
-      orderData.discount = {
+      orderData.promoCode = {
         code: cart.discount.code,
-        amount: cart.discount.amount,
+        discount: cart.discount.amount,
       };
     }
 
-    // Создание заказа
-    const order = await Order.create(orderData);
+    // Создание заказа в рамках транзакции
+    const order = await Order.create([orderData], { session });
 
-    // Резервирование товаров
+    // Резервирование товаров в рамках транзакции
     for (const item of cart.items) {
-      const product = await Product.findById(item.product._id);
+      const product = await Product.findById(item.product._id).session(session);
       if (product) {
-        await product.reserveStock(item.quantity);
+        // Атомарное обновление с проверкой наличия
+        const result = await Product.findOneAndUpdate(
+          {
+            _id: item.product._id,
+            'stock.available': { $gte: item.quantity }
+          },
+          {
+            $inc: {
+              'stock.available': -item.quantity,
+              'stock.reserved': item.quantity
+            }
+          },
+          { session, new: true }
+        );
+
+        if (!result) {
+          await session.abortTransaction();
+          return errorResponse(
+            res,
+            `Недостаточно товара "${item.product.name}" в наличии`,
+            400
+          );
+        }
       }
     }
 
-    // Очистка корзины
-    await cart.clear();
+    // Регистрация использования промокода в рамках транзакции
+    if (cart.discount?.code) {
+      try {
+        const promoCode = await PromoCode.findOne({
+          code: cart.discount.code,
+          isActive: true,
+        }).session(session);
+
+        if (promoCode) {
+          promoCode.usageCount += 1;
+          promoCode.usedBy.push({
+            user: userId,
+            email: shippingAddress.email,
+            order: order[0]._id,
+            usedAt: new Date(),
+            discountAmount: cart.discount.amount,
+          });
+          await promoCode.save({ session });
+        }
+      } catch (promoError) {
+        logger.error(`Error applying promo code ${cart.discount.code}:`, promoError);
+        // Не прерываем создание заказа из-за ошибки промокода
+      }
+    }
+
+    // Очистка корзины в рамках транзакции
+    cart.items = [];
+    cart.discount = null;
+    await cart.save({ session });
+
+    // Завершаем транзакцию
+    await session.commitTransaction();
 
     // Очистка кэша
     await deleteCachePattern(`orders:user:${userId}*`);
 
-    logger.info(`Order created: ${order.orderNumber} by user ${userId || 'guest'}`);
+    logger.info(`Order created: ${order[0].orderNumber} by user ${userId || 'guest'}`);
 
     return successResponse(
       res,
-      order,
+      order[0],
       'Заказ успешно создан',
       201
     );
   } catch (error) {
+    // Откатываем транзакцию при любой ошибке
+    await session.abortTransaction();
     next(error);
+  } finally {
+    // Завершаем сессию
+    session.endSession();
   }
 };
 
@@ -262,13 +342,17 @@ export const getOrder = async (req, res, next) => {
  * PATCH /api/v1/orders/:id/status
  */
 export const updateOrderStatus = async (req, res, next) => {
+  const session = await mongoose.startSession();
+
   try {
+    session.startTransaction();
     const { id } = req.params;
     const { status, comment } = req.body;
 
-    const order = await Order.findById(id);
+    const order = await Order.findById(id).session(session);
 
     if (!order) {
+      await session.abortTransaction();
       return errorResponse(res, 'Заказ не найден', 404);
     }
 
@@ -282,27 +366,40 @@ export const updateOrderStatus = async (req, res, next) => {
       changedBy: req.user._id,
     });
 
-    await order.save();
+    await order.save({ session });
 
     // Если заказ отменен, освобождаем зарезервированные товары
     if (status === 'cancelled') {
       for (const item of order.items) {
-        const product = await Product.findById(item.product);
-        if (product) {
-          await product.releaseReserved(item.quantity);
-        }
+        await Product.findOneAndUpdate(
+          { _id: item.product },
+          {
+            $inc: {
+              'stock.available': item.quantity,
+              'stock.reserved': -item.quantity
+            }
+          },
+          { session }
+        );
       }
     }
 
-    // Если заказ подтвержден, списываем товары
+    // Если заказ подтвержден, списываем зарезервированные товары
     if (status === 'completed') {
       for (const item of order.items) {
-        const product = await Product.findById(item.product);
-        if (product) {
-          await product.decreaseStock(item.quantity);
-        }
+        await Product.findOneAndUpdate(
+          { _id: item.product },
+          {
+            $inc: {
+              'stock.reserved': -item.quantity
+            }
+          },
+          { session }
+        );
       }
     }
+
+    await session.commitTransaction();
 
     // Очистка кэша
     await deleteCache(`order:${id}`);
@@ -314,7 +411,10 @@ export const updateOrderStatus = async (req, res, next) => {
 
     return successResponse(res, order, 'Статус заказа обновлен');
   } catch (error) {
+    await session.abortTransaction();
     next(error);
+  } finally {
+    session.endSession();
   }
 };
 
@@ -362,24 +462,30 @@ export const updatePaymentStatus = async (req, res, next) => {
  * POST /api/v1/orders/:id/cancel
  */
 export const cancelOrder = async (req, res, next) => {
+  const session = await mongoose.startSession();
+
   try {
+    session.startTransaction();
     const { id } = req.params;
     const { reason } = req.body;
     const userId = req.user._id;
 
-    const order = await Order.findById(id);
+    const order = await Order.findById(id).session(session);
 
     if (!order) {
+      await session.abortTransaction();
       return errorResponse(res, 'Заказ не найден', 404);
     }
 
     // Проверка прав
     if (order.user && order.user.toString() !== userId.toString()) {
+      await session.abortTransaction();
       return errorResponse(res, 'Доступ запрещен', 403);
     }
 
     // Проверка возможности отмены
     if (['completed', 'cancelled', 'shipped'].includes(order.status)) {
+      await session.abortTransaction();
       return errorResponse(
         res,
         'Заказ не может быть отменен в текущем статусе',
@@ -394,15 +500,23 @@ export const cancelOrder = async (req, res, next) => {
       changedBy: userId,
     });
 
-    await order.save();
+    await order.save({ session });
 
-    // Освобождение зарезервированных товаров
+    // Освобождение зарезервированных товаров атомарно
     for (const item of order.items) {
-      const product = await Product.findById(item.product);
-      if (product) {
-        await product.releaseReserved(item.quantity);
-      }
+      await Product.findOneAndUpdate(
+        { _id: item.product },
+        {
+          $inc: {
+            'stock.available': item.quantity,
+            'stock.reserved': -item.quantity
+          }
+        },
+        { session }
+      );
     }
+
+    await session.commitTransaction();
 
     // Очистка кэша
     await deleteCache(`order:${id}`);
@@ -412,7 +526,10 @@ export const cancelOrder = async (req, res, next) => {
 
     return successResponse(res, order, 'Заказ отменен');
   } catch (error) {
+    await session.abortTransaction();
     next(error);
+  } finally {
+    session.endSession();
   }
 };
 

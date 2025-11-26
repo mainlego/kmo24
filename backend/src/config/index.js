@@ -26,8 +26,20 @@ const config = {
 
   // JWT
   jwt: {
-    secret: process.env.JWT_SECRET || 'your-secret-key',
-    refreshSecret: process.env.JWT_REFRESH_SECRET || 'your-refresh-secret-key',
+    secret: process.env.JWT_SECRET || (() => {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('JWT_SECRET is required in production environment');
+      }
+      console.warn('WARNING: Using default JWT secret in development. Set JWT_SECRET in .env');
+      return 'dev-secret-key-not-for-production';
+    })(),
+    refreshSecret: process.env.JWT_REFRESH_SECRET || (() => {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('JWT_REFRESH_SECRET is required in production environment');
+      }
+      console.warn('WARNING: Using default JWT refresh secret in development. Set JWT_REFRESH_SECRET in .env');
+      return 'dev-refresh-secret-not-for-production';
+    })(),
     expiresIn: process.env.JWT_EXPIRES_IN || '15m',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   },

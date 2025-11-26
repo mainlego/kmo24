@@ -9,9 +9,13 @@ import morgan from 'morgan';
 import config from './config/index.js';
 import connectDB from './config/database.js';
 import { connectRedis } from './config/redis.js';
+import validateRequiredEnv from './config/validateEnv.js';
 import logger from './utils/logger.js';
 import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
+
+// Валидация environment variables при запуске
+validateRequiredEnv();
 
 // Импорт роутов
 import authRoutes from './routes/auth.js';

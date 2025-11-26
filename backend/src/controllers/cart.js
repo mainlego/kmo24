@@ -1,5 +1,6 @@
 import Cart from '../models/Cart.js';
 import Product from '../models/Product.js';
+import PromoCode from '../models/PromoCode.js';
 import { successResponse, errorResponse } from '../utils/response.js';
 import logger from '../utils/logger.js';
 
@@ -222,30 +223,60 @@ export const applyPromoCode = async (req, res, next) => {
     const { code } = req.body;
     const userId = req.user?._id;
     const sessionId = req.headers['x-session-id'];
+    const email = req.user?.email;
 
     if (!userId && !sessionId) {
       return errorResponse(res, 'Требуется авторизация или session ID', 400);
     }
 
-    const cart = await getOrCreateCart(userId, sessionId);
+    if (!code) {
+      return errorResponse(res, 'Промокод обязателен', 400);
+    }
+
+    // Получаем корзину с товарами
+    const cart = await Cart.findOne(
+      userId ? { user: userId } : { sessionId }
+    ).populate('items.product');
 
     if (!cart) {
       return errorResponse(res, 'Корзина не найдена', 404);
     }
 
-    // TODO: Реализовать проверку промокода в базе данных
-    // Пока просто демо-версия
-    const discount = 500; // 500 рублей скидка
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    if (cart.items.length === 0) {
+      return errorResponse(res, 'Корзина пуста', 400);
+    }
 
-    await cart.applyPromoCode(code, discount, expiresAt);
+    try {
+      // Поиск и валидация промокода
+      const promoCode = await PromoCode.findAndValidate(
+        code,
+        userId,
+        email,
+        cart.items,
+        cart.subtotal
+      );
 
-    return successResponse(res, {
-      ...cart.toObject(),
-      totalItems: cart.totalItems,
-      subtotal: cart.subtotal,
-      total: cart.total,
-    }, 'Промокод применен');
+      // Расчет скидки
+      const discount = promoCode.calculateDiscount(cart.subtotal);
+
+      // Применение промокода к корзине
+      await cart.applyPromoCode(
+        promoCode.code,
+        discount,
+        promoCode.validUntil
+      );
+
+      logger.info(`PromoCode ${code} applied to cart by user ${userId || sessionId}`);
+
+      return successResponse(res, {
+        ...cart.toObject(),
+        totalItems: cart.totalItems,
+        subtotal: cart.subtotal,
+        total: cart.total,
+      }, 'Промокод успешно применен');
+    } catch (validationError) {
+      return errorResponse(res, validationError.message, 400);
+    }
   } catch (error) {
     next(error);
   }
