@@ -59,14 +59,14 @@ router.get('/me', protect, getMe);
  * @desc    Обновление профиля
  * @access  Private
  */
-router.put('/profile', protect, updateProfile);
+router.put('/profile', protect, validate(authSchemas.updateProfile), updateProfile);
 
 /**
  * @route   PUT /api/v1/auth/change-password
  * @desc    Изменение пароля
  * @access  Private
  */
-router.put('/change-password', protect, changePassword);
+router.put('/change-password', protect, validate(authSchemas.changePassword), changePassword);
 
 /**
  * @route   GET /api/v1/auth/addresses
@@ -80,14 +80,14 @@ router.get('/addresses', protect, getMyAddresses);
  * @desc    Добавление адреса текущему пользователю
  * @access  Private
  */
-router.post('/addresses', protect, addMyAddress);
+router.post('/addresses', protect, validate(authSchemas.addAddress), addMyAddress);
 
 /**
  * @route   PUT /api/v1/auth/addresses/:addressId
  * @desc    Обновление адреса текущего пользователя
  * @access  Private
  */
-router.put('/addresses/:addressId', protect, updateMyAddress);
+router.put('/addresses/:addressId', protect, validate(authSchemas.updateAddress), updateMyAddress);
 
 /**
  * @route   DELETE /api/v1/auth/addresses/:addressId

@@ -76,6 +76,103 @@ export const authSchemas = {
       'any.required': 'Refresh token обязателен',
     }),
   }),
+
+  updateProfile: Joi.object({
+    firstName: Joi.string().min(2).max(50).optional().messages({
+      'string.min': 'Имя должно содержать минимум 2 символа',
+      'string.max': 'Имя не может быть длиннее 50 символов',
+    }),
+    lastName: Joi.string().min(2).max(50).optional().messages({
+      'string.min': 'Фамилия должна содержать минимум 2 символа',
+      'string.max': 'Фамилия не может быть длиннее 50 символов',
+    }),
+    phone: Joi.string()
+      .pattern(/^\+?[1-9]\d{1,14}$/)
+      .optional()
+      .allow(null, '')
+      .messages({
+        'string.pattern.base': 'Некорректный номер телефона',
+      }),
+    birthDate: Joi.date().optional().allow(null),
+    gender: Joi.string().valid('male', 'female', 'other', '').optional(),
+    notifications: Joi.object({
+      email: Joi.boolean().optional(),
+      sms: Joi.boolean().optional(),
+      newsletter: Joi.boolean().optional(),
+    }).optional(),
+  }),
+
+  changePassword: Joi.object({
+    currentPassword: Joi.string().required().messages({
+      'any.required': 'Текущий пароль обязателен',
+    }),
+    newPassword: Joi.string().min(6).required().messages({
+      'string.min': 'Новый пароль должен содержать минимум 6 символов',
+      'any.required': 'Новый пароль обязателен',
+    }),
+  }),
+
+  addAddress: Joi.object({
+    label: Joi.string().min(2).max(50).required().messages({
+      'string.min': 'Название адреса должно содержать минимум 2 символа',
+      'string.max': 'Название адреса не может быть длиннее 50 символов',
+      'any.required': 'Название адреса обязательно',
+    }),
+    recipientName: Joi.string().min(2).max(100).required().messages({
+      'string.min': 'Имя получателя должно содержать минимум 2 символа',
+      'string.max': 'Имя получателя не может быть длиннее 100 символов',
+      'any.required': 'Имя получателя обязательно',
+    }),
+    phone: Joi.string()
+      .pattern(/^\+?[1-9]\d{1,14}$/)
+      .required()
+      .messages({
+        'string.pattern.base': 'Некорректный номер телефона',
+        'any.required': 'Телефон обязателен',
+      }),
+    city: Joi.string().min(2).max(100).required().messages({
+      'string.min': 'Название города должно содержать минимум 2 символа',
+      'string.max': 'Название города не может быть длиннее 100 символов',
+      'any.required': 'Город обязателен',
+    }),
+    postalCode: Joi.string().min(5).max(10).required().messages({
+      'string.min': 'Индекс должен содержать минимум 5 символов',
+      'string.max': 'Индекс не может быть длиннее 10 символов',
+      'any.required': 'Индекс обязателен',
+    }),
+    street: Joi.string().min(2).max(200).required().messages({
+      'string.min': 'Название улицы должно содержать минимум 2 символа',
+      'string.max': 'Название улицы не может быть длиннее 200 символов',
+      'any.required': 'Улица обязательна',
+    }),
+    building: Joi.string().min(1).max(20).required().messages({
+      'string.min': 'Номер дома должен содержать минимум 1 символ',
+      'string.max': 'Номер дома не может быть длиннее 20 символов',
+      'any.required': 'Номер дома обязателен',
+    }),
+    apartment: Joi.string().max(10).optional().allow(''),
+    entrance: Joi.string().max(10).optional().allow(''),
+    floor: Joi.string().max(10).optional().allow(''),
+    notes: Joi.string().max(500).optional().allow(''),
+    isDefault: Joi.boolean().optional(),
+  }),
+
+  updateAddress: Joi.object({
+    label: Joi.string().min(2).max(50).optional(),
+    recipientName: Joi.string().min(2).max(100).optional(),
+    phone: Joi.string()
+      .pattern(/^\+?[1-9]\d{1,14}$/)
+      .optional(),
+    city: Joi.string().min(2).max(100).optional(),
+    postalCode: Joi.string().min(5).max(10).optional(),
+    street: Joi.string().min(2).max(200).optional(),
+    building: Joi.string().min(1).max(20).optional(),
+    apartment: Joi.string().max(10).optional().allow(''),
+    entrance: Joi.string().max(10).optional().allow(''),
+    floor: Joi.string().max(10).optional().allow(''),
+    notes: Joi.string().max(500).optional().allow(''),
+    isDefault: Joi.boolean().optional(),
+  }),
 };
 
 // Пагинация
