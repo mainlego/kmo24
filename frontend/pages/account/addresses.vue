@@ -385,6 +385,11 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 
+// Защита страницы авторизацией
+definePageMeta({
+  middleware: 'auth'
+})
+
 interface Address {
   _id: string
   label: string

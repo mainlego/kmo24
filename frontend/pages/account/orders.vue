@@ -103,6 +103,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 
+// Защита страницы авторизацией
+definePageMeta({
+  middleware: 'auth'
+});
+
 interface Order {
   _id: string;
   orderNumber: string;

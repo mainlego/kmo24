@@ -357,6 +357,11 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 
+// Защита страницы авторизацией
+definePageMeta({
+  middleware: 'auth'
+})
+
 // SEO
 useHead({
   title: 'Профиль - КМО24',

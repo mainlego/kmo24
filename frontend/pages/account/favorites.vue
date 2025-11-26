@@ -82,6 +82,11 @@ import { storeToRefs } from 'pinia';
 import { useWishlistStore } from '~/stores/wishlist';
 import { useCartStore } from '~/stores/cart';
 
+// Защита страницы авторизацией
+definePageMeta({
+  middleware: 'auth'
+});
+
 const wishlistStore = useWishlistStore();
 const cartStore = useCartStore();
 

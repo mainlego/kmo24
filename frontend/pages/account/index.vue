@@ -87,6 +87,11 @@
 </template>
 
 <script setup lang="ts">
+// Защита страницы авторизацией
+definePageMeta({
+  middleware: 'auth'
+});
+
 // SEO
 useHead({
   title: 'Личный кабинет - Онлайн Магазин',
