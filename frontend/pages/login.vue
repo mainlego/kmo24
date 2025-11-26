@@ -91,9 +91,23 @@ const handleLogin = async () => {
       password: credentials.value.password,
     });
 
-    // Redirect to admin dashboard or the page user tried to access
-    const redirect = (router.currentRoute.value.query.redirect as string) || '/admin';
-    router.push(redirect);
+    // Redirect based on user role and redirect parameter
+    const redirectParam = router.currentRoute.value.query.redirect as string;
+
+    let redirectPath = '/';
+
+    if (redirectParam) {
+      // Если есть параметр redirect, идем туда
+      redirectPath = redirectParam;
+    } else if (authStore.user?.role === 'admin') {
+      // Если админ - в админку
+      redirectPath = '/admin';
+    } else {
+      // Обычный пользователь - в личный кабинет
+      redirectPath = '/account';
+    }
+
+    router.push(redirectPath);
   } catch (err: any) {
     error.value = err.message || 'Ошибка входа. Проверьте email и пароль.';
   } finally {
