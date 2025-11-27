@@ -1,6 +1,6 @@
 import News from '../models/News.js';
 import { successResponse, errorResponse, paginatedResponse, createPagination } from '../utils/response.js';
-import { getCache, setCache, deleteCache, deleteCachePattern } from '../config/redis.js';
+import { getCache, setCache, deleteCache, deleteCachePattern } from '../config/redis-mock.js';
 import logger from '../utils/logger.js';
 
 /**

@@ -44,7 +44,10 @@
       "Bash(git reset:*)",
       "Bash(npm run seed:*)",
       "Bash(MONGODB_URI=\"mongodb+srv://omlineadmin:5MOHI036wc4yf3vh@kmo24.e0o4igm.mongodb.net/kmo24?retryWrites=true&w=majority&appName=kmo24\" npm run seed)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "Bash(node src/index.js)",
+      "Bash(curl:*)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []

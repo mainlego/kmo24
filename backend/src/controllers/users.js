@@ -1,7 +1,7 @@
 import User from '../models/User.js';
 import Order from '../models/Order.js';
 import { successResponse, errorResponse, paginatedResponse, createPagination } from '../utils/response.js';
-import { deleteCache, deleteCachePattern } from '../config/redis.js';
+import { deleteCache, deleteCachePattern } from '../config/redis-mock.js';
 import logger from '../utils/logger.js';
 
 /**

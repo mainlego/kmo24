@@ -2,7 +2,7 @@ import Review from '../models/Review.js';
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 import { successResponse, errorResponse, paginatedResponse, createPagination } from '../utils/response.js';
-import { deleteCachePattern } from '../config/redis.js';
+import { deleteCachePattern } from '../config/redis-mock.js';
 import logger from '../utils/logger.js';
 
 /**

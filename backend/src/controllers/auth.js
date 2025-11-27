@@ -1,7 +1,7 @@
 import User from '../models/User.js';
 import { generateTokenPair, verifyRefreshToken } from '../utils/jwt.js';
 import { successResponse, errorResponse } from '../utils/response.js';
-import { deleteCache } from '../config/redis.js';
+import { deleteCache } from '../config/redis-mock.js';
 import logger from '../utils/logger.js';
 
 /**

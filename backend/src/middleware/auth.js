@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import config from '../config/index.js';
 import User from '../models/User.js';
-import { getCache, setCache } from '../config/redis.js';
+import { getCache, setCache } from '../config/redis-mock.js';
 
 /**
  * Middleware для проверки JWT токена

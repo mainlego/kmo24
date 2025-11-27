@@ -1,7 +1,7 @@
 import Category from '../models/Category.js';
 import Product from '../models/Product.js';
 import { successResponse, errorResponse } from '../utils/response.js';
-import { getCache, setCache, deleteCache, deleteCachePattern } from '../config/redis.js';
+import { getCache, setCache, deleteCache, deleteCachePattern } from '../config/redis-mock.js';
 import logger from '../utils/logger.js';
 
 /**
