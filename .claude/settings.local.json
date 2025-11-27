@@ -47,7 +47,8 @@
       "Bash(lsof:*)",
       "Bash(node src/index.js)",
       "Bash(curl:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(node src/scripts/createAdmin.js:*)"
     ],
     "deny": [],
     "ask": []
