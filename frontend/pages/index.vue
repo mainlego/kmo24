@@ -57,96 +57,57 @@
             </div>
           </div>
 
-          <!-- Categories Grid (Right Column) -->
-          <div class="hero-categories animate-fade-in delay-5" :class="{ 'is-visible': isVisible }">
-            <div class="categories-header">
-              <h3>Популярные категории</h3>
-              <NuxtLink to="/products" class="view-all">
-                Все категории
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke="currentColor" stroke-width="2"/>
+          <!-- Action Cards (Right Column) -->
+          <div class="hero-actions-grid animate-fade-in delay-5" :class="{ 'is-visible': isVisible }">
+            <div class="action-card action-buy" @click="$router.push('/products')">
+              <div class="action-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 20C9 21.1 8.1 22 7 22C5.9 22 5 21.1 5 20C5 18.9 5.9 18 7 18C8.1 18 9 18.9 9 20ZM17 18C15.9 18 15 18.9 15 20C15 21.1 15.9 22 17 22C18.1 22 19 21.1 19 20C19 18.9 18.1 18 17 18ZM7.2 14.8V14.7L8.1 13H15.5C16.2 13 16.9 12.6 17.2 12L21 5H6.2L5 2H2V4H4L7.6 11.6L6.2 14.2C5.5 15.4 6.2 17 7.7 17H19V15H7.7C7.6 15 7.5 14.9 7.5 14.8L7.2 14.8Z" stroke="currentColor" stroke-width="2"/>
                 </svg>
-              </NuxtLink>
+              </div>
+              <div class="action-content">
+                <h3 class="action-title">Купить оборудование</h3>
+                <p class="action-desc">Большой выбор проверенной техники для вашего бизнеса</p>
+                <div class="action-arrow">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12h14m0 0l-7-7m7 7l-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+              </div>
             </div>
 
-            <div class="categories-grid">
-              <NuxtLink to="/products?category=plity" class="category-item category-large">
-                <div class="category-icon-wrapper">
-                  <svg class="category-svg" viewBox="0 0 24 24" fill="none">
-                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" stroke="currentColor" stroke-width="1.5"/>
+            <div class="action-card action-sell" @click="showSellForm = true">
+              <div class="action-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div class="action-content">
+                <h3 class="action-title">Продать оборудование</h3>
+                <p class="action-desc">Выкупим вашу технику по выгодной цене</p>
+                <div class="action-arrow">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12h14m0 0l-7-7m7 7l-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                   </svg>
                 </div>
-                <div class="category-info">
-                  <div class="category-name">Плиты</div>
-                  <div class="category-count">45+ товаров</div>
-                </div>
-              </NuxtLink>
+              </div>
+            </div>
 
-              <NuxtLink to="/products?category=pechi" class="category-item">
-                <div class="category-icon-wrapper">
-                  <svg class="category-svg" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" stroke="currentColor" stroke-width="1.5"/>
-                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+            <div class="action-card action-consult" @click="showConsultForm = true">
+              <div class="action-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                  <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="action-content">
+                <h3 class="action-title">Получить консультацию</h3>
+                <p class="action-desc">Поможем подобрать оборудование под ваши задачи</p>
+                <div class="action-arrow">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12h14m0 0l-7-7m7 7l-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                   </svg>
                 </div>
-                <div class="category-info">
-                  <div class="category-name">Печи</div>
-                  <div class="category-count">32+</div>
-                </div>
-              </NuxtLink>
-
-              <NuxtLink to="/products?category=holodilniki" class="category-item">
-                <div class="category-icon-wrapper">
-                  <svg class="category-svg" viewBox="0 0 24 24" fill="none">
-                    <rect x="5" y="2" width="14" height="20" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                    <line x1="5" y1="10" x2="19" y2="10" stroke="currentColor" stroke-width="1.5"/>
-                    <line x1="8" y1="6" x2="8" y2="8" stroke="currentColor" stroke-width="1.5"/>
-                    <line x1="8" y1="14" x2="8" y2="16" stroke="currentColor" stroke-width="1.5"/>
-                  </svg>
-                </div>
-                <div class="category-info">
-                  <div class="category-name">Холодильники</div>
-                  <div class="category-count">58+</div>
-                </div>
-              </NuxtLink>
-
-              <NuxtLink to="/products?category=frityurnicy" class="category-item">
-                <div class="category-icon-wrapper">
-                  <svg class="category-svg" viewBox="0 0 24 24" fill="none">
-                    <path d="M8 3v3M16 3v3M3 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M12 12v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                  </svg>
-                </div>
-                <div class="category-info">
-                  <div class="category-name">Фритюрницы</div>
-                  <div class="category-count">24+</div>
-                </div>
-              </NuxtLink>
-
-              <NuxtLink to="/products?category=grili" class="category-item category-tall">
-                <div class="category-icon-wrapper">
-                  <svg class="category-svg" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-                <div class="category-info">
-                  <div class="category-name">Грили</div>
-                  <div class="category-count">28+ товаров</div>
-                </div>
-              </NuxtLink>
-
-              <NuxtLink to="/products?category=morozilniki" class="category-item">
-                <div class="category-icon-wrapper">
-                  <svg class="category-svg" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2v20M2 12h20M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
-                  </svg>
-                </div>
-                <div class="category-info">
-                  <div class="category-name">Морозильники</div>
-                  <div class="category-count">19+</div>
-                </div>
-              </NuxtLink>
+              </div>
             </div>
           </div>
 
@@ -442,22 +403,126 @@
         </div>
       </div>
     </section>
+
+    <!-- Sell Equipment Modal -->
+    <Teleport to="body">
+      <div v-if="showSellForm" class="modal-overlay" @click.self="showSellForm = false">
+        <div class="modal-container">
+          <div class="modal-header">
+            <h2>Продать оборудование</h2>
+            <button @click="showSellForm = false" class="modal-close">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          <form @submit.prevent="submitSellForm" class="modal-form">
+            <div class="form-group">
+              <label>Тип оборудования *</label>
+              <input type="text" v-model="sellForm.equipmentType" required placeholder="Например: Холодильник, печь, фритюрница">
+            </div>
+            <div class="form-group">
+              <label>Марка и модель</label>
+              <input type="text" v-model="sellForm.brand" placeholder="Например: Rational SCC 61">
+            </div>
+            <div class="form-group">
+              <label>Состояние *</label>
+              <select v-model="sellForm.condition" required>
+                <option value="">Выберите состояние</option>
+                <option value="excellent">Отличное</option>
+                <option value="good">Хорошее</option>
+                <option value="normal">Нормальное</option>
+                <option value="repair">Требует ремонта</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Год выпуска</label>
+              <input type="number" v-model="sellForm.year" placeholder="2020" min="1990" :max="new Date().getFullYear()">
+            </div>
+            <div class="form-group">
+              <label>Описание</label>
+              <textarea v-model="sellForm.description" rows="3" placeholder="Опишите состояние оборудования, особенности, комплектацию"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Ваше имя *</label>
+              <input type="text" v-model="sellForm.name" required placeholder="Иван">
+            </div>
+            <div class="form-group">
+              <label>Телефон *</label>
+              <input type="tel" v-model="sellForm.phone" required placeholder="+7 (999) 123-45-67">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" v-model="sellForm.email" placeholder="email@example.com">
+            </div>
+            <div class="form-actions">
+              <button type="button" @click="showSellForm = false" class="btn-secondary">Отмена</button>
+              <button type="submit" class="btn-primary">Отправить заявку</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Consultation Modal -->
+    <Teleport to="body">
+      <div v-if="showConsultForm" class="modal-overlay" @click.self="showConsultForm = false">
+        <div class="modal-container">
+          <div class="modal-header">
+            <h2>Получить консультацию</h2>
+            <button @click="showConsultForm = false" class="modal-close">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          <form @submit.prevent="submitConsultForm" class="modal-form">
+            <div class="form-group">
+              <label>Тема консультации *</label>
+              <select v-model="consultForm.subject" required>
+                <option value="">Выберите тему</option>
+                <option value="equipment-selection">Подбор оборудования</option>
+                <option value="technical">Технические вопросы</option>
+                <option value="delivery">Доставка и оплата</option>
+                <option value="warranty">Гарантия и сервис</option>
+                <option value="other">Другое</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Ваш вопрос *</label>
+              <textarea v-model="consultForm.question" rows="4" required placeholder="Опишите, что вас интересует"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Ваше имя *</label>
+              <input type="text" v-model="consultForm.name" required placeholder="Иван">
+            </div>
+            <div class="form-group">
+              <label>Телефон *</label>
+              <input type="tel" v-model="consultForm.phone" required placeholder="+7 (999) 123-45-67">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" v-model="consultForm.email" placeholder="email@example.com">
+            </div>
+            <div class="form-group">
+              <label>Удобное время для звонка</label>
+              <input type="text" v-model="consultForm.callTime" placeholder="Например: с 10:00 до 18:00">
+            </div>
+            <div class="form-actions">
+              <button type="button" @click="showConsultForm = false" class="btn-secondary">Отмена</button>
+              <button type="submit" class="btn-primary">Отправить заявку</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 
-useHead({
-  title: 'КМО24 - Профессиональное оборудование для кафе и ресторанов',
-  meta: [
-    {
-      name: 'description',
-      content:
-        'Комиссионный магазин б/у оборудования для кафе и ресторанов в Красноярске. Проверенное качество по выгодным ценам.',
-    },
-  ],
-});
+// SEO metadata
 
 // Parallax effect
 const parallaxOffset = ref(0);
@@ -465,6 +530,74 @@ const heroSection = ref<HTMLElement | null>(null);
 
 // Animation visibility
 const isVisible = ref(false);
+
+// Modal states
+const showSellForm = ref(false);
+const showConsultForm = ref(false);
+
+// Form data
+const sellForm = ref({
+  equipmentType: '',
+  brand: '',
+  condition: '',
+  year: '',
+  description: '',
+  name: '',
+  phone: '',
+  email: ''
+});
+
+const consultForm = ref({
+  subject: '',
+  question: '',
+  name: '',
+  phone: '',
+  email: '',
+  callTime: ''
+});
+
+// Form submissions
+const submitSellForm = async () => {
+  try {
+    // For now, just show success message - API endpoint will be added later
+    console.log('Sell form data:', sellForm.value);
+    alert('Заявка на продажу оборудования отправлена! Мы свяжемся с вами в ближайшее время.');
+    showSellForm.value = false;
+    // Reset form
+    sellForm.value = {
+      equipmentType: '',
+      brand: '',
+      condition: '',
+      year: '',
+      description: '',
+      name: '',
+      phone: '',
+      email: ''
+    };
+  } catch (error) {
+    alert('Ошибка при отправке заявки. Пожалуйста, попробуйте позже.');
+  }
+};
+
+const submitConsultForm = async () => {
+  try {
+    // For now, just show success message - API endpoint will be added later
+    console.log('Consultation form data:', consultForm.value);
+    alert('Заявка на консультацию отправлена! Наш специалист свяжется с вами в ближайшее время.');
+    showConsultForm.value = false;
+    // Reset form
+    consultForm.value = {
+      subject: '',
+      question: '',
+      name: '',
+      phone: '',
+      email: '',
+      callTime: ''
+    };
+  } catch (error) {
+    alert('Ошибка при отправке заявки. Пожалуйста, попробуйте позже.');
+  }
+};
 
 // Particles
 const getParticleStyle = (index: number) => {
@@ -1424,5 +1557,294 @@ onUnmounted(() => {
   font-size: $font-size-sm;
   color: $gray-600;
   font-weight: $font-weight-medium;
+}
+
+// Action Cards Grid
+.hero-actions-grid {
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  gap: $spacing-lg;
+  min-width: 380px;
+
+  @media (max-width: $breakpoint-lg) {
+    min-width: unset;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, 1fr);
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+.action-card {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-xl;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: $radius-2xl;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 100%);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+
+  &:hover {
+    transform: translateX(-10px);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+
+    &::before {
+      transform: translateX(100%);
+    }
+
+    .action-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .action-arrow {
+      transform: translateX(5px);
+      opacity: 1;
+    }
+  }
+
+  &.action-buy {
+    .action-icon {
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    }
+  }
+
+  &.action-sell {
+    .action-icon {
+      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    }
+  }
+
+  &.action-consult {
+    .action-icon {
+      background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    }
+  }
+}
+
+.action-icon {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-xl;
+  color: $white;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.action-content {
+  flex: 1;
+  position: relative;
+}
+
+.action-title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin-bottom: $spacing-xs;
+}
+
+.action-desc {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.4;
+}
+
+.action-arrow {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.6);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: $spacing-xl;
+  animation: fadeIn 0.3s ease;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+.modal-container {
+  background: $white;
+  border-radius: $radius-2xl;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-xl;
+  border-bottom: 1px solid $gray-200;
+
+  h2 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $gray-900;
+    margin: 0;
+  }
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  padding: $spacing-sm;
+  cursor: pointer;
+  color: $gray-500;
+  transition: all 0.2s ease;
+  border-radius: $radius-lg;
+
+  &:hover {
+    background: $gray-100;
+    color: $gray-700;
+  }
+}
+
+.modal-form {
+  padding: $spacing-xl;
+}
+
+.form-group {
+  margin-bottom: $spacing-lg;
+
+  label {
+    display: block;
+    margin-bottom: $spacing-sm;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $gray-700;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: $spacing-md;
+    border: 2px solid $gray-200;
+    border-radius: $radius-lg;
+    font-size: $font-size-base;
+    transition: all 0.2s ease;
+    background: $white;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-500;
+      box-shadow: 0 0 0 3px rgba($primary-500, 0.1);
+    }
+
+    &::placeholder {
+      color: $gray-400;
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: $spacing-md;
+  justify-content: flex-end;
+  margin-top: $spacing-2xl;
+  padding-top: $spacing-xl;
+  border-top: 1px solid $gray-200;
+
+  button {
+    padding: $spacing-md $spacing-xl;
+    border-radius: $radius-lg;
+    font-weight: $font-weight-semibold;
+    transition: all 0.2s ease;
+    cursor: pointer;
+
+    &.btn-primary {
+      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+      color: $white;
+      border: none;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba($primary-500, 0.3);
+      }
+    }
+
+    &.btn-secondary {
+      background: $white;
+      color: $gray-700;
+      border: 2px solid $gray-300;
+
+      &:hover {
+        background: $gray-50;
+        border-color: $gray-400;
+      }
+    }
+  }
 }
 </style>

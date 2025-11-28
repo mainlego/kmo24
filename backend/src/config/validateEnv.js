@@ -10,8 +10,8 @@ export const validateRequiredEnv = () => {
       'MONGODB_URI',
       'JWT_SECRET',
       'JWT_REFRESH_SECRET',
-      'REDIS_URL',
-      'CORS_ORIGIN',
+      // 'REDIS_URL', // Убираем, так как используем mock-redis
+      // 'CORS_ORIGIN', // Опционально, есть дефолтное значение
     ],
     // Минимальные для development
     development: [
@@ -52,17 +52,28 @@ export const validateRequiredEnv = () => {
   // }
 
   if (env === 'production') {
-    // Проверяем, что не используются дефолтные значения
-    if (process.env.JWT_SECRET?.includes('secret') ||
-        process.env.JWT_SECRET?.includes('key') ||
-        process.env.JWT_SECRET?.includes('change')) {
-      throw new Error('SECURITY: JWT_SECRET appears to be a default value. Use a strong random secret!');
+    // Проверяем, что не используются простые дефолтные значения
+    const weakPatterns = ['dev-', 'test', 'default', 'changeme', '12345', 'password'];
+
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 20) {
+      throw new Error('SECURITY: JWT_SECRET must be at least 20 characters long!');
     }
 
-    if (process.env.JWT_REFRESH_SECRET?.includes('secret') ||
-        process.env.JWT_REFRESH_SECRET?.includes('key') ||
-        process.env.JWT_REFRESH_SECRET?.includes('change')) {
-      throw new Error('SECURITY: JWT_REFRESH_SECRET appears to be a default value. Use a strong random secret!');
+    if (!process.env.JWT_REFRESH_SECRET || process.env.JWT_REFRESH_SECRET.length < 20) {
+      throw new Error('SECURITY: JWT_REFRESH_SECRET must be at least 20 characters long!');
+    }
+
+    // Проверяем на явные слабые паттерны
+    const jwtSecretLower = process.env.JWT_SECRET.toLowerCase();
+    const refreshSecretLower = process.env.JWT_REFRESH_SECRET.toLowerCase();
+
+    for (const pattern of weakPatterns) {
+      if (jwtSecretLower.includes(pattern)) {
+        throw new Error(`SECURITY: JWT_SECRET contains weak pattern "${pattern}". Use a strong random secret!`);
+      }
+      if (refreshSecretLower.includes(pattern)) {
+        throw new Error(`SECURITY: JWT_REFRESH_SECRET contains weak pattern "${pattern}". Use a strong random secret!`);
+      }
     }
   }
 

@@ -48,7 +48,20 @@
       "Bash(node src/index.js)",
       "Bash(curl:*)",
       "Bash(python3:*)",
-      "Bash(node src/scripts/createAdmin.js:*)"
+      "Bash(node src/scripts/createAdmin.js:*)",
+      "Bash(NODE_ENV=production JWT_SECRET=test_jwt_secret JWT_REFRESH_SECRET=test_refresh_secret npm start:*)",
+      "Bash(NODE_ENV=production JWT_SECRET=test_jwt_secret JWT_REFRESH_SECRET=test_refresh_secret node:*)",
+      "Bash(export NODE_ENV=production)",
+      "Bash(export JWT_SECRET=test_jwt_secret)",
+      "Bash(export JWT_REFRESH_SECRET=test_refresh_secret)",
+      "Bash(timeout 3 node:*)",
+      "Bash(node -e:*)",
+      "Bash(export JWT_SECRET=87a48ddb8d2b97e6c401fc999294b364d49a54dba43b941d34ff1eedfe6ed70b)",
+      "Bash(export JWT_REFRESH_SECRET=21dd6ae581ff046ce14bd3a3e9f6aabf113b375b758652e82fdc9550e4047b88)",
+      "Bash(export CORS_ORIGIN=https://kmo24-frontend.onrender.com)",
+      "Bash(timeout 5 node:*)",
+      "Bash(export PORT=3002)",
+      "Bash(timeout 10 node:*)"
     ],
     "deny": [],
     "ask": []

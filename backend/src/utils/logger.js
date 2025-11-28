@@ -51,26 +51,27 @@ const logger = winston.createLogger({
   ],
 });
 
-// В режиме разработки выводить в консоль
+// Выводить в консоль всегда (для отладки на Render)
+logger.add(
+  new winston.transports.Console({
+    format: consoleFormat,
+  })
+);
+
+// Обработка неперехваченных исключений и отклонений промисов
+// Временно отключаем автоматический выход при исключениях для отладки
 if (config.env !== 'production') {
-  logger.add(
-    new winston.transports.Console({
-      format: consoleFormat,
+  logger.exceptions.handle(
+    new winston.transports.File({
+      filename: path.join(__dirname, '../../logs/exceptions.log'),
+    })
+  );
+
+  logger.rejections.handle(
+    new winston.transports.File({
+      filename: path.join(__dirname, '../../logs/rejections.log'),
     })
   );
 }
-
-// Обработка неперехваченных исключений и отклонений промисов
-logger.exceptions.handle(
-  new winston.transports.File({
-    filename: path.join(__dirname, '../../logs/exceptions.log'),
-  })
-);
-
-logger.rejections.handle(
-  new winston.transports.File({
-    filename: path.join(__dirname, '../../logs/rejections.log'),
-  })
-);
 
 export default logger;

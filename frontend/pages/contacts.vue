@@ -196,15 +196,63 @@
 
         <!-- Map Section -->
         <div class="map-section">
-          <div class="map-placeholder">
-            <div class="map-icon">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="map-header">
+            <h2 class="map-title">Мы на карте</h2>
+            <div class="map-controls">
+              <button @click="showFullMap = true" class="map-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                Открыть в 2GIS
+              </button>
+              <a
+                href="https://2gis.ru/krasnoyarsk/search/КМО24/geo/70030076172706322"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="map-btn map-btn-primary"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/>
+                  <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+                Проложить маршрут
+              </a>
+            </div>
+          </div>
+          <div class="map-container">
+            <iframe
+              src="https://widgets.2gis.com/widget?type=firmsonmap&options=%7B%22pos%22%3A%7B%22lat%22%3A56.010563%2C%22lon%22%3A92.852572%2C%22zoom%22%3A16%7D%2C%22opt%22%3A%7B%22city%22%3A%22krasnoyarsk%22%7D%2C%22org%22%3A%2270030076172706322%22%7D"
+              frameborder="0"
+              width="100%"
+              height="400"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <div class="map-footer">
+            <div class="map-info">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                 <circle cx="12" cy="10" r="3"/>
               </svg>
+              <span>г. Красноярск, ул. Примерная, д. 123, офис 456</span>
             </div>
-            <p>Интерактивная карта</p>
-            <small>г. Красноярск, ул. Примерная, д. 123</small>
+            <div class="map-transport">
+              <span class="transport-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="10" rx="2" ry="2"/>
+                  <path d="M7 11V7a4 4 0 0 1 8 0v4"/>
+                </svg>
+                Остановка "Технопарк"
+              </span>
+              <span class="transport-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+                5 мин от метро
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -234,6 +282,7 @@ const form = ref({
 
 const loading = ref(false);
 const success = ref(false);
+const showFullMap = ref(false);
 
 const handleSubmit = async () => {
   loading.value = true;
@@ -542,29 +591,123 @@ const handleSubmit = async () => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
 }
 
-.map-placeholder {
-  height: 400px;
-  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+.map-header {
+  padding: $spacing-xl;
+  border-bottom: 1px solid $gray-100;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  color: $gray-600;
+  justify-content: space-between;
+  flex-wrap: wrap;
   gap: $spacing-md;
 
-  .map-icon {
-    color: #f59e0be6;
-    opacity: 0.5;
+  @media (max-width: $breakpoint-sm) {
+    padding: $spacing-lg;
+  }
+}
+
+.map-title {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $gray-900;
+  margin: 0;
+}
+
+.map-controls {
+  display: flex;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.map-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-lg;
+  border: 2px solid $gray-200;
+  border-radius: $radius-lg;
+  background: $white;
+  color: $gray-700;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: $primary-300;
+    background: $primary-50;
+    color: $primary-600;
   }
 
-  p {
-    font-size: $font-size-lg;
-    font-weight: $font-weight-medium;
-    margin: 0;
-  }
+  &.map-btn-primary {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    color: $white;
+    border: none;
 
-  small {
-    color: $gray-500;
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($primary-500, 0.3);
+    }
+  }
+}
+
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background: $gray-100;
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+}
+
+.map-footer {
+  padding: $spacing-lg $spacing-xl;
+  background: $gray-50;
+  border-top: 1px solid $gray-100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+
+  @media (max-width: $breakpoint-sm) {
+    padding: $spacing-md $spacing-lg;
+  }
+}
+
+.map-info {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  color: $gray-700;
+  font-size: $font-size-sm;
+
+  svg {
+    flex-shrink: 0;
+    color: $primary-500;
+  }
+}
+
+.map-transport {
+  display: flex;
+  gap: $spacing-xl;
+  flex-wrap: wrap;
+}
+
+.transport-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  color: $gray-600;
+  font-size: $font-size-sm;
+
+  svg {
+    flex-shrink: 0;
+    color: $gray-400;
   }
 }
 

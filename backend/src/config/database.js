@@ -22,12 +22,8 @@ const connectDB = async () => {
       logger.warn('MongoDB disconnected');
     });
 
-    // Graceful shutdown
-    process.on('SIGINT', async () => {
-      await mongoose.connection.close();
-      logger.info('MongoDB connection closed through app termination');
-      process.exit(0);
-    });
+    // Graceful shutdown обрабатывается в index.js
+    // Убираем дублирующийся обработчик
 
     return conn;
   } catch (error) {

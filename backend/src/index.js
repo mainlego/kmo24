@@ -1,3 +1,5 @@
+console.log('Starting server initialization...');
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -6,6 +8,8 @@ import mongoSanitize from 'express-mongo-sanitize';
 import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+
+console.log('Loading config...');
 import config from './config/index.js';
 import connectDB from './config/database.js';
 import { connectRedis } from './config/redis-mock.js';
@@ -14,8 +18,15 @@ import logger from './utils/logger.js';
 import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
 
+console.log('Validating environment variables...');
 // Валидация environment variables при запуске
-validateRequiredEnv();
+try {
+  validateRequiredEnv();
+  console.log('Environment validation passed');
+} catch (error) {
+  console.error('Environment validation failed:', error.message);
+  process.exit(1);
+}
 
 // Импорт роутов
 import authRoutes from './routes/auth.js';
@@ -34,9 +45,15 @@ import deliveryRoutes from './routes/delivery.js';
 const app = express();
 
 // Подключение к базе данных
-connectDB();
+console.log('Connecting to MongoDB...');
+connectDB().then(() => {
+  console.log('MongoDB connected successfully');
+}).catch(err => {
+  console.error('MongoDB connection failed:', err);
+});
 
 // Подключение к Redis
+console.log('Setting up Redis mock...');
 connectRedis();
 
 // Trust proxy
@@ -128,7 +145,9 @@ app.use(errorHandler);
 // Запуск сервера
 const PORT = config.port;
 
+console.log(`Starting server on port ${PORT}...`);
 const server = app.listen(PORT, () => {
+  console.log(`✅ Server is running in ${config.env} mode on port ${PORT}`);
   logger.info(`Server running in ${config.env} mode on port ${PORT}`);
 });
 

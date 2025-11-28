@@ -34,18 +34,7 @@
         </div>
         <div class="product-card__image-overlay"></div>
 
-        <!-- Quick View Button -->
-        <button
-          class="product-card__quick-view"
-          @click.stop="openQuickView"
-          aria-label="Быстрый просмотр"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Быстрый просмотр
-        </button>
+        <!-- Quick View Button - Hidden for compact view -->
       </div>
     </template>
 
@@ -67,9 +56,7 @@
       <div class="product-card__content">
         <h3 class="product-card__title">{{ product.name }}</h3>
 
-        <p v-if="product.description?.short" class="product-card__description">
-          {{ truncateDescription(product.description.short) }}
-        </p>
+        <!-- Compact: Remove description for more compact view -->
 
         <div class="product-card__rating">
           <div class="product-card__stars">
@@ -78,8 +65,8 @@
               :key="star"
               :class="{ 'product-card__star--filled': star <= Math.round(product.rating.average) }"
               class="product-card__star"
-              width="16"
-              height="16"
+              width="14"
+              height="14"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -95,7 +82,7 @@
             </svg>
           </div>
           <span class="product-card__rating-text">
-            {{ product.rating.average.toFixed(1) }} ({{ product.rating.count }})
+            {{ product.rating.average.toFixed(1) }}
           </span>
         </div>
 
@@ -114,13 +101,16 @@
       <div class="product-card__footer-actions">
         <BaseButton
           variant="primary"
-          size="md"
+          size="sm"
           :disabled="!isInStock"
           :loading="isAddingToCart"
           @click.stop="handleAddToCart"
           fullWidth
         >
-          {{ isInStock ? 'В корзину' : 'Нет в наличии' }}
+          <svg v-if="isInStock" width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-right: 4px">
+            <path d="M9 20C9 21.1 8.1 22 7 22C5.9 22 5 21.1 5 20C5 18.9 5.9 18 7 18C8.1 18 9 18.9 9 20ZM17 18C15.9 18 15 18.9 15 20C15 21.1 15.9 22 17 22C18.1 22 19 21.1 19 20C19 18.9 18.1 18 17 18ZM7.2 14.8V14.7L8.1 13H15.5C16.2 13 16.9 12.6 17.2 12L21 5H6.2L5 2H2V4H4L7.6 11.6L6.2 14.2C5.5 15.4 6.2 17 7.7 17H19V15H7.7C7.6 15 7.5 14.9 7.5 14.8L7.2 14.8Z" fill="currentColor"/>
+          </svg>
+          {{ isInStock ? 'Купить' : 'Нет' }}
         </BaseButton>
       </div>
 
@@ -380,7 +370,7 @@ const openQuickView = () => {
   &__image-wrapper {
     position: relative;
     width: 100%;
-    padding-top: 100%; // 1:1 aspect ratio
+    padding-top: 75%; // Compact: 4:3 aspect ratio instead of 1:1
     overflow: hidden;
     background: linear-gradient(135deg, $gray-50 0%, $gray-100 100%);
     border-radius: $radius-xl $radius-xl 0 0;
@@ -449,13 +439,13 @@ const openQuickView = () => {
   &__content {
     display: flex;
     flex-direction: column;
-    gap: $spacing-sm;
-    padding: $spacing-md;
+    gap: $spacing-xs; // Compact: Reduced gap
+    padding: $spacing-sm; // Compact: Reduced padding
   }
 
   &__title {
-    font-size: $font-size-lg;
-    font-weight: $font-weight-bold;
+    font-size: $font-size-base; // Compact: Smaller font size
+    font-weight: $font-weight-semibold; // Compact: Less bold
     background: linear-gradient(
       135deg,
       $gray-900 0%,
@@ -489,9 +479,9 @@ const openQuickView = () => {
   &__rating {
     display: flex;
     align-items: center;
-    gap: $spacing-sm;
-    padding: $spacing-xs $spacing-sm;
-    background: linear-gradient(135deg, rgba($warning, 0.05) 0%, rgba($warning, 0.1) 100%);
+    gap: $spacing-xs; // Compact: Reduced gap
+    padding: 2px $spacing-xs; // Compact: Minimal padding
+    background: transparent; // Compact: Remove background for cleaner look
     border-radius: $radius-lg;
     width: fit-content;
   }
@@ -512,44 +502,41 @@ const openQuickView = () => {
   }
 
   &__rating-text {
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
-    background: $gradient-text-warm;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: $font-size-xs; // Compact: Smaller font
+    font-weight: $font-weight-medium;
+    color: $gray-600; // Compact: Simpler color
   }
 
   &__price {
     display: flex;
-    align-items: center;
-    gap: $spacing-sm;
+    align-items: baseline; // Compact: Better alignment
+    gap: $spacing-xs;
     margin-top: auto;
-    padding-top: $spacing-sm;
-    border-top: 2px solid $gray-100;
+    padding-top: $spacing-xs; // Compact: Less padding
+    border-top: 1px solid $gray-100; // Compact: Thinner border
   }
 
   &__old-price {
-    font-size: $font-size-base;
+    font-size: $font-size-sm; // Compact: Smaller
     color: $gray-400;
     text-decoration: line-through;
-    font-weight: $font-weight-medium;
+    font-weight: $font-weight-normal;
   }
 
   &__current-price {
-    font-size: $font-size-2xl;
+    font-size: $font-size-lg; // Compact: Smaller price text
     font-weight: $font-weight-bold;
-    color: $black;
+    color: $primary-600; // Compact: Primary color for price
   }
 
   &__favorite {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
+    width: 36px; // Compact: Smaller button
+    height: 36px; // Compact: Smaller button
     padding: 0;
-    border: 2px solid transparent;
+    border: 1px solid transparent; // Compact: Thinner border
     border-radius: $radius-xl;
     background: linear-gradient($white, $white) padding-box,
                 $gradient-primary border-box;
