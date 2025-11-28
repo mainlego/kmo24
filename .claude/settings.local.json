@@ -61,7 +61,9 @@
       "Bash(export CORS_ORIGIN=https://kmo24-frontend.onrender.com)",
       "Bash(timeout 5 node:*)",
       "Bash(export PORT=3002)",
-      "Bash(timeout 10 node:*)"
+      "Bash(timeout 10 node:*)",
+      "Bash(chmod:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
