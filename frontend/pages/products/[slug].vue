@@ -95,17 +95,20 @@
           </div>
         </div>
 
-        <!-- Bottom: Related Products Carousel -->
+        <!-- Bottom: Related Products Grid -->
         <div v-if="relatedProducts?.length" class="product-compact__related">
           <h3>Похожие товары</h3>
           <div class="related-carousel">
             <div
-              v-for="item in relatedProducts.slice(0, 5)"
+              v-for="item in relatedProducts.slice(0, 6)"
               :key="item._id"
               class="related-item"
               @click="navigateTo(`/products/${item.slug}`)"
             >
-              <img :src="item.images[0]?.url" :alt="item.name" />
+              <img
+                :src="item.images[0]?.url || '/images/placeholder.jpg'"
+                :alt="item.name"
+              />
               <div class="related-content">
                 <h4>{{ item.name }}</h4>
                 <span class="related-price">{{ formatPrice(item.price) }}</span>
@@ -642,7 +645,7 @@ onMounted(async () => {
     }
   }
 
-  // Related Products
+  // Related Products - Fixed Height Cards
   &__related {
     padding-top: 16px;
     border-top: 1px solid $gray-200;
@@ -655,65 +658,94 @@ onMounted(async () => {
     }
 
     .related-carousel {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
       gap: 12px;
-      overflow-x: auto;
       padding-bottom: 8px;
-      scrollbar-width: thin;
-      scrollbar-color: $gray-300 $gray-100;
 
-      &::-webkit-scrollbar {
-        height: 4px;
+      @media (max-width: 1200px) {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
       }
 
-      &::-webkit-scrollbar-track {
-        background: $gray-100;
-        border-radius: 2px;
-      }
+      @media (max-width: 768px) {
+        display: flex;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        scrollbar-color: $gray-300 $gray-100;
 
-      &::-webkit-scrollbar-thumb {
-        background: $gray-300;
-        border-radius: 2px;
+        &::-webkit-scrollbar {
+          height: 4px;
+        }
 
-        &:hover {
-          background: $gray-400;
+        &::-webkit-scrollbar-track {
+          background: $gray-100;
+          border-radius: 2px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: $gray-300;
+          border-radius: 2px;
+
+          &:hover {
+            background: $gray-400;
+          }
         }
       }
 
       .related-item {
-        flex: 0 0 140px;
         cursor: pointer;
         transition: transform 0.2s ease;
+        background: $white;
+        border: 1px solid $gray-200;
+        border-radius: 8px;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        height: 100%; // Ensure full height
+
+        @media (max-width: 768px) {
+          flex: 0 0 160px;
+        }
 
         &:hover {
           transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         img {
           width: 100%;
-          aspect-ratio: 1;
+          aspect-ratio: 1; // Square images
           object-fit: cover;
-          border-radius: 6px;
+          border-radius: 4px;
           background: $gray-50;
-          border: 1px solid $gray-200;
-          margin-bottom: 6px;
+          margin-bottom: 8px;
         }
 
         .related-content {
+          flex: 1; // Take remaining space
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          min-height: 50px; // Minimum content height
+
           h4 {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             color: $gray-900;
-            margin: 0 0 4px 0;
-            white-space: nowrap;
+            margin: 0 0 6px 0;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; // Max 2 lines
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            text-overflow: ellipsis;
+            min-height: 32px; // Reserve space for 2 lines
           }
 
           .related-price {
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             color: $primary-600;
+            margin-top: auto; // Push to bottom
           }
         }
       }

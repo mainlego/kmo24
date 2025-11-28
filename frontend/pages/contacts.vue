@@ -180,63 +180,68 @@
             <!-- Address Card -->
             <div class="info-card">
               <div class="card-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                   <circle cx="12" cy="10" r="3"/>
                 </svg>
               </div>
-              <h3 class="card-title">Адрес</h3>
-              <p class="card-text">
-                г. Красноярск<br>
-                ул. Полигонная 11Д<br>
-                пом. 8
-              </p>
+              <div>
+                <h3 class="card-title">Адрес</h3>
+                <p class="card-text">
+                  г. Красноярск<br>
+                  ул. Полигонная 11Д, пом. 8
+                </p>
+              </div>
             </div>
 
             <!-- Phone Card -->
             <div class="info-card">
               <div class="card-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
                 </svg>
               </div>
-              <h3 class="card-title">Телефон</h3>
-              <p class="card-text">
-                <a href="tel:+79029239704" class="contact-link">+7 (902) 923-97-04</a><br>
-                <a href="tel:+79676123564" class="contact-link">+7 (967) 612-35-64</a>
-              </p>
+              <div>
+                <h3 class="card-title">Телефон</h3>
+                <p class="card-text">
+                  <a href="tel:+79029239704" class="contact-link">+7 (902) 923-97-04</a><br>
+                  <a href="tel:+79676123564" class="contact-link">+7 (967) 612-35-64</a>
+                </p>
+              </div>
             </div>
 
             <!-- Email Card -->
             <div class="info-card">
               <div class="card-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                   <polyline points="22,6 12,13 2,6"/>
                 </svg>
               </div>
-              <h3 class="card-title">Email</h3>
-              <p class="card-text">
-                <a href="mailto:kmo24@mail.ru" class="contact-link">kmo24@mail.ru</a>
-              </p>
+              <div>
+                <h3 class="card-title">Email</h3>
+                <p class="card-text">
+                  <a href="mailto:kmo24@mail.ru" class="contact-link">kmo24@mail.ru</a>
+                </p>
+              </div>
             </div>
 
             <!-- Working Hours Card -->
             <div class="info-card">
               <div class="card-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/>
                   <polyline points="12 6 12 12 16 14"/>
                 </svg>
               </div>
-              <h3 class="card-title">Режим работы</h3>
-              <p class="card-text">
-                <strong>Склад:</strong><br>
-                Пн-Пт: 9:00 - 17:30 без обеда<br>
-                Сб-Вс: по договоренности<br><br>
-                <strong>Звонки принимаем:</strong><br>
-                9:00 - 20:00 без выходных
-              </p>
+              <div>
+                <h3 class="card-title">Режим работы</h3>
+                <p class="card-text">
+                  <strong>Склад:</strong> Пн-Пт 9:00-17:30<br>
+                  Сб-Вс по договоренности<br>
+                  <strong>Звонки:</strong> 9:00-20:00 ежедневно
+                </p>
+              </div>
             </div>
 
             <!-- Social Media -->
@@ -470,119 +475,122 @@ const handleSubmit = async () => {
   border-radius: 2px;
 }
 
-// Main Content
+// Main Content - Ultra Compact
 .contacts-content {
-  padding: 4rem 0;
+  padding: 1.5rem 0;
   background: $gray-50;
 
   @media (max-width: $breakpoint-md) {
-    padding: 3rem 0;
+    padding: 1rem 0;
   }
 }
 
 .contacts-grid {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
-  gap: $spacing-3xl;
+  gap: $spacing-lg; // Reduced gap
 
   @media (max-width: $breakpoint-lg) {
     grid-template-columns: 1fr;
-    gap: $spacing-2xl;
+    gap: $spacing-md;
   }
 }
 
-// Contact Form
+// Contact Form - Compact
 .contact-form-wrapper {
   background: $white;
-  padding: $spacing-3xl;
-  border-radius: $radius-2xl;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  padding: $spacing-xl; // Reduced padding
+  border-radius: $radius-lg;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
   @media (max-width: $breakpoint-sm) {
-    padding: $spacing-2xl;
+    padding: $spacing-lg;
   }
 }
 
 .form-header {
-  margin-bottom: $spacing-2xl;
+  margin-bottom: $spacing-lg; // Reduced margin
 }
 
 .form-title {
-  font-size: $font-size-3xl;
-  font-weight: $font-weight-bold;
+  font-size: $font-size-xl; // Smaller title
+  font-weight: $font-weight-semibold;
   color: $gray-900;
-  margin-bottom: $spacing-sm;
+  margin-bottom: 4px;
 }
 
 .form-subtitle {
-  color: $gray-600;
-  font-size: $font-size-base;
+  color: $gray-500;
+  font-size: $font-size-sm; // Smaller subtitle
 }
 
 .contact-form {
   .form-group {
-    margin-bottom: $spacing-xl;
+    margin-bottom: $spacing-md; // Reduced margin
   }
 
   .form-label {
     display: flex;
     align-items: center;
-    gap: $spacing-sm;
+    gap: 4px; // Smaller gap
     font-weight: $font-weight-medium;
     color: $gray-700;
-    margin-bottom: $spacing-sm;
-    font-size: $font-size-sm;
+    margin-bottom: 6px; // Smaller margin
+    font-size: 13px; // Smaller font
 
     svg {
       color: #f59e0be6;
+      width: 16px; // Smaller icons
+      height: 16px;
     }
   }
 
   .form-input,
   .form-textarea {
     width: 100%;
-    padding: $spacing-md;
-    border: 2px solid $gray-200;
-    border-radius: $radius-lg;
-    font-size: $font-size-base;
-    transition: all 0.3s ease;
+    padding: 8px 12px; // Smaller padding
+    border: 1px solid $gray-200; // Thinner border
+    border-radius: $radius-md;
+    font-size: 14px; // Smaller font
+    transition: all 0.2s ease;
     font-family: inherit;
 
     &:focus {
       outline: none;
       border-color: #f59e0be6;
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.1);
     }
 
     &::placeholder {
       color: $gray-400;
+      font-size: 13px;
     }
   }
 
   .form-textarea {
     resize: vertical;
-    min-height: 120px;
+    min-height: 80px; // Smaller textarea
   }
 
   .submit-btn {
     width: 100%;
-    padding: $spacing-md $spacing-xl;
-    background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 50%, #fbbf24 100%);
+    padding: 10px 16px; // Compact padding
+    background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 100%);
     color: $white;
     border: none;
-    border-radius: $radius-lg;
-    font-size: $font-size-lg;
+    border-radius: $radius-md;
+    font-size: 14px; // Smaller font
     font-weight: $font-weight-semibold;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: $spacing-sm;
+    gap: 6px;
 
     &:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
     }
 
     &:disabled {
@@ -591,84 +599,103 @@ const handleSubmit = async () => {
     }
 
     svg {
-      transition: transform 0.3s ease;
+      transition: transform 0.2s ease;
+      width: 18px;
+      height: 18px;
     }
 
     &:hover:not(:disabled) svg {
-      transform: translateX(4px);
+      transform: translateX(2px);
     }
   }
 
   .success-message {
-    margin-top: $spacing-lg;
-    padding: $spacing-md;
+    margin-top: $spacing-md;
+    padding: 8px 12px;
     background: #d1fae5;
     color: #065f46;
-    border-radius: $radius-lg;
+    border-radius: $radius-md;
     text-align: center;
     font-weight: $font-weight-medium;
+    font-size: 13px;
   }
 }
 
-// Contact Info
+// Contact Info - Ultra Compact
 .contact-info {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-lg;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-sm; // Grid layout for compact design
+
+  @media (max-width: $breakpoint-sm) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .info-card {
   background: $white;
-  padding: $spacing-2xl;
-  border-radius: $radius-xl;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  padding: $spacing-lg; // Much smaller padding
+  border-radius: $radius-md;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(245, 158, 11, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(245, 158, 11, 0.1);
 
     .card-icon {
-      transform: scale(1.1) rotate(5deg);
-      box-shadow: 0 8px 16px rgba(245, 158, 11, 0.3);
+      transform: scale(1.05);
     }
   }
 }
 
 .card-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: $radius-xl;
-  background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 50%, #fbbf24 100%);
+  width: 40px; // Much smaller icon
+  height: 40px;
+  border-radius: $radius-md;
+  background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 100%);
   color: $white;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: $spacing-lg;
-  transition: all 0.3s ease;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
 
   svg {
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    width: 20px;
+    height: 20px;
   }
 }
 
 .card-title {
-  font-size: $font-size-xl;
+  font-size: 14px; // Smaller title
   font-weight: $font-weight-semibold;
   color: $gray-900;
-  margin-bottom: $spacing-sm;
+  margin-bottom: 4px;
+  line-height: 1.2;
 }
 
 .card-text {
   color: $gray-600;
-  line-height: $line-height-relaxed;
+  line-height: 1.5;
   margin: 0;
+  font-size: 13px; // Smaller text
+
+  strong {
+    color: $gray-700;
+    display: inline-block;
+    margin-top: 4px;
+  }
 }
 
 .contact-link {
   color: #f59e0be6;
   text-decoration: none;
   transition: all 0.2s ease;
+  font-size: 13px;
 
   &:hover {
     color: #fbbf24;
@@ -676,15 +703,16 @@ const handleSubmit = async () => {
   }
 }
 
-// Social Links
+// Social Links - Compact
 .social-links {
   display: flex;
-  gap: $spacing-md;
+  gap: $spacing-sm;
+  grid-column: 1 / -1; // Span full width in grid
 }
 
 .social-link {
-  width: 48px;
-  height: 48px;
+  width: 36px; // Smaller icons
+  height: 36px;
   border-radius: 50%;
   background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 100%);
   color: $white;
@@ -692,11 +720,16 @@ const handleSubmit = async () => {
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
 
   &:hover {
-    transform: translateY(-4px) scale(1.1);
-    box-shadow: 0 8px 16px rgba(245, 158, 11, 0.4);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
   }
 }
 
