@@ -116,11 +116,6 @@
                   <span>{{ formatPrice(cartStore.total) }}</span>
                 </div>
               </div>
-
-              <!-- Delivery Estimate -->
-              <div class="cart-page__delivery">
-                <CartDeliveryEstimate :cart-items="cartStore.items" />
-              </div>
             </div>
 
             <template #footer>
@@ -168,18 +163,6 @@
                 />
               </svg>
               <span>Безопасная оплата</span>
-            </div>
-            <div class="cart-page__info-item">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M13 16V6C13 4.89543 13.8954 4 15 4H19C20.1046 4 21 4.89543 21 6V16M13 16H3M13 16H21M3 16V12C3 10.8954 3.89543 10 5 10H9C10.1046 10 11 10.8954 11 12V16M3 16H1V20H23V16H21"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              <span>Быстрая доставка</span>
             </div>
           </div>
         </div>
@@ -466,11 +449,6 @@ useHead({
       padding-top: $spacing-md;
       border-top: 2px solid $gray-200;
     }
-  }
-
-  &__delivery {
-    padding-top: $spacing-lg;
-    border-top: 1px solid $gray-200;
   }
 
   &__info {

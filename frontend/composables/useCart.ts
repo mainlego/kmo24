@@ -71,7 +71,7 @@ export const useCart = () => {
   };
 
   /**
-   * Добавить товар в корзину
+   * Добавить товар в корзину (только 1 экземпляр)
    */
   const addToCart = async (productId: string, quantity: number = 1, variant?: { name: string; value: string }) => {
     try {
@@ -80,7 +80,7 @@ export const useCart = () => {
         method: 'POST',
         body: {
           productId,
-          quantity,
+          quantity: 1, // Всегда добавляем только 1 товар
           variant,
         },
       });
@@ -88,22 +88,6 @@ export const useCart = () => {
       return response.data;
     } catch (err: any) {
       showError(err.message || 'Ошибка при добавлении товара');
-      throw err;
-    }
-  };
-
-  /**
-   * Обновить количество товара
-   */
-  const updateCartItem = async (itemId: string, quantity: number) => {
-    try {
-      const response = await apiFetch<CartResponse>(`/cart/items/${itemId}`, {
-        method: 'PUT',
-        body: { quantity },
-      });
-      return response.data;
-    } catch (err: any) {
-      showError(err.message || 'Ошибка при обновлении корзины');
       throw err;
     }
   };
@@ -196,7 +180,6 @@ export const useCart = () => {
   return {
     getCart,
     addToCart,
-    updateCartItem,
     removeFromCart,
     clearCart,
     applyPromoCode,

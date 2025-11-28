@@ -82,74 +82,29 @@ export const useCartStore = defineStore('cart', {
         const existingItemIndex = this.items.findIndex(item => item.productId === productId);
 
         if (existingItemIndex !== -1) {
-          // Update quantity
-          const newQuantity = this.items[existingItemIndex].quantity + quantity;
-
-          // Check stock
-          if (newQuantity > product.stock.available) {
-            alert(`Доступно только ${product.stock.available} шт.`);
-            return;
-          }
-
-          this.items[existingItemIndex].quantity = newQuantity;
-        } else {
-          // Add new item
-          if (quantity > product.stock.available) {
-            alert(`Доступно только ${product.stock.available} шт.`);
-            return;
-          }
-
-          this.items.push({
-            productId,
-            product,
-            quantity,
-          });
+          // Product already in cart (only 1 item allowed)
+          alert('Товар уже в корзине');
+          return;
         }
+
+        // Add new item (always quantity = 1)
+        if (product.stock.available < 1) {
+          alert('Товар закончился');
+          return;
+        }
+
+        this.items.push({
+          productId,
+          product,
+          quantity: 1, // Always 1 item
+        });
 
         // Save to localStorage
         this.saveToLocalStorage();
 
-        console.log('✅ Added to cart:', product.name, 'x', quantity);
-
-        // Show success message (you can replace with toast notification)
-        // For now using console
+        console.log('✅ Added to cart:', product.name);
       } catch (error) {
         console.error('Error adding to cart:', error);
-        throw error;
-      }
-    },
-
-    async updateQuantity(productId: string, quantity: number) {
-      try {
-        const itemIndex = this.items.findIndex(item => item.productId === productId);
-
-        if (itemIndex === -1) {
-          throw new Error('Item not found in cart');
-        }
-
-        const item = this.items[itemIndex];
-
-        // Check stock
-        if (quantity > item.product.stock.available) {
-          alert(`Доступно только ${item.product.stock.available} шт.`);
-          return;
-        }
-
-        if (quantity <= 0) {
-          // Remove item if quantity is 0 or less
-          await this.removeItem(productId);
-          return;
-        }
-
-        // Update quantity
-        this.items[itemIndex].quantity = quantity;
-
-        // Save to localStorage
-        this.saveToLocalStorage();
-
-        console.log('✅ Updated quantity:', item.product.name, 'to', quantity);
-      } catch (error) {
-        console.error('Error updating quantity:', error);
         throw error;
       }
     },
@@ -190,10 +145,10 @@ export const useCartStore = defineStore('cart', {
     saveToLocalStorage() {
       if (process.client) {
         try {
-          // Save only productId and quantity, not the whole product object
+          // Save only productId, quantity always 1
           const cartData = this.items.map(item => ({
             productId: item.productId,
-            quantity: item.quantity,
+            quantity: 1, // Always save as 1
           }));
           localStorage.setItem('cart', JSON.stringify(cartData));
         } catch (error) {
@@ -222,7 +177,7 @@ export const useCartStore = defineStore('cart', {
                 return {
                   productId: item.productId,
                   product: response.data,
-                  quantity: item.quantity,
+                  quantity: 1, // Always 1 item
                 };
               } catch (error) {
                 console.error(`Error loading product ${item.productId}:`, error);
