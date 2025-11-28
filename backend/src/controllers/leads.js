@@ -1,8 +1,8 @@
-const Lead = require('../models/Lead');
-const { validatePhone, validateEmail } = require('../utils/validators');
+import Lead from '../models/Lead.js';
+import { validatePhone, validateEmail } from '../utils/validators.js';
 
 // Получить все лиды с фильтрацией и пагинацией
-exports.getLeads = async (req, res) => {
+export const getLeads = async (req, res) => {
   try {
     const {
       page = 1,
@@ -66,7 +66,7 @@ exports.getLeads = async (req, res) => {
 };
 
 // Получить лид по ID
-exports.getLeadById = async (req, res) => {
+export const getLeadById = async (req, res) => {
   try {
     const lead = await Lead.findById(req.params.id)
       .populate('product', 'name slug price images')
@@ -95,7 +95,7 @@ exports.getLeadById = async (req, res) => {
 };
 
 // Создать новый лид
-exports.createLead = async (req, res) => {
+export const createLead = async (req, res) => {
   try {
     const leadData = req.body;
 
@@ -149,7 +149,7 @@ exports.createLead = async (req, res) => {
 };
 
 // Обновить лид
-exports.updateLead = async (req, res) => {
+export const updateLead = async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -220,7 +220,7 @@ exports.updateLead = async (req, res) => {
 };
 
 // Добавить взаимодействие с лидом
-exports.addInteraction = async (req, res) => {
+export const addInteraction = async (req, res) => {
   try {
     const { id } = req.params;
     const { type, description } = req.body;
@@ -277,7 +277,7 @@ exports.addInteraction = async (req, res) => {
 };
 
 // Удалить лид (архивировать)
-exports.deleteLead = async (req, res) => {
+export const deleteLead = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -323,7 +323,7 @@ exports.deleteLead = async (req, res) => {
 };
 
 // Получить статистику по лидам
-exports.getLeadStats = async (req, res) => {
+export const getLeadStats = async (req, res) => {
   try {
     const filter = {};
 
@@ -394,7 +394,7 @@ exports.getLeadStats = async (req, res) => {
 };
 
 // Массовое обновление статуса лидов
-exports.bulkUpdateStatus = async (req, res) => {
+export const bulkUpdateStatus = async (req, res) => {
   try {
     const { leadIds, status } = req.body;
 
@@ -456,7 +456,7 @@ exports.bulkUpdateStatus = async (req, res) => {
 };
 
 // Экспорт лидов в CSV
-exports.exportLeads = async (req, res) => {
+export const exportLeads = async (req, res) => {
   try {
     const filter = { isArchived: false };
 
