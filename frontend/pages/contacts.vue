@@ -52,7 +52,7 @@
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                 <circle cx="12" cy="10" r="3"/>
               </svg>
-              <span>г. Красноярск, ул. Примерная, д. 123, офис 456</span>
+              <span>г. Красноярск, ул. Полигонная 11Д, пом. 8</span>
             </div>
             <div class="map-transport">
               <span class="transport-item">
@@ -188,8 +188,8 @@
               <h3 class="card-title">Адрес</h3>
               <p class="card-text">
                 г. Красноярск<br>
-                ул. Примерная, д. 123<br>
-                офис 456
+                ул. Полигонная 11Д<br>
+                пом. 8
               </p>
             </div>
 
@@ -202,8 +202,8 @@
               </div>
               <h3 class="card-title">Телефон</h3>
               <p class="card-text">
-                <a href="tel:+73912345678" class="contact-link">+7 (391) 234-56-78</a><br>
-                <a href="tel:+79231234567" class="contact-link">+7 (923) 123-45-67</a>
+                <a href="tel:+79029239704" class="contact-link">+7 (902) 923-97-04</a><br>
+                <a href="tel:+79676123564" class="contact-link">+7 (967) 612-35-64</a>
               </p>
             </div>
 
@@ -217,8 +217,7 @@
               </div>
               <h3 class="card-title">Email</h3>
               <p class="card-text">
-                <a href="mailto:info@kmo24.ru" class="contact-link">info@kmo24.ru</a><br>
-                <a href="mailto:sales@kmo24.ru" class="contact-link">sales@kmo24.ru</a>
+                <a href="mailto:kmo24@mail.ru" class="contact-link">kmo24@mail.ru</a>
               </p>
             </div>
 
@@ -232,9 +231,11 @@
               </div>
               <h3 class="card-title">Режим работы</h3>
               <p class="card-text">
-                Пн-Пт: 9:00 - 18:00<br>
-                Сб: 10:00 - 15:00<br>
-                Вс: выходной
+                <strong>Склад:</strong><br>
+                Пн-Пт: 9:00 - 17:30 без обеда<br>
+                Сб-Вс: по договоренности<br><br>
+                <strong>Звонки принимаем:</strong><br>
+                9:00 - 20:00 без выходных
               </p>
             </div>
 
@@ -289,7 +290,7 @@ const success = ref(false);
 const showFullMap = ref(false);
 
 // Адрес офиса
-const officeAddress = 'Красноярск, улица Примерная, дом 123';
+const officeAddress = 'Красноярск, улица Полигонная, дом 11Д';
 
 // Инициализация Яндекс.Карт с геокодированием
 const initYandexMap = () => {
@@ -318,8 +319,8 @@ const initYandexMap = () => {
           coords,
           {
             balloonContentHeader: 'КМО24',
-            balloonContentBody: 'г. Красноярск, ул. Примерная, д. 123, офис 456',
-            balloonContentFooter: 'Пн-Пт: 9:00-18:00, Сб: 10:00-15:00',
+            balloonContentBody: 'г. Красноярск, ул. Полигонная 11Д, пом. 8',
+            balloonContentFooter: 'Склад: Пн-Пт 9:00-17:30 | Звонки: 9:00-20:00',
             hintContent: 'КМО24 - Профессиональное оборудование для кухни'
           },
           {
@@ -352,8 +353,8 @@ const initYandexMap = () => {
           fallbackCoords,
           {
             balloonContentHeader: 'КМО24',
-            balloonContentBody: 'г. Красноярск, ул. Примерная, д. 123, офис 456',
-            balloonContentFooter: 'Пн-Пт: 9:00-18:00, Сб: 10:00-15:00',
+            balloonContentBody: 'г. Красноярск, ул. Полигонная 11Д, пом. 8',
+            balloonContentFooter: 'Склад: Пн-Пт 9:00-17:30 | Звонки: 9:00-20:00',
             hintContent: 'КМО24 - Профессиональное оборудование для кухни'
           },
           {
