@@ -40,7 +40,11 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
-            <p>График продаж (интеграция с Chart.js)</p>
+            <p>График продаж</p>
+            <p v-if="ordersStats" class="chart-stats">
+              Всего заказов: {{ ordersStats.totalOrders || 0 }} |
+              Сумма: {{ formatPrice(ordersStats.totalRevenue || 0) }}
+            </p>
           </div>
         </div>
       </div>
@@ -65,13 +69,15 @@
             <p>Нет недавних заказов</p>
           </div>
           <div v-else class="orders-list">
-            <div v-for="order in recentOrders" :key="order.id" class="order-item">
+            <div v-for="order in recentOrders" :key="order._id" class="order-item">
               <div class="order-info">
                 <p class="order-number">#{{ order.orderNumber }}</p>
-                <p class="order-customer">{{ order.customer }}</p>
+                <p class="order-customer">
+                  {{ order.customer?.name || order.customer?.email || 'Гость' }}
+                </p>
               </div>
               <div class="order-meta">
-                <span class="order-amount">{{ formatPrice(order.total) }}</span>
+                <span class="order-amount">{{ formatPrice(order.totalAmount || 0) }}</span>
                 <span class="order-status" :class="`status-${order.status}`">
                   {{ getStatusLabel(order.status) }}
                 </span>
@@ -107,7 +113,7 @@
                 <span class="stage-count">{{ stage.count }}</span>
                 <span class="stage-value">{{ formatPrice(stage.value) }}</span>
               </div>
-              <div class="stage-bar" :style="{ width: `${(stage.count / crmStore.salesFunnel[0].count) * 100}%` }"></div>
+              <div class="stage-bar" :style="{ width: `${(stage.count / Math.max(crmStore.salesFunnel[0]?.count || 1, 1)) * 100}%` }"></div>
             </div>
           </div>
         </div>
@@ -124,7 +130,10 @@
           </NuxtLink>
         </div>
         <div class="card-body">
-          <div class="leads-list">
+          <div v-if="recentLeads.length === 0" class="empty-state">
+            <p>Нет активных лидов</p>
+          </div>
+          <div v-else class="leads-list">
             <div v-for="lead in recentLeads" :key="lead.id" class="lead-item">
               <div class="lead-info">
                 <div class="lead-avatar">{{ getInitials(lead.name) }}</div>
@@ -159,12 +168,23 @@
           </NuxtLink>
         </div>
         <div class="card-body">
-          <div class="products-list">
-            <div v-for="product in topProducts" :key="product.id" class="product-item">
-              <img :src="product.image" :alt="product.name" class="product-image" />
+          <div v-if="loadingProducts" class="loading-state">
+            <div class="spinner"></div>
+            <p>Загрузка...</p>
+          </div>
+          <div v-else-if="topProducts.length === 0" class="empty-state">
+            <p>Нет товаров</p>
+          </div>
+          <div v-else class="products-list">
+            <div v-for="product in topProducts" :key="product._id" class="product-item">
+              <img
+                :src="product.images?.[0]?.url || 'https://via.placeholder.com/50'"
+                :alt="product.name"
+                class="product-image"
+              />
               <div class="product-info">
                 <p class="product-name">{{ product.name }}</p>
-                <p class="product-meta">{{ product.sales }} продаж</p>
+                <p class="product-meta">В наличии: {{ product.stock?.quantity || 0 }}</p>
               </div>
               <div class="product-price">{{ formatPrice(product.price) }}</div>
             </div>
@@ -184,13 +204,20 @@
           </NuxtLink>
         </div>
         <div class="card-body">
-          <div class="reviews-list">
-            <div v-for="review in recentReviews" :key="review.id" class="review-item">
+          <div v-if="loadingReviews" class="loading-state">
+            <div class="spinner"></div>
+            <p>Загрузка...</p>
+          </div>
+          <div v-else-if="recentReviews.length === 0" class="empty-state">
+            <p>Нет отзывов</p>
+          </div>
+          <div v-else class="reviews-list">
+            <div v-for="review in recentReviews" :key="review._id" class="review-item">
               <div class="review-header">
                 <div class="review-author">
-                  <div class="author-avatar">{{ getInitials(review.author) }}</div>
+                  <div class="author-avatar">{{ getInitials(review.user?.name || 'Гость') }}</div>
                   <div>
-                    <p class="author-name">{{ review.author }}</p>
+                    <p class="author-name">{{ review.user?.name || 'Гость' }}</p>
                     <div class="review-rating">
                       <svg
                         v-for="star in 5"
@@ -208,7 +235,7 @@
                   {{ review.status === 'pending' ? 'На модерации' : 'Одобрен' }}
                 </span>
               </div>
-              <p class="review-text">{{ review.text }}</p>
+              <p class="review-text">{{ review.text || review.comment }}</p>
             </div>
           </div>
         </div>
@@ -218,8 +245,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useCRMStore } from '~/stores/crm';
+import { ref, computed, onMounted } from 'vue';
+import { useCRMStore } from '../../stores/crm';
+import { useOrders } from '../../composables/useOrders';
+import { useProducts } from '../../composables/useProducts';
+import { useReviews } from '../../composables/useReviews';
+import { useUsers } from '../../composables/useUsers';
 
 definePageMeta({
   layout: 'admin',
@@ -231,67 +262,71 @@ useHead({
 });
 
 const chartPeriod = ref('30');
+
+// Loading states
 const loadingOrders = ref(false);
+const loadingProducts = ref(false);
+const loadingReviews = ref(false);
+const loadingStats = ref(false);
+
+// Data from API
+const recentOrders = ref<any[]>([]);
+const topProducts = ref<any[]>([]);
+const recentReviews = ref<any[]>([]);
+const ordersStats = ref<any>(null);
+const usersStats = ref<any>(null);
+const productsStats = ref<any>(null);
 
 // Import CRM store
 const crmStore = useCRMStore();
 
-// Stats with CRM data
-const stats = computed(() => [
-  {
-    id: 1,
-    label: 'Активные сделки',
-    value: String(crmStore.activeDeals),
-    change: 12.5,
-    color: 'orange',
-    icon: 'IconOrders',
-  },
-  {
-    id: 2,
-    label: 'Сумма сделок',
-    value: formatPrice(crmStore.totalValue),
-    change: 23.0,
-    color: 'orange',
-    icon: 'IconRevenue',
-  },
-  {
-    id: 3,
-    label: 'Всего лидов',
-    value: String(crmStore.totalLeads),
-    change: 15.2,
-    color: 'orange',
-    icon: 'IconUsers',
-  },
-  {
-    id: 4,
-    label: 'Конверсия',
-    value: `${crmStore.conversionRate}%`,
-    change: 5.0,
-    color: 'orange',
-    icon: 'IconProducts',
-  },
-]);
+// Composables
+const { getOrders, getOrderStats } = useOrders();
+const { getProducts, getProductStats } = useProducts();
+const { getReviews } = useReviews();
+const { getUserStats } = useUsers();
 
-const recentOrders = ref([
-  { id: 1, orderNumber: 'ORD-2024-001', customer: 'Иван Петров', total: 125000, status: 'pending' },
-  { id: 2, orderNumber: 'ORD-2024-002', customer: 'Мария Сидорова', total: 89500, status: 'processing' },
-  { id: 3, orderNumber: 'ORD-2024-003', customer: 'Алексей Иванов', total: 245000, status: 'completed' },
-  { id: 4, orderNumber: 'ORD-2024-004', customer: 'Елена Смирнова', total: 67000, status: 'pending' },
-  { id: 5, orderNumber: 'ORD-2024-005', customer: 'Дмитрий Козлов', total: 156000, status: 'shipped' },
-]);
+// Stats with real data
+const stats = computed(() => {
+  const orderStats = ordersStats.value || {};
+  const userStats = usersStats.value || {};
+  const productStats = productsStats.value || {};
 
-const topProducts = ref([
-  { id: 1, name: 'Печь конвекционная', image: 'https://via.placeholder.com/50', sales: 45, price: 125000 },
-  { id: 2, name: 'Холодильник витринный', image: 'https://via.placeholder.com/50', sales: 38, price: 89000 },
-  { id: 3, name: 'Тестомес спиральный', image: 'https://via.placeholder.com/50', sales: 32, price: 215000 },
-  { id: 4, name: 'Плита индукционная', image: 'https://via.placeholder.com/50', sales: 28, price: 67000 },
-]);
-
-const recentReviews = ref([
-  { id: 1, author: 'Иван Петров', rating: 5, text: 'Отличное оборудование! Работает как новое.', status: 'approved' },
-  { id: 2, author: 'Мария Сидорова', rating: 4, text: 'Хорошее качество, быстрая доставка.', status: 'pending' },
-  { id: 3, author: 'Алексей Иванов', rating: 5, text: 'Рекомендую! Профессиональный подход.', status: 'approved' },
-]);
+  return [
+    {
+      id: 1,
+      label: 'Всего заказов',
+      value: String(orderStats.totalOrders || 0),
+      change: orderStats.monthlyGrowth || 0,
+      color: 'orange',
+      icon: 'IconOrders',
+    },
+    {
+      id: 2,
+      label: 'Выручка',
+      value: formatShortPrice(orderStats.totalRevenue || 0),
+      change: orderStats.revenueGrowth || 0,
+      color: 'green',
+      icon: 'IconRevenue',
+    },
+    {
+      id: 3,
+      label: 'Пользователи',
+      value: String(userStats.totalUsers || 0),
+      change: userStats.monthlyGrowth || 0,
+      color: 'blue',
+      icon: 'IconUsers',
+    },
+    {
+      id: 4,
+      label: 'Товары',
+      value: String(productStats.totalProducts || 0),
+      change: productStats.activeGrowth || 0,
+      color: 'purple',
+      icon: 'IconProducts',
+    },
+  ];
+});
 
 // Recent leads from CRM
 const recentLeads = computed(() => {
@@ -300,647 +335,783 @@ const recentLeads = computed(() => {
     .slice(0, 5);
 });
 
-const formatPrice = (price: number) => {
+// Fetch data on mount
+onMounted(async () => {
+  await Promise.all([
+    fetchOrders(),
+    fetchProducts(),
+    fetchReviews(),
+    fetchStats(),
+  ]);
+});
+
+// Fetch functions
+async function fetchOrders() {
+  loadingOrders.value = true;
+  try {
+    const response = await getOrders({
+      page: 1,
+      limit: 5,
+      sort: '-createdAt', // Using '-' for descending sort
+    });
+
+    if (response.success && response.data) {
+      recentOrders.value = response.data;
+    }
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+  } finally {
+    loadingOrders.value = false;
+  }
+}
+
+async function fetchProducts() {
+  loadingProducts.value = true;
+  try {
+    const response = await getProducts({
+      page: 1,
+      limit: 4,
+      sort: '-createdAt',
+      isActive: true,
+    });
+
+    if (response.success && response.data) {
+      topProducts.value = response.data;
+    }
+  } catch (error) {
+    console.error('Error fetching products:', error);
+  } finally {
+    loadingProducts.value = false;
+  }
+}
+
+async function fetchReviews() {
+  loadingReviews.value = true;
+  try {
+    const response = await getReviews({
+      page: 1,
+      limit: 3,
+      sort: '-createdAt',
+    });
+
+    if (response.success && response.data) {
+      recentReviews.value = response.data;
+    }
+  } catch (error) {
+    console.error('Error fetching reviews:', error);
+    // Fallback to empty array if API fails
+    recentReviews.value = [];
+  } finally {
+    loadingReviews.value = false;
+  }
+}
+
+async function fetchStats() {
+  loadingStats.value = true;
+  try {
+    const [ordersStatsRes, usersStatsRes, productsStatsRes] = await Promise.all([
+      getOrderStats(),
+      getUserStats(),
+      getProductStats(),
+    ]);
+
+    if (ordersStatsRes.success) {
+      ordersStats.value = ordersStatsRes.data;
+    }
+
+    if (usersStatsRes.success) {
+      usersStats.value = usersStatsRes.data;
+    }
+
+    if (productsStatsRes.success) {
+      productsStats.value = productsStatsRes.data;
+    }
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+  } finally {
+    loadingStats.value = false;
+  }
+}
+
+// Helper functions
+function formatPrice(price: number): string {
   return new Intl.NumberFormat('ru-RU', {
     style: 'currency',
     currency: 'RUB',
     minimumFractionDigits: 0,
   }).format(price);
-};
+}
 
-const getStatusLabel = (status: string) => {
+function formatShortPrice(price: number): string {
+  if (price >= 1000000) {
+    return `${(price / 1000000).toFixed(1)}M ₽`;
+  }
+  if (price >= 1000) {
+    return `${(price / 1000).toFixed(0)}K ₽`;
+  }
+  return formatPrice(price);
+}
+
+function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
     pending: 'Ожидает',
     processing: 'В обработке',
-    completed: 'Выполнен',
     shipped: 'Отправлен',
+    delivered: 'Доставлен',
+    completed: 'Завершен',
     cancelled: 'Отменен',
   };
   return labels[status] || status;
-};
+}
 
-const getLeadStatusLabel = (status: string) => {
+function getLeadStatusLabel(status: string): string {
   const labels: Record<string, string> = {
     new: 'Новый',
     contacted: 'Контакт',
     qualified: 'Квалифицирован',
     proposal: 'Предложение',
     negotiation: 'Переговоры',
-    won: 'Успех',
-    lost: 'Проигран',
+    won: 'Успешно',
+    lost: 'Потерян',
   };
   return labels[status] || status;
-};
+}
 
-const getInitials = (name: string) => {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-};
+function getInitials(name: string): string {
+  if (!name) return '?';
+  const parts = name.split(' ');
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
+}
 </script>
 
 <style scoped lang="scss">
+@use 'assets/scss/admin/variables' as *;
+
 .dashboard {
-  max-width: 1600px;
+  padding: $spacing-md;
 }
 
+// Stats Grid
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
 }
 
 .stat-card {
-  background: white;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  background: $white;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
   display: flex;
-  gap: 1rem;
-  border-left: 4px solid;
-  transition: transform 0.2s, box-shadow 0.2s;
+  gap: $spacing-md;
+  transition: all $transition-base;
+  border: 1px solid $gray-200;
 
   &:hover {
+    box-shadow: $shadow-lg;
     transform: translateY(-2px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
 
-  &.stat-blue {
-    border-left-color: #f59e0b;
-    .stat-icon {
-      background: rgba(245, 158, 11, 0.1);
-      color: #f59e0b;
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &.stat-orange .stat-icon {
+    background: rgba($orange, 0.1);
+    color: $orange;
+  }
+
+  &.stat-green .stat-icon {
+    background: rgba($success, 0.1);
+    color: $success;
+  }
+
+  &.stat-blue .stat-icon {
+    background: rgba($primary, 0.1);
+    color: $primary;
+  }
+
+  &.stat-purple .stat-icon {
+    background: rgba($purple, 0.1);
+    color: $purple;
+  }
+
+  .stat-content {
+    flex: 1;
+
+    .stat-label {
+      font-size: $font-size-sm;
+      color: $gray-600;
+      margin-bottom: $spacing-xs;
     }
-  }
 
-  &.stat-green {
-    border-left-color: #f59e0b;
-    .stat-icon {
-      background: rgba(245, 158, 11, 0.1);
-      color: #f59e0b;
+    .stat-value {
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      color: $gray-900;
+      margin: 0 0 $spacing-xs;
     }
-  }
 
-  &.stat-purple {
-    border-left-color: #f59e0b;
-    .stat-icon {
-      background: rgba(245, 158, 11, 0.1);
-      color: #f59e0b;
-    }
-  }
+    .stat-change {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      font-size: $font-size-sm;
 
-  &.stat-orange {
-    border-left-color: #f59e0b;
-    .stat-icon {
-      background: rgba(245, 158, 11, 0.1);
-      color: #f59e0b;
+      &.positive {
+        color: $success;
+      }
+
+      &.negative {
+        color: $danger;
+      }
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .stat-period {
+        color: $gray-500;
+        margin-left: $spacing-xs;
+      }
     }
   }
 }
 
-.stat-icon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.5rem;
+// Content Grid
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+// Card Component
+.card {
+  background: $white;
+  border-radius: $radius-lg;
+  border: 1px solid $gray-200;
+  overflow: hidden;
+
+  .card-header {
+    padding: $spacing-lg;
+    border-bottom: 1px solid $gray-200;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h3 {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      color: $gray-900;
+      margin: 0;
+    }
+
+    .view-all-link {
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+      color: $primary;
+      text-decoration: none;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      transition: color $transition-base;
+
+      &:hover {
+        color: darken($primary, 10%);
+      }
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    .period-select {
+      padding: $spacing-xs $spacing-sm;
+      border: 1px solid $gray-300;
+      border-radius: $radius-md;
+      font-size: $font-size-sm;
+      color: $gray-700;
+      background: $white;
+      cursor: pointer;
+
+      &:focus {
+        outline: none;
+        border-color: $primary;
+      }
+    }
+  }
+
+  .card-body {
+    padding: $spacing-lg;
+  }
+}
+
+// Chart Card
+.chart-card {
+  grid-column: span 2;
+
+  @media (max-width: 900px) {
+    grid-column: span 1;
+  }
+}
+
+.chart-placeholder {
+  height: 300px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  gap: $spacing-md;
+  color: $gray-400;
 
   svg {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 48px;
+    height: 48px;
+  }
+
+  p {
+    margin: 0;
+    font-size: $font-size-sm;
+  }
+
+  .chart-stats {
+    color: $gray-600;
+    font-weight: $font-weight-medium;
   }
 }
 
-.stat-content {
-  flex: 1;
+// Loading & Empty States
+.loading-state,
+.empty-state {
+  padding: $spacing-xl;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
+  color: $gray-500;
+
+  p {
+    margin: 0;
+    font-size: $font-size-sm;
+  }
 }
 
-.stat-label {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0 0 0.25rem 0;
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid $gray-300;
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-.stat-value {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #111827;
-  margin: 0 0 0.5rem 0;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.stat-change {
+// Orders List
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md;
+  background: $gray-50;
+  border-radius: $radius-md;
+  transition: background $transition-base;
+
+  &:hover {
+    background: $gray-100;
+  }
+
+  .order-info {
+    .order-number {
+      font-size: $font-size-sm;
+      font-weight: $font-weight-semibold;
+      color: $gray-900;
+      margin: 0 0 $spacing-xs;
+    }
+
+    .order-customer {
+      font-size: $font-size-sm;
+      color: $gray-600;
+      margin: 0;
+    }
+  }
+
+  .order-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: $spacing-xs;
+
+    .order-amount {
+      font-size: $font-size-sm;
+      font-weight: $font-weight-semibold;
+      color: $gray-900;
+    }
+
+    .order-status {
+      padding: 2px 8px;
+      border-radius: $radius-sm;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-medium;
+
+      &.status-pending {
+        background: rgba($warning, 0.1);
+        color: $warning;
+      }
+
+      &.status-processing {
+        background: rgba($info, 0.1);
+        color: $info;
+      }
+
+      &.status-shipped {
+        background: rgba($purple, 0.1);
+        color: $purple;
+      }
+
+      &.status-delivered,
+      &.status-completed {
+        background: rgba($success, 0.1);
+        color: $success;
+      }
+
+      &.status-cancelled {
+        background: rgba($danger, 0.1);
+        color: $danger;
+      }
+    }
+  }
+}
+
+// Products List
+.products-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.product-item {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 500;
+  gap: $spacing-md;
+  padding: $spacing-sm;
+  border-radius: $radius-md;
+  transition: background $transition-base;
 
-  &.positive {
-    color: #f59e0b;
+  &:hover {
+    background: $gray-50;
   }
 
-  &.negative {
-    color: #ef4444;
+  .product-image {
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-sm;
+    object-fit: cover;
+    background: $gray-100;
   }
 
-  svg {
-    width: 1rem;
-    height: 1rem;
+  .product-info {
+    flex: 1;
+
+    .product-name {
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      color: $gray-900;
+      margin: 0 0 2px;
+    }
+
+    .product-meta {
+      font-size: $font-size-xs;
+      color: $gray-600;
+      margin: 0;
+    }
   }
 
-  .stat-period {
-    color: #6b7280;
-    margin-left: 0.25rem;
+  .product-price {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $primary;
   }
 }
 
 // CRM Section
 .crm-section {
   display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-
-  @media (max-width: 1200px) {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
 }
 
+// Funnel Stages
 .funnel-stages {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: $spacing-md;
 }
 
 .funnel-stage-mini {
-  background: white;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  border-left: 4px solid;
-  transition: all 0.2s;
+  position: relative;
+  padding: $spacing-md;
+  background: $gray-50;
+  border-radius: $radius-md;
 
-  &:hover {
-    transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  .stage-label {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $gray-700;
+    margin-bottom: $spacing-xs;
   }
 
-  &.stage-1 { border-left-color: #f59e0b; }
-  &.stage-2 { border-left-color: #f59e0b; }
-  &.stage-3 { border-left-color: #f59e0b; }
-  &.stage-4 { border-left-color: #f59e0b; }
-  &.stage-5 { border-left-color: #f59e0b; }
-  &.stage-6 { border-left-color: #f59e0b; }
+  .stage-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-sm;
+
+    .stage-count {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-bold;
+      color: $gray-900;
+    }
+
+    .stage-value {
+      font-size: $font-size-sm;
+      color: $gray-600;
+    }
+  }
+
+  .stage-bar {
+    height: 4px;
+    background: $primary;
+    border-radius: 2px;
+    transition: width $transition-base;
+  }
+
+  &.stage-1 .stage-bar {
+    background: $info;
+  }
+
+  &.stage-2 .stage-bar {
+    background: $purple;
+  }
+
+  &.stage-3 .stage-bar {
+    background: $warning;
+  }
+
+  &.stage-4 .stage-bar {
+    background: $success;
+  }
 }
 
-.stage-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 0.5rem;
-}
-
-.stage-stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.stage-count {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #111827;
-}
-
-.stage-value {
-  font-size: 0.875rem;
-  color: #f59e0b;
-  font-weight: 600;
-}
-
-.stage-bar {
-  height: 6px;
-  background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
-  border-radius: 9999px;
-  transition: width 0.3s ease;
-}
-
+// Leads List
 .leads-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: $spacing-md;
 }
 
 .lead-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem;
-  background: #f9fafb;
-  border-radius: 0.5rem;
-  transition: all 0.2s;
+  padding: $spacing-md;
+  background: $gray-50;
+  border-radius: $radius-md;
+  transition: background $transition-base;
 
   &:hover {
-    background: #f3f4f6;
-    transform: translateX(4px);
-  }
-}
-
-.lead-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.lead-avatar {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.875rem;
-  flex-shrink: 0;
-}
-
-.lead-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.lead-name {
-  font-weight: 600;
-  color: #111827;
-  font-size: 0.875rem;
-  margin: 0 0 0.125rem 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.lead-company {
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.lead-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.25rem;
-  flex-shrink: 0;
-}
-
-.lead-value {
-  font-weight: 700;
-  color: #f59e0b;
-  font-size: 0.875rem;
-  white-space: nowrap;
-}
-
-.lead-status {
-  padding: 0.125rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  white-space: nowrap;
-
-  &.status-new { background: #fed7aa; color: #92400e; }
-  &.status-contacted { background: #fed7aa; color: #92400e; }
-  &.status-qualified { background: #fed7aa; color: #92400e; }
-  &.status-proposal { background: #fed7aa; color: #92400e; }
-  &.status-negotiation { background: #fed7aa; color: #92400e; }
-  &.status-won { background: #fed7aa; color: #92400e; }
-  &.status-lost { background: #fee2e2; color: #991b1b; }
-}
-
-.content-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.card {
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-
-  &.chart-card {
-    grid-column: 1 / -1;
-  }
-}
-
-.card-header {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0;
-  }
-}
-
-.period-select {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  cursor: pointer;
-
-  &:focus {
-    outline: none;
-    border-color: #f59e0b;
-  }
-}
-
-.view-all-link {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.875rem;
-  color: #f59e0b;
-  text-decoration: none;
-  transition: color 0.2s;
-
-  &:hover {
-    color: #d97706;
+    background: $gray-100;
   }
 
-  svg {
-    width: 1rem;
-    height: 1rem;
-  }
-}
+  .lead-info {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
 
-.card-body {
-  padding: 1.5rem;
-}
+    .lead-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, $primary, $secondary);
+      color: $white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-bold;
+    }
 
-.chart-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 300px;
-  color: #9ca3af;
+    .lead-details {
+      .lead-name {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        color: $gray-900;
+        margin: 0 0 2px;
+      }
 
-  svg {
-    width: 4rem;
-    height: 4rem;
-    margin-bottom: 1rem;
-  }
-
-  p {
-    margin: 0;
-    font-size: 0.875rem;
-  }
-}
-
-.orders-list,
-.products-list,
-.reviews-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.order-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  background: #f9fafb;
-  border-radius: 0.5rem;
-  transition: background 0.2s;
-
-  &:hover {
-    background: #f3f4f6;
-  }
-}
-
-.order-number {
-  font-weight: 600;
-  color: #111827;
-  margin: 0 0 0.25rem 0;
-}
-
-.order-customer {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0;
-}
-
-.order-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
-}
-
-.order-amount {
-  font-weight: 600;
-  color: #111827;
-}
-
-.order-status {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-
-  &.status-pending {
-    background: #fed7aa;
-    color: #92400e;
+      .lead-company {
+        font-size: $font-size-xs;
+        color: $gray-600;
+        margin: 0;
+      }
+    }
   }
 
-  &.status-processing {
-    background: #fed7aa;
-    color: #92400e;
-  }
+  .lead-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: $spacing-xs;
 
-  &.status-completed {
-    background: #fed7aa;
-    color: #92400e;
-  }
+    .lead-value {
+      font-size: $font-size-sm;
+      font-weight: $font-weight-semibold;
+      color: $gray-900;
+    }
 
-  &.status-shipped {
-    background: #fed7aa;
-    color: #92400e;
-  }
-}
+    .lead-status {
+      padding: 2px 8px;
+      border-radius: $radius-sm;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-medium;
 
-.product-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  transition: background 0.2s;
+      &.status-new {
+        background: rgba($info, 0.1);
+        color: $info;
+      }
 
-  &:hover {
-    background: #f9fafb;
-  }
-}
+      &.status-contacted,
+      &.status-qualified {
+        background: rgba($purple, 0.1);
+        color: $purple;
+      }
 
-.product-image {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.5rem;
-  object-fit: cover;
-}
+      &.status-proposal,
+      &.status-negotiation {
+        background: rgba($warning, 0.1);
+        color: $warning;
+      }
 
-.product-info {
-  flex: 1;
-}
+      &.status-won {
+        background: rgba($success, 0.1);
+        color: $success;
+      }
 
-.product-name {
-  font-weight: 500;
-  color: #111827;
-  margin: 0 0 0.25rem 0;
-}
-
-.product-meta {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0;
-}
-
-.product-price {
-  font-weight: 600;
-  color: #111827;
-}
-
-.review-item {
-  padding: 1rem;
-  background: #f9fafb;
-  border-radius: 0.5rem;
-}
-
-.review-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
-
-.review-author {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.author-avatar {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  background: #f59e0b;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-.author-name {
-  font-weight: 500;
-  color: #111827;
-  margin: 0 0 0.25rem 0;
-}
-
-.review-rating {
-  display: flex;
-  gap: 0.125rem;
-
-  svg {
-    width: 1rem;
-    height: 1rem;
-    color: #d1d5db;
-
-    &.filled {
-      color: #fbbf24;
+      &.status-lost {
+        background: rgba($danger, 0.1);
+        color: $danger;
+      }
     }
   }
 }
 
-.review-status {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-
-  &.status-pending {
-    background: #fed7aa;
-    color: #92400e;
-  }
-
-  &.status-approved {
-    background: #fed7aa;
-    color: #92400e;
-  }
-}
-
-.review-text {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.loading-state,
-.empty-state {
+// Reviews List
+.reviews-list {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  color: #9ca3af;
-
-  .spinner {
-    width: 2rem;
-    height: 2rem;
-    border: 3px solid #e5e7eb;
-    border-top-color: #f59e0b;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-  }
-
-  p {
-    margin: 0;
-    font-size: 0.875rem;
-  }
+  gap: $spacing-md;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+.review-item {
+  padding: $spacing-md;
+  background: $gray-50;
+  border-radius: $radius-md;
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: $spacing-sm;
+
+    .review-author {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+
+      .author-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, $primary, $secondary);
+        color: $white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-bold;
+      }
+
+      .author-name {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-medium;
+        color: $gray-900;
+        margin: 0 0 2px;
+      }
+
+      .review-rating {
+        display: flex;
+        gap: 2px;
+
+        svg {
+          width: 12px;
+          height: 12px;
+          color: $gray-300;
+
+          &.filled {
+            color: $warning;
+          }
+        }
+      }
+    }
+
+    .review-status {
+      padding: 2px 8px;
+      border-radius: $radius-sm;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-medium;
+
+      &.status-pending {
+        background: rgba($warning, 0.1);
+        color: $warning;
+      }
+
+      &.status-approved {
+        background: rgba($success, 0.1);
+        color: $success;
+      }
+    }
+  }
+
+  .review-text {
+    font-size: $font-size-sm;
+    color: $gray-700;
+    margin: 0;
+    line-height: 1.5;
   }
 }
 </style>

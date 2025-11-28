@@ -133,7 +133,9 @@
       </template>
 
       <template #cell-category="{ item }">
-        <span class="category-badge">{{ item.category }}</span>
+        <span class="category-badge">
+          {{ typeof item.category === 'string' ? item.category : item.category?.name }}
+        </span>
       </template>
 
       <template #cell-price="{ item }">
@@ -144,9 +146,9 @@
       </template>
 
       <template #cell-stock="{ item }">
-        <div class="stock-cell" :class="getStockClass(item.stock)">
-          <div class="stock-value">{{ item.stock }}</div>
-          <div class="stock-label">{{ getStockLabel(item.stock) }}</div>
+        <div class="stock-cell" :class="getStockClass(item.stock?.available || 0)">
+          <div class="stock-value">{{ item.stock?.available || 0 }}</div>
+          <div class="stock-label">{{ getStockLabel(item.stock?.available || 0) }}</div>
         </div>
       </template>
 
@@ -164,17 +166,17 @@
 
       <template #cell-actions="{ item }">
         <div class="actions-cell">
-          <button class="btn-icon" @click.stop="editProduct(item.id)" title="Редактировать">
+          <button class="btn-icon" @click.stop="editProduct(item._id)" title="Редактировать">
             <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
           </button>
-          <button class="btn-icon" @click.stop="duplicateProduct(item.id)" title="Дублировать">
+          <button class="btn-icon" @click.stop="duplicateProduct(item._id)" title="Дублировать">
             <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
           </button>
-          <button class="btn-icon btn-danger" @click.stop="deleteProduct(item.id)" title="Удалить">
+          <button class="btn-icon btn-danger" @click.stop="deleteProduct(item._id)" title="Удалить">
             <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
@@ -187,8 +189,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
-import { useToast } from '~/composables/useToast';
-import type { Product } from '~/composables/useProducts';
+import { useToast } from '../../../composables/useToast';
+import { useProducts } from '../../../composables/useProducts';
+import { useCategories } from '../../../composables/useCategories';
+import type { Product } from '../../../composables/useProducts';
 
 definePageMeta({
   layout: 'admin',
@@ -196,7 +200,14 @@ definePageMeta({
 });
 
 const { success, error } = useToast();
-const { getProducts, deleteProduct, bulkDeleteProducts, bulkUpdateProducts, getProductStats } = useProducts();
+const {
+  getProducts,
+  createProduct,
+  deleteProduct: deleteProductApi,
+  bulkDeleteProducts,
+  bulkUpdateProducts,
+  getProductStats
+} = useProducts();
 const { getCategories } = useCategories();
 
 // Data
@@ -214,10 +225,9 @@ const pagination = ref({
 const filters = ref({
   search: '',
   category: '',
+  condition: '',
   status: '',
-  isActive: undefined as boolean | undefined,
-  page: 1,
-  limit: 20,
+  availability: '',
 });
 
 // Filter Options
@@ -271,7 +281,70 @@ const columns = [
   { key: 'actions', label: 'Действия', sortable: false, width: '150px' },
 ];
 
+// Computed
+const filteredProducts = computed(() => products.value);
+
 // Methods
+const fetchProducts = async () => {
+  loading.value = true;
+  try {
+    const response = await getProducts({
+      page: pagination.value.page,
+      limit: pagination.value.limit,
+      search: filters.value.search || undefined,
+      category: filters.value.category || undefined,
+      status: filters.value.status || undefined,
+      sort: '-createdAt',
+    });
+
+    if (response.success) {
+      products.value = response.data || [];
+      if (response.pagination) {
+        pagination.value = response.pagination;
+      }
+    }
+  } catch (err) {
+    error('Ошибка при загрузке товаров');
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchStats = async () => {
+  try {
+    const response = await getProductStats();
+    if (response.success && response.data) {
+      stats.value = {
+        total: response.data.totalProducts || 0,
+        active: response.data.activeProducts || 0,
+        outOfStock: response.data.outOfStock || 0,
+        draft: response.data.draftProducts || 0,
+        lowStock: response.data.lowStock || 0,
+        inactive: response.data.inactiveProducts || 0,
+      };
+    }
+  } catch (err) {
+    console.error('Error fetching stats:', err);
+  }
+};
+
+const fetchCategories = async () => {
+  try {
+    const response = await getCategories();
+    if (response.success && response.data) {
+      categories.value = [
+        { value: '', label: 'Все категории' },
+        ...response.data.map((cat: any) => ({
+          value: cat._id,
+          label: cat.name,
+        })),
+      ];
+    }
+  } catch (err) {
+    console.error('Error fetching categories:', err);
+  }
+};
+
 const resetFilters = () => {
   filters.value = {
     search: '',
@@ -322,7 +395,7 @@ const getStatusLabel = (status: string) => {
 };
 
 const handleRowClick = (item: any) => {
-  navigateTo(`/admin/products/${item.id}`);
+  navigateTo(`/admin/products/${item._id}`);
 };
 
 const editProduct = (id: string) => {
@@ -332,11 +405,31 @@ const editProduct = (id: string) => {
 const duplicateProduct = async (id: string) => {
   try {
     loading.value = true;
-    // TODO: API call to duplicate product
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    success('Товар успешно дублирован');
+    const product = products.value.find(p => p._id === id);
+    if (product) {
+      const newProduct = { ...product };
+      delete (newProduct as any)._id;
+      newProduct.name = `${newProduct.name} (копия)`;
+      newProduct.sku = `${newProduct.sku}-copy-${Date.now()}`;
+      await createProduct(newProduct);
+      await fetchProducts();
+    }
   } catch (err) {
     error('Ошибка при дублировании товара');
+  } finally {
+    loading.value = false;
+  }
+};
+
+const deleteProduct = async (id: string) => {
+  if (!confirm('Вы уверены, что хотите удалить этот товар?')) return;
+
+  try {
+    loading.value = true;
+    await deleteProductApi(id);
+    await fetchProducts();
+  } catch (err) {
+    error('Ошибка при удалении товара');
   } finally {
     loading.value = false;
   }
@@ -345,9 +438,8 @@ const duplicateProduct = async (id: string) => {
 const bulkActivate = async () => {
   try {
     loading.value = true;
-    // TODO: API call to activate products
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    success(`Активировано товаров: ${selectedProducts.value.length}`);
+    await bulkUpdateProducts(selectedProducts.value, { isActive: true });
+    await fetchProducts();
     selectedProducts.value = [];
   } catch (err) {
     error('Ошибка при активации товаров');
@@ -359,9 +451,8 @@ const bulkActivate = async () => {
 const bulkDeactivate = async () => {
   try {
     loading.value = true;
-    // TODO: API call to deactivate products
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    success(`Деактивировано товаров: ${selectedProducts.value.length}`);
+    await bulkUpdateProducts(selectedProducts.value, { isActive: false });
+    await fetchProducts();
     selectedProducts.value = [];
   } catch (err) {
     error('Ошибка при деактивации товаров');
@@ -375,10 +466,8 @@ const bulkDelete = async () => {
 
   try {
     loading.value = true;
-    // TODO: API call to delete products
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    products.value = products.value.filter((p) => !selectedProducts.value.includes(p.id));
-    success(`Удалено товаров: ${selectedProducts.value.length}`);
+    await bulkDeleteProducts(selectedProducts.value);
+    await fetchProducts();
     selectedProducts.value = [];
   } catch (err) {
     error('Ошибка при удалении товаров');
@@ -387,8 +476,28 @@ const bulkDelete = async () => {
   }
 };
 
-onMounted(() => {
-  // TODO: Fetch products from API
+// Watch filters
+watch(
+  filters,
+  () => {
+    fetchProducts();
+  },
+  { deep: true }
+);
+
+watch(
+  () => pagination.value.page,
+  () => {
+    fetchProducts();
+  }
+);
+
+onMounted(async () => {
+  await Promise.all([
+    fetchProducts(),
+    fetchStats(),
+    fetchCategories(),
+  ]);
 });
 </script>
 
