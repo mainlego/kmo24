@@ -17,7 +17,7 @@
             <h2 class="map-title">Мы на карте</h2>
             <div class="map-controls">
               <a
-                href="https://yandex.ru/maps/?pt=92.852572,56.010563&z=16&l=map"
+                href="https://yandex.ru/maps/?pt=92.893333,56.016111&z=16&l=map"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="map-btn"
@@ -29,7 +29,7 @@
                 Открыть в Яндекс.Картах
               </a>
               <a
-                href="https://yandex.ru/maps/?rtext=~56.010563,92.852572&rtt=auto"
+                href="https://yandex.ru/maps/?rtext=~56.016111,92.893333&rtt=auto"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="map-btn map-btn-primary"
@@ -288,8 +288,8 @@ const loading = ref(false);
 const success = ref(false);
 const showFullMap = ref(false);
 
-// Координаты офиса
-const officeCoordinates = [92.852572, 56.010563]; // [долгота, широта]
+// Координаты офиса - правильный адрес: ул. Примерная, д. 123
+const officeCoordinates = [92.893333, 56.016111]; // [долгота, широта]
 
 // Инициализация Яндекс.Карт
 const initYandexMap = () => {
@@ -298,14 +298,14 @@ const initYandexMap = () => {
     (window as any).ymaps.ready(() => {
       // Создаем карту
       const map = new (window as any).ymaps.Map('yandex-map', {
-        center: [56.010563, 92.852572], // [широта, долгота]
+        center: [56.016111, 92.893333], // [широта, долгота] - правильное местоположение
         zoom: 16,
         controls: ['zoomControl', 'fullscreenControl']
       });
 
       // Добавляем метку офиса
       const placemark = new (window as any).ymaps.Placemark(
-        [56.010563, 92.852572],
+        [56.016111, 92.893333],
         {
           balloonContentHeader: 'КМО24',
           balloonContentBody: 'г. Красноярск, ул. Примерная, д. 123, офис 456',
