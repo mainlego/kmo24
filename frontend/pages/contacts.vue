@@ -288,45 +288,98 @@ const loading = ref(false);
 const success = ref(false);
 const showFullMap = ref(false);
 
-// Координаты офиса - правильный адрес: ул. Примерная, д. 123
-const officeCoordinates = [92.893333, 56.016111]; // [долгота, широта]
+// Адрес офиса
+const officeAddress = 'Красноярск, улица Примерная, дом 123';
 
-// Инициализация Яндекс.Карт
+// Инициализация Яндекс.Карт с геокодированием
 const initYandexMap = () => {
   // Проверяем, что API загружен
   if (typeof window !== 'undefined' && (window as any).ymaps) {
     (window as any).ymaps.ready(() => {
-      // Создаем карту
-      const map = new (window as any).ymaps.Map('yandex-map', {
-        center: [56.016111, 92.893333], // [широта, долгота] - правильное местоположение
-        zoom: 16,
-        controls: ['zoomControl', 'fullscreenControl']
-      });
+      const ymaps = (window as any).ymaps;
 
-      // Добавляем метку офиса
-      const placemark = new (window as any).ymaps.Placemark(
-        [56.016111, 92.893333],
-        {
-          balloonContentHeader: 'КМО24',
-          balloonContentBody: 'г. Красноярск, ул. Примерная, д. 123, офис 456',
-          balloonContentFooter: 'Пн-Пт: 9:00-18:00, Сб: 10:00-15:00',
-          hintContent: 'КМО24 - Профессиональное оборудование для кухни'
-        },
-        {
-          iconLayout: 'default#image',
-          iconImageHref: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTQiIGZpbGw9IiNmNTllMGIiLz4KPHBhdGggZD0iTTE2IDh2MTJsNC00IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=',
-          iconImageSize: [32, 32],
-          iconImageOffset: [-16, -32]
-        }
-      );
+      // Используем геокодер для поиска точных координат по адресу
+      ymaps.geocode(officeAddress, {
+        results: 1
+      }).then((result: any) => {
+        // Получаем координаты первого результата
+        const firstGeoObject = result.geoObjects.get(0);
+        const coords = firstGeoObject.geometry.getCoordinates();
 
-      map.geoObjects.add(placemark);
+        // Создаем карту с найденными координатами
+        const map = new ymaps.Map('yandex-map', {
+          center: coords,
+          zoom: 17, // Увеличиваем zoom для более детального отображения
+          controls: ['zoomControl', 'fullscreenControl', 'typeSelector']
+        });
 
-      // Открываем балун при клике
-      placemark.events.add('click', () => {
+        // Добавляем метку офиса
+        const placemark = new ymaps.Placemark(
+          coords,
+          {
+            balloonContentHeader: 'КМО24',
+            balloonContentBody: 'г. Красноярск, ул. Примерная, д. 123, офис 456',
+            balloonContentFooter: 'Пн-Пт: 9:00-18:00, Сб: 10:00-15:00',
+            hintContent: 'КМО24 - Профессиональное оборудование для кухни'
+          },
+          {
+            preset: 'islands#orangeDotIcon', // Используем стандартную оранжевую метку
+            iconColor: '#f59e0b'
+          }
+        );
+
+        map.geoObjects.add(placemark);
+
+        // Открываем балун автоматически при загрузке
         placemark.balloon.open();
+
+        // Обновляем ссылки с правильными координатами
+        const [lat, lon] = coords;
+        updateMapLinks(lat, lon);
+      }).catch((error: any) => {
+        console.error('Ошибка геокодирования:', error);
+
+        // Fallback на примерные координаты центра Красноярска
+        const fallbackCoords = [56.010563, 92.852572];
+        const map = new ymaps.Map('yandex-map', {
+          center: fallbackCoords,
+          zoom: 12,
+          controls: ['zoomControl', 'fullscreenControl']
+        });
+
+        // Добавляем метку с fallback координатами
+        const placemark = new ymaps.Placemark(
+          fallbackCoords,
+          {
+            balloonContentHeader: 'КМО24',
+            balloonContentBody: 'г. Красноярск, ул. Примерная, д. 123, офис 456',
+            balloonContentFooter: 'Пн-Пт: 9:00-18:00, Сб: 10:00-15:00',
+            hintContent: 'КМО24 - Профессиональное оборудование для кухни'
+          },
+          {
+            preset: 'islands#orangeDotIcon',
+            iconColor: '#f59e0b'
+          }
+        );
+
+        map.geoObjects.add(placemark);
       });
     });
+  }
+};
+
+// Функция для обновления ссылок на карту
+const updateMapLinks = (lat: number, lon: number) => {
+  // Обновляем ссылки если они есть в DOM
+  const openMapLink = document.querySelector('a[href*="yandex.ru/maps/?pt="]');
+  const routeLink = document.querySelector('a[href*="yandex.ru/maps/?rtext="]');
+
+  if (openMapLink) {
+    openMapLink.setAttribute('href', `https://yandex.ru/maps/?pt=${lon},${lat}&z=17&l=map`);
+  }
+
+  if (routeLink) {
+    routeLink.setAttribute('href', `https://yandex.ru/maps/?rtext=~${lat},${lon}&rtt=auto`);
   }
 };
 
