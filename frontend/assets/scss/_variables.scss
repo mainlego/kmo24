@@ -150,6 +150,31 @@ $z-index-modal: 1050;
 $z-index-popover: 1060;
 $z-index-tooltip: 1070;
 
+// Admin panel specific (sidebar)
+$sidebar-width: 260px;
+$sidebar-collapsed-width: 70px;
+$sidebar-bg: #1e293b;
+$sidebar-text: #e2e8f0;
+$sidebar-hover-bg: #334155;
+$sidebar-active-bg: $primary-500;
+
+// Header
+$header-height: 64px;
+$content-padding: 2rem;
+
+// Aliases for admin panel
+$primary-hover: $primary-light;
+$z-dropdown: $z-index-dropdown;
+$z-sticky: $z-index-sticky;
+$z-fixed: $z-index-fixed;
+$z-modal-backdrop: $z-index-modal-backdrop;
+$z-modal: $z-index-modal;
+$z-popover: $z-index-popover;
+$z-tooltip: $z-index-tooltip;
+
+// Additional transitions
+$transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
 // Container
 $container-max-width: 1280px;
 $container-padding: 1rem;

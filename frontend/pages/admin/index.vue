@@ -488,8 +488,6 @@ function getInitials(name: string): string {
 </script>
 
 <style scoped lang="scss">
-@use 'assets/scss/admin/variables' as *;
-
 .dashboard {
   padding: $spacing-md;
 }
