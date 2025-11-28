@@ -54,13 +54,13 @@
                 </div>
               </button>
 
-              <NuxtLink to="/account" class="nav-icon" aria-label="Профиль">
+              <button @click="handleProfileClick" class="nav-icon" aria-label="Профиль">
                 <div class="nav-icon-wrapper">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </div>
-              </NuxtLink>
+              </button>
 
               <NuxtLink to="/cart" class="nav-icon nav-icon--cart" aria-label="Корзина">
                 <div class="nav-icon-wrapper">
@@ -128,12 +128,12 @@
 
               <div class="mobile-menu-divider"></div>
 
-              <NuxtLink to="/account" class="mobile-nav-link" @click="isMobileMenuOpen = false">
+              <button @click="handleProfileClick(); isMobileMenuOpen = false" class="mobile-nav-link">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <span>Личный кабинет</span>
-              </NuxtLink>
+                <span>{{ isAuthenticated ? 'Личный кабинет' : 'Войти' }}</span>
+              </button>
               <NuxtLink to="/cart" class="mobile-nav-link" @click="isMobileMenuOpen = false">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M9 2L7 6M17 2L19 6M3.5 6H20.5L19 20H5L3.5 6ZM10 11V17M14 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -182,6 +182,9 @@
 
     <!-- Social Proof Notifications -->
     <SocialProof :enabled="true" />
+
+    <!-- Auth Modal -->
+    <AuthModal v-if="isAuthModalOpen" @close="closeAuthModal" />
 
     <!-- Main Content -->
     <main class="main-content">
@@ -297,18 +300,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import { useCartStore } from '~/stores/cart';
-import { useRoute } from 'vue-router';
+import { ref, computed, onMounted, onUnmounted, watch, defineAsyncComponent } from 'vue';
+import { useCartStore } from '../stores/cart';
+import { useAuthStore } from '../stores/auth';
+import { useRoute, useRouter } from 'vue-router';
+
+// Lazy load AuthModal component
+const AuthModal = defineAsyncComponent(() => import('../components/AuthModal.vue'));
 
 const route = useRoute();
+const router = useRouter();
 const isScrolled = ref(false);
 const isSearchOpen = ref(false);
 const isMobileMenuOpen = ref(false);
+const isAuthModalOpen = ref(false);
 const cartStore = useCartStore();
+const authStore = useAuthStore();
 
 // Get cart count from store
 const cartCount = computed(() => cartStore.totalItems);
+
+// Check if user is authenticated
+const isAuthenticated = computed(() => authStore.isAuthenticated);
+const currentUser = computed(() => authStore.user);
+
+// Handle profile/login click
+const handleProfileClick = () => {
+  if (isAuthenticated.value) {
+    // Navigate to account page if authenticated
+    router.push('/account');
+  } else {
+    // Open auth modal if not authenticated
+    isAuthModalOpen.value = true;
+  }
+};
+
+// Close auth modal
+const closeAuthModal = () => {
+  isAuthModalOpen.value = false;
+};
 
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 20;

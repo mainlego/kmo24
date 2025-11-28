@@ -314,19 +314,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useToast } from '~/composables/useToast';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useToast } from '../../../composables/useToast';
+import { useOrders } from '../../../composables/useOrders';
+import type { Order } from '../../../composables/useOrders';
 
 definePageMeta({
   layout: 'admin',
   middleware: ['auth', 'admin'],
 });
 
-const { success, error } = useToast();
+// Composables
+const { success: showSuccess, error: showError } = useToast();
+const { getOrders, updateOrder, getOrderStats } = useOrders();
 
 // Data
 const loading = ref(false);
-const selectedOrder = ref<any>(null);
+const selectedOrder = ref<Order | null>(null);
+const orders = ref<Order[]>([]);
+const pagination = ref({
+  page: 1,
+  limit: 20,
+  total: 0,
+  pages: 0,
+});
 
 // Filters
 const filters = ref({
@@ -366,10 +377,10 @@ const dateRangeOptions = ref([
 
 // Stats
 const stats = ref({
-  pending: 12,
-  processing: 8,
-  shipped: 15,
-  revenue: 1245000,
+  pending: 0,
+  processing: 0,
+  shipped: 0,
+  revenue: 0,
 });
 
 // Table columns
@@ -383,88 +394,49 @@ const columns = [
   { key: 'actions', label: 'Действия', sortable: false, width: '150px' },
 ];
 
-// Mock orders data
-const orders = ref([
-  {
-    id: '1',
-    orderNumber: '2024-001',
-    createdAt: '2024-01-20T10:30:00',
-    customer: {
-      name: 'Иван Петров',
-      email: 'ivan@example.com',
-      phone: '+7 (999) 123-45-67',
-    },
-    items: [
-      { id: '1', name: 'Фрезерный станок HAAS VF-2', sku: 'CNC-001', quantity: 1, price: 2500000, image: 'https://via.placeholder.com/60' },
-    ],
-    subtotal: 2500000,
-    deliveryPrice: 50000,
-    discount: 0,
-    total: 2550000,
-    status: 'pending',
-    paymentStatus: 'pending',
-    shippingAddress: {
-      city: 'Москва',
-      street: 'ул. Ленина',
-      building: '10',
-      apartment: '5',
-      postalCode: '101000',
-    },
-  },
-  {
-    id: '2',
-    orderNumber: '2024-002',
-    createdAt: '2024-01-21T14:15:00',
-    customer: {
-      name: 'Анна Смирнова',
-      email: 'anna@example.com',
-      phone: '+7 (999) 234-56-78',
-    },
-    items: [
-      { id: '2', name: 'Токарный станок 16К20', sku: 'LAT-001', quantity: 1, price: 450000, image: '' },
-      { id: '3', name: 'Сверлильный станок 2С132', sku: 'DRL-001', quantity: 1, price: 120000, image: '' },
-    ],
-    subtotal: 570000,
-    deliveryPrice: 30000,
-    discount: 10000,
-    total: 590000,
-    status: 'processing',
-    paymentStatus: 'paid',
-    shippingAddress: {
-      city: 'Санкт-Петербург',
-      street: 'Невский проспект',
-      building: '25',
-      apartment: '',
-      postalCode: '190000',
-    },
-  },
-  {
-    id: '3',
-    orderNumber: '2024-003',
-    createdAt: '2024-01-22T09:00:00',
-    customer: {
-      name: 'ООО "Технопром"',
-      email: 'info@tehnoprom.ru',
-      phone: '+7 (495) 123-45-67',
-    },
-    items: [
-      { id: '5', name: 'Деревообрабатывающий станок JET', sku: 'WOD-001', quantity: 2, price: 95000, image: '' },
-    ],
-    subtotal: 190000,
-    deliveryPrice: 15000,
-    discount: 5000,
-    total: 200000,
-    status: 'shipped',
-    paymentStatus: 'paid',
-    shippingAddress: {
-      city: 'Казань',
-      street: 'ул. Баумана',
-      building: '15',
-      apartment: '',
-      postalCode: '420000',
-    },
-  },
-]);
+// Functions for fetching data
+const fetchOrders = async () => {
+  loading.value = true;
+  try {
+    const response = await getOrders({
+      page: pagination.value.page,
+      limit: pagination.value.limit,
+      ...filters.value,
+    });
+
+    if (response.success && response.data) {
+      orders.value = response.data;
+      pagination.value = response.pagination || {
+        page: 1,
+        limit: 20,
+        total: response.data.length,
+        pages: Math.ceil(response.data.length / 20),
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    showError('Ошибка при загрузке заказов');
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchStats = async () => {
+  try {
+    const response = await getOrderStats();
+    if (response.success && response.data) {
+      // Update stats structure to match the existing format
+      stats.value = {
+        pending: response.data.pending || 0,
+        processing: response.data.processing || 0,
+        shipped: response.data.shipped || 0,
+        revenue: response.data.revenue || 0,
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching order stats:', error);
+  }
+};
 
 // Computed
 const filteredOrders = computed(() => {
@@ -475,9 +447,18 @@ const filteredOrders = computed(() => {
     result = result.filter(
       (o) =>
         o.orderNumber.toLowerCase().includes(search) ||
-        o.customer.name.toLowerCase().includes(search) ||
+        `${o.customer.firstName} ${o.customer.lastName}`.toLowerCase().includes(search) ||
         o.customer.email.toLowerCase().includes(search) ||
-        o.items.some((i) => i.name.toLowerCase().includes(search))
+        o.items.some((i) => {
+          // Check if product is populated object or just ID string
+          if (!i.product || typeof i.product === 'string') return false;
+          // Now TypeScript knows i.product is an object
+          const product = i.product as any;
+          if ('name' in product) {
+            return product.name.toLowerCase().includes(search);
+          }
+          return false;
+        })
     );
   }
 
@@ -486,7 +467,7 @@ const filteredOrders = computed(() => {
   }
 
   if (filters.value.paymentStatus) {
-    result = result.filter((o) => o.paymentStatus === filters.value.paymentStatus);
+    result = result.filter((o) => o.payment.status === filters.value.paymentStatus);
   }
 
   return result;
@@ -561,15 +542,15 @@ const saveOrderChanges = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     // Update local data
-    const index = orders.value.findIndex((o) => o.id === selectedOrder.value.id);
+    const index = orders.value.findIndex((o) => o._id === selectedOrder.value._id);
     if (index !== -1) {
       orders.value[index] = { ...selectedOrder.value };
     }
 
-    success('Заказ успешно обновлен');
+    showSuccess('Заказ успешно обновлен');
     closeOrderModal();
   } catch (err) {
-    error('Ошибка при обновлении заказа');
+    showError('Ошибка при обновлении заказа');
   } finally {
     loading.value = false;
   }
@@ -582,24 +563,36 @@ const updateStatus = (order: any) => {
 const printInvoice = async (orderId: string) => {
   try {
     // TODO: Generate and print invoice
-    success('Накладная отправлена на печать');
+    showSuccess('Накладная отправлена на печать');
   } catch (err) {
-    error('Ошибка при печати накладной');
+    showError('Ошибка при печати накладной');
   }
 };
 
 const exportOrders = async () => {
   try {
     // TODO: Export orders to CSV/Excel
-    success('Заказы экспортированы');
+    showSuccess('Заказы экспортированы');
   } catch (err) {
-    error('Ошибка при экспорте заказов');
+    showError('Ошибка при экспорте заказов');
   }
 };
 
-onMounted(() => {
-  // TODO: Fetch orders from API
+onMounted(async () => {
+  await Promise.all([
+    fetchOrders(),
+    fetchStats(),
+  ]);
 });
+
+// Watch for filter changes
+watch(
+  [() => filters.value, () => pagination.value.page],
+  () => {
+    fetchOrders();
+  },
+  { deep: true }
+);
 </script>
 
 <style scoped lang="scss">

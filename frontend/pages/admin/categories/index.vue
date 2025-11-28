@@ -56,7 +56,7 @@
       <div class="categories-tree">
         <CategoryTreeItem
           v-for="category in filteredCategories"
-          :key="category.id"
+          :key="category._id"
           :category="category"
           :level="0"
           @edit="editCategory"
@@ -191,14 +191,23 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { useToast } from '~/composables/useToast';
+import { useToast } from '../../../composables/useToast';
+import { useCategories } from '../../../composables/useCategories';
+import type { Category } from '../../../composables/useCategories';
 
 definePageMeta({
   layout: 'admin',
   middleware: ['auth', 'admin'],
 });
 
-const { success, error } = useToast();
+const { success: showSuccess, error: showError } = useToast();
+const {
+  getCategories,
+  getCategoryById,
+  createCategory: createCategoryApi,
+  updateCategory: updateCategoryApi,
+  deleteCategory: deleteCategoryApi
+} = useCategories();
 
 // Data
 const loading = ref(false);
@@ -215,156 +224,8 @@ const stats = ref({
   root: 6,
 });
 
-// Mock categories data (hierarchical)
-const categories = ref([
-  {
-    id: '1',
-    name: 'ЧПУ станки',
-    slug: 'chpu-stanki',
-    description: 'Станки с числовым программным управлением',
-    icon: 'IconCNC',
-    parentId: null,
-    order: 1,
-    isActive: true,
-    productsCount: 45,
-    childrenCount: 3,
-    metaTitle: 'Купить ЧПУ станки б/у',
-    metaDescription: 'Продажа б/у станков с ЧПУ в отличном состоянии',
-    children: [
-      {
-        id: '1-1',
-        name: 'Фрезерные',
-        slug: 'frezernye-chpu',
-        description: 'Фрезерные станки с ЧПУ',
-        icon: '',
-        parentId: '1',
-        order: 1,
-        isActive: true,
-        productsCount: 15,
-        childrenCount: 0,
-        children: [],
-      },
-      {
-        id: '1-2',
-        name: 'Токарные',
-        slug: 'tokarnye-chpu',
-        description: 'Токарные станки с ЧПУ',
-        icon: '',
-        parentId: '1',
-        order: 2,
-        isActive: true,
-        productsCount: 20,
-        childrenCount: 0,
-        children: [],
-      },
-      {
-        id: '1-3',
-        name: 'Лазерные',
-        slug: 'lazernye-chpu',
-        description: 'Лазерные станки с ЧПУ',
-        icon: '',
-        parentId: '1',
-        order: 3,
-        isActive: true,
-        productsCount: 10,
-        childrenCount: 0,
-        children: [],
-      },
-    ],
-  },
-  {
-    id: '2',
-    name: 'Металлообработка',
-    slug: 'metalloobrabotka',
-    description: 'Станки для обработки металла',
-    icon: 'IconMetal',
-    parentId: null,
-    order: 2,
-    isActive: true,
-    productsCount: 78,
-    childrenCount: 2,
-    children: [
-      {
-        id: '2-1',
-        name: 'Токарные станки',
-        slug: 'tokarnye-stanki',
-        description: 'Универсальные токарные станки',
-        icon: '',
-        parentId: '2',
-        order: 1,
-        isActive: true,
-        productsCount: 45,
-        childrenCount: 0,
-        children: [],
-      },
-      {
-        id: '2-2',
-        name: 'Сверлильные станки',
-        slug: 'sverlilnye-stanki',
-        description: 'Сверлильные и расточные станки',
-        icon: '',
-        parentId: '2',
-        order: 2,
-        isActive: true,
-        productsCount: 33,
-        childrenCount: 0,
-        children: [],
-      },
-    ],
-  },
-  {
-    id: '3',
-    name: 'Деревообработка',
-    slug: 'derevoobrabotka',
-    description: 'Станки для обработки дерева',
-    icon: 'IconWood',
-    parentId: null,
-    order: 3,
-    isActive: true,
-    productsCount: 32,
-    childrenCount: 0,
-    children: [],
-  },
-  {
-    id: '4',
-    name: 'Сварочное оборудование',
-    slug: 'svarochnoe-oborudovanie',
-    description: 'Сварочные аппараты и оборудование',
-    icon: 'IconWelding',
-    parentId: null,
-    order: 4,
-    isActive: true,
-    productsCount: 25,
-    childrenCount: 0,
-    children: [],
-  },
-  {
-    id: '5',
-    name: 'Измерительное оборудование',
-    slug: 'izmeritelnoe-oborudovanie',
-    description: 'Измерительные приборы и инструменты',
-    icon: 'IconMeasure',
-    parentId: null,
-    order: 5,
-    isActive: true,
-    productsCount: 18,
-    childrenCount: 0,
-    children: [],
-  },
-  {
-    id: '6',
-    name: 'Прессы',
-    slug: 'pressy',
-    description: 'Гидравлические и механические прессы',
-    icon: 'IconPress',
-    parentId: null,
-    order: 6,
-    isActive: false,
-    productsCount: 0,
-    childrenCount: 0,
-    children: [],
-  },
-]);
+// Categories data
+const categories = ref<Category[]>([]);
 
 // Computed
 const filteredCategories = computed(() => {
@@ -390,15 +251,15 @@ const filteredCategories = computed(() => {
 const parentCategoryOptions = computed(() => {
   const options: any[] = [{ value: null, label: 'Корневая категория' }];
 
-  const flattenCategories = (cats: any[], level = 0) => {
+  const flattenCategories = (cats: Category[], level = 0) => {
     cats.forEach((cat) => {
       // Don't show self as parent option
-      if (selectedCategory.value && cat.id === selectedCategory.value.id) {
+      if (selectedCategory.value && cat._id === selectedCategory.value._id) {
         return;
       }
 
       options.push({
-        value: cat.id,
+        value: cat._id,
         label: '  '.repeat(level) + cat.name,
       });
 
@@ -415,12 +276,15 @@ const parentCategoryOptions = computed(() => {
 // Methods
 const openCreateCategoryModal = () => {
   selectedCategory.value = {
+    _id: '',
     name: '',
     slug: '',
     description: '',
     icon: '',
-    parentId: null,
-    order: 0,
+    parent: null,
+    parentId: null,  // For form binding
+    sortOrder: 0,
+    order: 0,  // Alias for sortOrder
     isActive: true,
     metaTitle: '',
     metaDescription: '',
@@ -429,8 +293,14 @@ const openCreateCategoryModal = () => {
   errors.value = {};
 };
 
-const editCategory = (category: any) => {
-  selectedCategory.value = { ...category };
+const editCategory = (category: Category) => {
+  selectedCategory.value = {
+    ...category,
+    parentId: typeof category.parent === 'string' ? category.parent : category.parent?._id || null,
+    order: category.sortOrder || 0,
+    metaTitle: category.seo?.title || '',
+    metaDescription: category.seo?.description || '',
+  };
   isNewCategory.value = false;
   errors.value = {};
 };
@@ -453,7 +323,7 @@ const validateCategory = () => {
 
 const saveCategory = async () => {
   if (!validateCategory()) {
-    error('Пожалуйста, заполните все обязательные поля');
+    showError('Пожалуйста, заполните все обязательные поля');
     return;
   }
 
@@ -468,144 +338,161 @@ const saveCategory = async () => {
         .replace(/[^a-z0-9-]/g, '');
     }
 
-    // TODO: API call to save category
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Prepare category data for API
+    const categoryData: Partial<Category> = {
+      name: selectedCategory.value.name,
+      slug: selectedCategory.value.slug,
+      description: selectedCategory.value.description,
+      parent: selectedCategory.value.parentId || null,
+      icon: selectedCategory.value.icon,
+      sortOrder: selectedCategory.value.order || 0,
+      isActive: selectedCategory.value.isActive,
+      seo: {
+        title: selectedCategory.value.metaTitle,
+        description: selectedCategory.value.metaDescription,
+      },
+    };
 
     if (isNewCategory.value) {
-      // Add new category
-      const newCategory = {
-        ...selectedCategory.value,
-        id: String(Date.now()),
-        productsCount: 0,
-        childrenCount: 0,
-        children: [],
-      };
-
-      if (selectedCategory.value.parentId) {
-        // Add as child
-        const addToParent = (cats: any[]): boolean => {
-          for (const cat of cats) {
-            if (cat.id === selectedCategory.value.parentId) {
-              if (!cat.children) cat.children = [];
-              cat.children.push(newCategory);
-              cat.childrenCount++;
-              return true;
-            }
-            if (cat.children && cat.children.length > 0) {
-              if (addToParent(cat.children)) return true;
-            }
-          }
-          return false;
-        };
-        addToParent(categories.value);
-      } else {
-        // Add as root
-        categories.value.push(newCategory);
-      }
-
-      success('Категория успешно создана');
+      // Create new category via API
+      await createCategoryApi(categoryData);
+      showSuccess('Категория успешно создана');
     } else {
-      // Update existing category
-      const updateCategory = (cats: any[]): boolean => {
-        for (let i = 0; i < cats.length; i++) {
-          if (cats[i].id === selectedCategory.value.id) {
-            cats[i] = { ...cats[i], ...selectedCategory.value };
-            return true;
-          }
-          if (cats[i].children && cats[i].children.length > 0) {
-            if (updateCategory(cats[i].children)) return true;
-          }
-        }
-        return false;
-      };
-      updateCategory(categories.value);
-
-      success('Категория успешно обновлена');
+      // Update existing category via API
+      await updateCategoryApi(selectedCategory.value._id, categoryData);
+      showSuccess('Категория успешно обновлена');
     }
 
+    // Refresh categories list
+    await fetchCategories();
     closeCategoryModal();
   } catch (err) {
-    error('Ошибка при сохранении категории');
+    console.error('Error saving category:', err);
+    // Error message already shown by API
   } finally {
     loading.value = false;
   }
 };
 
-const toggleCategory = async (category: any) => {
+const toggleCategory = async (category: Category) => {
   try {
     loading.value = true;
 
-    // TODO: API call to toggle category status
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    // Toggle category status via API
+    await updateCategoryApi(category._id, { isActive: !category.isActive });
 
-    const updateStatus = (cats: any[]): boolean => {
-      for (const cat of cats) {
-        if (cat.id === category.id) {
-          cat.isActive = !cat.isActive;
-          return true;
-        }
-        if (cat.children && cat.children.length > 0) {
-          if (updateStatus(cat.children)) return true;
-        }
-      }
-      return false;
-    };
-    updateStatus(categories.value);
+    showSuccess(!category.isActive ? 'Категория активирована' : 'Категория деактивирована');
 
-    success(category.isActive ? 'Категория деактивирована' : 'Категория активирована');
+    // Refresh categories list
+    await fetchCategories();
   } catch (err) {
-    error('Ошибка при изменении статуса категории');
+    console.error('Error toggling category:', err);
+    // Error message already shown by API
   } finally {
     loading.value = false;
   }
 };
 
-const deleteCategory = async (category: any) => {
-  if (category.productsCount > 0) {
-    error('Нельзя удалить категорию с товарами');
+const deleteCategory = async (category: Category) => {
+  // Check if category has children
+  if (category.children && category.children.length > 0) {
+    showError('Нельзя удалить категорию с подкатегориями');
     return;
   }
 
-  if (category.childrenCount > 0) {
-    error('Нельзя удалить категорию с подкатегориями');
-    return;
-  }
+  // TODO: Check if category has products when products API is available
 
   if (!confirm(`Вы уверены, что хотите удалить категорию "${category.name}"?`)) return;
 
   try {
     loading.value = true;
 
-    // TODO: API call to delete category
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Delete category via API
+    await deleteCategoryApi(category._id);
 
-    const removeCategory = (cats: any[]): boolean => {
-      for (let i = 0; i < cats.length; i++) {
-        if (cats[i].id === category.id) {
-          cats.splice(i, 1);
-          return true;
-        }
-        if (cats[i].children && cats[i].children.length > 0) {
-          if (removeCategory(cats[i].children)) {
-            cats[i].childrenCount--;
-            return true;
-          }
-        }
-      }
-      return false;
-    };
-    removeCategory(categories.value);
+    showSuccess('Категория успешно удалена');
 
-    success('Категория успешно удалена');
+    // Refresh categories list
+    await fetchCategories();
   } catch (err) {
-    error('Ошибка при удалении категории');
+    console.error('Error deleting category:', err);
+    // Error message already shown by API
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Функция для построения иерархического дерева категорий
+const buildCategoryTree = (cats: Category[]): Category[] => {
+  const categoryMap = new Map<string, Category>();
+  const rootCategories: Category[] = [];
+
+  // Создаем карту всех категорий
+  cats.forEach(cat => {
+    categoryMap.set(cat._id, { ...cat, children: [] });
+  });
+
+  // Строим дерево
+  cats.forEach(cat => {
+    const mappedCat = categoryMap.get(cat._id)!;
+    if (cat.parent) {
+      const parentId = typeof cat.parent === 'string' ? cat.parent : cat.parent._id;
+      const parentCat = categoryMap.get(parentId);
+      if (parentCat) {
+        if (!parentCat.children) parentCat.children = [];
+        parentCat.children.push(mappedCat);
+      } else {
+        rootCategories.push(mappedCat);
+      }
+    } else {
+      rootCategories.push(mappedCat);
+    }
+  });
+
+  return rootCategories;
+};
+
+// Функция для подсчета статистики
+const calculateStats = (cats: Category[]) => {
+  let total = 0;
+  let active = 0;
+  let withProducts = 0;
+  let root = 0;
+
+  const countCategories = (catList: Category[]) => {
+    catList.forEach(cat => {
+      total++;
+      if (cat.isActive) active++;
+      // TODO: добавить подсчет товаров когда будет API
+      if (!cat.parent) root++;
+      if (cat.children && cat.children.length > 0) {
+        countCategories(cat.children);
+      }
+    });
+  };
+
+  countCategories(cats);
+
+  stats.value = { total, active, withProducts, root };
+};
+
+// Fetch categories from API
+const fetchCategories = async () => {
+  try {
+    loading.value = true;
+    const data = await getCategories(true); // include inactive
+    categories.value = buildCategoryTree(data);
+    calculateStats(categories.value);
+  } catch (err) {
+    console.error('Error fetching categories:', err);
+    showError('Ошибка при загрузке категорий');
   } finally {
     loading.value = false;
   }
 };
 
 onMounted(() => {
-  // TODO: Fetch categories from API
+  fetchCategories();
 });
 </script>
 

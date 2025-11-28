@@ -269,7 +269,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useCRMStore } from '~/stores/crm';
 import { useToast } from '~/composables/useToast';
 
@@ -287,6 +287,22 @@ const statusFilter = ref('');
 const showFilters = ref(false);
 const currentPage = ref(1);
 const itemsPerPage = 10;
+const loading = ref(false);
+
+// Load data on mount
+onMounted(async () => {
+  loading.value = true;
+  try {
+    await Promise.all([
+      crmStore.fetchLeads(),
+      crmStore.fetchStats(),
+    ]);
+  } catch (err: any) {
+    error(err.message || 'Ошибка при загрузке данных');
+  } finally {
+    loading.value = false;
+  }
+});
 
 // Stats from store
 const stats = computed(() => ({
@@ -374,22 +390,54 @@ const getStatusLabel = (status: string) => {
   return labels[status] || status;
 };
 
-const openLeadModal = () => {
-  success('Открытие формы создания лида');
+// Modal state
+const showLeadModal = ref(false);
+const editingLead = ref<any>(null);
+
+const openLeadModal = (lead?: any) => {
+  editingLead.value = lead || null;
+  showLeadModal.value = true;
+};
+
+const closeLeadModal = () => {
+  showLeadModal.value = false;
+  editingLead.value = null;
+};
+
+const saveLead = async (leadData: any) => {
+  try {
+    if (editingLead.value) {
+      await crmStore.updateLead(editingLead.value._id || editingLead.value.id, leadData);
+      success('Лид успешно обновлен');
+    } else {
+      await crmStore.addLead(leadData);
+      success('Лид успешно создан');
+    }
+    closeLeadModal();
+    // Обновляем список
+    await crmStore.fetchLeads();
+  } catch (err: any) {
+    error(err.message || 'Ошибка при сохранении лида');
+  }
 };
 
 const editLead = (lead: any) => {
-  success(`Редактирование лида: ${lead.name}`);
+  openLeadModal(lead);
 };
 
 const viewLeadDetails = (lead: any) => {
+  // TODO: Открыть детальную страницу лида
   success(`Просмотр деталей лида: ${lead.name}`);
 };
 
-const deleteLead = (lead: any) => {
-  if (confirm(`Удалить лида "${lead.name}"?`)) {
-    crmStore.deleteLead(lead.id);
-    success('Лид успешно удален');
+const deleteLead = async (lead: any) => {
+  if (confirm(`Вы уверены, что хотите удалить лид "${lead.name}"?`)) {
+    try {
+      await crmStore.deleteLead(lead._id || lead.id);
+      success('Лид успешно удален');
+    } catch (err: any) {
+      error(err.message || 'Ошибка при удалении лида');
+    }
   }
 };
 </script>

@@ -1,8 +1,10 @@
 <template>
   <div id="app">
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
+    <ErrorBoundary>
+      <NuxtLayout>
+        <NuxtPage />
+      </NuxtLayout>
+    </ErrorBoundary>
     <Toast />
   </div>
 </template>

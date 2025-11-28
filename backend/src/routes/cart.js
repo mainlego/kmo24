@@ -10,6 +10,7 @@ import {
 } from '../controllers/cart.js';
 import { optionalAuth } from '../middleware/auth.js';
 import { validate, cartSchemas } from '../utils/validation.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
@@ -18,48 +19,48 @@ const router = express.Router();
  * @desc    Получение корзины
  * @access  Public (с session ID) / Private
  */
-router.get('/', optionalAuth, getCart);
+router.get('/', optionalAuth, asyncHandler(getCart));
 
 /**
  * @route   POST /api/v1/cart/items
  * @desc    Добавление товара в корзину
  * @access  Public (с session ID) / Private
  */
-router.post('/items', optionalAuth, validate(cartSchemas.addItem), addItem);
+router.post('/items', optionalAuth, validate(cartSchemas.addItem), asyncHandler(addItem));
 
 /**
  * @route   PUT /api/v1/cart/items/:productId
  * @desc    Обновление количества товара
  * @access  Public (с session ID) / Private
  */
-router.put('/items/:productId', optionalAuth, validate(cartSchemas.updateItem), updateItem);
+router.put('/items/:productId', optionalAuth, validate(cartSchemas.updateItem), asyncHandler(updateItem));
 
 /**
  * @route   DELETE /api/v1/cart/items/:productId
  * @desc    Удаление товара из корзины
  * @access  Public (с session ID) / Private
  */
-router.delete('/items/:productId', optionalAuth, removeItem);
+router.delete('/items/:productId', optionalAuth, asyncHandler(removeItem));
 
 /**
  * @route   DELETE /api/v1/cart
  * @desc    Очистка корзины
  * @access  Public (с session ID) / Private
  */
-router.delete('/', optionalAuth, clearCart);
+router.delete('/', optionalAuth, asyncHandler(clearCart));
 
 /**
  * @route   POST /api/v1/cart/promo-code
  * @desc    Применение промокода
  * @access  Public (с session ID) / Private
  */
-router.post('/promo-code', optionalAuth, validate(cartSchemas.applyPromoCode), applyPromoCode);
+router.post('/promo-code', optionalAuth, validate(cartSchemas.applyPromoCode), asyncHandler(applyPromoCode));
 
 /**
  * @route   DELETE /api/v1/cart/promo-code
  * @desc    Удаление промокода
  * @access  Public (с session ID) / Private
  */
-router.delete('/promo-code', optionalAuth, removePromoCode);
+router.delete('/promo-code', optionalAuth, asyncHandler(removePromoCode));
 
 export default router;

@@ -11,6 +11,7 @@ import {
 import { protect, authorize } from '../middleware/auth.js';
 import { validate, productSchemas } from '../utils/validation.js';
 import { apiLimiter } from '../middleware/rateLimiter.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
@@ -19,28 +20,28 @@ const router = express.Router();
  * @desc    Получение списка товаров с фильтрацией
  * @access  Public
  */
-router.get('/', apiLimiter, validate(productSchemas.query, 'query'), getProducts);
+router.get('/', apiLimiter, validate(productSchemas.query, 'query'), asyncHandler(getProducts));
 
 /**
  * @route   GET /api/v1/products/:id
  * @desc    Получение одного товара
  * @access  Public
  */
-router.get('/:id', getProduct);
+router.get('/:id', asyncHandler(getProduct));
 
 /**
  * @route   GET /api/v1/products/:id/reviews
  * @desc    Получение отзывов товара
  * @access  Public
  */
-router.get('/:id/reviews', getProductReviews);
+router.get('/:id/reviews', asyncHandler(getProductReviews));
 
 /**
  * @route   GET /api/v1/products/:id/related
  * @desc    Получение похожих товаров
  * @access  Public
  */
-router.get('/:id/related', getRelatedProducts);
+router.get('/:id/related', asyncHandler(getRelatedProducts));
 
 /**
  * @route   POST /api/v1/products
@@ -52,7 +53,7 @@ router.post(
   protect,
   authorize('admin', 'manager'),
   validate(productSchemas.create),
-  createProduct
+  asyncHandler(createProduct)
 );
 
 /**
@@ -65,7 +66,7 @@ router.put(
   protect,
   authorize('admin', 'manager'),
   validate(productSchemas.update),
-  updateProduct
+  asyncHandler(updateProduct)
 );
 
 /**
@@ -73,6 +74,6 @@ router.put(
  * @desc    Удаление товара (деактивация)
  * @access  Private (Admin)
  */
-router.delete('/:id', protect, authorize('admin'), deleteProduct);
+router.delete('/:id', protect, authorize('admin'), asyncHandler(deleteProduct));
 
 export default router;

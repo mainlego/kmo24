@@ -8,12 +8,24 @@ const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
-  // Логирование ошибки
+  // Логирование ошибки с расширенным контекстом
   logger.error(`Error: ${err.message}`, {
     stack: err.stack,
-    url: req.url,
+    url: req.originalUrl || req.url,
     method: req.method,
     ip: req.ip,
+    userAgent: req.get('user-agent'),
+    userId: req.user?._id || 'anonymous',
+    body: req.body,
+    params: req.params,
+    query: req.query,
+    headers: {
+      'content-type': req.get('content-type'),
+      'x-session-id': req.get('x-session-id'),
+    },
+    timestamp: new Date().toISOString(),
+    errorCode: err.code,
+    errorName: err.name,
   });
 
   // Ошибка валидации Mongoose

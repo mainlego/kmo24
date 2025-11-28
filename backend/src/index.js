@@ -17,6 +17,7 @@ import validateRequiredEnv from './config/validateEnv.js';
 import logger from './utils/logger.js';
 import errorHandler from './middleware/errorHandler.js';
 import notFound from './middleware/notFound.js';
+import requestLogger from './middleware/requestLogger.js';
 
 console.log('Validating environment variables...');
 // Валидация environment variables при запуске
@@ -41,6 +42,7 @@ import commercialOfferRoutes from './routes/commercialOffers.js';
 import integration1cRoutes from './routes/integration1c.js';
 import apiKeysRoutes from './routes/apiKeys.js';
 import deliveryRoutes from './routes/delivery.js';
+import leadRoutes from './routes/leads.js';
 
 const app = express();
 
@@ -97,6 +99,9 @@ if (config.env === 'development') {
   }));
 }
 
+// Расширенное логирование запросов
+app.use(requestLogger);
+
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({
@@ -131,6 +136,7 @@ app.use(`${API_PREFIX}/commercial-offers`, commercialOfferRoutes);
 app.use(`${API_PREFIX}/integration/1c`, integration1cRoutes);
 app.use(`${API_PREFIX}/admin/api-keys`, apiKeysRoutes);
 app.use(`${API_PREFIX}/delivery`, deliveryRoutes);
+app.use(`${API_PREFIX}/leads`, leadRoutes);
 
 // Статические файлы
 app.use('/uploads', express.static('uploads'));

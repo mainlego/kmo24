@@ -10,19 +10,20 @@ import {
   getOrderStats,
 } from '../controllers/orders.js';
 import { protect, authorize } from '../middleware/auth.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
 // Публичные/защищенные маршруты
-router.post('/', protect, createOrder);
-router.get('/', protect, getMyOrders);
-router.get('/:id', protect, getOrder);
-router.post('/:id/cancel', protect, cancelOrder);
+router.post('/', protect, asyncHandler(createOrder));
+router.get('/', protect, asyncHandler(getMyOrders));
+router.get('/:id', protect, asyncHandler(getOrder));
+router.post('/:id/cancel', protect, asyncHandler(cancelOrder));
 
 // Маршруты только для администраторов
-router.get('/all/list', protect, authorize('admin', 'manager'), getAllOrders);
-router.patch('/:id/status', protect, authorize('admin', 'manager'), updateOrderStatus);
-router.patch('/:id/payment', protect, authorize('admin', 'manager'), updatePaymentStatus);
-router.get('/stats/summary', protect, authorize('admin', 'manager'), getOrderStats);
+router.get('/all/list', protect, authorize('admin', 'manager'), asyncHandler(getAllOrders));
+router.patch('/:id/status', protect, authorize('admin', 'manager'), asyncHandler(updateOrderStatus));
+router.patch('/:id/payment', protect, authorize('admin', 'manager'), asyncHandler(updatePaymentStatus));
+router.get('/stats/summary', protect, authorize('admin', 'manager'), asyncHandler(getOrderStats));
 
 export default router;

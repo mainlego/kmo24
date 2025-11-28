@@ -1,6 +1,7 @@
 import express from 'express';
 import apiKeysController from '../controllers/apiKeys.js';
 import { protect as authenticate, authorize } from '../middleware/auth.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
@@ -15,27 +16,27 @@ router.use(authorize('admin'));
  */
 
 // Get all API keys
-router.get('/', apiKeysController.getAllApiKeys);
+router.get('/', asyncHandler(apiKeysController.getAllApiKeys));
 
 // Get integration statistics overview
-router.get('/stats/overview', apiKeysController.getIntegrationStats);
+router.get('/stats/overview', asyncHandler(apiKeysController.getIntegrationStats));
 
 // Get single API key with stats
-router.get('/:id', apiKeysController.getApiKey);
+router.get('/:id', asyncHandler(apiKeysController.getApiKey));
 
 // Create new API key
-router.post('/', apiKeysController.createApiKey);
+router.post('/', asyncHandler(apiKeysController.createApiKey));
 
 // Update API key
-router.put('/:id', apiKeysController.updateApiKey);
+router.put('/:id', asyncHandler(apiKeysController.updateApiKey));
 
 // Regenerate API secret
-router.post('/:id/regenerate', apiKeysController.regenerateSecret);
+router.post('/:id/regenerate', asyncHandler(apiKeysController.regenerateSecret));
 
 // Delete API key
-router.delete('/:id', apiKeysController.deleteApiKey);
+router.delete('/:id', asyncHandler(apiKeysController.deleteApiKey));
 
 // Get logs for specific API key
-router.get('/:id/logs', apiKeysController.getApiKeyLogs);
+router.get('/:id/logs', asyncHandler(apiKeysController.getApiKeyLogs));
 
 export default router;

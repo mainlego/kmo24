@@ -1,6 +1,7 @@
 import express from 'express';
 import integration1cController from '../controllers/integration1c.js';
 import { apiAuth, requirePermissions } from '../middleware/apiAuth.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
@@ -10,10 +11,10 @@ const router = express.Router();
  */
 
 // Health check - minimal permissions required
-router.get('/health', apiAuth([]), integration1cController.healthCheck);
+router.get('/health', apiAuth([]), asyncHandler(integration1cController.healthCheck));
 
 // Get integration statistics
-router.get('/stats', apiAuth([]), integration1cController.getStats);
+router.get('/stats', apiAuth([]), asyncHandler(integration1cController.getStats));
 
 /**
  * Products Management
@@ -23,7 +24,7 @@ router.get('/stats', apiAuth([]), integration1cController.getStats);
 router.post(
   '/products/sync',
   requirePermissions('products.write'),
-  integration1cController.syncProducts
+  asyncHandler(integration1cController.syncProducts)
 );
 
 /**
@@ -34,7 +35,7 @@ router.post(
 router.post(
   '/categories/sync',
   requirePermissions('categories.write'),
-  integration1cController.syncCategories
+  asyncHandler(integration1cController.syncCategories)
 );
 
 /**
@@ -45,7 +46,7 @@ router.post(
 router.post(
   '/stock/update',
   requirePermissions('stock.write'),
-  integration1cController.updateStock
+  asyncHandler(integration1cController.updateStock)
 );
 
 /**
@@ -56,7 +57,7 @@ router.post(
 router.post(
   '/prices/update',
   requirePermissions('prices.write'),
-  integration1cController.updatePrices
+  asyncHandler(integration1cController.updatePrices)
 );
 
 /**
@@ -67,21 +68,21 @@ router.post(
 router.get(
   '/orders/new',
   requirePermissions('orders.read'),
-  integration1cController.getNewOrders
+  asyncHandler(integration1cController.getNewOrders)
 );
 
 // Update order status from 1C
 router.post(
   '/orders/:id/status',
   requirePermissions('orders.write'),
-  integration1cController.updateOrderStatus
+  asyncHandler(integration1cController.updateOrderStatus)
 );
 
 // Mark orders as exported to 1C
 router.post(
   '/orders/mark-exported',
   requirePermissions('orders.write'),
-  integration1cController.markOrdersAsExported
+  asyncHandler(integration1cController.markOrdersAsExported)
 );
 
 export default router;

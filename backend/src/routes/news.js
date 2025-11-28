@@ -11,20 +11,21 @@ import {
   syncFromTelegram,
 } from '../controllers/news.js';
 import { protect, authorize } from '../middleware/auth.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
 // Публичные маршруты
-router.get('/', getNews);
-router.get('/tags/all', getAllTags);
-router.get('/:id', getNewsItem);
-router.get('/:id/related', getRelatedNews);
+router.get('/', asyncHandler(getNews));
+router.get('/tags/all', asyncHandler(getAllTags));
+router.get('/:id', asyncHandler(getNewsItem));
+router.get('/:id/related', asyncHandler(getRelatedNews));
 
 // Маршруты только для администраторов
-router.post('/', protect, authorize('admin', 'manager'), createNews);
-router.put('/:id', protect, authorize('admin', 'manager'), updateNews);
-router.delete('/:id', protect, authorize('admin', 'manager'), deleteNews);
-router.patch('/:id/publish', protect, authorize('admin', 'manager'), togglePublish);
-router.post('/sync/telegram', protect, authorize('admin', 'manager'), syncFromTelegram);
+router.post('/', protect, authorize('admin', 'manager'), asyncHandler(createNews));
+router.put('/:id', protect, authorize('admin', 'manager'), asyncHandler(updateNews));
+router.delete('/:id', protect, authorize('admin', 'manager'), asyncHandler(deleteNews));
+router.patch('/:id/publish', protect, authorize('admin', 'manager'), asyncHandler(togglePublish));
+router.post('/sync/telegram', protect, authorize('admin', 'manager'), asyncHandler(syncFromTelegram));
 
 export default router;

@@ -86,13 +86,13 @@
       <template #cell-user="{ item }">
         <div class="user-cell">
           <div class="avatar">
-            <img v-if="item.avatar" :src="item.avatar" :alt="item.name" />
+            <img v-if="item.avatar" :src="item.avatar" :alt="`${item.firstName} ${item.lastName}`" />
             <div v-else class="avatar-placeholder">
-              {{ getInitials(item.name) }}
+              {{ getInitials(item) }}
             </div>
           </div>
           <div class="user-info">
-            <div class="name">{{ item.name }}</div>
+            <div class="name">{{ item.firstName }} {{ item.lastName }}</div>
             <div class="email">{{ item.email }}</div>
           </div>
         </div>
@@ -166,11 +166,19 @@
             <h3 class="section-title">Личная информация</h3>
 
             <FormInput
-              v-model="selectedUser.name"
+              v-model="selectedUser.firstName"
               label="Имя"
-              placeholder="Иван Петров"
+              placeholder="Иван"
               :required="true"
-              :error="errors.name"
+              :error="errors.firstName"
+            />
+
+            <FormInput
+              v-model="selectedUser.lastName"
+              label="Фамилия"
+              placeholder="Петров"
+              :required="true"
+              :error="errors.lastName"
             />
 
             <FormInput
@@ -219,7 +227,7 @@
                 <span>Аккаунт активен</span>
               </label>
               <label class="checkbox-label">
-                <input v-model="selectedUser.emailVerified" type="checkbox" />
+                <input v-model="selectedUser.isEmailVerified" type="checkbox" />
                 <span>Email подтвержден</span>
               </label>
             </div>
@@ -262,15 +270,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useToast } from '~/composables/useToast';
+import { useUsers } from '~/composables/useUsers';
+import type { User } from '~/composables/useUsers';
 
 definePageMeta({
   layout: 'admin',
   middleware: ['auth', 'admin'],
 });
 
-const { success, error } = useToast();
+const { success: showSuccess, error: showError } = useToast();
+const { getUsers, getUserById, createUser, updateUser, deleteUser: deleteUserApi, getUserStats } = useUsers();
 
 // Data
 const loading = ref(false);
@@ -301,10 +312,19 @@ const statusOptions = ref([
 
 // Stats
 const stats = ref({
-  total: 284,
-  active: 268,
-  customers: 256,
-  admins: 12,
+  total: 0,
+  active: 0,
+  customers: 0,
+  admins: 0,
+});
+
+// Data
+const users = ref<User[]>([]);
+const pagination = ref({
+  page: 1,
+  limit: 20,
+  total: 0,
+  pages: 0,
 });
 
 // Table columns
@@ -317,79 +337,49 @@ const columns = [
   { key: 'actions', label: 'Действия', sortable: false, width: '150px' },
 ];
 
-// Mock users data
-const users = ref([
-  {
-    id: '1',
-    name: 'Иван Петров',
-    email: 'ivan@example.com',
-    phone: '+7 (999) 123-45-67',
-    avatar: '',
-    role: 'admin',
-    isActive: true,
-    emailVerified: true,
-    ordersCount: 15,
-    totalSpent: 2500000,
-    lastLogin: '2024-01-20T15:30:00',
-    createdAt: '2023-01-15T10:00:00',
-  },
-  {
-    id: '2',
-    name: 'Анна Смирнова',
-    email: 'anna@example.com',
-    phone: '+7 (999) 234-56-78',
-    avatar: '',
-    role: 'customer',
-    isActive: true,
-    emailVerified: true,
-    ordersCount: 8,
-    totalSpent: 1250000,
-    lastLogin: '2024-01-19T12:15:00',
-    createdAt: '2023-03-20T14:30:00',
-  },
-  {
-    id: '3',
-    name: 'Сергей Иванов',
-    email: 'sergey@example.com',
-    phone: '',
-    avatar: '',
-    role: 'manager',
-    isActive: true,
-    emailVerified: true,
-    ordersCount: 0,
-    totalSpent: 0,
-    lastLogin: '2024-01-18T09:45:00',
-    createdAt: '2023-06-10T11:00:00',
-  },
-  {
-    id: '4',
-    name: 'Мария Козлова',
-    email: 'maria@example.com',
-    phone: '+7 (999) 345-67-89',
-    avatar: '',
-    role: 'customer',
-    isActive: false,
-    emailVerified: false,
-    ordersCount: 2,
-    totalSpent: 450000,
-    lastLogin: '2023-12-25T16:20:00',
-    createdAt: '2023-08-05T09:15:00',
-  },
-  {
-    id: '5',
-    name: 'Дмитрий Волков',
-    email: 'dmitry@example.com',
-    phone: '+7 (999) 456-78-90',
-    avatar: '',
-    role: 'customer',
-    isActive: true,
-    emailVerified: true,
-    ordersCount: 12,
-    totalSpent: 3200000,
-    lastLogin: '2024-01-21T10:00:00',
-    createdAt: '2023-02-12T13:45:00',
-  },
-]);
+// Functions for fetching data
+const fetchUsers = async () => {
+  loading.value = true;
+  try {
+    const response = await getUsers({
+      page: pagination.value.page,
+      limit: pagination.value.limit,
+      search: filters.value.search,
+      role: filters.value.role,
+      isActive: filters.value.status === 'active' ? true : filters.value.status === 'blocked' ? false : undefined,
+    });
+
+    if (response.success && response.data) {
+      users.value = response.data;
+      pagination.value = response.pagination || {
+        page: 1,
+        limit: 20,
+        total: response.data.length,
+        pages: Math.ceil(response.data.length / 20),
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching users:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchStats = async () => {
+  try {
+    const statsData = await getUserStats();
+    if (statsData) {
+      stats.value = {
+        total: statsData.total || 0,
+        active: statsData.active || 0,
+        customers: statsData.users || 0,
+        admins: statsData.admins || 0,
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching user stats:', error);
+  }
+};
 
 // Computed
 const filteredUsers = computed(() => {
@@ -444,7 +434,9 @@ const formatDate = (date: string) => {
   }).format(new Date(date));
 };
 
-const getInitials = (name: string) => {
+const getInitials = (user: any) => {
+  const name = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+  if (!name) return '??';
   return name
     .split(' ')
     .map((n) => n[0])
@@ -464,13 +456,14 @@ const getRoleLabel = (role: string) => {
 
 const openCreateUserModal = () => {
   selectedUser.value = {
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
     phone: '',
     password: '',
     role: 'customer',
     isActive: true,
-    emailVerified: false,
+    isEmailVerified: false,
   };
   isNewUser.value = true;
   errors.value = {};
@@ -495,8 +488,12 @@ const closeUserModal = () => {
 const validateUser = () => {
   errors.value = {};
 
-  if (!selectedUser.value.name) {
-    errors.value.name = 'Имя обязательно';
+  if (!selectedUser.value.firstName) {
+    errors.value.firstName = 'Имя обязательно';
+  }
+
+  if (!selectedUser.value.lastName) {
+    errors.value.lastName = 'Фамилия обязательна';
   }
 
   if (!selectedUser.value.email) {
@@ -514,37 +511,45 @@ const validateUser = () => {
 
 const saveUser = async () => {
   if (!validateUser()) {
-    error('Пожалуйста, заполните все обязательные поля');
+    showError('Пожалуйста, заполните все обязательные поля');
     return;
   }
 
   try {
     loading.value = true;
 
-    // TODO: API call to save user
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
     if (isNewUser.value) {
-      users.value.push({
-        ...selectedUser.value,
-        id: String(users.value.length + 1),
-        ordersCount: 0,
-        totalSpent: 0,
-        lastLogin: null,
-        createdAt: new Date().toISOString(),
+      // Create new user with API
+      const newUser = await createUser({
+        firstName: selectedUser.value.firstName,
+        lastName: selectedUser.value.lastName,
+        email: selectedUser.value.email,
+        phone: selectedUser.value.phone,
+        role: selectedUser.value.role,
+        password: selectedUser.value.password,
+        isActive: selectedUser.value.isActive,
       });
-      success('Пользователь успешно создан');
+
+      // Refresh users list
+      await fetchUsers();
     } else {
-      const index = users.value.findIndex((u) => u.id === selectedUser.value.id);
-      if (index !== -1) {
-        users.value[index] = { ...selectedUser.value };
-      }
-      success('Пользователь успешно обновлен');
+      // Update existing user with API
+      await updateUser(selectedUser.value._id, {
+        firstName: selectedUser.value.firstName,
+        lastName: selectedUser.value.lastName,
+        email: selectedUser.value.email,
+        phone: selectedUser.value.phone,
+        role: selectedUser.value.role,
+        isActive: selectedUser.value.isActive,
+      });
+
+      // Refresh users list
+      await fetchUsers();
     }
 
     closeUserModal();
   } catch (err) {
-    error('Ошибка при сохранении пользователя');
+    console.error('Error saving user:', err);
   } finally {
     loading.value = false;
   }
@@ -554,43 +559,56 @@ const toggleUserStatus = async (user: any) => {
   try {
     loading.value = true;
 
-    // TODO: API call to toggle user status
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Toggle user status via API
+    await updateUser(user._id, {
+      isActive: !user.isActive,
+    });
 
-    const index = users.value.findIndex((u) => u.id === user.id);
-    if (index !== -1) {
-      users.value[index].isActive = !users.value[index].isActive;
-    }
+    // Refresh users list
+    await fetchUsers();
 
-    success(user.isActive ? 'Пользователь заблокирован' : 'Пользователь активирован');
+    showSuccess(user.isActive ? 'Пользователь заблокирован' : 'Пользователь активирован');
   } catch (err) {
-    error('Ошибка при изменении статуса пользователя');
+    showError('Ошибка при изменении статуса пользователя');
   } finally {
     loading.value = false;
   }
 };
 
 const deleteUser = async (user: any) => {
-  if (!confirm(`Вы уверены, что хотите удалить пользователя "${user.name}"?`)) return;
+  const fullName = `${user.firstName} ${user.lastName}`;
+  if (!confirm(`Вы уверены, что хотите удалить пользователя "${fullName}"?`)) return;
 
   try {
     loading.value = true;
 
-    // TODO: API call to delete user
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Delete user via API
+    await deleteUserApi(user._id);
 
-    users.value = users.value.filter((u) => u.id !== user.id);
-    success('Пользователь успешно удален');
+    // Refresh users list
+    await fetchUsers();
   } catch (err) {
-    error('Ошибка при удалении пользователя');
+    console.error('Error deleting user:', err);
   } finally {
     loading.value = false;
   }
 };
 
-onMounted(() => {
-  // TODO: Fetch users from API
+onMounted(async () => {
+  await Promise.all([
+    fetchUsers(),
+    fetchStats(),
+  ]);
 });
+
+// Watch for filter changes
+watch(
+  [() => filters.value, () => pagination.value.page],
+  () => {
+    fetchUsers();
+  },
+  { deep: true }
+);
 </script>
 
 <style scoped lang="scss">

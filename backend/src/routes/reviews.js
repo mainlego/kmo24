@@ -12,23 +12,24 @@ import {
   getReviewStats,
 } from '../controllers/reviews.js';
 import { protect, authorize } from '../middleware/auth.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
 // Публичные маршруты
-router.get('/', getReviews);
-router.get('/stats/summary', getReviewStats);
-router.get('/:id', getReview);
+router.get('/', asyncHandler(getReviews));
+router.get('/stats/summary', asyncHandler(getReviewStats));
+router.get('/:id', asyncHandler(getReview));
 
 // Защищенные маршруты
-router.post('/', protect, createReview);
-router.put('/:id', protect, updateReview);
-router.delete('/:id', protect, deleteReview);
-router.post('/:id/helpful', protect, markHelpful);
-router.post('/:id/not-helpful', protect, markNotHelpful);
+router.post('/', protect, asyncHandler(createReview));
+router.put('/:id', protect, asyncHandler(updateReview));
+router.delete('/:id', protect, asyncHandler(deleteReview));
+router.post('/:id/helpful', protect, asyncHandler(markHelpful));
+router.post('/:id/not-helpful', protect, asyncHandler(markNotHelpful));
 
 // Маршруты только для администраторов
-router.patch('/:id/moderate', protect, authorize('admin', 'manager'), moderateReview);
-router.post('/:id/response', protect, authorize('admin', 'manager'), addResponse);
+router.patch('/:id/moderate', protect, authorize('admin', 'manager'), asyncHandler(moderateReview));
+router.post('/:id/response', protect, authorize('admin', 'manager'), asyncHandler(addResponse));
 
 export default router;
