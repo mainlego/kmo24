@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const leadSchema = new mongoose.Schema({
   // Основная информация
@@ -214,4 +214,4 @@ leadSchema.statics.getStats = async function(filter = {}) {
 
 const Lead = mongoose.model('Lead', leadSchema);
 
-module.exports = Lead;
+export default Lead;
