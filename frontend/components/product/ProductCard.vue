@@ -56,7 +56,9 @@
       <div class="product-card__content">
         <h3 class="product-card__title">{{ product.name }}</h3>
 
-        <!-- Compact: Remove description for more compact view -->
+        <p v-if="product.description" class="product-card__description">
+          {{ typeof product.description === 'string' ? product.description : product.description.short }}
+        </p>
 
         <div class="product-card__rating">
           <div class="product-card__stars">
@@ -463,15 +465,17 @@ const openQuickView = () => {
   }
 
   &__description {
-    font-size: $font-size-sm;
+    font-size: 12px; // Ultra-compact: Small font for description
     color: $gray-600;
-    margin: 0;
-    line-height: 1.6;
+    margin: 4px 0 0 0; // Minimal top margin
+    line-height: 1.4;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 2; // Maximum 2 lines
     -webkit-box-orient: vertical;
     overflow: hidden;
+    text-overflow: ellipsis;
   }
+
 
   &__rating {
     display: flex;

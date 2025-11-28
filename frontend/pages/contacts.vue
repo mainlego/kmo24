@@ -9,6 +9,72 @@
       </div>
     </section>
 
+    <!-- Map Section - Moved to the top -->
+    <section class="map-section-wrapper">
+      <div class="container">
+        <div class="map-section">
+          <div class="map-header">
+            <h2 class="map-title">Мы на карте</h2>
+            <div class="map-controls">
+              <button @click="showFullMap = true" class="map-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                Открыть в 2GIS
+              </button>
+              <a
+                href="https://2gis.ru/krasnoyarsk/search/КМО24/geo/70030076172706322"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="map-btn map-btn-primary"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/>
+                  <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+                Проложить маршрут
+              </a>
+            </div>
+          </div>
+          <div class="map-container">
+            <iframe
+              src="https://widgets.2gis.com/widget?type=firmsonmap&options=%7B%22pos%22%3A%7B%22lat%22%3A56.010563%2C%22lon%22%3A92.852572%2C%22zoom%22%3A16%7D%2C%22opt%22%3A%7B%22city%22%3A%22krasnoyarsk%22%7D%2C%22org%22%3A%2270030076172706322%22%7D"
+              frameborder="0"
+              width="100%"
+              height="400"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <div class="map-footer">
+            <div class="map-info">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <span>г. Красноярск, ул. Примерная, д. 123, офис 456</span>
+            </div>
+            <div class="map-transport">
+              <span class="transport-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="10" rx="2" ry="2"/>
+                  <path d="M7 11V7a4 4 0 0 1 8 0v4"/>
+                </svg>
+                Остановка "Технопарк"
+              </span>
+              <span class="transport-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+                5 мин от метро
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Main Content -->
     <section class="contacts-content">
       <div class="container">
@@ -193,68 +259,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Map Section -->
-        <div class="map-section">
-          <div class="map-header">
-            <h2 class="map-title">Мы на карте</h2>
-            <div class="map-controls">
-              <button @click="showFullMap = true" class="map-btn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                  <circle cx="12" cy="10" r="3"/>
-                </svg>
-                Открыть в 2GIS
-              </button>
-              <a
-                href="https://2gis.ru/krasnoyarsk/search/КМО24/geo/70030076172706322"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="map-btn map-btn-primary"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                  <polyline points="15 3 21 3 21 9"/>
-                  <line x1="10" y1="14" x2="21" y2="3"/>
-                </svg>
-                Проложить маршрут
-              </a>
-            </div>
-          </div>
-          <div class="map-container">
-            <iframe
-              src="https://widgets.2gis.com/widget?type=firmsonmap&options=%7B%22pos%22%3A%7B%22lat%22%3A56.010563%2C%22lon%22%3A92.852572%2C%22zoom%22%3A16%7D%2C%22opt%22%3A%7B%22city%22%3A%22krasnoyarsk%22%7D%2C%22org%22%3A%2270030076172706322%22%7D"
-              frameborder="0"
-              width="100%"
-              height="400"
-              allowfullscreen
-            ></iframe>
-          </div>
-          <div class="map-footer">
-            <div class="map-info">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                <circle cx="12" cy="10" r="3"/>
-              </svg>
-              <span>г. Красноярск, ул. Примерная, д. 123, офис 456</span>
-            </div>
-            <div class="map-transport">
-              <span class="transport-item">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="11" width="18" height="10" rx="2" ry="2"/>
-                  <path d="M7 11V7a4 4 0 0 1 8 0v4"/>
-                </svg>
-                Остановка "Технопарк"
-              </span>
-              <span class="transport-item">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-                5 мин от метро
-              </span>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   </div>
@@ -366,7 +370,6 @@ const handleSubmit = async () => {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: $spacing-3xl;
-  margin-bottom: $spacing-3xl;
 
   @media (max-width: $breakpoint-lg) {
     grid-template-columns: 1fr;
@@ -580,6 +583,16 @@ const handleSubmit = async () => {
   &:hover {
     transform: translateY(-4px) scale(1.1);
     box-shadow: 0 8px 16px rgba(245, 158, 11, 0.4);
+  }
+}
+
+// Map Section Wrapper - New styling for top position
+.map-section-wrapper {
+  padding: 2rem 0;
+  background: $white;
+
+  @media (max-width: $breakpoint-md) {
+    padding: 1.5rem 0;
   }
 }
 
