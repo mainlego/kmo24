@@ -16,15 +16,20 @@
           <div class="map-header">
             <h2 class="map-title">Мы на карте</h2>
             <div class="map-controls">
-              <button @click="showFullMap = true" class="map-btn">
+              <a
+                href="https://yandex.ru/maps/?pt=92.852572,56.010563&z=16&l=map"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="map-btn"
+              >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                   <circle cx="12" cy="10" r="3"/>
                 </svg>
-                Открыть в 2GIS
-              </button>
+                Открыть в Яндекс.Картах
+              </a>
               <a
-                href="https://2gis.ru/krasnoyarsk/search/КМО24/geo/70030076172706322"
+                href="https://yandex.ru/maps/?rtext=~56.010563,92.852572&rtt=auto"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="map-btn map-btn-primary"
@@ -34,18 +39,12 @@
                   <polyline points="15 3 21 3 21 9"/>
                   <line x1="10" y1="14" x2="21" y2="3"/>
                 </svg>
-                Проложить маршрут
+                Построить маршрут
               </a>
             </div>
           </div>
           <div class="map-container">
-            <iframe
-              src="https://widgets.2gis.com/widget?type=firmsonmap&options=%7B%22pos%22%3A%7B%22lat%22%3A56.010563%2C%22lon%22%3A92.852572%2C%22zoom%22%3A16%7D%2C%22opt%22%3A%7B%22city%22%3A%22krasnoyarsk%22%7D%2C%22org%22%3A%2270030076172706322%22%7D"
-              frameborder="0"
-              width="100%"
-              height="400"
-              allowfullscreen
-            ></iframe>
+            <div id="yandex-map" style="width: 100%; height: 400px;"></div>
           </div>
           <div class="map-footer">
             <div class="map-info">
@@ -265,8 +264,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
+// SEO Meta
 useHead({
   title: 'Контакты - КМО24',
   meta: [
@@ -287,6 +287,66 @@ const form = ref({
 const loading = ref(false);
 const success = ref(false);
 const showFullMap = ref(false);
+
+// Координаты офиса
+const officeCoordinates = [92.852572, 56.010563]; // [долгота, широта]
+
+// Инициализация Яндекс.Карт
+const initYandexMap = () => {
+  // Проверяем, что API загружен
+  if (typeof window !== 'undefined' && (window as any).ymaps) {
+    (window as any).ymaps.ready(() => {
+      // Создаем карту
+      const map = new (window as any).ymaps.Map('yandex-map', {
+        center: [56.010563, 92.852572], // [широта, долгота]
+        zoom: 16,
+        controls: ['zoomControl', 'fullscreenControl']
+      });
+
+      // Добавляем метку офиса
+      const placemark = new (window as any).ymaps.Placemark(
+        [56.010563, 92.852572],
+        {
+          balloonContentHeader: 'КМО24',
+          balloonContentBody: 'г. Красноярск, ул. Примерная, д. 123, офис 456',
+          balloonContentFooter: 'Пн-Пт: 9:00-18:00, Сб: 10:00-15:00',
+          hintContent: 'КМО24 - Профессиональное оборудование для кухни'
+        },
+        {
+          iconLayout: 'default#image',
+          iconImageHref: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTQiIGZpbGw9IiNmNTllMGIiLz4KPHBhdGggZD0iTTE2IDh2MTJsNC00IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4=',
+          iconImageSize: [32, 32],
+          iconImageOffset: [-16, -32]
+        }
+      );
+
+      map.geoObjects.add(placemark);
+
+      // Открываем балун при клике
+      placemark.events.add('click', () => {
+        placemark.balloon.open();
+      });
+    });
+  }
+};
+
+// Загружаем скрипт Яндекс.Карт
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    // Проверяем, не загружен ли уже скрипт
+    if (!(window as any).ymaps) {
+      const script = document.createElement('script');
+      script.src = `https://api-maps.yandex.ru/2.1/?apikey=ac8ab521-ee09-4f73-ad3b-0c97074568ce&lang=ru_RU`;
+      script.async = true;
+      script.onload = () => {
+        initYandexMap();
+      };
+      document.head.appendChild(script);
+    } else {
+      initYandexMap();
+    }
+  }
+});
 
 const handleSubmit = async () => {
   loading.value = true;
