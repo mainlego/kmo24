@@ -122,8 +122,8 @@
         aria-label="Добавить в избранное"
       >
         <svg
-          width="24"
-          height="24"
+          width="20"
+          height="20"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -370,10 +370,10 @@ const openQuickView = () => {
   &__image-wrapper {
     position: relative;
     width: 100%;
-    padding-top: 75%; // Compact: 4:3 aspect ratio instead of 1:1
+    padding-top: 60%; // Ultra-compact: 5:3 aspect ratio for minimal height
     overflow: hidden;
     background: linear-gradient(135deg, $gray-50 0%, $gray-100 100%);
-    border-radius: $radius-xl $radius-xl 0 0;
+    border-radius: $radius-lg $radius-lg 0 0; // Smaller radius
   }
 
   &__image {
@@ -418,16 +418,18 @@ const openQuickView = () => {
   &__badges {
     display: flex;
     flex-direction: column;
-    gap: $spacing-xs;
+    gap: 4px; // Ultra-compact: Minimal gap
     position: relative;
     z-index: 2;
 
     :deep(.base-badge) {
       backdrop-filter: blur(8px);
       background: rgba($white, 0.95);
-      box-shadow: $shadow-md;
-      font-weight: $font-weight-semibold;
-      letter-spacing: 0.5px;
+      box-shadow: $shadow-sm; // Smaller shadow
+      font-weight: $font-weight-medium; // Less bold
+      letter-spacing: 0.2px; // Less spacing
+      font-size: 11px !important; // Ultra-compact: Tiny badges
+      padding: 2px 6px !important; // Ultra-compact: Minimal padding
       transition: all $transition-base $transition-ease;
 
       &:hover {
@@ -439,30 +441,25 @@ const openQuickView = () => {
   &__content {
     display: flex;
     flex-direction: column;
-    gap: $spacing-xs; // Compact: Reduced gap
-    padding: $spacing-sm; // Compact: Reduced padding
+    gap: 4px; // Ultra-compact: Minimal gap
+    padding: 8px; // Ultra-compact: Minimal padding
   }
 
   &__title {
-    font-size: $font-size-base; // Compact: Smaller font size
-    font-weight: $font-weight-semibold; // Compact: Less bold
-    background: linear-gradient(
-      135deg,
-      $gray-900 0%,
-      $gray-700 50%,
-      $primary 100%
-    );
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: 14px; // Ultra-compact: Fixed small size
+    font-weight: $font-weight-medium; // Ultra-compact: Medium weight
+    color: $gray-900; // Simple color for cleaner look
     margin: 0;
-    line-height: 1.4;
+    line-height: 1.3; // Tighter line height
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 2; // Maximum 2 lines
     -webkit-box-orient: vertical;
     overflow: hidden;
-    transition: all $transition-slow $transition-ease;
+    transition: color $transition-base $transition-ease;
+
+    &:hover {
+      color: $primary-600;
+    }
   }
 
   &__description {
@@ -479,65 +476,62 @@ const openQuickView = () => {
   &__rating {
     display: flex;
     align-items: center;
-    gap: $spacing-xs; // Compact: Reduced gap
-    padding: 2px $spacing-xs; // Compact: Minimal padding
-    background: transparent; // Compact: Remove background for cleaner look
-    border-radius: $radius-lg;
+    gap: 4px; // Ultra-compact: Minimal gap
     width: fit-content;
   }
 
   &__stars {
     display: flex;
-    gap: 2px;
+    gap: 1px; // Ultra-compact: Minimal star gap
   }
 
   &__star {
     color: $gray-300;
-    transition: all $transition-base $transition-ease;
+    width: 12px; // Ultra-compact: Smaller stars
+    height: 12px;
 
     &--filled {
       color: $warning;
-      filter: drop-shadow(0 0 4px rgba($warning, 0.5));
     }
   }
 
   &__rating-text {
-    font-size: $font-size-xs; // Compact: Smaller font
+    font-size: 11px; // Ultra-compact: Tiny text
     font-weight: $font-weight-medium;
-    color: $gray-600; // Compact: Simpler color
+    color: $gray-500;
   }
 
   &__price {
     display: flex;
-    align-items: baseline; // Compact: Better alignment
-    gap: $spacing-xs;
+    align-items: baseline;
+    gap: 4px; // Ultra-compact: Minimal gap
     margin-top: auto;
-    padding-top: $spacing-xs; // Compact: Less padding
-    border-top: 1px solid $gray-100; // Compact: Thinner border
+    padding-top: 4px; // Ultra-compact: Minimal padding
+    border-top: 1px solid $gray-100;
   }
 
   &__old-price {
-    font-size: $font-size-sm; // Compact: Smaller
+    font-size: 12px; // Ultra-compact: Fixed small size
     color: $gray-400;
     text-decoration: line-through;
     font-weight: $font-weight-normal;
   }
 
   &__current-price {
-    font-size: $font-size-lg; // Compact: Smaller price text
+    font-size: 16px; // Ultra-compact: Smaller but readable price
     font-weight: $font-weight-bold;
-    color: $primary-600; // Compact: Primary color for price
+    color: $primary-600;
   }
 
   &__favorite {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px; // Compact: Smaller button
-    height: 36px; // Compact: Smaller button
+    width: 32px; // Ultra-compact: Even smaller button
+    height: 32px; // Ultra-compact: Even smaller button
     padding: 0;
-    border: 1px solid transparent; // Compact: Thinner border
-    border-radius: $radius-xl;
+    border: 1px solid transparent;
+    border-radius: $radius-lg;
     background: linear-gradient($white, $white) padding-box,
                 $gradient-primary border-box;
     color: $gray-500;
@@ -600,10 +594,12 @@ const openQuickView = () => {
   :deep(.base-button) {
     background: $gradient-primary;
     border: none;
-    font-weight: $font-weight-bold;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold; // Less bold
+    letter-spacing: 0.3px; // Less spacing
+    text-transform: none; // No uppercase for cleaner look
+    font-size: 13px; // Ultra-compact: Fixed small size
+    padding: 6px 12px !important; // Ultra-compact: Override default padding
+    min-height: 32px !important; // Ultra-compact: Smaller min height
     position: relative;
     overflow: hidden;
 

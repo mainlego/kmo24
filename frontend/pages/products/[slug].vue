@@ -1,14 +1,9 @@
 <template>
   <div class="product-detail">
+    <!-- New Breadcrumbs Component -->
+    <Breadcrumbs />
+
     <div class="container">
-      <!-- Breadcrumbs -->
-      <nav class="product-detail__breadcrumbs">
-        <NuxtLink to="/">Главная</NuxtLink>
-        <span>/</span>
-        <NuxtLink to="/products">Каталог</NuxtLink>
-        <span>/</span>
-        <span>{{ product?.name || 'Товар' }}</span>
-      </nav>
 
       <!-- Loading State -->
       <div v-if="isLoading" class="product-detail__loading">
@@ -24,255 +19,100 @@
         </BaseButton>
       </div>
 
-      <!-- Product Content with New Layout -->
-      <div v-else-if="product" class="product-detail__wrapper">
-        <!-- Left Side: Main Content -->
-        <div class="product-detail__content">
-          <!-- Main Section -->
-          <div class="product-detail__main">
-            <!-- Gallery with Interactive Features -->
-            <div class="product-gallery">
-              <div class="product-gallery__main-image" @click="toggleLightbox">
-                <img
-                  :src="currentImage.url"
-                  :alt="currentImage.alt || product.name"
-                  :class="{ 'zoomed': isImageZoomed }"
-                  @mouseenter="isImageHovered = true"
-                  @mouseleave="isImageHovered = false; isImageZoomed = false"
-                  @mousemove="handleImageZoom"
-                />
-                <div v-if="hasDiscount" class="discount-badge animate-pulse">
-                  <svg class="discount-badge__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                  </svg>
-                  -{{ discountPercent }}%
-                </div>
-                <div class="zoom-hint" v-if="isImageHovered && !isLightboxOpen">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="M21 21l-4.35-4.35"/>
-                    <path d="M11 8v6M8 11h6"/>
-                  </svg>
-                  Нажмите для увеличения
-                </div>
-              </div>
-              <div v-if="product.images.length > 1" class="product-gallery__thumbnails">
-                <button
-                  v-for="(image, index) in product.images"
-                  :key="index"
-                  :class="['product-gallery__thumb', { 'active': currentImageIndex === index }]"
-                  @click="selectImage(index)"
-                >
-                  <img :src="image.url" :alt="image.alt || `${product.name} - изображение ${index + 1}`" />
-                  <div class="thumb-overlay"></div>
-                </button>
-              </div>
+      <!-- Product Content - Ultra Minimalist -->
+      <div v-else-if="product" class="product-compact">
+        <!-- Main Grid Layout -->
+        <div class="product-compact__grid">
+          <!-- Gallery Column -->
+          <div class="product-compact__gallery">
+            <div class="gallery-main" @click="toggleLightbox">
+              <img :src="currentImage.url" :alt="product.name" />
+              <div v-if="hasDiscount" class="gallery-badge">-{{ discountPercent }}%</div>
             </div>
-
-            <!-- Info -->
-            <div class="product-info">
-              <div class="product-info__header">
-                <h1 class="product-info__title">{{ product.name }}</h1>
-                <p class="product-info__subtitle">{{ typeof product.description === 'object' ? product.description.short : product.description }}</p>
-
-                <!-- Tags -->
-                <div class="product-info__tags">
-                  <span class="tag">Гарантия качества</span>
-                  <span class="tag">Быстрая доставка</span>
-                  <span class="tag" v-if="product.stock.quantity > 0">В наличии</span>
-                </div>
-              </div>
-
-              <!-- Price -->
-              <div class="product-price">
-                <span class="product-price__current">
-                  {{ formatPrice(product.price) }}
-                </span>
-                <span v-if="hasDiscount" class="product-price__old">
-                  {{ formatPrice(product.oldPrice!) }}
-                </span>
-                <span v-if="hasDiscount" class="product-price__discount">
-                  -{{ Math.round(((product.oldPrice! - product.price) / product.oldPrice!) * 100) }}%
-                </span>
-              </div>
-
-              <!-- Stock Status -->
-              <div v-if="isInStock" class="product-info__tags">
-                <span class="tag">В наличии: {{ product.stock.quantity }} шт.</span>
-              </div>
-              <div v-else class="product-info__tags">
-                <span class="tag" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">Нет в наличии</span>
-              </div>
-
-              <!-- Short Description -->
-              <p class="product-detail__short-description">
-                {{ product.description?.short }}
-              </p>
-
-              <!-- Actions -->
-              <div class="product-actions">
-                <button
-                  class="product-actions__buy"
-                  :class="{ 'product-actions__buy--full': true }"
-                  :disabled="!isInStock"
-                  @click="handleAddToCart"
-                >
-                  {{ isInStock ? 'Добавить в корзину' : 'Нет в наличии' }}
-                </button>
-              </div>
-
-              <!-- Favorite Button -->
-              <div class="product-info__tags" style="margin-top: 1rem;">
-                <button
-                  @click="toggleFavorite"
-                  class="tag"
-                  style="cursor: pointer; border: none; font-size: 14px;"
-                >
-                  <span v-if="isFavorite">❤️ В избранном</span>
-                  <span v-else>🤍 В избранное</span>
-                </button>
-              </div>
-
-              <!-- Features -->
-              <div v-if="product.features?.length" class="product-detail__features">
-                <h3>Особенности:</h3>
-                <ul>
-                  <li v-for="(feature, index) in product.features" :key="index">
-                    {{ feature }}
-                  </li>
-                </ul>
-              </div>
+            <div v-if="product.images.length > 1" class="gallery-thumbs">
+              <button
+                v-for="(image, index) in product.images.slice(0, 4)"
+                :key="index"
+                :class="['gallery-thumb', { 'active': currentImageIndex === index }]"
+                @click="selectImage(index)"
+              >
+                <img :src="image.url" :alt="`${product.name} ${index + 1}`" />
+              </button>
             </div>
           </div>
 
-          <!-- Tabs Section -->
-          <div class="product-detail__tabs">
-            <div class="product-detail__tabs-header">
+          <!-- Info Column -->
+          <div class="product-compact__info">
+            <h1 class="info-title">{{ product.name }}</h1>
+
+            <!-- Price and Stock in one line -->
+            <div class="info-price-row">
+              <div class="price-block">
+                <span class="price-current">{{ formatPrice(product.price) }}</span>
+                <span v-if="hasDiscount" class="price-old">{{ formatPrice(product.oldPrice) }}</span>
+              </div>
+              <span v-if="isInStock" class="stock-badge">В наличии: {{ product.stock.quantity }}</span>
+              <span v-else class="stock-badge stock-badge--out">Нет в наличии</span>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="info-actions">
               <button
-                v-for="tab in tabs"
-                :key="tab.id"
-                :class="['product-detail__tab', { 'product-detail__tab--active': activeTab === tab.id }]"
-                @click="activeTab = tab.id"
+                class="btn-buy"
+                :disabled="!isInStock"
+                @click="handleAddToCart"
               >
-                {{ tab.label }}
+                {{ isInStock ? 'В корзину' : 'Нет в наличии' }}
+              </button>
+              <button class="btn-fav" @click="toggleFavorite">
+                {{ isFavorite ? '❤️' : '🤍' }}
               </button>
             </div>
 
-            <div class="product-detail__tabs-content">
-              <!-- Description Tab -->
-              <div v-show="activeTab === 'description'" class="product-detail__tab-panel">
-                <h2>Описание товара</h2>
-                <div v-html="product.description?.full || product.description?.short"></div>
-              </div>
+            <!-- Compact Description -->
+            <div class="info-desc">
+              <p>{{ product.description?.short || 'Описание отсутствует' }}</p>
+            </div>
 
-              <!-- Specifications Tab -->
-              <div v-show="activeTab === 'specifications'" class="product-detail__tab-panel">
-                <h2>Характеристики</h2>
-                <table v-if="product.specifications?.length" class="product-detail__specs-table">
-                  <tbody>
-                    <tr v-for="(spec, index) in product.specifications" :key="index">
-                      <td class="product-detail__spec-name">{{ spec.name }}</td>
-                      <td class="product-detail__spec-value">{{ spec.value }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-                <p v-else>Характеристики не указаны</p>
-              </div>
+            <!-- Features Grid -->
+            <div v-if="product.features?.length" class="info-features">
+              <span v-for="(feature, index) in product.features.slice(0, 3)" :key="index" class="feature-tag">
+                {{ feature }}
+              </span>
             </div>
           </div>
 
-          <!-- Mobile Related Products -->
-          <div v-if="relatedProducts?.length" class="product-detail__related-mobile">
-            <h2>Похожие товары</h2>
-            <div class="product-detail__related-grid">
-              <ProductCard
-                v-for="relatedProduct in relatedProducts"
-                :key="relatedProduct._id"
-                :product="relatedProduct"
-              />
+          <!-- Specs Column -->
+          <div class="product-compact__specs">
+            <h3>Характеристики</h3>
+            <div v-if="product.specifications?.length" class="specs-list">
+              <div v-for="(spec, index) in product.specifications.slice(0, 8)" :key="index" class="spec-item">
+                <span class="spec-name">{{ spec.name }}</span>
+                <span class="spec-value">{{ spec.value }}</span>
+              </div>
             </div>
+            <p v-else class="specs-empty">Характеристики не указаны</p>
           </div>
         </div>
 
-        <!-- Right Side: Related Products Sidebar -->
-        <aside class="product-detail__sidebar">
-          <div class="sidebar-related">
-            <div class="sidebar-related__header">
-              <h3>Похожие товары</h3>
-              <span class="sidebar-related__badge">{{ relatedProducts.length }}</span>
-            </div>
-
-            <div class="sidebar-related__list">
-              <div
-                v-for="item in relatedProducts"
-                :key="item._id"
-                class="sidebar-related__item"
-                @click="navigateTo(`/products/${item.slug}`)"
-              >
-                <!-- Image -->
-                <div class="sidebar-related__image">
-                  <img :src="item.images[0]?.url" :alt="item.name" />
-                  <div v-if="item.oldPrice" class="sidebar-related__discount">
-                    -{{ Math.round(((item.oldPrice - item.price) / item.oldPrice) * 100) }}%
-                  </div>
-                </div>
-
-                <!-- Content -->
-                <div class="sidebar-related__content">
-                  <h4 class="sidebar-related__title">{{ item.name }}</h4>
-                  <div class="sidebar-related__price">
-                    <span v-if="item.oldPrice" class="sidebar-related__old-price">
-                      {{ formatPrice(item.oldPrice) }}
-                    </span>
-                    <span class="sidebar-related__current-price">
-                      {{ formatPrice(item.price) }}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Quick Actions -->
-                <div class="sidebar-related__actions">
-                  <button
-                    class="sidebar-related__quick-add"
-                    @click.stop="quickAddToCart(item)"
-                    :title="'Добавить ' + item.name + ' в корзину'"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M9 22C9.55228 22 10 21.5523 10 21C10 20.4477 9.55228 20 9 20C8.44772 20 8 20.4477 8 21C8 21.5523 8.44772 22 9 22Z"/>
-                      <path d="M20 22C20.5523 22 21 21.5523 21 21C21 20.4477 20.5523 20 20 20C19.4477 20 19 20.4477 19 21C19 21.5523 19.4477 22 20 22Z"/>
-                      <path d="M1 1H5L7.68 14.39C7.77144 14.8504 8.02191 15.264 8.38755 15.5583C8.75318 15.8526 9.2107 16.009 9.68 16H19.4C19.8693 16.009 20.3268 15.8526 20.6925 15.5583C21.0581 15.264 21.3086 14.8504 21.4 14.39L23 6H6"/>
-                    </svg>
-                  </button>
-                </div>
+        <!-- Bottom: Related Products Carousel -->
+        <div v-if="relatedProducts?.length" class="product-compact__related">
+          <h3>Похожие товары</h3>
+          <div class="related-carousel">
+            <div
+              v-for="item in relatedProducts.slice(0, 5)"
+              :key="item._id"
+              class="related-item"
+              @click="navigateTo(`/products/${item.slug}`)"
+            >
+              <img :src="item.images[0]?.url" :alt="item.name" />
+              <div class="related-content">
+                <h4>{{ item.name }}</h4>
+                <span class="related-price">{{ formatPrice(item.price) }}</span>
               </div>
             </div>
-
-            <!-- View All Button -->
-            <NuxtLink
-              to="/products"
-              class="sidebar-related__view-all"
-            >
-              Смотреть все товары
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M5 12H19M19 12L12 5M19 12L12 19"/>
-              </svg>
-            </NuxtLink>
           </div>
-
-          <!-- Sticky Info Block -->
-          <div class="sidebar-sticky">
-            <div class="sidebar-sticky__content">
-              <h4>Нужна консультация?</h4>
-              <p>Наши специалисты помогут выбрать подходящее оборудование</p>
-              <button class="sidebar-sticky__call">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
-                </svg>
-                Позвонить
-              </button>
-            </div>
-          </div>
-        </aside>
+        </div>
       </div>
 
       <!-- Sticky Add to Cart -->
@@ -319,11 +159,43 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import type { Product } from '~/types';
+
+// Define Product type locally since ~/types might not exist
+interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  description?: {
+    short?: string;
+    full?: string;
+  };
+  price: number;
+  oldPrice?: number;
+  images: Array<{
+    url: string;
+    alt?: string;
+  }>;
+  category: string;
+  subcategory?: string;
+  brand?: string;
+  stock: {
+    quantity: number;
+    reserved: number;
+  };
+  features?: string[];
+  specifications?: Array<{
+    name: string;
+    value: string;
+  }>;
+  isActive: boolean;
+  isFeatured?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 const route = useRoute();
 const router = useRouter();
-const cartStore = useCartStore();
+const { addToCart } = useCart();
 const productsStore = useProductsStore();
 
 const slug = computed(() => route.params.slug as string);
@@ -377,7 +249,7 @@ const handleAddToCart = async () => {
 
   isAddingToCart.value = true;
   try {
-    await cartStore.addItem(product.value._id, 1);
+    await addToCart(product.value._id, 1);
     console.log('Added 1 item to cart');
   } catch (err) {
     console.error('Error adding to cart:', err);
@@ -388,7 +260,7 @@ const handleAddToCart = async () => {
 
 const quickAddToCart = async (item: Product) => {
   try {
-    await cartStore.addItem(item._id, 1);
+    await addToCart(item._id, 1);
     console.log(`Quick added ${item.name} to cart`);
   } catch (err) {
     console.error('Error adding to cart:', err);
@@ -470,173 +342,418 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 @use 'assets/scss/variables' as *;
-@use 'assets/scss/product' as *;
 
 // =====================================================
-// PREMIUM INTERACTIVE GALLERY
+// ULTRA MINIMALIST PRODUCT DETAIL
 // =====================================================
 
-.product-gallery__main-image {
-  position: relative;
-  cursor: zoom-in;
-  overflow: hidden;
+.product-detail {
+  min-height: 100vh;
+  padding-top: 60px; // Account for breadcrumbs
+}
 
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba($primary-500, 0.05), transparent);
-    opacity: 0;
-    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1;
-    pointer-events: none;
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 12px;
+}
+
+// Loading & Error States
+.product-detail__loading,
+.product-detail__error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 16px;
+  text-align: center;
+
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: $gray-900;
   }
 
-  &:hover::before {
-    opacity: 1;
+  p {
+    font-size: 14px;
+    color: $gray-600;
+  }
+}
+
+// =====================================================
+// ULTRA COMPACT LAYOUT
+// =====================================================
+
+.product-compact {
+  padding: 12px 0;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 400px 1fr 280px;
+    gap: 20px;
+    margin-bottom: 20px;
+
+    @media (max-width: 1200px) {
+      grid-template-columns: 350px 1fr;
+
+      .product-compact__specs {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
   }
 
-  img {
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  // Gallery Section
+  &__gallery {
+    .gallery-main {
+      position: relative;
+      aspect-ratio: 1;
+      background: $gray-50;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: zoom-in;
+      border: 1px solid $gray-200;
 
-    &.zoomed {
-      transform: scale(1.5);
-      transform-origin: v-bind('zoomX + "% " + zoomY + "%"');
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      &:hover img {
+        transform: scale(1.05);
+      }
+
+      .gallery-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: #ff4747;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+    }
+
+    .gallery-thumbs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+
+      .gallery-thumb {
+        aspect-ratio: 1;
+        border-radius: 4px;
+        overflow: hidden;
+        border: 2px solid transparent;
+        cursor: pointer;
+        background: $gray-50;
+        transition: all 0.2s ease;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        &:hover {
+          border-color: $primary-300;
+        }
+
+        &.active {
+          border-color: $primary-500;
+        }
+      }
+    }
+  }
+
+  // Info Section
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .info-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: $gray-900;
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    .info-price-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+
+      .price-block {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+
+        .price-current {
+          font-size: 24px;
+          font-weight: 700;
+          color: $primary-600;
+        }
+
+        .price-old {
+          font-size: 16px;
+          color: $gray-500;
+          text-decoration: line-through;
+        }
+      }
+
+      .stock-badge {
+        padding: 4px 8px;
+        background: rgba($success-500, 0.1);
+        color: $success-700;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+
+        &--out {
+          background: rgba($danger-500, 0.1);
+          color: $danger-700;
+        }
+      }
+    }
+
+    .info-actions {
+      display: flex;
+      gap: 8px;
+
+      .btn-buy {
+        flex: 1;
+        height: 36px;
+        background: $primary-500;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+          background: $primary-600;
+        }
+
+        &:disabled {
+          background: $gray-300;
+          color: $gray-500;
+          cursor: not-allowed;
+        }
+      }
+
+      .btn-fav {
+        width: 36px;
+        height: 36px;
+        background: $gray-100;
+        border: 1px solid $gray-300;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 16px;
+
+        &:hover {
+          background: $gray-200;
+        }
+      }
+    }
+
+    .info-desc {
+      p {
+        margin: 0;
+        font-size: 13px;
+        color: $gray-700;
+        line-height: 1.5;
+        max-height: 60px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+      }
+    }
+
+    .info-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+
+      .feature-tag {
+        padding: 4px 8px;
+        background: $gray-100;
+        border-radius: 4px;
+        font-size: 11px;
+        color: $gray-700;
+      }
+    }
+  }
+
+  // Specs Section
+  &__specs {
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: $gray-900;
+      margin: 0 0 12px 0;
+    }
+
+    .specs-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .spec-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid $gray-100;
+
+        .spec-name {
+          color: $gray-600;
+        }
+
+        .spec-value {
+          color: $gray-900;
+          font-weight: 500;
+          text-align: right;
+        }
+      }
+    }
+
+    .specs-empty {
+      font-size: 12px;
+      color: $gray-500;
+    }
+  }
+
+  // Related Products
+  &__related {
+    padding-top: 16px;
+    border-top: 1px solid $gray-200;
+
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: $gray-900;
+      margin: 0 0 12px 0;
+    }
+
+    .related-carousel {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: $gray-300 $gray-100;
+
+      &::-webkit-scrollbar {
+        height: 4px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: $gray-100;
+        border-radius: 2px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: $gray-300;
+        border-radius: 2px;
+
+        &:hover {
+          background: $gray-400;
+        }
+      }
+
+      .related-item {
+        flex: 0 0 140px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+        }
+
+        img {
+          width: 100%;
+          aspect-ratio: 1;
+          object-fit: cover;
+          border-radius: 6px;
+          background: $gray-50;
+          border: 1px solid $gray-200;
+          margin-bottom: 6px;
+        }
+
+        .related-content {
+          h4 {
+            font-size: 12px;
+            font-weight: 500;
+            color: $gray-900;
+            margin: 0 0 4px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .related-price {
+            font-size: 13px;
+            font-weight: 600;
+            color: $primary-600;
+          }
+        }
+      }
     }
   }
 }
 
-.zoom-hint {
-  position: absolute;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  color: $white;
-  padding: 0.75rem 1.25rem;
-  border-radius: $radius-full;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  z-index: 2;
-  animation: slideInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-
-  svg {
-    flex-shrink: 0;
-  }
-}
-
-.discount-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-
-  &__icon {
-    animation: rotate 3s linear infinite;
-  }
-}
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes bounceIn {
-  0% {
-    transform: scale(0) rotate(-180deg);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.2) rotate(10deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-}
-
-@keyframes slideInUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.product-gallery__thumb {
-  position: relative;
-  overflow: hidden;
-
-  .thumb-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba($primary-500, 0.2), rgba($primary-light, 0.2));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  &:hover .thumb-overlay {
-    opacity: 1;
-  }
-
-  &.active .thumb-overlay {
-    opacity: 0.5;
-  }
-
-  &:hover {
-    transform: scale(1.05) translateY(-2px);
-  }
-}
-
 // =====================================================
-// LIGHTBOX MODAL
+// LIGHTBOX (Keep simple)
 // =====================================================
 
 .lightbox {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.95);
-  backdrop-filter: blur(20px);
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 20px;
 
   &__content {
     position: relative;
     max-width: 90vw;
     max-height: 90vh;
-    animation: zoomIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     img {
       max-width: 100%;
       max-height: 90vh;
       object-fit: contain;
-      border-radius: $radius-2xl;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
   }
 
   &__counter {
     position: absolute;
-    bottom: -3rem;
+    bottom: -40px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    color: $white;
-    padding: 0.5rem 1.25rem;
-    border-radius: $radius-full;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-semibold;
+    color: white;
+    font-size: 12px;
   }
 
   &__close,
@@ -644,69 +761,43 @@ onMounted(async () => {
   &__next {
     position: absolute;
     background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    color: $white;
-    width: 3rem;
-    height: 3rem;
-    border-radius: $radius-full;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 10;
+    transition: all 0.2s ease;
 
     &:hover {
       background: rgba(255, 255, 255, 0.2);
-      transform: scale(1.1);
-    }
-
-    &:active {
-      transform: scale(0.95);
     }
   }
 
   &__close {
-    top: 2rem;
-    right: 2rem;
+    top: 20px;
+    right: 20px;
   }
 
   &__prev {
-    left: 2rem;
+    left: 20px;
     top: 50%;
     transform: translateY(-50%);
-
-    &:hover {
-      transform: translateY(-50%) scale(1.1) translateX(-4px);
-    }
   }
 
   &__next {
-    right: 2rem;
+    right: 20px;
     top: 50%;
     transform: translateY(-50%);
-
-    &:hover {
-      transform: translateY(-50%) scale(1.1) translateX(4px);
-    }
-  }
-}
-
-@keyframes zoomIn {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
   }
 }
 
 .lightbox-enter-active,
 .lightbox-leave-active {
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.3s ease;
 }
 
 .lightbox-enter-from,
@@ -714,104 +805,27 @@ onMounted(async () => {
   opacity: 0;
 }
 
-// Mobile Related Products - Horizontal Carousel
-.product-detail__related-mobile {
-  margin-top: $spacing-3xl;
-  margin-bottom: $spacing-2xl;
-
-  @media (min-width: $breakpoint-lg) {
-    display: none; // Hide on desktop (sidebar is shown)
-  }
-
-  h2 {
-    font-size: $font-size-2xl;
-    font-weight: $font-weight-bold;
-    color: $gray-900;
-    margin-bottom: $spacing-lg;
-    padding: 0 $spacing-md;
-  }
-}
-
-.product-detail__related-grid {
-  display: flex;
-  gap: $spacing-md;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: $spacing-sm $spacing-md $spacing-lg;
-  margin: 0 (-$spacing-md);
-  scroll-snap-type: x mandatory;
-  scrollbar-width: thin;
-  scrollbar-color: $primary-500 $gray-200;
-  -webkit-overflow-scrolling: touch;
-
-  &::-webkit-scrollbar {
-    height: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: $gray-200;
-    border-radius: $radius-full;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: $primary-500;
-    border-radius: $radius-full;
-
-    &:hover {
-      background: darken($primary-500, 10%);
-    }
-  }
-
-  // Each product card
-  :deep(.product-card) {
-    flex: 0 0 280px;
-    scroll-snap-align: start;
-
-    @media (max-width: $breakpoint-sm) {
-      flex: 0 0 240px;
-    }
-  }
-}
-
-// Product Actions
-.product-actions {
-  display: flex;
-  align-items: center;
-  gap: $spacing-md;
-  margin-top: $spacing-lg;
-
-  &__buy {
-    flex: 1;
-    padding: $spacing-md $spacing-xl;
-    background: $primary-500;
-    color: $white;
-    border: none;
-    border-radius: $radius-lg;
-    font-size: $font-size-base;
-    font-weight: $font-weight-semibold;
-    cursor: pointer;
-    transition: all $transition-base $transition-ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-
-    &:hover:not(:disabled) {
-      background: darken($primary-500, 5%);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba($primary-500, 0.3);
+// Mobile Responsive
+@media (max-width: 768px) {
+  .product-compact {
+    &__gallery {
+      .gallery-main {
+        aspect-ratio: 4/3;
+      }
     }
 
-    &:active:not(:disabled) {
-      transform: translateY(0);
-    }
+    &__info {
+      .info-title {
+        font-size: 18px;
+      }
 
-    &:disabled {
-      background: $gray-300;
-      color: $gray-500;
-      cursor: not-allowed;
-    }
-
-    &--full {
-      flex: 1 1 100%;
+      .info-price-row {
+        .price-block {
+          .price-current {
+            font-size: 20px;
+          }
+        }
+      }
     }
   }
 }
