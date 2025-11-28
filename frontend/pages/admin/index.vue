@@ -525,8 +525,8 @@ function getInitials(name: string): string {
   }
 
   &.stat-orange .stat-icon {
-    background: rgba($orange, 0.1);
-    color: $orange;
+    background: rgba($warning, 0.1);
+    color: $warning;
   }
 
   &.stat-green .stat-icon {
