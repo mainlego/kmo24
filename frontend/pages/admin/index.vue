@@ -540,8 +540,8 @@ function getInitials(name: string): string {
   }
 
   &.stat-purple .stat-icon {
-    background: rgba($purple, 0.1);
-    color: $purple;
+    background: rgba($info, 0.1);
+    color: $info;
   }
 
   .stat-content {
@@ -787,8 +787,8 @@ function getInitials(name: string): string {
       }
 
       &.status-shipped {
-        background: rgba($purple, 0.1);
-        color: $purple;
+        background: rgba($info, 0.1);
+        color: $info;
       }
 
       &.status-delivered,
@@ -914,7 +914,7 @@ function getInitials(name: string): string {
   }
 
   &.stage-2 .stage-bar {
-    background: $purple;
+    background: $info;
   }
 
   &.stage-3 .stage-bar {
@@ -1005,8 +1005,8 @@ function getInitials(name: string): string {
 
       &.status-contacted,
       &.status-qualified {
-        background: rgba($purple, 0.1);
-        color: $purple;
+        background: rgba($info, 0.1);
+        color: $info;
       }
 
       &.status-proposal,
