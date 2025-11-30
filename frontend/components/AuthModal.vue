@@ -423,6 +423,7 @@ const handleRegister = async () => {
       registerData.phone = registerForm.value.phone;
     }
 
+    console.log('Sending register data:', JSON.stringify(registerData));
     await register(registerData);
 
     message.value = 'Регистрация успешна! Теперь вы можете войти.';
