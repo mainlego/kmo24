@@ -133,6 +133,36 @@ categorySchema.pre('remove', async function (next) {
   next();
 });
 
+// Статический метод для построения дерева категорий
+categorySchema.statics.buildTree = function (categories) {
+  const categoryMap = new Map();
+  const tree = [];
+
+  // Создаем карту категорий
+  categories.forEach(cat => {
+    const catObj = cat.toObject ? cat.toObject() : cat;
+    catObj.children = [];
+    categoryMap.set(catObj._id.toString(), catObj);
+  });
+
+  // Строим дерево
+  categories.forEach(cat => {
+    const catObj = categoryMap.get(cat._id.toString());
+    if (cat.parent) {
+      const parent = categoryMap.get(cat.parent.toString());
+      if (parent) {
+        parent.children.push(catObj);
+      } else {
+        tree.push(catObj);
+      }
+    } else {
+      tree.push(catObj);
+    }
+  });
+
+  return tree;
+};
+
 const Category = mongoose.model('Category', categorySchema);
 
 export default Category;
