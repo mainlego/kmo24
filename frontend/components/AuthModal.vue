@@ -1,7 +1,8 @@
 <template>
-  <Teleport to="body">
-    <Transition name="modal">
-      <div v-if="isOpen" class="auth-modal-overlay" @click="handleClose">
+  <ClientOnly>
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="isOpen" class="auth-modal-overlay" @click="handleClose">
         <div class="auth-modal" @click.stop>
           <!-- Close Button -->
           <button class="close-btn" @click="handleClose">
@@ -303,8 +304,9 @@
           </div>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+      </Transition>
+    </Teleport>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
@@ -319,6 +321,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean];
+  'close': [];
   'success': [];
 }>();
 
@@ -367,6 +370,7 @@ watch(() => props.initialTab, (value) => {
 const handleClose = () => {
   isOpen.value = false;
   emit('update:modelValue', false);
+  emit('close');
   message.value = '';
 
   // Reset forms

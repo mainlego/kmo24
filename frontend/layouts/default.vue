@@ -184,7 +184,11 @@
     <SocialProof :enabled="true" />
 
     <!-- Auth Modal -->
-    <AuthModal v-if="isAuthModalOpen" @close="closeAuthModal" />
+    <AuthModal
+      v-model="isAuthModalOpen"
+      @close="closeAuthModal"
+      @success="closeAuthModal"
+    />
 
     <!-- Main Content -->
     <main class="main-content">
