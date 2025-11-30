@@ -383,7 +383,10 @@ const handleLogin = async () => {
   message.value = '';
 
   try {
-    await login(loginForm.value.email, loginForm.value.password);
+    await login({
+      email: loginForm.value.email,
+      password: loginForm.value.password,
+    });
 
     message.value = 'Вход выполнен успешно!';
     messageType.value = 'success';
