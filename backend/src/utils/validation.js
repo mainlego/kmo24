@@ -18,6 +18,13 @@ export const validate = (schema, property = 'body') => {
         message: detail.message,
       }));
 
+      // Логируем ошибки валидации для отладки
+      console.log('[Validation Error]', {
+        url: req.originalUrl,
+        body: req[property],
+        errors,
+      });
+
       return res.status(400).json({
         success: false,
         error: 'Validation error',
