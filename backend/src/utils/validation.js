@@ -54,8 +54,9 @@ export const authSchemas = {
       'any.required': 'Фамилия обязательна',
     }),
     phone: Joi.string()
-      .pattern(/^\+?[1-9]\d{1,14}$/)
+      .pattern(/^[\d\s\+\-\(\)]{7,20}$/)
       .optional()
+      .allow('')
       .messages({
         'string.pattern.base': 'Некорректный номер телефона',
       }),
