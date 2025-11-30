@@ -128,11 +128,20 @@
 
               <div class="mobile-menu-divider"></div>
 
-              <button @click="handleProfileClick(); isMobileMenuOpen = false" class="mobile-nav-link">
+              <!-- Показываем "Личный кабинет" только для авторизованных -->
+              <NuxtLink v-if="isAuthenticated" to="/account" class="mobile-nav-link" @click="isMobileMenuOpen = false">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <span>{{ isAuthenticated ? 'Личный кабинет' : 'Войти' }}</span>
+                <span>Личный кабинет</span>
+              </NuxtLink>
+
+              <!-- Показываем "Войти" только для неавторизованных -->
+              <button v-else @click="handleProfileClick(); isMobileMenuOpen = false" class="mobile-nav-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Войти</span>
               </button>
               <NuxtLink to="/cart" class="mobile-nav-link" @click="isMobileMenuOpen = false">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -330,11 +339,13 @@ const currentUser = computed(() => authStore.user);
 
 // Handle profile/login click
 const handleProfileClick = () => {
+  console.log('handleProfileClick called, isAuthenticated:', isAuthenticated.value);
   if (isAuthenticated.value) {
     // Navigate to account page if authenticated
     router.push('/account');
   } else {
     // Open auth modal if not authenticated
+    console.log('Opening auth modal');
     isAuthModalOpen.value = true;
   }
 };
@@ -369,6 +380,15 @@ watch(isMobileMenuOpen, (newValue) => {
   }
 });
 
+watch(isAuthModalOpen, (newValue) => {
+  console.log('isAuthModalOpen changed:', newValue);
+  if (newValue) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+});
+
 // Close mobile menu on route change
 watch(() => route.path, () => {
   isMobileMenuOpen.value = false;
@@ -385,9 +405,12 @@ const handleEscape = (event: KeyboardEvent) => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('scroll', handleScroll);
   window.addEventListener('keydown', handleEscape);
+
+  // Инициализация auth store
+  await authStore.init();
 });
 
 onUnmounted(() => {
