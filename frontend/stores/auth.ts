@@ -133,30 +133,13 @@ export const useAuthStore = defineStore('auth', {
      */
     async fetchUser() {
       try {
-        // MOCK MODE: Use mock user data when API is not available
-        // TODO: Replace with real API call when backend is ready
+        const { apiFetch } = useApi();
+        const response = await apiFetch<{ success: boolean; data: User }>('/auth/me');
 
-        // Try to get user from localStorage (set during mock login)
-        if (process.client) {
-          const mockUserData = localStorage.getItem('mockUser');
-          if (mockUserData) {
-            this.user = JSON.parse(mockUserData);
-            this.isAuthenticated = true;
-            return;
-          }
+        if (response.success && response.data) {
+          this.user = response.data;
+          this.isAuthenticated = true;
         }
-
-        // If no mock user in localStorage, clear auth
-        this.clearAuth();
-
-        // REAL API CALL (commented out for now):
-        // const { apiFetch } = useApi();
-        // const response = await apiFetch<{ success: boolean; data: User }>('/auth/me');
-        //
-        // if (response.success && response.data) {
-        //   this.user = response.data;
-        //   this.isAuthenticated = true;
-        // }
       } catch (error) {
         console.error('Fetch user error:', error);
         this.clearAuth();
@@ -262,8 +245,6 @@ export const useAuthStore = defineStore('auth', {
       if (process.client) {
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
-        // Save mock user data for fetchUser
-        localStorage.setItem('mockUser', JSON.stringify(data.user));
       }
     },
 
@@ -279,7 +260,6 @@ export const useAuthStore = defineStore('auth', {
       if (process.client) {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        localStorage.removeItem('mockUser');
       }
     },
   },
