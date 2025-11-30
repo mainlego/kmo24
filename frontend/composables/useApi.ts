@@ -31,6 +31,20 @@ export const useApi = () => {
       }
     },
     async onResponseError({ response }) {
+      // Извлекаем сообщение об ошибке из ответа сервера
+      const data = response._data as { error?: string; message?: string; errors?: Array<{ field: string; message: string }> };
+      let errorMessage = data?.error || data?.message || 'Произошла ошибка';
+
+      // Если есть массив ошибок валидации, объединяем их
+      if (data?.errors && Array.isArray(data.errors)) {
+        errorMessage = data.errors.map(e => e.message).join('. ');
+      }
+
+      // Создаём ошибку с понятным сообщением
+      const error = new Error(errorMessage);
+      (error as any).statusCode = response.status;
+      (error as any).data = data;
+
       // Обработка ошибок авторизации
       if (response.status === 401 && process.client) {
         const refreshToken = localStorage.getItem('refreshToken');
@@ -72,7 +86,11 @@ export const useApi = () => {
             window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
           }
         }
+        return;
       }
+
+      // Для всех остальных ошибок выбрасываем с понятным сообщением
+      throw error;
     },
   });
 
