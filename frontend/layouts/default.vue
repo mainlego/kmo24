@@ -54,12 +54,50 @@
                 </div>
               </button>
 
-              <!-- Для авторизованных - ссылка на аккаунт с аватаром -->
-              <NuxtLink v-if="isAuthenticated" to="/account" class="nav-icon nav-icon--user" aria-label="Личный кабинет">
-                <div class="nav-icon-wrapper nav-icon-wrapper--user">
-                  <span class="user-avatar">{{ currentUser?.firstName?.charAt(0) || 'U' }}</span>
-                </div>
-              </NuxtLink>
+              <!-- Для авторизованных - меню пользователя -->
+              <div v-if="isAuthenticated" class="user-menu" @mouseenter="isUserMenuOpen = true" @mouseleave="isUserMenuOpen = false">
+                <button class="nav-icon nav-icon--user" aria-label="Меню пользователя">
+                  <div class="nav-icon-wrapper nav-icon-wrapper--user">
+                    <span class="user-avatar">{{ currentUser?.firstName?.charAt(0) || 'U' }}</span>
+                  </div>
+                </button>
+
+                <!-- Выпадающее меню -->
+                <Transition name="dropdown">
+                  <div v-if="isUserMenuOpen" class="user-dropdown">
+                    <div class="user-dropdown__header">
+                      <span class="user-dropdown__name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</span>
+                      <span class="user-dropdown__email">{{ currentUser?.email }}</span>
+                    </div>
+                    <div class="user-dropdown__divider"></div>
+                    <NuxtLink to="/account" class="user-dropdown__item" @click="isUserMenuOpen = false">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      Личный кабинет
+                    </NuxtLink>
+                    <NuxtLink to="/account/orders" class="user-dropdown__item" @click="isUserMenuOpen = false">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      Мои заказы
+                    </NuxtLink>
+                    <NuxtLink to="/account/favorites" class="user-dropdown__item" @click="isUserMenuOpen = false">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      Избранное
+                    </NuxtLink>
+                    <div class="user-dropdown__divider"></div>
+                    <button class="user-dropdown__item user-dropdown__item--logout" @click="handleLogout">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      Выйти
+                    </button>
+                  </div>
+                </Transition>
+              </div>
 
               <!-- Для неавторизованных - кнопка входа -->
               <button v-else @click="handleProfileClick" class="nav-icon nav-icon--login" aria-label="Войти">
@@ -136,15 +174,29 @@
 
               <div class="mobile-menu-divider"></div>
 
-              <!-- Показываем "Личный кабинет" только для авторизованных -->
-              <NuxtLink v-if="isAuthenticated" to="/account" class="mobile-nav-link" @click="isMobileMenuOpen = false">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>Личный кабинет</span>
-              </NuxtLink>
+              <!-- Для авторизованных пользователей -->
+              <template v-if="isAuthenticated">
+                <NuxtLink to="/account" class="mobile-nav-link" @click="isMobileMenuOpen = false">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>Личный кабинет</span>
+                </NuxtLink>
+                <NuxtLink to="/account/orders" class="mobile-nav-link" @click="isMobileMenuOpen = false">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>Мои заказы</span>
+                </NuxtLink>
+                <button @click="handleLogout(); isMobileMenuOpen = false" class="mobile-nav-link mobile-nav-link--logout">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>Выйти</span>
+                </button>
+              </template>
 
-              <!-- Показываем "Войти" только для неавторизованных -->
+              <!-- Для неавторизованных - кнопка входа -->
               <button v-else @click="handleProfileClick(); isMobileMenuOpen = false" class="mobile-nav-link">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -335,6 +387,7 @@ const isScrolled = ref(false);
 const isSearchOpen = ref(false);
 const isMobileMenuOpen = ref(false);
 const isAuthModalOpen = ref(false);
+const isUserMenuOpen = ref(false);
 const cartStore = useCartStore();
 const authStore = useAuthStore();
 
@@ -344,6 +397,13 @@ const cartCount = computed(() => cartStore.totalItems);
 // Check if user is authenticated
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 const currentUser = computed(() => authStore.user);
+
+// Handle logout
+const handleLogout = async () => {
+  isUserMenuOpen.value = false;
+  await authStore.logout();
+  router.push('/');
+};
 
 // Handle profile/login click
 const handleProfileClick = () => {
@@ -747,6 +807,104 @@ onUnmounted(() => {
     50% {
       box-shadow: 0 2px 20px rgba($primary, 0.6);
     }
+  }
+}
+
+// User Menu Container
+.user-menu {
+  position: relative;
+}
+
+// User Dropdown Menu
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  background: $white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-lg;
+  border: 1px solid $gray-100;
+  padding: $spacing-xs 0;
+  z-index: 1000;
+
+  &__header {
+    padding: $spacing-sm $spacing-md;
+    border-bottom: 1px solid $gray-100;
+  }
+
+  &__name {
+    display: block;
+    font-weight: $font-weight-semibold;
+    color: $gray-900;
+    font-size: $font-size-sm;
+  }
+
+  &__email {
+    display: block;
+    font-size: $font-size-xs;
+    color: $gray-500;
+    margin-top: 2px;
+  }
+
+  &__divider {
+    height: 1px;
+    background: $gray-100;
+    margin: $spacing-xs 0;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    width: 100%;
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-size-sm;
+    color: $gray-700;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $gray-50;
+      color: $primary;
+    }
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    &--logout {
+      color: $error;
+
+      &:hover {
+        background: rgba($error, 0.05);
+        color: $error;
+      }
+    }
+  }
+}
+
+// Dropdown animation
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.2s ease;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+// Mobile nav link logout style
+.mobile-nav-link--logout {
+  color: $error !important;
+
+  &:hover {
+    background: rgba($error, 0.05) !important;
   }
 }
 
