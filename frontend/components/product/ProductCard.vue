@@ -108,11 +108,14 @@
           :loading="isAddingToCart"
           @click.stop="handleAddToCart"
           fullWidth
+          class="buy-button"
         >
-          <svg v-if="isInStock" width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-right: 4px">
-            <path d="M9 20C9 21.1 8.1 22 7 22C5.9 22 5 21.1 5 20C5 18.9 5.9 18 7 18C8.1 18 9 18.9 9 20ZM17 18C15.9 18 15 18.9 15 20C15 21.1 15.9 22 17 22C18.1 22 19 21.1 19 20C19 18.9 18.1 18 17 18ZM7.2 14.8V14.7L8.1 13H15.5C16.2 13 16.9 12.6 17.2 12L21 5H6.2L5 2H2V4H4L7.6 11.6L6.2 14.2C5.5 15.4 6.2 17 7.7 17H19V15H7.7C7.6 15 7.5 14.9 7.5 14.8L7.2 14.8Z" fill="currentColor"/>
-          </svg>
-          {{ isInStock ? 'Купить' : 'Нет' }}
+          <span class="buy-button__content">
+            <svg v-if="isInStock" width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M9 20C9 21.1 8.1 22 7 22C5.9 22 5 21.1 5 20C5 18.9 5.9 18 7 18C8.1 18 9 18.9 9 20ZM17 18C15.9 18 15 18.9 15 20C15 21.1 15.9 22 17 22C18.1 22 19 21.1 19 20C19 18.9 18.1 18 17 18ZM7.2 14.8V14.7L8.1 13H15.5C16.2 13 16.9 12.6 17.2 12L21 5H6.2L5 2H2V4H4L7.6 11.6L6.2 14.2C5.5 15.4 6.2 17 7.7 17H19V15H7.7C7.6 15 7.5 14.9 7.5 14.8L7.2 14.8Z" fill="currentColor"/>
+            </svg>
+            <span>{{ isInStock ? 'Купить' : 'Нет в наличии' }}</span>
+          </span>
         </BaseButton>
       </div>
 
@@ -531,17 +534,17 @@ const openQuickView = () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px; // Ultra-compact: Even smaller button
-    height: 32px; // Ultra-compact: Even smaller button
+    width: 40px;
+    height: 40px; // Такая же высота как кнопка "Купить"
     padding: 0;
-    border: 1px solid transparent;
+    border: 1px solid $gray-200;
     border-radius: $radius-lg;
-    background: linear-gradient($white, $white) padding-box,
-                $gradient-primary border-box;
+    background: $white;
     color: $gray-500;
     cursor: pointer;
     transition: all $transition-slow $transition-ease;
     position: relative;
+    flex-shrink: 0;
 
     &::before {
       content: '';
@@ -595,15 +598,28 @@ const openQuickView = () => {
     }
   }
 
+  // Стиль для контента кнопки "Купить"
+  .buy-button__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    svg {
+      flex-shrink: 0;
+    }
+  }
+
   :deep(.base-button) {
     background: $gradient-primary;
     border: none;
-    font-weight: $font-weight-semibold; // Less bold
-    letter-spacing: 0.3px; // Less spacing
-    text-transform: none; // No uppercase for cleaner look
-    font-size: 13px; // Ultra-compact: Fixed small size
-    padding: 6px 12px !important; // Ultra-compact: Override default padding
-    min-height: 32px !important; // Ultra-compact: Smaller min height
+    font-weight: $font-weight-semibold;
+    letter-spacing: 0.3px;
+    text-transform: none;
+    font-size: 13px;
+    padding: 0 16px !important;
+    height: 40px !important; // Фиксированная высота
+    min-height: 40px !important;
     position: relative;
     overflow: hidden;
 
