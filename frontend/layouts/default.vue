@@ -54,10 +54,18 @@
                 </div>
               </button>
 
-              <button @click="handleProfileClick" class="nav-icon" aria-label="Профиль">
+              <!-- Для авторизованных - ссылка на аккаунт с аватаром -->
+              <NuxtLink v-if="isAuthenticated" to="/account" class="nav-icon nav-icon--user" aria-label="Личный кабинет">
+                <div class="nav-icon-wrapper nav-icon-wrapper--user">
+                  <span class="user-avatar">{{ currentUser?.firstName?.charAt(0) || 'U' }}</span>
+                </div>
+              </NuxtLink>
+
+              <!-- Для неавторизованных - кнопка входа -->
+              <button v-else @click="handleProfileClick" class="nav-icon nav-icon--login" aria-label="Войти">
                 <div class="nav-icon-wrapper">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </div>
               </button>
@@ -339,13 +347,9 @@ const currentUser = computed(() => authStore.user);
 
 // Handle profile/login click
 const handleProfileClick = () => {
-  console.log('handleProfileClick called, isAuthenticated:', isAuthenticated.value);
   if (isAuthenticated.value) {
-    // Navigate to account page if authenticated
     router.push('/account');
   } else {
-    // Open auth modal if not authenticated
-    console.log('Opening auth modal');
     isAuthModalOpen.value = true;
   }
 };
@@ -381,7 +385,6 @@ watch(isMobileMenuOpen, (newValue) => {
 });
 
 watch(isAuthModalOpen, (newValue) => {
-  console.log('isAuthModalOpen changed:', newValue);
   if (newValue) {
     document.body.style.overflow = 'hidden';
   } else {
@@ -673,6 +676,47 @@ onUnmounted(() => {
   &.nav-icon--cart:hover {
     .badge {
       transform: scale(1.15) rotate(-5deg);
+    }
+  }
+
+  // Стили для аватара авторизованного пользователя
+  &.nav-icon--user {
+    .nav-icon-wrapper--user {
+      background: $gradient-primary;
+      border: 2px solid $primary-light;
+    }
+
+    .user-avatar {
+      color: $white;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-bold;
+      text-transform: uppercase;
+    }
+
+    &:hover {
+      .nav-icon-wrapper--user {
+        box-shadow: $shadow-colored;
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  // Стили для кнопки входа
+  &.nav-icon--login {
+    .nav-icon-wrapper {
+      background: transparent;
+      border: 2px solid $gray-300;
+    }
+
+    &:hover {
+      .nav-icon-wrapper {
+        background: $gradient-primary;
+        border-color: transparent;
+
+        svg {
+          color: $white;
+        }
+      }
     }
   }
 
