@@ -33,12 +33,6 @@
         <div class="stat-content">
           <div class="stat-value">{{ stats.totalLeads }}</div>
           <div class="stat-label">Всего лидов</div>
-          <div class="stat-trend positive">
-            <svg viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-            </svg>
-            +12% за месяц
-          </div>
         </div>
       </div>
 
@@ -51,12 +45,6 @@
         <div class="stat-content">
           <div class="stat-value">{{ stats.activeDeals }}</div>
           <div class="stat-label">Активные сделки</div>
-          <div class="stat-trend positive">
-            <svg viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-            </svg>
-            +8% за месяц
-          </div>
         </div>
       </div>
 
@@ -69,12 +57,6 @@
         <div class="stat-content">
           <div class="stat-value">{{ formatCurrency(stats.totalValue) }}</div>
           <div class="stat-label">Сумма сделок</div>
-          <div class="stat-trend positive">
-            <svg viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-            </svg>
-            +23% за месяц
-          </div>
         </div>
       </div>
 
@@ -87,12 +69,6 @@
         <div class="stat-content">
           <div class="stat-value">{{ stats.conversionRate }}%</div>
           <div class="stat-label">Конверсия</div>
-          <div class="stat-trend positive">
-            <svg viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-            </svg>
-            +5% за месяц
-          </div>
         </div>
       </div>
     </div>

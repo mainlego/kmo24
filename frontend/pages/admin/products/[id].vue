@@ -400,22 +400,47 @@ const form = ref({
 const errors = ref<Record<string, string>>({});
 
 // Options
-const categories = ref([
-  { value: 'cnc-machines', label: 'ЧПУ станки' },
-  { value: 'metalworking', label: 'Металлообработка' },
-  { value: 'woodworking', label: 'Деревообработка' },
-  { value: 'welding', label: 'Сварочное оборудование' },
-  { value: 'measuring', label: 'Измерительное оборудование' },
-]);
+const categories = ref<Array<{ value: string; label: string }>>([]);
+const manufacturers = ref<Array<{ value: string; label: string }>>([]);
 
-const manufacturers = ref([
-  { value: 'haas', label: 'HAAS' },
-  { value: 'dmg-mori', label: 'DMG MORI' },
-  { value: 'mazak', label: 'Mazak' },
-  { value: 'okuma', label: 'Okuma' },
-  { value: 'makino', label: 'Makino' },
-  { value: 'other', label: 'Другой' },
-]);
+// Загрузка категорий из API
+const loadCategories = async () => {
+  try {
+    const { apiFetch } = useApi();
+    const response = await apiFetch<{ success: boolean; data: any[] }>('/categories');
+    if (response.success && response.data) {
+      categories.value = response.data.map(cat => ({
+        value: cat._id,
+        label: cat.name,
+      }));
+    }
+  } catch {
+    // Fallback к пустому списку
+  }
+};
+
+// Загрузка уникальных производителей из товаров
+const loadManufacturers = async () => {
+  try {
+    const { apiFetch } = useApi();
+    const response = await apiFetch<{ success: boolean; data: any[] }>('/products?limit=1000');
+    if (response.success && response.data) {
+      const uniqueManufacturers = [...new Set(
+        response.data
+          .map((p: any) => p.manufacturer as string)
+          .filter((m): m is string => Boolean(m))
+      )];
+      manufacturers.value = uniqueManufacturers.map((m: string) => ({
+        value: m,
+        label: m,
+      }));
+      // Добавляем "Другой" в конец
+      manufacturers.value.push({ value: 'other', label: 'Другой' });
+    }
+  } catch {
+    manufacturers.value = [{ value: 'other', label: 'Другой' }];
+  }
+};
 
 const conditionOptions = ref([
   { value: 'new', label: 'Новое' },
@@ -637,6 +662,9 @@ const formatDate = (date: string) => {
 };
 
 onMounted(async () => {
+  // Загружаем категории и производителей
+  await Promise.all([loadCategories(), loadManufacturers()]);
+
   if (!isNew.value) {
     try {
       loading.value = true;

@@ -108,9 +108,34 @@ const authStore = useAuthStore();
 const sidebarOpen = ref(false); // Changed: open/closed state for mobile
 const showNotifications = ref(false);
 const isMobile = ref(false);
-const notificationCount = ref(3);
+const notificationCount = ref(0);
+
+// Счетчики для бейджей
+const leadsCount = ref(0);
+const pendingOrdersCount = ref(0);
 
 const user = computed(() => authStore.user);
+
+// Загрузка счетчиков для бейджей
+const loadBadgeCounts = async () => {
+  try {
+    const { apiFetch } = useApi();
+
+    // Загружаем количество новых лидов
+    const leadsResponse = await apiFetch<{ success: boolean; data: any[]; pagination?: { total: number } }>('/leads?status=new&limit=1');
+    if (leadsResponse.success) {
+      leadsCount.value = leadsResponse.pagination?.total || 0;
+    }
+
+    // Загружаем количество заказов в ожидании
+    const ordersResponse = await apiFetch<{ success: boolean; data: any[]; pagination?: { total: number } }>('/orders/all/list?status=pending&limit=1');
+    if (ordersResponse.success) {
+      pendingOrdersCount.value = ordersResponse.pagination?.total || 0;
+    }
+  } catch {
+    // Игнорируем ошибки - просто не показываем бейджи
+  }
+};
 
 const userInitials = computed(() => {
   if (!user.value?.fullName) return 'A';
@@ -136,7 +161,7 @@ const pageTitle = computed(() => {
   return 'Админ-панель';
 });
 
-const navigation = [
+const navigation = computed(() => [
   {
     label: 'Дашборд',
     path: '/admin',
@@ -146,19 +171,18 @@ const navigation = [
     label: 'CRM',
     path: '/admin/crm',
     icon: 'IconCRM',
-    badge: '38',
+    badge: leadsCount.value > 0 ? String(leadsCount.value) : null,
   },
   {
     label: 'Товары',
     path: '/admin/products',
     icon: 'IconProducts',
-    badge: null,
   },
   {
     label: 'Заказы',
     path: '/admin/orders',
     icon: 'IconOrders',
-    badge: '5',
+    badge: pendingOrdersCount.value > 0 ? String(pendingOrdersCount.value) : null,
   },
   {
     label: 'КП',
@@ -185,7 +209,7 @@ const navigation = [
     path: '/admin/settings',
     icon: 'IconSettings',
   },
-];
+]);
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value;
@@ -215,6 +239,9 @@ onMounted(() => {
   };
   checkMobile();
   window.addEventListener('resize', checkMobile);
+
+  // Загружаем счетчики для бейджей
+  loadBadgeCounts();
 
   // Close sidebar when clicking on nav item on mobile
   watch(() => route.path, () => {

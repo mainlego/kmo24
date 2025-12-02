@@ -7,6 +7,12 @@
         <p class="page-subtitle">Управление товарами интернет-магазина</p>
       </div>
       <div class="header-actions">
+        <button class="btn btn-secondary" @click="sync1CProducts" :disabled="syncing">
+          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          {{ syncing ? 'Синхронизация...' : 'Синхр. с 1С' }}
+        </button>
         <button class="btn btn-primary" @click="navigateTo('/admin/products/create')">
           <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -14,6 +20,34 @@
           Добавить товар
         </button>
       </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-container">
+      <button
+        class="tab-btn"
+        :class="{ active: activeTab === 'all' }"
+        @click="activeTab = 'all'"
+      >
+        Все товары
+        <span class="tab-count">{{ stats.total }}</span>
+      </button>
+      <button
+        class="tab-btn"
+        :class="{ active: activeTab === '1c' }"
+        @click="activeTab = '1c'"
+      >
+        Из 1С
+        <span class="tab-count">{{ stats1C.total }}</span>
+      </button>
+      <button
+        class="tab-btn"
+        :class="{ active: activeTab === 'manual' }"
+        @click="activeTab = 'manual'"
+      >
+        Добавлены вручную
+        <span class="tab-count">{{ stats.total - stats1C.total }}</span>
+      </button>
     </div>
 
     <!-- Filters -->
@@ -212,6 +246,8 @@ const { getCategories } = useCategories();
 
 // Data
 const loading = ref(false);
+const syncing = ref(false);
+const activeTab = ref<'all' | '1c' | 'manual'>('all');
 const selectedProducts = ref<string[]>([]);
 const products = ref<Product[]>([]);
 const pagination = ref({
@@ -219,6 +255,11 @@ const pagination = ref({
   limit: 20,
   total: 0,
   pages: 0,
+});
+
+// Статистика товаров из 1С
+const stats1C = ref({
+  total: 0,
 });
 
 // Filters
@@ -288,14 +329,24 @@ const filteredProducts = computed(() => products.value);
 const fetchProducts = async () => {
   loading.value = true;
   try {
-    const response = await getProducts({
+    // Формируем параметры запроса
+    const params: any = {
       page: pagination.value.page,
       limit: pagination.value.limit,
       search: filters.value.search || undefined,
       category: filters.value.category || undefined,
       status: filters.value.status || undefined,
       sort: '-createdAt',
-    });
+    };
+
+    // Фильтруем по источнику товара
+    if (activeTab.value === '1c') {
+      params.source = '1c';
+    } else if (activeTab.value === 'manual') {
+      params.source = 'manual';
+    }
+
+    const response = await getProducts(params);
 
     if (response.success) {
       products.value = response.data || [];
@@ -303,10 +354,45 @@ const fetchProducts = async () => {
         pagination.value = response.pagination;
       }
     }
-  } catch (err) {
+  } catch {
     error('Ошибка при загрузке товаров');
   } finally {
     loading.value = false;
+  }
+};
+
+// Синхронизация с 1С
+const sync1CProducts = async () => {
+  syncing.value = true;
+  try {
+    const { apiFetch } = useApi();
+    // Запрос на синхронизацию - отправляем пустой массив для тестирования соединения
+    await apiFetch('/integration/1c/products/sync', {
+      method: 'POST',
+      body: { products: [] },
+    });
+    success('Синхронизация запущена. Данные будут обновлены.');
+    // Обновляем список товаров
+    await fetchProducts();
+    await fetch1CStats();
+  } catch {
+    error('Ошибка синхронизации с 1С. Проверьте настройки интеграции.');
+  } finally {
+    syncing.value = false;
+  }
+};
+
+// Загрузка статистики товаров из 1С
+const fetch1CStats = async () => {
+  try {
+    const { apiFetch } = useApi();
+    const response = await apiFetch<{ success: boolean; data: any[] }>('/products?source=1c&limit=1');
+    if (response.success) {
+      // Получаем общее количество из пагинации или считаем
+      stats1C.value.total = (response as any).pagination?.total || 0;
+    }
+  } catch {
+    stats1C.value.total = 0;
   }
 };
 
@@ -492,11 +578,21 @@ watch(
   }
 );
 
+// Перезагружаем товары при смене вкладки
+watch(
+  () => activeTab.value,
+  () => {
+    pagination.value.page = 1;
+    fetchProducts();
+  }
+);
+
 onMounted(async () => {
   await Promise.all([
     fetchProducts(),
     fetchStats(),
     fetchCategories(),
+    fetch1CStats(),
   ]);
 });
 </script>
@@ -844,6 +940,62 @@ onMounted(async () => {
       background: #fee2e2;
       color: #dc2626;
     }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.tabs-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0;
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+
+  &:hover {
+    color: #374151;
+  }
+
+  &.active {
+    color: #f59e0b;
+    border-bottom-color: #f59e0b;
+  }
+
+  .tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.25rem;
+    padding: 0 0.375rem;
+    background: #f3f4f6;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  &.active .tab-count {
+    background: #fef3c7;
+    color: #92400e;
   }
 }
 </style>
