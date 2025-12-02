@@ -423,7 +423,7 @@ const loadCategories = async () => {
 const loadManufacturers = async () => {
   try {
     const { apiFetch } = useApi();
-    const response = await apiFetch<{ success: boolean; data: any[] }>('/products?limit=1000');
+    const response = await apiFetch<{ success: boolean; data: any[] }>('/products?limit=100');
     if (response.success && response.data) {
       const uniqueManufacturers = [...new Set(
         response.data
