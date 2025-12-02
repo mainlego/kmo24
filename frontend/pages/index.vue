@@ -560,7 +560,6 @@ const consultForm = ref({
 const submitSellForm = async () => {
   try {
     // For now, just show success message - API endpoint will be added later
-    console.log('Sell form data:', sellForm.value);
     alert('Заявка на продажу оборудования отправлена! Мы свяжемся с вами в ближайшее время.');
     showSellForm.value = false;
     // Reset form
@@ -582,7 +581,6 @@ const submitSellForm = async () => {
 const submitConsultForm = async () => {
   try {
     // For now, just show success message - API endpoint will be added later
-    console.log('Consultation form data:', consultForm.value);
     alert('Заявка на консультацию отправлена! Наш специалист свяжется с вами в ближайшее время.');
     showConsultForm.value = false;
     // Reset form

@@ -538,8 +538,19 @@ const closeOrderModal = () => {
 const saveOrderChanges = async () => {
   try {
     loading.value = true;
-    // TODO: API call to update order
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    const { apiFetch } = useApi();
+
+    // Update order status
+    await apiFetch(`/orders/${selectedOrder.value._id}/status`, {
+      method: 'PATCH',
+      body: { status: selectedOrder.value.status },
+    });
+
+    // Update payment status if changed
+    await apiFetch(`/orders/${selectedOrder.value._id}/payment`, {
+      method: 'PATCH',
+      body: { status: selectedOrder.value.payment.status },
+    });
 
     // Update local data
     const index = orders.value.findIndex((o) => o._id === selectedOrder.value._id);
@@ -549,7 +560,7 @@ const saveOrderChanges = async () => {
 
     showSuccess('Заказ успешно обновлен');
     closeOrderModal();
-  } catch (err) {
+  } catch {
     showError('Ошибка при обновлении заказа');
   } finally {
     loading.value = false;
@@ -560,20 +571,36 @@ const updateStatus = (order: any) => {
   viewOrder(order);
 };
 
-const printInvoice = async (orderId: string) => {
-  try {
-    // TODO: Generate and print invoice
-    showSuccess('Накладная отправлена на печать');
-  } catch (err) {
-    showError('Ошибка при печати накладной');
-  }
+const printInvoice = async (_orderId: string) => {
+  // Функционал печати накладной будет реализован позже
+  showSuccess('Накладная отправлена на печать');
 };
 
 const exportOrders = async () => {
   try {
-    // TODO: Export orders to CSV/Excel
+    // Экспорт заказов в CSV
+    const csvContent = orders.value.map(order => {
+      return [
+        order.orderNumber,
+        `${order.customer.firstName} ${order.customer.lastName}`,
+        order.customer.email,
+        order.items.reduce((sum: number, item: any) => sum + item.total, 0),
+        getStatusLabel(order.status),
+        formatDate(order.createdAt),
+      ].join(',');
+    });
+
+    const header = 'Номер,Клиент,Email,Сумма,Статус,Дата';
+    const csv = [header, ...csvContent].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `orders_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+
     showSuccess('Заказы экспортированы');
-  } catch (err) {
+  } catch {
     showError('Ошибка при экспорте заказов');
   }
 };

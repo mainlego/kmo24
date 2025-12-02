@@ -465,7 +465,6 @@ const validateForm = (): boolean => {
 
 const handleSubmitOrder = async () => {
   if (!validateForm()) {
-    console.log('Form validation failed');
     return;
   }
 
@@ -500,8 +499,6 @@ const handleSubmitOrder = async () => {
       notes: formData.value.comment || '',
     };
 
-    console.log('Submitting order:', orderPayload);
-
     // Отправка заказа на API
     const response = await apiFetch<{ success: boolean; data: any }>('/orders', {
       method: 'POST',
@@ -509,7 +506,6 @@ const handleSubmitOrder = async () => {
     });
 
     if (response.success && response.data) {
-      console.log('Order created:', response.data);
 
       // Сохраняем ID заказа для страницы успеха
       const orderId = response.data._id || response.data.id || response.data.orderNumber;
@@ -523,7 +519,6 @@ const handleSubmitOrder = async () => {
       throw new Error('Не удалось создать заказ');
     }
   } catch (error: any) {
-    console.error('Error submitting order:', error);
     alert(error.message || 'Произошла ошибка при оформлении заказа');
   } finally {
     isSubmitting.value = false;

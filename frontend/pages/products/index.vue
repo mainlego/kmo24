@@ -214,8 +214,6 @@ const removeFilter = async (filterType: string) => {
 };
 
 const handleFiltersUpdate = async (filters: any) => {
-  console.log('Filters updated:', filters);
-
   // Convert sort format from price_asc/price_desc to price/-price
   let convertedFilters = { ...filters };
   if (filters.sort) {
@@ -247,15 +245,12 @@ const applyMobileFilters = () => {
 // Load products and categories on mount
 onMounted(async () => {
   try {
-    console.log('🚀 Products page mounted, fetching data...');
     await Promise.all([
       categoriesStore.fetchCategories(),
       productsStore.fetchProducts(),
     ]);
-    console.log('✅ Products loaded:', productsStore.products.length);
-    console.log('✅ Categories loaded:', categories.value.length);
-  } catch (error) {
-    console.error('Error loading data:', error);
+  } catch {
+    // Error loading data
   }
 });
 

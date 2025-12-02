@@ -317,11 +317,10 @@ const mockProduct = ref({
 });
 
 const handleBadgeClose = () => {
-  console.log('Badge closed');
+  // Badge closed
 };
 
 const handleCardClick = () => {
-  console.log('Card clicked');
   alert('Карточка была нажата!');
 };
 

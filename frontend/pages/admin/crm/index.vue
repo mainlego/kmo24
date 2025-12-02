@@ -426,8 +426,7 @@ const editLead = (lead: any) => {
 };
 
 const viewLeadDetails = (lead: any) => {
-  // TODO: Открыть детальную страницу лида
-  success(`Просмотр деталей лида: ${lead.name}`);
+  navigateTo(`/admin/crm/${lead._id || lead.id}`);
 };
 
 const deleteLead = async (lead: any) => {

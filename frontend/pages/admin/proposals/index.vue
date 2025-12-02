@@ -241,6 +241,8 @@ const canGenerate = computed(() => {
   )
 })
 
+const { apiFetch } = useApi()
+
 // Methods
 const searchProducts = async () => {
   if (searchTimeout) {
@@ -254,68 +256,30 @@ const searchProducts = async () => {
 
   searchTimeout = setTimeout(async () => {
     try {
-      // TODO: Replace with actual API call
-      // const response = await $fetch('/api/products', {
-      //   params: { search: searchQuery.value, limit: 10 }
-      // })
+      const response = await apiFetch<{ success: boolean; data: any[] }>('/products', {
+        params: { search: searchQuery.value, limit: 10 }
+      })
 
-      // Mock data
-      await new Promise(resolve => setTimeout(resolve, 200))
-
-      const mockProducts: Product[] = [
-        {
-          _id: '1',
-          name: 'Экскаватор Komatsu PC200-8',
-          slug: 'excavator-komatsu-pc200-8',
-          sku: 'EXC-001',
-          price: 3500000,
-          oldPrice: null,
-          description: { short: 'Гусеничный экскаватор', full: '' },
-          images: [{ url: 'https://via.placeholder.com/100', alt: 'Excavator' }],
-          category: '',
-          stock: { quantity: 1, lowStockThreshold: 1 },
-          rating: { average: 4.5, count: 10 },
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        {
-          _id: '2',
-          name: 'Погрузчик CAT 938M',
-          slug: 'loader-cat-938m',
-          sku: 'LDR-002',
-          price: 4200000,
-          oldPrice: null,
-          description: { short: 'Фронтальный погрузчик', full: '' },
-          images: [{ url: 'https://via.placeholder.com/100', alt: 'Loader' }],
-          category: '',
-          stock: { quantity: 2, lowStockThreshold: 1 },
-          rating: { average: 4.8, count: 15 },
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        {
-          _id: '3',
-          name: 'Бульдозер Shantui SD22',
-          slug: 'bulldozer-shantui-sd22',
-          sku: 'BLD-003',
-          price: 5800000,
-          oldPrice: 6200000,
-          description: { short: 'Гусеничный бульдозер', full: '' },
-          images: [{ url: 'https://via.placeholder.com/100', alt: 'Bulldozer' }],
-          category: '',
-          stock: { quantity: 1, lowStockThreshold: 1 },
-          rating: { average: 4.2, count: 8 },
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      ].filter(p => p.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
-
-      searchResults.value = mockProducts
-    } catch (error) {
-      console.error('Error searching products:', error)
+      if (response.success && response.data) {
+        searchResults.value = response.data.map(p => ({
+          _id: p._id,
+          name: p.name,
+          slug: p.slug,
+          sku: p.sku || '',
+          price: p.price,
+          oldPrice: p.oldPrice || null,
+          description: p.description || { short: '', full: '' },
+          images: p.images || [],
+          category: p.category || '',
+          stock: p.stock || { quantity: 0, lowStockThreshold: 1 },
+          rating: p.rating || { average: 0, count: 0 },
+          isActive: p.isActive,
+          createdAt: p.createdAt,
+          updatedAt: p.updatedAt,
+        }))
+      }
+    } catch {
+      searchResults.value = []
     }
   }, 300)
 }
@@ -405,8 +369,7 @@ const generateProposal = async () => {
     window.open(result.pdfUrl, '_blank')
 
     alert(`КП ${result.proposalNumber} успешно сформировано!`)
-  } catch (error) {
-    console.error('Error generating proposal:', error)
+  } catch {
     alert('Ошибка при формировании КП')
   }
 }
@@ -445,8 +408,8 @@ const loadHistory = () => {
         ...item,
         date: new Date(item.date),
       }))
-    } catch (error) {
-      console.error('Error loading history:', error)
+    } catch {
+      // Ignore parse errors
     }
   }
 }

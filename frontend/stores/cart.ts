@@ -56,9 +56,8 @@ export const useCartStore = defineStore('cart', {
       try {
         // Load from localStorage
         this.loadFromLocalStorage();
-        console.log('✅ Cart loaded:', this.items.length, 'items');
-      } catch (error) {
-        console.error('Error loading cart:', error);
+      } catch {
+        // Error loading cart
       } finally {
         this.isLoading = false;
       }
@@ -101,10 +100,7 @@ export const useCartStore = defineStore('cart', {
 
         // Save to localStorage
         this.saveToLocalStorage();
-
-        console.log('✅ Added to cart:', product.name);
       } catch (error) {
-        console.error('Error adding to cart:', error);
         throw error;
       }
     },
@@ -119,11 +115,8 @@ export const useCartStore = defineStore('cart', {
 
           // Save to localStorage
           this.saveToLocalStorage();
-
-          console.log('✅ Removed from cart:', item.product.name);
         }
       } catch (error) {
-        console.error('Error removing from cart:', error);
         throw error;
       }
     },
@@ -134,10 +127,7 @@ export const useCartStore = defineStore('cart', {
 
         // Clear localStorage
         this.saveToLocalStorage();
-
-        console.log('✅ Cart cleared');
       } catch (error) {
-        console.error('Error clearing cart:', error);
         throw error;
       }
     },
@@ -151,8 +141,8 @@ export const useCartStore = defineStore('cart', {
             quantity: 1, // Always save as 1
           }));
           localStorage.setItem('cart', JSON.stringify(cartData));
-        } catch (error) {
-          console.error('Error saving cart to localStorage:', error);
+        } catch {
+          // Error saving cart to localStorage
         }
       }
     },
@@ -179,8 +169,7 @@ export const useCartStore = defineStore('cart', {
                   product: response.data,
                   quantity: 1, // Always 1 item
                 };
-              } catch (error) {
-                console.error(`Error loading product ${item.productId}:`, error);
+              } catch {
                 return null;
               }
             });
@@ -188,8 +177,7 @@ export const useCartStore = defineStore('cart', {
             const items = await Promise.all(itemPromises);
             this.items = items.filter(Boolean) as CartItem[];
           }
-        } catch (error) {
-          console.error('Error loading cart from localStorage:', error);
+        } catch {
           this.items = [];
         }
       }

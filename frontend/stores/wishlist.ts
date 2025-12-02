@@ -26,7 +26,6 @@ export const useWishlistStore = defineStore('wishlist', {
     async addItem(product: Product) {
       // Check if already in wishlist
       if (this.hasItem(product._id)) {
-        console.log('Product already in wishlist');
         return;
       }
 
@@ -36,10 +35,7 @@ export const useWishlistStore = defineStore('wishlist', {
 
         // Save to localStorage
         this.saveToLocalStorage();
-
-        console.log('✅ Added to wishlist:', product.name);
       } catch (error) {
-        console.error('Error adding to wishlist:', error);
         throw error;
       }
     },
@@ -55,11 +51,8 @@ export const useWishlistStore = defineStore('wishlist', {
 
           // Save to localStorage
           this.saveToLocalStorage();
-
-          console.log('✅ Removed from wishlist:', product.name);
         }
       } catch (error) {
-        console.error('Error removing from wishlist:', error);
         throw error;
       }
     },
@@ -79,10 +72,7 @@ export const useWishlistStore = defineStore('wishlist', {
 
         // Clear localStorage
         this.saveToLocalStorage();
-
-        console.log('✅ Wishlist cleared');
       } catch (error) {
-        console.error('Error clearing wishlist:', error);
         throw error;
       }
     },
@@ -94,10 +84,7 @@ export const useWishlistStore = defineStore('wishlist', {
         // TODO: API call to fetch wishlist
         // For now, load from localStorage
         this.loadFromLocalStorage();
-
-        console.log('✅ Wishlist loaded:', this.items.length, 'items');
       } catch (error) {
-        console.error('Error fetching wishlist:', error);
         throw error;
       } finally {
         this.isLoading = false;
@@ -108,8 +95,8 @@ export const useWishlistStore = defineStore('wishlist', {
       if (process.client) {
         try {
           localStorage.setItem('wishlist', JSON.stringify(this.items));
-        } catch (error) {
-          console.error('Error saving wishlist to localStorage:', error);
+        } catch {
+          // Error saving wishlist
         }
       }
     },
@@ -121,8 +108,7 @@ export const useWishlistStore = defineStore('wishlist', {
           if (stored) {
             this.items = JSON.parse(stored);
           }
-        } catch (error) {
-          console.error('Error loading wishlist from localStorage:', error);
+        } catch {
           this.items = [];
         }
       }

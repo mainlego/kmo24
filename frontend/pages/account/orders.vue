@@ -162,9 +162,8 @@ const formatDate = (dateString: string): string => {
   }).format(date);
 };
 
-const viewOrder = (orderId: string) => {
-  // TODO: Navigate to order detail page
-  console.log('View order:', orderId);
+const viewOrder = (_orderId: string) => {
+  // TODO: Navigate to order detail page when page is implemented
 };
 
 const cancelOrder = async (orderId: string) => {

@@ -8,9 +8,8 @@ export default defineNuxtPlugin(async () => {
     if (token) {
       try {
         await fetchCurrentUser();
-      } catch (error) {
+      } catch {
         // Если токен невалидный, он будет очищен в fetchCurrentUser
-        console.log('Failed to restore session');
       }
     }
   }

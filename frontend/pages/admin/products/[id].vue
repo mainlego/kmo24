@@ -465,14 +465,57 @@ const saveProduct = async () => {
 
   try {
     loading.value = true;
-    form.value.status = 'active';
+    const { apiFetch } = useApi();
 
-    // TODO: API call to save product
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const productData = {
+      name: form.value.name,
+      sku: form.value.sku,
+      slug: form.value.slug || form.value.name.toLowerCase().replace(/\s+/g, '-'),
+      category: form.value.category,
+      manufacturer: form.value.manufacturer,
+      model: form.value.model,
+      year: form.value.year ? parseInt(form.value.year) : undefined,
+      description: form.value.description,
+      fullDescription: form.value.fullDescription,
+      price: form.value.price,
+      oldPrice: form.value.oldPrice || undefined,
+      stock: {
+        quantity: form.value.stock || 0,
+        reserved: 0,
+      },
+      condition: form.value.condition,
+      location: form.value.location,
+      isActive: true,
+      isFeatured: form.value.featured,
+      tags: form.value.tags,
+      specifications: form.value.specifications,
+      images: form.value.images.map((url: string, index: number) => ({
+        url,
+        alt: form.value.name,
+        isMain: index === 0,
+        order: index,
+      })),
+      seo: {
+        metaTitle: form.value.metaTitle,
+        metaDescription: form.value.metaDescription,
+      },
+    };
+
+    if (isNew.value) {
+      await apiFetch('/products', {
+        method: 'POST',
+        body: productData,
+      });
+    } else {
+      await apiFetch(`/products/${route.params.id}`, {
+        method: 'PUT',
+        body: productData,
+      });
+    }
 
     success(isNew.value ? 'Товар успешно создан' : 'Товар успешно обновлен');
     navigateTo('/admin/products');
-  } catch (err) {
+  } catch {
     error('Ошибка при сохранении товара');
   } finally {
     loading.value = false;
@@ -482,13 +525,33 @@ const saveProduct = async () => {
 const saveDraft = async () => {
   try {
     loading.value = true;
-    form.value.status = 'draft';
+    const { apiFetch } = useApi();
 
-    // TODO: API call to save product as draft
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const productData = {
+      name: form.value.name || 'Черновик',
+      sku: form.value.sku || `DRAFT-${Date.now()}`,
+      slug: form.value.slug || `draft-${Date.now()}`,
+      category: form.value.category,
+      description: form.value.description,
+      price: form.value.price || 0,
+      stock: { quantity: form.value.stock || 0, reserved: 0 },
+      isActive: false, // Draft is inactive
+    };
+
+    if (isNew.value) {
+      await apiFetch('/products', {
+        method: 'POST',
+        body: productData,
+      });
+    } else {
+      await apiFetch(`/products/${route.params.id}`, {
+        method: 'PUT',
+        body: { ...productData, isActive: false },
+      });
+    }
 
     success('Черновик сохранен');
-  } catch (err) {
+  } catch {
     error('Ошибка при сохранении черновика');
   } finally {
     loading.value = false;
@@ -573,50 +636,49 @@ const formatDate = (date: string) => {
   }).format(new Date(date));
 };
 
-onMounted(() => {
+onMounted(async () => {
   if (!isNew.value) {
-    // TODO: Fetch product data from API
-    // Mock data for editing
-    form.value = {
-      name: 'Фрезерный станок с ЧПУ HAAS VF-2',
-      sku: 'CNC-001',
-      category: 'cnc-machines',
-      manufacturer: 'haas',
-      model: 'VF-2',
-      year: '2018',
-      description: 'Профессиональный фрезерный станок с ЧПУ в отличном состоянии',
-      fullDescription: 'Фрезерный станок с ЧПУ HAAS VF-2 - это высокопроизводительное оборудование для точной обработки металлов. Станок был приобретен в 2018 году и использовался на производстве с соблюдением всех регламентов обслуживания.',
-      price: 2500000,
-      oldPrice: 2800000,
-      stock: 2,
-      condition: 'excellent',
-      location: 'Москва, склад №1',
-      status: 'active',
-      featured: true,
-      onSale: true,
-      newArrival: false,
-      metaTitle: 'Купить фрезерный станок HAAS VF-2 б/у',
-      metaDescription: 'Профессиональный фрезерный станок HAAS VF-2 в отличном состоянии. Доставка по России.',
-      slug: 'frezernyy-stanok-haas-vf-2',
-      tags: ['ЧПУ', 'фрезерный', 'HAAS', 'металлообработка'],
-      specifications: [
-        { name: 'Рабочая зона X/Y/Z', value: '660 x 510 x 635 мм' },
-        { name: 'Скорость шпинделя', value: '8100 об/мин' },
-        { name: 'Мощность шпинделя', value: '22 кВт' },
-        { name: 'Количество инструментов', value: '24' },
-      ],
-      images: [
-        'https://via.placeholder.com/400x300',
-        'https://via.placeholder.com/400x300',
-        'https://via.placeholder.com/400x300',
-      ],
-      documents: [
-        { name: 'Паспорт оборудования.pdf', url: '#' },
-        { name: 'Сертификат.pdf', url: '#' },
-      ],
-      createdAt: '2024-01-15T10:30:00',
-      updatedAt: '2024-01-20T14:45:00',
-    };
+    try {
+      loading.value = true;
+      const { apiFetch } = useApi();
+      const response = await apiFetch<{ success: boolean; data: any }>(`/products/${route.params.id}`);
+
+      if (response.success && response.data) {
+        const product = response.data;
+        form.value = {
+          name: product.name || '',
+          sku: product.sku || '',
+          category: product.category?._id || product.category || '',
+          manufacturer: product.manufacturer || '',
+          model: product.model || '',
+          year: product.year?.toString() || '',
+          description: product.description || '',
+          fullDescription: product.fullDescription || '',
+          price: product.price || 0,
+          oldPrice: product.oldPrice || 0,
+          stock: product.stock?.quantity || 0,
+          condition: product.condition || 'good',
+          location: product.location || '',
+          status: product.isActive ? 'active' : 'draft',
+          featured: product.isFeatured || false,
+          onSale: product.oldPrice > product.price,
+          newArrival: false,
+          metaTitle: product.seo?.metaTitle || '',
+          metaDescription: product.seo?.metaDescription || '',
+          slug: product.slug || '',
+          tags: product.tags || [],
+          specifications: product.specifications || [],
+          images: product.images?.map((img: any) => img.url) || [],
+          documents: product.documents || [],
+          createdAt: product.createdAt || '',
+          updatedAt: product.updatedAt || '',
+        };
+      }
+    } catch {
+      error('Ошибка загрузки товара');
+    } finally {
+      loading.value = false;
+    }
   }
 });
 </script>

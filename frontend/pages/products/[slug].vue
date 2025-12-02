@@ -253,9 +253,8 @@ const handleAddToCart = async () => {
   isAddingToCart.value = true;
   try {
     await addToCart(product.value._id, 1);
-    console.log('Added 1 item to cart');
-  } catch (err) {
-    console.error('Error adding to cart:', err);
+  } catch {
+    // Error adding to cart
   } finally {
     isAddingToCart.value = false;
   }
@@ -264,15 +263,13 @@ const handleAddToCart = async () => {
 const quickAddToCart = async (item: Product) => {
   try {
     await addToCart(item._id, 1);
-    console.log(`Quick added ${item.name} to cart`);
-  } catch (err) {
-    console.error('Error adding to cart:', err);
+  } catch {
+    // Error adding to cart
   }
 };
 
 const toggleFavorite = () => {
   isFavorite.value = !isFavorite.value;
-  console.log('Toggle favorite:', product.value?._id);
 };
 
 const selectImage = (index: number) => {

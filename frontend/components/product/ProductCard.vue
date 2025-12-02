@@ -170,14 +170,6 @@ const isAddingToCart = ref(false);
 // Check if product is in wishlist
 const isFavorite = computed(() => wishlistStore.hasItem(props.product._id));
 
-// Debug output
-onMounted(() => {
-  console.log('🎴 ProductCard mounted for:', props.product.name);
-  console.log('🖼️ Product images:', props.product.images);
-  if (props.product.images?.length) {
-    console.log('📸 First image URL:', props.product.images[0].url);
-  }
-});
 
 const isInStock = computed(() => {
   return props.product.stock.quantity > 0 && props.product.isActive;
@@ -223,8 +215,8 @@ const handleAddToCart = async () => {
 
   try {
     await cartStore.addItem(props.product._id, 1);
-  } catch (error) {
-    console.error('Error adding to cart:', error);
+  } catch {
+    // Error adding to cart
   } finally {
     isAddingToCart.value = false;
   }
@@ -233,9 +225,8 @@ const handleAddToCart = async () => {
 const toggleFavorite = async () => {
   try {
     await wishlistStore.toggleItem(props.product);
-    console.log('✅ Toggled favorite:', props.product.name);
-  } catch (error) {
-    console.error('Error toggling favorite:', error);
+  } catch {
+    // Error toggling favorite
   }
 };
 

@@ -337,8 +337,6 @@ const handleSubmit = async () => {
     // Имитация отправки формы
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    console.log('Form submitted:', formData);
-
     // Success
     submitSuccess.value = true;
 
@@ -351,8 +349,8 @@ const handleSubmit = async () => {
     setTimeout(() => {
       submitSuccess.value = false;
     }, 5000);
-  } catch (error) {
-    console.error('Error submitting form:', error);
+  } catch {
+    // Error submitting form
   } finally {
     isSubmitting.value = false;
   }

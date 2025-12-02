@@ -2,7 +2,7 @@
  * Composable для управления правами доступа (ACL)
  */
 
-import { computed } from 'vue';
+import { computed, readonly } from 'vue';
 
 // Типы ролей
 export type UserRole = 'admin' | 'manager' | 'customer';
@@ -32,11 +32,6 @@ export type Permission =
   | 'categories.create'
   | 'categories.edit'
   | 'categories.delete'
-  // Отзывы
-  | 'reviews.view'
-  | 'reviews.moderate'
-  | 'reviews.delete'
-  | 'reviews.respond'
   // Новости
   | 'news.view'
   | 'news.create'
@@ -76,10 +71,6 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'categories.create',
     'categories.edit',
     'categories.delete',
-    'reviews.view',
-    'reviews.moderate',
-    'reviews.delete',
-    'reviews.respond',
     'news.view',
     'news.create',
     'news.edit',
@@ -107,10 +98,6 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'categories.view',
     'categories.create',
     'categories.edit',
-    // Отзывы
-    'reviews.view',
-    'reviews.moderate',
-    'reviews.respond',
     // Новости
     'news.view',
     'news.create',
@@ -125,16 +112,22 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     // Просмотр товаров и категорий
     'products.view',
     'categories.view',
-    'reviews.view',
     'news.view',
   ],
 };
 
 export const usePermissions = () => {
-  // TODO: Получать текущего пользователя из authStore
-  // Сейчас используем mock данные
-  const currentUser = ref<{ role: UserRole } | null>({
-    role: 'admin', // Для демонстрации
+  const { user } = useAuth();
+
+  // Маппинг ролей из API к типам UserRole
+  const currentUser = computed<{ role: UserRole } | null>(() => {
+    if (!user.value) return null;
+    const role = user.value.role as UserRole;
+    // Если роль 'user' из API, маппим на 'customer'
+    if (role === 'user' as any) {
+      return { role: 'customer' as UserRole };
+    }
+    return { role };
   });
 
   /**
@@ -143,8 +136,8 @@ export const usePermissions = () => {
   const hasPermission = (permission: Permission): boolean => {
     if (!currentUser.value) return false;
 
-    const userPermissions = rolePermissions[currentUser.value.role];
-    return userPermissions.includes(permission);
+    const permissions = rolePermissions[currentUser.value.role];
+    return permissions?.includes(permission) ?? false;
   };
 
   /**
@@ -213,9 +206,6 @@ export const usePermissions = () => {
 
       // Категории
       'admin-categories': ['categories.view'],
-
-      // Отзывы
-      'admin-reviews': ['reviews.view'],
 
       // Новости
       'admin-news': ['news.view'],

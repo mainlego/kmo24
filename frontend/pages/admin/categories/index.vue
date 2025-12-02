@@ -414,8 +414,7 @@ const deleteCategory = async (category: Category) => {
 
     // Refresh categories list
     await fetchCategories();
-  } catch (err) {
-    console.error('Error deleting category:', err);
+  } catch {
     // Error message already shown by API
   } finally {
     loading.value = false;

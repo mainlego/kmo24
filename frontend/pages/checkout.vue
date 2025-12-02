@@ -485,25 +485,13 @@ const submitOrder = async () => {
     // TODO: API call to create order
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Create order object
-    const orderData = {
-      ...form,
-      items: items.value,
-      total: total.value + deliveryCost.value,
-      deliveryCost: deliveryCost.value,
-      proposalNumber: proposalNumber.value || null,
-    };
-
-    console.log('Order submitted:', orderData);
-
     // Clear cart
     await cartStore.clearCart();
 
     // Redirect to success page
     alert('Заказ успешно оформлен! Номер заказа: #' + Date.now() + (proposalNumber.value ? `\nКП: ${proposalNumber.value}` : ''));
     router.push('/account/orders');
-  } catch (error) {
-    console.error('Error submitting order:', error);
+  } catch {
     alert('Ошибка при оформлении заказа');
   } finally {
     isSubmitting.value = false;

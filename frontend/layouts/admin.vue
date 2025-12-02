@@ -131,7 +131,6 @@ const pageTitle = computed(() => {
   if (path.includes('/proposals')) return 'Коммерческие предложения';
   if (path.includes('/users')) return 'Пользователи';
   if (path.includes('/categories')) return 'Категории';
-  if (path.includes('/reviews')) return 'Отзывы';
   if (path.includes('/news')) return 'Новости';
   if (path.includes('/settings')) return 'Настройки';
   return 'Админ-панель';
@@ -175,12 +174,6 @@ const navigation = [
     label: 'Категории',
     path: '/admin/categories',
     icon: 'IconCategories',
-  },
-  {
-    label: 'Отзывы',
-    path: '/admin/reviews',
-    icon: 'IconReviews',
-    badge: '2',
   },
   {
     label: 'Новости',

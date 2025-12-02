@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useToast } from '~/composables/useToast';
 
 definePageMeta({
@@ -87,15 +87,18 @@ definePageMeta({
   middleware: ['auth', 'admin'],
 });
 
+const { apiFetch } = useApi();
 const { success, error } = useToast();
 
 const loading = ref(false);
+const news = ref<any[]>([]);
 
-const stats = ref({
-  total: 45,
-  published: 38,
-  draft: 7,
-  views: 15420,
+const stats = computed(() => {
+  const total = news.value.length;
+  const published = news.value.filter(n => n.isPublished).length;
+  const draft = total - published;
+  const views = news.value.reduce((sum, n) => sum + (n.views || 0), 0);
+  return { total, published, draft, views };
 });
 
 const columns = [
@@ -105,30 +108,6 @@ const columns = [
   { key: 'actions', label: 'Действия', sortable: false, width: '100px' },
 ];
 
-const news = ref([
-  {
-    id: '1',
-    title: 'Поступление новых ЧПУ станков',
-    excerpt: 'В наш ассортимент поступила новая партия фрезерных станков с ЧПУ HAAS...',
-    status: 'published',
-    publishedAt: '2024-01-15T10:00:00',
-  },
-  {
-    id: '2',
-    title: 'Акция на токарные станки',
-    excerpt: 'Специальное предложение на токарные станки - скидки до 20%...',
-    status: 'published',
-    publishedAt: '2024-01-18T14:00:00',
-  },
-  {
-    id: '3',
-    title: 'Новый склад в Санкт-Петербурге',
-    excerpt: 'Мы открыли новый склад в Санкт-Петербурге для более быстрой доставки...',
-    status: 'draft',
-    publishedAt: null,
-  },
-]);
-
 const formatDate = (date: string) => {
   return new Intl.DateTimeFormat('ru-RU', {
     day: '2-digit',
@@ -137,21 +116,55 @@ const formatDate = (date: string) => {
   }).format(new Date(date));
 };
 
+const fetchNews = async () => {
+  try {
+    loading.value = true;
+    const response = await apiFetch<{ success: boolean; data: any[] }>('/news');
+    if (response.success && response.data) {
+      news.value = response.data.map(item => ({
+        ...item,
+        id: item._id,
+        status: item.isPublished ? 'published' : 'draft',
+        excerpt: item.content?.substring(0, 100) + '...' || '',
+      }));
+    }
+  } catch {
+    error('Ошибка загрузки новостей');
+  } finally {
+    loading.value = false;
+  }
+};
+
+const togglePublish = async (item: any) => {
+  try {
+    const newsId = item._id || item.id;
+    await apiFetch(`/news/${newsId}/publish`, { method: 'PATCH' });
+    await fetchNews();
+    success(item.isPublished ? 'Новость снята с публикации' : 'Новость опубликована');
+  } catch {
+    error('Ошибка при изменении статуса');
+  }
+};
+
 const deleteNews = async (item: any) => {
   if (!confirm(`Удалить новость "${item.title}"?`)) return;
 
   try {
     loading.value = true;
-    // TODO: API call
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    news.value = news.value.filter((n) => n.id !== item.id);
+    const newsId = item._id || item.id;
+    await apiFetch(`/news/${newsId}`, { method: 'DELETE' });
+    news.value = news.value.filter((n: any) => (n._id || n.id) !== newsId);
     success('Новость удалена');
-  } catch (err) {
+  } catch {
     error('Ошибка при удалении новости');
   } finally {
     loading.value = false;
   }
 };
+
+onMounted(() => {
+  fetchNews();
+});
 </script>
 
 <style scoped lang="scss">
