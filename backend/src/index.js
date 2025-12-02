@@ -66,12 +66,33 @@ app.set('trust proxy', 1);
 app.use(helmet());
 
 // CORS
-app.use(
-  cors({
-    origin: config.cors.origin,
-    credentials: config.cors.credentials,
-  })
-);
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Разрешаем запросы без origin (мобильные приложения, Postman и т.д.)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    const allowedOrigins = Array.isArray(config.cors.origin)
+      ? config.cors.origin
+      : [config.cors.origin];
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}. Allowed: ${allowedOrigins.join(', ')}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: config.cors.credentials,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Session-ID', 'X-Requested-With'],
+};
+
+app.use(cors(corsOptions));
+
+// Явная обработка preflight OPTIONS запросов
+app.options('*', cors(corsOptions));
 
 // Парсинг JSON и URL-encoded данных
 app.use(express.json({ limit: '10mb' }));
