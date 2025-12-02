@@ -37,7 +37,7 @@
     </div>
 
     <!-- DataTable with news -->
-    <DataTable
+    <AdminDataTable
       :columns="columns"
       :items="news"
       :loading="loading"
@@ -74,7 +74,7 @@
           </button>
         </div>
       </template>
-    </DataTable>
+    </AdminDataTable>
   </div>
 </template>
 

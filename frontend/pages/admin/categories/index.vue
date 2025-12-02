@@ -40,7 +40,7 @@
     <div class="categories-card">
       <div class="card-header">
         <h2 class="card-title">Иерархия категорий</h2>
-        <FormInput
+        <AdminFormInput
           v-model="searchQuery"
           placeholder="Поиск категорий..."
           :clearable="true"
@@ -50,7 +50,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </template>
-        </FormInput>
+        </AdminFormInput>
       </div>
 
       <div class="categories-tree">
@@ -89,7 +89,7 @@
           <div class="form-section">
             <h3 class="section-title">Основная информация</h3>
 
-            <FormInput
+            <AdminFormInput
               v-model="selectedCategory.name"
               label="Название"
               placeholder="Например: ЧПУ станки"
@@ -97,7 +97,7 @@
               :error="errors.name"
             />
 
-            <FormSelect
+            <AdminFormSelect
               v-model="selectedCategory.parentId"
               label="Родительская категория"
               :options="parentCategoryOptions"
@@ -106,14 +106,14 @@
               placeholder="Корневая категория"
             />
 
-            <FormTextarea
+            <AdminFormTextarea
               v-model="selectedCategory.description"
               label="Описание"
               placeholder="Описание категории..."
               :rows="3"
             />
 
-            <FormInput
+            <AdminFormInput
               v-model="selectedCategory.icon"
               label="Иконка"
               placeholder="IconName"
@@ -121,7 +121,7 @@
             />
 
             <div class="form-row">
-              <FormInput
+              <AdminFormInput
                 v-model.number="selectedCategory.order"
                 label="Порядок сортировки"
                 type="number"
@@ -140,21 +140,21 @@
           <div class="form-section">
             <h3 class="section-title">SEO</h3>
 
-            <FormInput
+            <AdminFormInput
               v-model="selectedCategory.slug"
               label="URL (slug)"
               placeholder="chpu-stanki"
               hint="Будет сгенерирован автоматически из названия"
             />
 
-            <FormInput
+            <AdminFormInput
               v-model="selectedCategory.metaTitle"
               label="Meta Title"
               placeholder="SEO заголовок"
               :maxlength="60"
             />
 
-            <FormTextarea
+            <AdminFormTextarea
               v-model="selectedCategory.metaDescription"
               label="Meta Description"
               placeholder="SEO описание"

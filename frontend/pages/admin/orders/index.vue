@@ -19,7 +19,7 @@
     <!-- Filters -->
     <div class="filters-card">
       <div class="filters-grid">
-        <FormInput
+        <AdminFormInput
           v-model="filters.search"
           placeholder="Поиск по номеру, клиенту, товарам..."
           :clearable="true"
@@ -29,9 +29,9 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </template>
-        </FormInput>
+        </AdminFormInput>
 
-        <FormSelect
+        <AdminFormSelect
           v-model="filters.status"
           :options="statusOptions"
           value-key="value"
@@ -39,7 +39,7 @@
           placeholder="Все статусы"
         />
 
-        <FormSelect
+        <AdminFormSelect
           v-model="filters.paymentStatus"
           :options="paymentStatusOptions"
           value-key="value"
@@ -47,7 +47,7 @@
           placeholder="Все статусы оплаты"
         />
 
-        <FormSelect
+        <AdminFormSelect
           v-model="filters.dateRange"
           :options="dateRangeOptions"
           value-key="value"
@@ -124,7 +124,7 @@
     </div>
 
     <!-- Table -->
-    <DataTable
+    <AdminDataTable
       :columns="columns"
       :items="filteredOrders"
       :loading="loading"
@@ -193,7 +193,7 @@
           </button>
         </div>
       </template>
-    </DataTable>
+    </AdminDataTable>
 
     <!-- Order Details Modal -->
     <div v-if="selectedOrder" class="modal-overlay" @click="closeOrderModal">
@@ -286,14 +286,14 @@
           <div class="info-section">
             <h3 class="info-title">Управление заказом</h3>
             <div class="form-row">
-              <FormSelect
+              <AdminFormSelect
                 v-model="selectedOrder.status"
                 label="Статус заказа"
                 :options="statusOptions"
                 value-key="value"
                 label-key="label"
               />
-              <FormSelect
+              <AdminFormSelect
                 v-model="selectedOrder.paymentStatus"
                 label="Статус оплаты"
                 :options="paymentStatusOptions"

@@ -42,6 +42,8 @@ import integration1cRoutes from './routes/integration1c.js';
 import apiKeysRoutes from './routes/apiKeys.js';
 import deliveryRoutes from './routes/delivery.js';
 import leadRoutes from './routes/leads.js';
+import uploadsRoutes from './routes/uploads.js';
+import { UPLOADS_PATH } from './middleware/upload.js';
 
 const app = express();
 
@@ -135,9 +137,10 @@ app.use(`${API_PREFIX}/integration/1c`, integration1cRoutes);
 app.use(`${API_PREFIX}/admin/api-keys`, apiKeysRoutes);
 app.use(`${API_PREFIX}/delivery`, deliveryRoutes);
 app.use(`${API_PREFIX}/leads`, leadRoutes);
+app.use(`${API_PREFIX}/uploads`, uploadsRoutes);
 
-// Статические файлы
-app.use('/uploads', express.static('uploads'));
+// Статические файлы - раздаём из UPLOADS_PATH (продакшен: /var/data/uploads)
+app.use('/uploads', express.static(UPLOADS_PATH));
 app.use(express.static('public'));
 
 // Обработка несуществующих роутов

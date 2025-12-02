@@ -67,7 +67,8 @@
       "Bash(for file in auth cart categories commercialOffers delivery integration1c apiKeys news reviews users leads)",
       "Bash(do echo \"=== Checking $file.js ===\" head -20 \"/home/lego/Git Projects/kmo24/backend/src/routes/$file.js\")",
       "Bash(netstat:*)",
-      "Bash(ss:*)"
+      "Bash(ss:*)",
+      "Bash({} ;)"
     ],
     "deny": [],
     "ask": []

@@ -26,7 +26,7 @@
         <div class="form-section">
           <h2 class="section-title">Основная информация</h2>
 
-          <FormInput
+          <AdminFormInput
             v-model="form.name"
             label="Название товара"
             placeholder="Например: Фрезерный станок с ЧПУ HAAS VF-2"
@@ -34,7 +34,7 @@
             :error="errors.name"
           />
 
-          <FormInput
+          <AdminFormInput
             v-model="form.sku"
             label="Артикул"
             placeholder="CNC-001"
@@ -44,7 +44,7 @@
           />
 
           <div class="form-row">
-            <FormSelect
+            <AdminFormSelect
               v-model="form.category"
               label="Категория"
               :options="categories"
@@ -54,7 +54,7 @@
               :error="errors.category"
             />
 
-            <FormSelect
+            <AdminFormSelect
               v-model="form.manufacturer"
               label="Производитель"
               :options="manufacturers"
@@ -64,13 +64,13 @@
           </div>
 
           <div class="form-row">
-            <FormInput
+            <AdminFormInput
               v-model="form.model"
               label="Модель"
               placeholder="VF-2"
             />
 
-            <FormInput
+            <AdminFormInput
               v-model="form.year"
               label="Год выпуска"
               type="number"
@@ -78,7 +78,7 @@
             />
           </div>
 
-          <FormTextarea
+          <AdminFormTextarea
             v-model="form.description"
             label="Краткое описание"
             placeholder="Краткое описание товара для карточки..."
@@ -87,7 +87,7 @@
             hint="Максимум 200 символов"
           />
 
-          <FormTextarea
+          <AdminFormTextarea
             v-model="form.fullDescription"
             label="Полное описание"
             placeholder="Подробное описание товара со всеми характеристиками..."
@@ -100,7 +100,7 @@
           <h2 class="section-title">Цены и наличие</h2>
 
           <div class="form-row">
-            <FormInput
+            <AdminFormInput
               v-model.number="form.price"
               label="Цена"
               type="number"
@@ -109,9 +109,9 @@
               :error="errors.price"
             >
               <template #suffix>₽</template>
-            </FormInput>
+            </AdminFormInput>
 
-            <FormInput
+            <AdminFormInput
               v-model.number="form.oldPrice"
               label="Старая цена"
               type="number"
@@ -119,11 +119,11 @@
               hint="Для отображения скидки"
             >
               <template #suffix>₽</template>
-            </FormInput>
+            </AdminFormInput>
           </div>
 
           <div class="form-row">
-            <FormInput
+            <AdminFormInput
               v-model.number="form.stock"
               label="Остаток на складе"
               type="number"
@@ -132,7 +132,7 @@
               :error="errors.stock"
             />
 
-            <FormSelect
+            <AdminFormSelect
               v-model="form.condition"
               label="Состояние"
               :options="conditionOptions"
@@ -142,7 +142,7 @@
             />
           </div>
 
-          <FormInput
+          <AdminFormInput
             v-model="form.location"
             label="Местоположение"
             placeholder="Москва, склад №1"
@@ -156,11 +156,11 @@
 
           <div class="specs-list">
             <div v-for="(spec, index) in form.specifications" :key="index" class="spec-item">
-              <FormInput
+              <AdminFormInput
                 v-model="spec.name"
                 placeholder="Название характеристики"
               />
-              <FormInput
+              <AdminFormInput
                 v-model="spec.value"
                 placeholder="Значение"
               />
@@ -253,7 +253,7 @@
         <!-- Status -->
         <div class="sidebar-section">
           <h3 class="sidebar-title">Статус</h3>
-          <FormSelect
+          <AdminFormSelect
             v-model="form.status"
             :options="statusOptions"
             value-key="value"
@@ -283,20 +283,20 @@
         <!-- SEO -->
         <div class="sidebar-section">
           <h3 class="sidebar-title">SEO</h3>
-          <FormInput
+          <AdminFormInput
             v-model="form.metaTitle"
             label="Meta Title"
             placeholder="SEO заголовок"
             :maxlength="60"
           />
-          <FormTextarea
+          <AdminFormTextarea
             v-model="form.metaDescription"
             label="Meta Description"
             placeholder="SEO описание"
             :rows="3"
             :maxlength="160"
           />
-          <FormInput
+          <AdminFormInput
             v-model="form.slug"
             label="URL (slug)"
             placeholder="frezernyy-stanok-haas-vf-2"
@@ -599,16 +599,44 @@ const handleFileUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement;
   const files = target.files;
 
-  if (!files) return;
+  if (!files || files.length === 0) return;
 
-  // TODO: Upload files to server
-  for (const file of Array.from(files)) {
-    // Mock URL - в реальности нужно загрузить на сервер
-    const mockUrl = URL.createObjectURL(file);
-    form.value.images.push(mockUrl);
+  const config = useRuntimeConfig();
+  const apiBase = config.public.apiBase as string;
+
+  loading.value = true;
+
+  try {
+    for (const file of Array.from(files)) {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      // Загружаем через fetch напрямую (для FormData)
+      const response = await fetch(`${apiBase}/uploads/image`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        form.value.images.push(result.data.url);
+      } else {
+        throw new Error(result.message || 'Ошибка загрузки');
+      }
+    }
+
+    success(`Загружено изображений: ${files.length}`);
+  } catch (err: any) {
+    error(err.message || 'Ошибка при загрузке изображений');
+  } finally {
+    loading.value = false;
+    // Сбрасываем input для повторной загрузки
+    if (fileInput.value) {
+      fileInput.value.value = '';
+    }
   }
-
-  success(`Загружено изображений: ${files.length}`);
 };
 
 const removeImage = (index: number) => {
@@ -623,17 +651,45 @@ const handleDocumentUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement;
   const files = target.files;
 
-  if (!files) return;
+  if (!files || files.length === 0) return;
 
-  // TODO: Upload documents to server
-  for (const file of Array.from(files)) {
-    form.value.documents.push({
-      name: file.name,
-      url: '#', // Mock URL
-    });
+  const config = useRuntimeConfig();
+  const apiBase = config.public.apiBase as string;
+
+  loading.value = true;
+
+  try {
+    for (const file of Array.from(files)) {
+      const formData = new FormData();
+      formData.append('document', file);
+
+      const response = await fetch(`${apiBase}/uploads/document`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        form.value.documents.push({
+          name: result.data.originalname,
+          url: result.data.url,
+        });
+      } else {
+        throw new Error(result.message || 'Ошибка загрузки');
+      }
+    }
+
+    success(`Загружено документов: ${files.length}`);
+  } catch (err: any) {
+    error(err.message || 'Ошибка при загрузке документов');
+  } finally {
+    loading.value = false;
+    if (documentInput.value) {
+      documentInput.value.value = '';
+    }
   }
-
-  success(`Загружено документов: ${files.length}`);
 };
 
 const removeDocument = (index: number) => {
@@ -818,7 +874,11 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
   gap: 0.75rem;
-  align-items: end;
+  align-items: center;
+
+  :deep(.form-group) {
+    margin-bottom: 0;
+  }
 }
 
 .images-grid {

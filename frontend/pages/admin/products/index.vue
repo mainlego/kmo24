@@ -53,7 +53,7 @@
     <!-- Filters -->
     <div class="filters-card">
       <div class="filters-grid">
-        <FormInput
+        <AdminFormInput
           v-model="filters.search"
           placeholder="Поиск по названию, артикулу, описанию..."
           :clearable="true"
@@ -63,9 +63,9 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </template>
-        </FormInput>
+        </AdminFormInput>
 
-        <FormSelect
+        <AdminFormSelect
           v-model="filters.category"
           :options="categories"
           value-key="value"
@@ -73,7 +73,7 @@
           placeholder="Все категории"
         />
 
-        <FormSelect
+        <AdminFormSelect
           v-model="filters.condition"
           :options="conditionOptions"
           value-key="value"
@@ -81,7 +81,7 @@
           placeholder="Любое состояние"
         />
 
-        <FormSelect
+        <AdminFormSelect
           v-model="filters.status"
           :options="statusOptions"
           value-key="value"
@@ -89,7 +89,7 @@
           placeholder="Любой статус"
         />
 
-        <FormSelect
+        <AdminFormSelect
           v-model="filters.availability"
           :options="availabilityOptions"
           value-key="value"
@@ -139,7 +139,7 @@
     </div>
 
     <!-- Table -->
-    <DataTable
+    <AdminDataTable
       :columns="columns"
       :items="filteredProducts"
       :loading="loading"
@@ -150,7 +150,7 @@
     >
       <template #cell-image="{ item }">
         <div class="product-image">
-          <img v-if="item.images?.[0]" :src="item.images[0]" :alt="item.name" />
+          <img v-if="item.images?.[0]?.url" :src="item.images[0].url" :alt="item.name" />
           <div v-else class="no-image">
             <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -217,7 +217,7 @@
           </button>
         </div>
       </template>
-    </DataTable>
+    </AdminDataTable>
   </div>
 </template>
 

@@ -27,7 +27,7 @@
         <div class="form-section">
           <h2 class="section-title">Основная информация</h2>
 
-          <FormInput
+          <AdminFormInput
             v-model="form.title"
             label="Заголовок"
             placeholder="Введите заголовок новости"
@@ -35,14 +35,14 @@
             :error="errors.title"
           />
 
-          <FormInput
+          <AdminFormInput
             v-model="form.slug"
             label="URL (slug)"
             placeholder="novost-url"
             hint="Оставьте пустым для автогенерации"
           />
 
-          <FormTextarea
+          <AdminFormTextarea
             v-model="form.excerpt"
             label="Краткое описание"
             placeholder="Краткое описание для превью..."
@@ -50,7 +50,7 @@
             :maxlength="300"
           />
 
-          <FormTextarea
+          <AdminFormTextarea
             v-model="form.content"
             label="Содержание"
             placeholder="Полный текст новости..."
@@ -64,13 +64,13 @@
         <div class="form-section">
           <h2 class="section-title">SEO настройки</h2>
 
-          <FormInput
+          <AdminFormInput
             v-model="form.metaTitle"
             label="Meta Title"
             placeholder="SEO заголовок"
           />
 
-          <FormTextarea
+          <AdminFormTextarea
             v-model="form.metaDescription"
             label="Meta Description"
             placeholder="SEO описание"
@@ -95,7 +95,7 @@
               </button>
             </div>
             <div v-else class="upload-placeholder">
-              <FormInput
+              <AdminFormInput
                 v-model="form.coverImage"
                 label="URL изображения"
                 placeholder="https://..."

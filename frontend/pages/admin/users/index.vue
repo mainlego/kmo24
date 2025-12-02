@@ -19,7 +19,7 @@
     <!-- Filters -->
     <div class="filters-card">
       <div class="filters-grid">
-        <FormInput
+        <AdminFormInput
           v-model="filters.search"
           placeholder="Поиск по имени, email, телефону..."
           :clearable="true"
@@ -29,9 +29,9 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </template>
-        </FormInput>
+        </AdminFormInput>
 
-        <FormSelect
+        <AdminFormSelect
           v-model="filters.role"
           :options="roleOptions"
           value-key="value"
@@ -39,7 +39,7 @@
           placeholder="Все роли"
         />
 
-        <FormSelect
+        <AdminFormSelect
           v-model="filters.status"
           :options="statusOptions"
           value-key="value"
@@ -77,7 +77,7 @@
     </div>
 
     <!-- Table -->
-    <DataTable
+    <AdminDataTable
       :columns="columns"
       :items="filteredUsers"
       :loading="loading"
@@ -147,7 +147,7 @@
           </button>
         </div>
       </template>
-    </DataTable>
+    </AdminDataTable>
 
     <!-- User Edit Modal -->
     <div v-if="selectedUser" class="modal-overlay" @click="closeUserModal">
@@ -165,7 +165,7 @@
           <div class="form-section">
             <h3 class="section-title">Личная информация</h3>
 
-            <FormInput
+            <AdminFormInput
               v-model="selectedUser.firstName"
               label="Имя"
               placeholder="Иван"
@@ -173,7 +173,7 @@
               :error="errors.firstName"
             />
 
-            <FormInput
+            <AdminFormInput
               v-model="selectedUser.lastName"
               label="Фамилия"
               placeholder="Петров"
@@ -181,7 +181,7 @@
               :error="errors.lastName"
             />
 
-            <FormInput
+            <AdminFormInput
               v-model="selectedUser.email"
               label="Email"
               type="email"
@@ -190,14 +190,14 @@
               :error="errors.email"
             />
 
-            <FormInput
+            <AdminFormInput
               v-model="selectedUser.phone"
               label="Телефон"
               type="tel"
               placeholder="+7 (999) 123-45-67"
             />
 
-            <FormInput
+            <AdminFormInput
               v-if="isNewUser"
               v-model="selectedUser.password"
               label="Пароль"
@@ -212,7 +212,7 @@
           <div class="form-section">
             <h3 class="section-title">Роль и права</h3>
 
-            <FormSelect
+            <AdminFormSelect
               v-model="selectedUser.role"
               label="Роль"
               :options="roleOptions.filter(r => r.value)"

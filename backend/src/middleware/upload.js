@@ -8,14 +8,24 @@ import logger from '../utils/logger.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// База для загрузок - /var/data/uploads на продакшене (Render), иначе локальная папка
+const UPLOAD_BASE = process.env.UPLOAD_PATH || (
+  process.env.NODE_ENV === 'production'
+    ? '/var/data/uploads'
+    : path.join(__dirname, '../../uploads')
+);
+
 // Создание директорий для загрузки
 const uploadDirs = {
-  products: path.join(__dirname, '../../uploads/products'),
-  reviews: path.join(__dirname, '../../uploads/reviews'),
-  users: path.join(__dirname, '../../uploads/users'),
-  news: path.join(__dirname, '../../uploads/news'),
-  temp: path.join(__dirname, '../../uploads/temp'),
+  products: path.join(UPLOAD_BASE, 'products'),
+  documents: path.join(UPLOAD_BASE, 'documents'),
+  users: path.join(UPLOAD_BASE, 'users'),
+  news: path.join(UPLOAD_BASE, 'news'),
+  temp: path.join(UPLOAD_BASE, 'temp'),
 };
+
+// Экспортируем базовый путь для использования в других модулях
+export const UPLOADS_PATH = UPLOAD_BASE;
 
 // Создание директорий при запуске
 Object.values(uploadDirs).forEach(async (dir) => {
