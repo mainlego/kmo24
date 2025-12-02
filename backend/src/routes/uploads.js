@@ -8,7 +8,7 @@ import {
   createThumbnail,
   UPLOADS_PATH,
 } from '../middleware/upload.js';
-import { authenticate, authorize } from '../middleware/auth.js';
+import { protect, authorize } from '../middleware/auth.js';
 import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
@@ -20,7 +20,7 @@ const router = express.Router();
  */
 router.post(
   '/image',
-  authenticate,
+  protect,
   authorize('admin', 'manager'),
   uploadSingleImage('image', 'products'),
   processImage({ width: 1200, quality: 85 }),
@@ -63,7 +63,7 @@ router.post(
  */
 router.post(
   '/images',
-  authenticate,
+  protect,
   authorize('admin', 'manager'),
   uploadMultipleImages('images', 10, 'products'),
   processImage({ width: 1200, quality: 85 }),
@@ -110,7 +110,7 @@ router.post(
  */
 router.post(
   '/document',
-  authenticate,
+  protect,
   authorize('admin', 'manager'),
   uploadDocument('document', 'documents'),
   asyncHandler(async (req, res) => {
@@ -145,7 +145,7 @@ router.post(
  */
 router.post(
   '/news-image',
-  authenticate,
+  protect,
   authorize('admin', 'manager'),
   uploadSingleImage('image', 'news'),
   processImage({ width: 1200, quality: 85 }),
