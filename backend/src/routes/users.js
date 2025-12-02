@@ -23,6 +23,7 @@ router.use(authorize('admin', 'manager'));
 
 router.get('/', asyncHandler(getUsers));
 router.post('/', asyncHandler(createUser));
+router.get('/stats', asyncHandler(getUserStats));
 router.get('/stats/summary', asyncHandler(getUserStats));
 router.get('/:id', asyncHandler(getUser));
 router.put('/:id', asyncHandler(updateUser));

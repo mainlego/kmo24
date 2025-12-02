@@ -192,51 +192,45 @@
         </div>
       </div>
 
-      <!-- Recent Reviews -->
+      <!-- Quick Actions -->
       <div class="card">
         <div class="card-header">
-          <h3>Недавние отзывы</h3>
-          <NuxtLink to="/admin/reviews" class="view-all-link">
-            Все отзывы
-            <svg viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-            </svg>
-          </NuxtLink>
+          <h3>Быстрые действия</h3>
         </div>
         <div class="card-body">
-          <div v-if="loadingReviews" class="loading-state">
-            <div class="spinner"></div>
-            <p>Загрузка...</p>
-          </div>
-          <div v-else-if="recentReviews.length === 0" class="empty-state">
-            <p>Нет отзывов</p>
-          </div>
-          <div v-else class="reviews-list">
-            <div v-for="review in recentReviews" :key="review._id" class="review-item">
-              <div class="review-header">
-                <div class="review-author">
-                  <div class="author-avatar">{{ getInitials(review.user?.name || 'Гость') }}</div>
-                  <div>
-                    <p class="author-name">{{ review.user?.name || 'Гость' }}</p>
-                    <div class="review-rating">
-                      <svg
-                        v-for="star in 5"
-                        :key="star"
-                        :class="{ filled: star <= review.rating }"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                <span class="review-status" :class="`status-${review.status}`">
-                  {{ review.status === 'pending' ? 'На модерации' : 'Одобрен' }}
-                </span>
+          <div class="quick-actions">
+            <NuxtLink to="/admin/products/create" class="quick-action">
+              <div class="action-icon" style="background: #10b981;">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
               </div>
-              <p class="review-text">{{ review.text || review.comment }}</p>
-            </div>
+              <span>Добавить товар</span>
+            </NuxtLink>
+            <NuxtLink to="/admin/orders" class="quick-action">
+              <div class="action-icon" style="background: #f59e0b;">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <span>Заказы</span>
+            </NuxtLink>
+            <NuxtLink to="/admin/crm" class="quick-action">
+              <div class="action-icon" style="background: #3b82f6;">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <span>CRM</span>
+            </NuxtLink>
+            <NuxtLink to="/admin/categories" class="quick-action">
+              <div class="action-icon" style="background: #8b5cf6;">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+              </div>
+              <span>Категории</span>
+            </NuxtLink>
           </div>
         </div>
       </div>
@@ -249,7 +243,6 @@ import { ref, computed, onMounted } from 'vue';
 import { useCRMStore } from '../../stores/crm';
 import { useOrders } from '../../composables/useOrders';
 import { useProducts } from '../../composables/useProducts';
-import { useReviews } from '../../composables/useReviews';
 import { useUsers } from '../../composables/useUsers';
 
 definePageMeta({
@@ -283,7 +276,6 @@ const crmStore = useCRMStore();
 // Composables
 const { getOrders, getOrderStats } = useOrders();
 const { getProducts, getProductStats } = useProducts();
-const { getReviews } = useReviews();
 const { getUserStats } = useUsers();
 
 // Stats with real data
@@ -385,25 +377,10 @@ async function fetchProducts() {
   }
 }
 
+// Reviews module removed - функция оставлена для обратной совместимости
 async function fetchReviews() {
-  loadingReviews.value = true;
-  try {
-    const response = await getReviews({
-      page: 1,
-      limit: 3,
-      sort: '-createdAt',
-    });
-
-    if (response.success && response.data) {
-      recentReviews.value = response.data;
-    }
-  } catch (error) {
-    console.error('Error fetching reviews:', error);
-    // Fallback to empty array if API fails
-    recentReviews.value = [];
-  } finally {
-    loadingReviews.value = false;
-  }
+  loadingReviews.value = false;
+  recentReviews.value = [];
 }
 
 async function fetchStats() {
@@ -1028,88 +1005,52 @@ function getInitials(name: string): string {
   }
 }
 
-// Reviews List
-.reviews-list {
-  display: flex;
-  flex-direction: column;
+// Quick Actions
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: $spacing-md;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 }
 
-.review-item {
+.quick-action {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
   padding: $spacing-md;
   background: $gray-50;
   border-radius: $radius-md;
+  text-decoration: none;
+  transition: all 0.2s ease;
 
-  .review-header {
+  &:hover {
+    background: $gray-100;
+    transform: translateY(-2px);
+  }
+
+  .action-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-md;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: $spacing-sm;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 
-    .review-author {
-      display: flex;
-      align-items: center;
-      gap: $spacing-sm;
-
-      .author-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, $primary, $secondary);
-        color: $white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: $font-size-xs;
-        font-weight: $font-weight-bold;
-      }
-
-      .author-name {
-        font-size: $font-size-sm;
-        font-weight: $font-weight-medium;
-        color: $gray-900;
-        margin: 0 0 2px;
-      }
-
-      .review-rating {
-        display: flex;
-        gap: 2px;
-
-        svg {
-          width: 12px;
-          height: 12px;
-          color: $gray-300;
-
-          &.filled {
-            color: $warning;
-          }
-        }
-      }
-    }
-
-    .review-status {
-      padding: 2px 8px;
-      border-radius: $radius-sm;
-      font-size: $font-size-xs;
-      font-weight: $font-weight-medium;
-
-      &.status-pending {
-        background: rgba($warning, 0.1);
-        color: $warning;
-      }
-
-      &.status-approved {
-        background: rgba($success, 0.1);
-        color: $success;
-      }
+    svg {
+      width: 20px;
+      height: 20px;
+      color: $white;
     }
   }
 
-  .review-text {
+  span {
     font-size: $font-size-sm;
-    color: $gray-700;
-    margin: 0;
-    line-height: 1.5;
+    font-weight: $font-weight-medium;
+    color: $gray-900;
   }
 }
 </style>

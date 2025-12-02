@@ -74,6 +74,11 @@ export const useCRMStore = defineStore('crm', {
           .reduce((sum, l) => sum + (l.budget || l.dealValue || 0), 0),
       }));
     },
+
+    // Возвращает функцию для фильтрации лидов по статусу
+    leadsByStatus: (state) => {
+      return (status: string) => state.leads.filter(l => l.status === status);
+    },
   },
 
   actions: {

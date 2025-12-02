@@ -7,6 +7,7 @@ import {
   deleteProduct,
   getProductReviews,
   getRelatedProducts,
+  getProductStats,
 } from '../controllers/products.js';
 import { protect, authorize } from '../middleware/auth.js';
 import { validate, productSchemas } from '../utils/validation.js';
@@ -14,6 +15,13 @@ import { apiLimiter } from '../middleware/rateLimiter.js';
 import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
+
+/**
+ * @route   GET /api/v1/products/stats
+ * @desc    Получение статистики товаров
+ * @access  Private (Admin, Manager)
+ */
+router.get('/stats', protect, authorize('admin', 'manager'), asyncHandler(getProductStats));
 
 /**
  * @route   GET /api/v1/products

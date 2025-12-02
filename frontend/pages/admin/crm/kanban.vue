@@ -134,7 +134,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useCRMStore, type Lead } from '~/stores/crm';
 import { useToast } from '~/composables/useToast';
 
@@ -146,13 +146,18 @@ definePageMeta({
 const crmStore = useCRMStore();
 const { success, error } = useToast();
 
+// Загружаем лиды при монтировании
+onMounted(async () => {
+  await crmStore.fetchLeads();
+});
+
 const stages = [
   { status: 'new' as Lead['status'], name: 'Новые лиды' },
   { status: 'contacted' as Lead['status'], name: 'Контакт установлен' },
   { status: 'qualified' as Lead['status'], name: 'Квалифицированы' },
-  { status: 'proposal' as Lead['status'], name: 'Предложение' },
   { status: 'negotiation' as Lead['status'], name: 'Переговоры' },
   { status: 'won' as Lead['status'], name: 'Успех' },
+  { status: 'lost' as Lead['status'], name: 'Потеряно' },
 ];
 
 const draggedLead = ref<Lead | null>(null);
@@ -560,9 +565,9 @@ const openCardMenu = (lead: Lead) => {
   &.column-new { border-top: 3px solid #3b82f6; }
   &.column-contacted { border-top: 3px solid #f59e0be6; }
   &.column-qualified { border-top: 3px solid #f59e0be6; }
-  &.column-proposal { border-top: 3px solid #fbbf24; }
   &.column-negotiation { border-top: 3px solid #a855f7; }
   &.column-won { border-top: 3px solid #10b981; }
+  &.column-lost { border-top: 3px solid #ef4444; }
 }
 
 .column-header {

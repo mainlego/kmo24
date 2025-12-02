@@ -21,9 +21,10 @@ router.get('/:id', protect, asyncHandler(getOrder));
 router.post('/:id/cancel', protect, asyncHandler(cancelOrder));
 
 // Маршруты только для администраторов
+router.get('/stats', protect, authorize('admin', 'manager'), asyncHandler(getOrderStats));
+router.get('/stats/summary', protect, authorize('admin', 'manager'), asyncHandler(getOrderStats));
 router.get('/all/list', protect, authorize('admin', 'manager'), asyncHandler(getAllOrders));
 router.patch('/:id/status', protect, authorize('admin', 'manager'), asyncHandler(updateOrderStatus));
 router.patch('/:id/payment', protect, authorize('admin', 'manager'), asyncHandler(updatePaymentStatus));
-router.get('/stats/summary', protect, authorize('admin', 'manager'), asyncHandler(getOrderStats));
 
 export default router;

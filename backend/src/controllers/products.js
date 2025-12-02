@@ -271,6 +271,43 @@ export const getRelatedProducts = async (req, res, next) => {
   }
 };
 
+/**
+ * Получение статистики товаров
+ * GET /api/v1/products/stats
+ */
+export const getProductStats = async (req, res, next) => {
+  try {
+    const [
+      totalProducts,
+      activeProducts,
+      outOfStock,
+      lowStock,
+      featuredProducts,
+      newProducts,
+    ] = await Promise.all([
+      Product.countDocuments(),
+      Product.countDocuments({ isActive: true }),
+      Product.countDocuments({ 'stock.available': 0 }),
+      Product.countDocuments({ 'stock.available': { $gt: 0, $lte: 5 } }),
+      Product.countDocuments({ isFeatured: true }),
+      Product.countDocuments({ isNew: true }),
+    ]);
+
+    return successResponse(res, {
+      totalProducts,
+      activeProducts,
+      inactiveProducts: totalProducts - activeProducts,
+      outOfStock,
+      lowStock,
+      featuredProducts,
+      newProducts,
+      draftProducts: 0, // Товары без статуса draft в текущей схеме
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   getProducts,
   getProduct,
@@ -279,4 +316,5 @@ export default {
   deleteProduct,
   getProductReviews,
   getRelatedProducts,
+  getProductStats,
 };
