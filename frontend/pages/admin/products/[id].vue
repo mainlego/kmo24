@@ -602,7 +602,7 @@ const handleFileUpload = async (event: Event) => {
   if (!files || files.length === 0) return;
 
   const config = useRuntimeConfig();
-  const apiBase = config.public.apiBase as string;
+  const apiBase = config.public.apiBaseUrl as string;
 
   loading.value = true;
 
@@ -612,10 +612,12 @@ const handleFileUpload = async (event: Event) => {
       formData.append('image', file);
 
       // Загружаем через fetch напрямую (для FormData)
+      const token = localStorage.getItem('accessToken');
       const response = await fetch(`${apiBase}/uploads/image`, {
         method: 'POST',
         body: formData,
         credentials: 'include',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
       const result = await response.json();
@@ -654,7 +656,7 @@ const handleDocumentUpload = async (event: Event) => {
   if (!files || files.length === 0) return;
 
   const config = useRuntimeConfig();
-  const apiBase = config.public.apiBase as string;
+  const apiBase = config.public.apiBaseUrl as string;
 
   loading.value = true;
 
@@ -663,10 +665,12 @@ const handleDocumentUpload = async (event: Event) => {
       const formData = new FormData();
       formData.append('document', file);
 
+      const token = localStorage.getItem('accessToken');
       const response = await fetch(`${apiBase}/uploads/document`, {
         method: 'POST',
         body: formData,
         credentials: 'include',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
       const result = await response.json();
