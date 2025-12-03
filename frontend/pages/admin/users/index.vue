@@ -370,10 +370,10 @@ const fetchStats = async () => {
     const statsData = await getUserStats();
     if (statsData) {
       stats.value = {
-        total: statsData.total || 0,
-        active: statsData.active || 0,
-        customers: statsData.users || 0,
-        admins: statsData.admins || 0,
+        total: statsData.totalUsers || 0,
+        active: statsData.activeUsers || 0,
+        customers: statsData.regularUsers || 0,
+        admins: statsData.adminUsers || 0,
       };
     }
   } catch (error) {
@@ -389,7 +389,7 @@ const filteredUsers = computed(() => {
     const search = filters.value.search.toLowerCase();
     result = result.filter(
       (u) =>
-        u.name.toLowerCase().includes(search) ||
+        `${u.firstName} ${u.lastName}`.toLowerCase().includes(search) ||
         u.email.toLowerCase().includes(search) ||
         u.phone?.toLowerCase().includes(search)
     );

@@ -135,13 +135,13 @@ export const useUsers = () => {
       const response = await apiFetch<{
         success: boolean;
         data: {
-          total: number;
-          active: number;
-          inactive: number;
-          verified: number;
-          admins: number;
-          managers: number;
-          users: number;
+          totalUsers: number;
+          activeUsers: number;
+          inactiveUsers: number;
+          adminUsers: number;
+          managerUsers: number;
+          regularUsers: number;
+          newUsersLast30Days: number;
         };
       }>('/users/stats');
       return response.data;
