@@ -11,7 +11,7 @@ import crypto from 'crypto';
 const TELEGRAM_API_URL = 'https://api.telegram.org/bot';
 
 /**
- * Получение обновлений из Telegram
+ * Получение обновлений из Telegram (работает только без webhook)
  */
 export const getChannelUpdates = async (botToken, channelId, offset = 0) => {
   try {
@@ -27,6 +27,41 @@ export const getChannelUpdates = async (botToken, channelId, offset = 0) => {
     return data.result || [];
   } catch (error) {
     logger.error('Error fetching Telegram updates:', error);
+    throw error;
+  }
+};
+
+/**
+ * Получение последних сообщений канала через getChat + копирование
+ * Это workaround, так как Telegram Bot API не предоставляет прямой метод для получения истории канала
+ */
+export const getChannelHistory = async (botToken, channelId, limit = 20) => {
+  try {
+    // Получаем информацию о канале
+    const chatResponse = await fetch(
+      `${TELEGRAM_API_URL}${botToken}/getChat?chat_id=${channelId}`
+    );
+
+    if (!chatResponse.ok) {
+      const errorText = await chatResponse.text();
+      logger.error('getChat error:', errorText);
+      throw new Error(`Telegram API error: ${chatResponse.status}`);
+    }
+
+    const chatData = await chatResponse.json();
+    if (!chatData.ok) {
+      throw new Error(chatData.description || 'Failed to get chat info');
+    }
+
+    logger.info(`Channel info: ${chatData.result?.title || channelId}`);
+
+    // К сожалению, Bot API не позволяет получить историю канала напрямую
+    // Webhook - это основной способ получения новых постов
+    // Для синхронизации существующих постов нужно использовать Telegram Client API (не Bot API)
+
+    return [];
+  } catch (error) {
+    logger.error('Error getting channel history:', error);
     throw error;
   }
 };
@@ -190,18 +225,38 @@ export const processChannelPost = async (post, botToken) => {
 
 /**
  * Синхронизация новостей из Telegram канала
+ * Важно: getUpdates работает только если webhook НЕ установлен
+ * После установки webhook новые посты будут приходить автоматически
  */
 export const syncNewsFromTelegram = async (botToken, channelId) => {
   try {
     logger.info('Starting Telegram news sync...');
 
-    const updates = await getChannelUpdates(botToken, channelId);
+    // Проверяем статус webhook
+    const webhookResponse = await fetch(
+      `${TELEGRAM_API_URL}${botToken}/getWebhookInfo`
+    );
+    const webhookInfo = await webhookResponse.json();
+
     const results = {
       processed: 0,
       created: 0,
       skipped: 0,
       errors: 0,
+      webhookActive: false,
+      message: '',
     };
+
+    if (webhookInfo.ok && webhookInfo.result?.url) {
+      results.webhookActive = true;
+      results.message = `Webhook активен (${webhookInfo.result.url}). Новые посты будут приходить автоматически. Ручная синхронизация работает только для pending updates.`;
+      logger.info('Webhook is active, getUpdates may return empty');
+    }
+
+    // Пробуем получить updates (может быть пусто если webhook активен)
+    const updates = await getChannelUpdates(botToken, channelId);
+
+    logger.info(`Got ${updates.length} updates from Telegram`);
 
     for (const update of updates) {
       if (update.channel_post) {
@@ -219,6 +274,14 @@ export const syncNewsFromTelegram = async (botToken, channelId) => {
           logger.error('Error processing update:', err);
         }
       }
+    }
+
+    if (results.processed === 0 && results.webhookActive) {
+      results.message = 'Webhook установлен. Новые посты из канала будут автоматически добавляться на сайт. Опубликуйте новый пост в канал для проверки.';
+    } else if (results.processed === 0) {
+      results.message = 'Нет новых постов для синхронизации. Установите webhook для автоматического получения новых постов.';
+    } else {
+      results.message = `Синхронизация завершена. Создано: ${results.created}, пропущено: ${results.skipped}`;
     }
 
     logger.info(`Telegram sync completed: ${JSON.stringify(results)}`);

@@ -251,11 +251,16 @@ const syncFromTelegram = async () => {
   try {
     const response = await apiFetch<{ success: boolean; data: any; message: string }>('/news/sync/telegram', { method: 'POST' });
     if (response.success) {
-      success(response.message || 'Синхронизация завершена');
-      if (response.data) {
-        success(`Создано: ${response.data.created}, Пропущено: ${response.data.skipped}`);
+      // Показываем основное сообщение
+      if (response.data?.message) {
+        success(response.data.message);
+      } else {
+        success(response.message || 'Синхронизация завершена');
       }
-      await fetchNews();
+      // Если есть созданные новости, обновляем список
+      if (response.data?.created > 0) {
+        await fetchNews();
+      }
     }
   } catch (err: any) {
     error(err.message || 'Ошибка синхронизации');
