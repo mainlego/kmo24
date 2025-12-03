@@ -319,6 +319,7 @@ const fetchNews = async () => {
         if (response.data.length > 0) {
           featuredNews.value = {
             ...response.data[0],
+            slug: response.data[0].slug || response.data[0]._id,
             image: response.data[0].thumbnail || 'https://images.unsplash.com/photo-1553413077-190dd305871c?w=800',
             date: response.data[0].publishedAt,
             category: response.data[0].tags?.[0] || 'news',
@@ -347,6 +348,7 @@ const filteredNews = computed(() => {
   return allNews.value.slice(1).map(item => ({
     ...item,
     id: item._id,
+    slug: item.slug || item._id,
     image: item.thumbnail || 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600',
     date: item.publishedAt,
     category: item.tags?.[0] || 'news',
