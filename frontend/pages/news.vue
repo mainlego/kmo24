@@ -260,7 +260,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+
+const { apiFetch } = useApi()
 
 // SEO
 useHead({
@@ -275,108 +277,82 @@ const searchQuery = ref('')
 const selectedCategory = ref('')
 const sortBy = ref('newest')
 const loading = ref(false)
-const hasMore = ref(true)
+const hasMore = ref(false)
 const email = ref('')
+const page = ref(1)
+const limit = 9
 
-// Featured News
-const featuredNews = ref({
-  id: 1,
-  title: 'Открытие нового склада в Екатеринбурге',
-  slug: 'opening-new-warehouse-ekaterinburg',
-  excerpt: 'Мы рады объявить об открытии нашего нового современного складского комплекса площадью 5000 кв.м. Это позволит нам значительно расширить ассортимент и улучшить сроки доставки для наших клиентов в Уральском регионе.',
-  image: 'https://images.unsplash.com/photo-1553413077-190dd305871c?w=800',
-  date: '2024-01-15',
-  category: 'company',
-  views: 1245,
-  readTime: 5
-})
+// News data from API
+const allNews = ref([])
+const featuredNews = ref(null)
+const totalPages = ref(1)
 
-// Mock News Data
-const allNews = ref([
-  {
-    id: 2,
-    title: 'Новая линейка токарных станков с ЧПУ',
-    slug: 'new-cnc-lathe-lineup',
-    excerpt: 'Поступление партии современных токарных станков с числовым программным управлением от ведущих производителей.',
-    image: 'https://images.unsplash.com/photo-1565043666747-69f6646db940?w=600',
-    date: '2024-01-12',
-    category: 'products',
-    views: 856,
-    readTime: 3
-  },
-  {
-    id: 3,
-    title: 'Участие в выставке "Металлообработка 2024"',
-    slug: 'metalworking-exhibition-2024',
-    excerpt: 'Приглашаем посетить наш стенд на крупнейшей отраслевой выставке. Демонстрация новинок и специальные предложения.',
-    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600',
-    date: '2024-01-10',
-    category: 'events',
-    views: 634,
-    readTime: 4
-  },
-  {
-    id: 4,
-    title: 'Внедрение AI для диагностики оборудования',
-    slug: 'ai-equipment-diagnostics',
-    excerpt: 'Мы начали использовать искусственный интеллект для предварительной диагностики состояния комиссионного оборудования.',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600',
-    date: '2024-01-08',
-    category: 'tech',
-    views: 1123,
-    readTime: 6
-  },
-  {
-    id: 5,
-    title: 'Запуск программы трейд-ин',
-    slug: 'trade-in-program-launch',
-    excerpt: 'Обменяйте ваше старое оборудование на новое с выгодой до 30%. Подробности новой программы обмена.',
-    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600',
-    date: '2024-01-05',
-    category: 'company',
-    views: 945,
-    readTime: 4
-  },
-  {
-    id: 6,
-    title: 'Поступление фрезерных станков',
-    slug: 'new-milling-machines',
-    excerpt: 'В наличии появились высокоточные вертикально-фрезерные станки в отличном состоянии.',
-    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600',
-    date: '2024-01-03',
-    category: 'products',
-    views: 712,
-    readTime: 3
+// Fetch news from API
+const fetchNews = async () => {
+  loading.value = true
+  try {
+    const params = new URLSearchParams({
+      page: page.value.toString(),
+      limit: limit.toString(),
+    })
+
+    if (searchQuery.value) {
+      params.append('search', searchQuery.value)
+    }
+    if (selectedCategory.value) {
+      params.append('tag', selectedCategory.value)
+    }
+    if (sortBy.value === 'oldest') {
+      params.append('sort', 'publishedAt')
+    } else if (sortBy.value === 'popular') {
+      params.append('sort', '-stats.views')
+    } else {
+      params.append('sort', '-publishedAt')
+    }
+
+    const response = await apiFetch(`/news?${params.toString()}`)
+
+    if (response.success && response.data) {
+      if (page.value === 1) {
+        allNews.value = response.data
+        // Set first item as featured
+        if (response.data.length > 0) {
+          featuredNews.value = {
+            ...response.data[0],
+            image: response.data[0].thumbnail || 'https://images.unsplash.com/photo-1553413077-190dd305871c?w=800',
+            date: response.data[0].publishedAt,
+            category: response.data[0].tags?.[0] || 'news',
+            views: response.data[0].stats?.views || 0,
+            readTime: Math.ceil((response.data[0].content?.length || 500) / 1000)
+          }
+        }
+      } else {
+        allNews.value = [...allNews.value, ...response.data]
+      }
+
+      if (response.pagination) {
+        totalPages.value = response.pagination.totalPages || 1
+        hasMore.value = page.value < totalPages.value
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching news:', error)
+  } finally {
+    loading.value = false
   }
-])
+}
 
+// Map news data for display
 const filteredNews = computed(() => {
-  let news = allNews.value
-
-  // Filter by search
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    news = news.filter(n =>
-      n.title.toLowerCase().includes(query) ||
-      n.excerpt.toLowerCase().includes(query)
-    )
-  }
-
-  // Filter by category
-  if (selectedCategory.value) {
-    news = news.filter(n => n.category === selectedCategory.value)
-  }
-
-  // Sort
-  if (sortBy.value === 'newest') {
-    news = news.sort((a, b) => new Date(b.date) - new Date(a.date))
-  } else if (sortBy.value === 'oldest') {
-    news = news.sort((a, b) => new Date(a.date) - new Date(b.date))
-  } else if (sortBy.value === 'popular') {
-    news = news.sort((a, b) => b.views - a.views)
-  }
-
-  return news
+  return allNews.value.slice(1).map(item => ({
+    ...item,
+    id: item._id,
+    image: item.thumbnail || 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600',
+    date: item.publishedAt,
+    category: item.tags?.[0] || 'news',
+    views: item.stats?.views || 0,
+    readTime: Math.ceil((item.content?.length || 500) / 1000)
+  }))
 })
 
 const formatDate = (dateString) => {
@@ -393,7 +369,11 @@ const getCategoryName = (category) => {
     company: 'Компания',
     products: 'Продукты',
     events: 'Мероприятия',
-    tech: 'Технологии'
+    tech: 'Технологии',
+    news: 'Новости',
+    promo: 'Акции',
+    article: 'Статьи',
+    announcement: 'Объявления'
   }
   return names[category] || category
 }
@@ -403,17 +383,19 @@ const getCategoryColor = (category) => {
     company: 'bg-orange-500',
     products: 'bg-orange-500',
     events: 'bg-primary-500',
-    tech: 'bg-orange-500'
+    tech: 'bg-orange-500',
+    news: 'bg-blue-500',
+    promo: 'bg-green-500',
+    article: 'bg-purple-500',
+    announcement: 'bg-red-500'
   }
   return colors[category] || 'bg-gray-500'
 }
 
 const loadMore = async () => {
-  loading.value = true
-  // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  loading.value = false
-  hasMore.value = false
+  if (loading.value || !hasMore.value) return
+  page.value++
+  await fetchNews()
 }
 
 const subscribe = () => {
@@ -422,6 +404,17 @@ const subscribe = () => {
     email.value = ''
   }
 }
+
+// Watch for filter changes
+watch([searchQuery, selectedCategory, sortBy], () => {
+  page.value = 1
+  fetchNews()
+})
+
+// Initial fetch
+onMounted(() => {
+  fetchNews()
+})
 </script>
 
 <style scoped>

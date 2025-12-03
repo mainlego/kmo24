@@ -81,17 +81,29 @@ const newsSchema = new mongoose.Schema(
       default: Date.now,
     },
 
-    // Статистика
-    views: {
-      type: Number,
-      default: 0,
-    },
-
     // SEO
     seo: {
       title: String,
       description: String,
       keywords: [String],
+    },
+
+    // Автор
+    author: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+    },
+
+    // Статистика
+    stats: {
+      views: {
+        type: Number,
+        default: 0,
+      },
+      shares: {
+        type: Number,
+        default: 0,
+      },
     },
   },
   {

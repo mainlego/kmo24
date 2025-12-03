@@ -62,10 +62,7 @@ connectRedis();
 // Trust proxy
 app.set('trust proxy', 1);
 
-// Middleware для безопасности
-app.use(helmet());
-
-// CORS
+// CORS - должен быть ПЕРЕД helmet и другими middleware
 const corsOptions = {
   origin: (origin, callback) => {
     // Разрешаем запросы без origin (мобильные приложения, Postman и т.д.)
@@ -93,6 +90,12 @@ app.use(cors(corsOptions));
 
 // Явная обработка preflight OPTIONS запросов
 app.options('*', cors(corsOptions));
+
+// Middleware для безопасности (после CORS)
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+}));
 
 // Парсинг JSON и URL-encoded данных
 app.use(express.json({ limit: '10mb' }));

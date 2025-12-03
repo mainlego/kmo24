@@ -310,16 +310,112 @@ export const getAllTags = async (req, res, next) => {
  */
 export const syncFromTelegram = async (req, res, next) => {
   try {
-    // TODO: Реализовать синхронизацию с Telegram Bot API
-    // Получение постов из канала и создание новостей
+    const { syncNewsFromTelegram } = await import('../services/telegramNews.js');
+    const config = (await import('../config/index.js')).default;
 
-    logger.info('Telegram sync initiated');
+    const botToken = config.telegram?.botToken;
+    const channelId = config.telegram?.channelId;
 
-    return successResponse(
-      res,
-      null,
-      'Синхронизация с Telegram запущена. Реализация в процессе разработки.'
+    if (!botToken) {
+      return errorResponse(res, 'Telegram Bot Token не настроен', 400);
+    }
+
+    const results = await syncNewsFromTelegram(botToken, channelId);
+
+    logger.info('Telegram sync completed:', results);
+
+    return successResponse(res, results, 'Синхронизация с Telegram завершена');
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Webhook для получения обновлений от Telegram бота
+ * POST /api/v1/news/webhook/telegram
+ */
+export const telegramWebhook = async (req, res, next) => {
+  try {
+    const { handleTelegramWebhook } = await import('../services/telegramNews.js');
+
+    const update = req.body;
+
+    if (!update) {
+      return res.status(200).send('OK');
+    }
+
+    const result = await handleTelegramWebhook(update);
+
+    if (result) {
+      // Очистка кэша новостей
+      await deleteCachePattern('news:*');
+      logger.info(`News created from Telegram webhook: ${result.title}`);
+    }
+
+    // Telegram требует ответ 200 OK
+    return res.status(200).send('OK');
+  } catch (error) {
+    logger.error('Telegram webhook error:', error);
+    // Всегда возвращаем 200, чтобы Telegram не повторял запрос
+    return res.status(200).send('OK');
+  }
+};
+
+/**
+ * Получение настроек интеграции с Telegram
+ * GET /api/v1/news/telegram/settings
+ */
+export const getTelegramSettings = async (req, res, next) => {
+  try {
+    const config = (await import('../config/index.js')).default;
+
+    const settings = {
+      isConfigured: !!(config.telegram?.botToken && config.telegram?.channelId),
+      channelId: config.telegram?.channelId || null,
+      syncInterval: config.telegram?.syncInterval || 900000,
+      webhookUrl: `${process.env.API_URL || ''}/api/v1/news/webhook/telegram`,
+    };
+
+    return successResponse(res, settings);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Настройка Webhook для Telegram бота
+ * POST /api/v1/news/telegram/setup-webhook
+ */
+export const setupTelegramWebhook = async (req, res, next) => {
+  try {
+    const config = (await import('../config/index.js')).default;
+
+    const botToken = config.telegram?.botToken;
+    const apiUrl = process.env.API_URL;
+
+    if (!botToken) {
+      return errorResponse(res, 'Telegram Bot Token не настроен', 400);
+    }
+
+    if (!apiUrl) {
+      return errorResponse(res, 'API_URL не настроен', 400);
+    }
+
+    const webhookUrl = `${apiUrl}/api/v1/news/webhook/telegram`;
+
+    // Устанавливаем webhook
+    const response = await fetch(
+      `https://api.telegram.org/bot${botToken}/setWebhook?url=${encodeURIComponent(webhookUrl)}&allowed_updates=["channel_post"]`
     );
+
+    const result = await response.json();
+
+    if (result.ok) {
+      logger.info('Telegram webhook set successfully');
+      return successResponse(res, { webhookUrl }, 'Webhook установлен');
+    } else {
+      return errorResponse(res, result.description || 'Ошибка установки webhook', 400);
+    }
   } catch (error) {
     next(error);
   }
@@ -335,4 +431,7 @@ export default {
   getRelatedNews,
   getAllTags,
   syncFromTelegram,
+  telegramWebhook,
+  getTelegramSettings,
+  setupTelegramWebhook,
 };

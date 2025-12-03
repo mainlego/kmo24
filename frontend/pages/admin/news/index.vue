@@ -7,12 +7,101 @@
         <p class="page-subtitle">Управление новостями и статьями</p>
       </div>
       <div class="header-actions">
+        <button class="btn btn-secondary" @click="showTelegramSettings = true">
+          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          Telegram
+        </button>
         <button class="btn btn-primary" @click="navigateTo('/admin/news/create')">
           <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
           Добавить новость
         </button>
+      </div>
+    </div>
+
+    <!-- Telegram Settings Modal -->
+    <div v-if="showTelegramSettings" class="modal-overlay" @click="showTelegramSettings = false">
+      <div class="modal telegram-modal" @click.stop>
+        <div class="modal-header">
+          <h2 class="modal-title">
+            <svg class="icon telegram-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+            </svg>
+            Интеграция с Telegram
+          </h2>
+          <button class="close-btn" @click="showTelegramSettings = false">
+            <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Status -->
+          <div class="telegram-status" :class="{ active: telegramSettings.isConfigured }">
+            <div class="status-indicator"></div>
+            <span>{{ telegramSettings.isConfigured ? 'Подключено' : 'Не настроено' }}</span>
+          </div>
+
+          <!-- Info -->
+          <div class="telegram-info">
+            <h3>Как настроить:</h3>
+            <ol>
+              <li>Создайте бота через <a href="https://t.me/BotFather" target="_blank">@BotFather</a></li>
+              <li>Добавьте бота администратором в ваш канал</li>
+              <li>Укажите переменные окружения на сервере:
+                <ul>
+                  <li><code>TELEGRAM_BOT_TOKEN</code> - токен бота</li>
+                  <li><code>TELEGRAM_CHANNEL_ID</code> - ID канала</li>
+                </ul>
+              </li>
+              <li>Нажмите "Установить Webhook"</li>
+            </ol>
+          </div>
+
+          <!-- Channel ID -->
+          <div v-if="telegramSettings.channelId" class="info-row">
+            <span class="info-label">ID канала:</span>
+            <span class="info-value">{{ telegramSettings.channelId }}</span>
+          </div>
+
+          <!-- Webhook URL -->
+          <div class="info-row">
+            <span class="info-label">Webhook URL:</span>
+            <span class="info-value code">{{ telegramSettings.webhookUrl || 'Не настроен' }}</span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            class="btn btn-secondary"
+            @click="syncFromTelegram"
+            :disabled="syncing || !telegramSettings.isConfigured"
+          >
+            <svg v-if="syncing" class="icon animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            <svg v-else class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {{ syncing ? 'Синхронизация...' : 'Синхронизировать' }}
+          </button>
+          <button
+            class="btn btn-primary"
+            @click="setupWebhook"
+            :disabled="settingWebhook || !telegramSettings.isConfigured"
+          >
+            <svg v-if="settingWebhook" class="icon animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            {{ settingWebhook ? 'Настройка...' : 'Установить Webhook' }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -93,6 +182,61 @@ const { success, error } = useToast();
 const loading = ref(false);
 const news = ref<any[]>([]);
 
+// Telegram settings
+const showTelegramSettings = ref(false);
+const syncing = ref(false);
+const settingWebhook = ref(false);
+const telegramSettings = ref({
+  isConfigured: false,
+  channelId: null as string | null,
+  syncInterval: 900000,
+  webhookUrl: '',
+});
+
+const fetchTelegramSettings = async () => {
+  try {
+    const response = await apiFetch<{ success: boolean; data: typeof telegramSettings.value }>('/news/telegram/settings');
+    if (response.success && response.data) {
+      telegramSettings.value = response.data;
+    }
+  } catch (err) {
+    console.error('Error fetching telegram settings:', err);
+  }
+};
+
+const syncFromTelegram = async () => {
+  syncing.value = true;
+  try {
+    const response = await apiFetch<{ success: boolean; data: any; message: string }>('/news/sync/telegram', { method: 'POST' });
+    if (response.success) {
+      success(response.message || 'Синхронизация завершена');
+      if (response.data) {
+        success(`Создано: ${response.data.created}, Пропущено: ${response.data.skipped}`);
+      }
+      await fetchNews();
+    }
+  } catch (err: any) {
+    error(err.message || 'Ошибка синхронизации');
+  } finally {
+    syncing.value = false;
+  }
+};
+
+const setupWebhook = async () => {
+  settingWebhook.value = true;
+  try {
+    const response = await apiFetch<{ success: boolean; data: any; message: string }>('/news/telegram/setup-webhook', { method: 'POST' });
+    if (response.success) {
+      success(response.message || 'Webhook установлен');
+      await fetchTelegramSettings();
+    }
+  } catch (err: any) {
+    error(err.message || 'Ошибка установки webhook');
+  } finally {
+    settingWebhook.value = false;
+  }
+};
+
 const stats = computed(() => {
   const total = news.value.length;
   const published = news.value.filter(n => n.isPublished).length;
@@ -164,6 +308,7 @@ const deleteNews = async (item: any) => {
 
 onMounted(() => {
   fetchNews();
+  fetchTelegramSettings();
 });
 </script>
 
@@ -293,6 +438,21 @@ onMounted(() => {
       background: #2563eb;
     }
   }
+
+  &.btn-secondary {
+    background: white;
+    color: #374151;
+    border: 1px solid #d1d5db;
+
+    &:hover {
+      background: #f9fafb;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 .btn-icon {
@@ -324,6 +484,201 @@ onMounted(() => {
       background: #fee2e2;
       color: #dc2626;
     }
+  }
+}
+
+// Modal styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+.modal {
+  background: white;
+  border-radius: 0.75rem;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.telegram-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #0088cc;
+}
+
+.close-btn {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.telegram-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  color: #991b1b;
+  font-weight: 500;
+
+  .status-indicator {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 9999px;
+    background: #ef4444;
+  }
+
+  &.active {
+    background: #ecfdf5;
+    color: #065f46;
+
+    .status-indicator {
+      background: #10b981;
+    }
+  }
+}
+
+.telegram-info {
+  margin-bottom: 1.5rem;
+
+  h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 0.75rem 0;
+  }
+
+  ol {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    ul {
+      margin-top: 0.5rem;
+      padding-left: 1rem;
+    }
+  }
+
+  a {
+    color: #0088cc;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  code {
+    background: #f3f4f6;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-family: monospace;
+  }
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-top: 1px solid #e5e7eb;
+
+  .info-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .info-value {
+    font-size: 0.875rem;
+    color: #111827;
+    font-weight: 500;
+
+    &.code {
+      font-family: monospace;
+      font-size: 0.75rem;
+      background: #f3f4f6;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+    }
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>
