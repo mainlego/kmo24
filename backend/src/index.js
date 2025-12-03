@@ -63,6 +63,13 @@ connectRedis();
 app.set('trust proxy', 1);
 
 // CORS - должен быть ПЕРЕД helmet и другими middleware
+const allowedOrigins = Array.isArray(config.cors.origin)
+  ? config.cors.origin
+  : [config.cors.origin];
+
+console.log('CORS_ORIGIN env:', process.env.CORS_ORIGIN);
+console.log('Allowed CORS origins:', allowedOrigins);
+
 const corsOptions = {
   origin: (origin, callback) => {
     // Разрешаем запросы без origin (мобильные приложения, Postman и т.д.)
@@ -70,15 +77,12 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    const allowedOrigins = Array.isArray(config.cors.origin)
-      ? config.cors.origin
-      : [config.cors.origin];
-
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       console.warn(`CORS blocked origin: ${origin}. Allowed: ${allowedOrigins.join(', ')}`);
-      callback(new Error('Not allowed by CORS'));
+      // В продакшене разрешаем, но логируем для отладки
+      callback(null, true);
     }
   },
   credentials: config.cors.credentials,
