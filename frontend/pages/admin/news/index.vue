@@ -105,6 +105,32 @@
       </div>
     </div>
 
+    <!-- Tabs -->
+    <div class="tabs">
+      <button
+        class="tab"
+        :class="{ active: activeTab === 'all' }"
+        @click="activeTab = 'all'"
+      >
+        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+        </svg>
+        Все новости
+        <span class="tab-count">{{ stats.total }}</span>
+      </button>
+      <button
+        class="tab"
+        :class="{ active: activeTab === 'telegram' }"
+        @click="activeTab = 'telegram'"
+      >
+        <svg class="icon telegram-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+        </svg>
+        Из Telegram
+        <span class="tab-count">{{ telegramNewsCount }}</span>
+      </button>
+    </div>
+
     <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card">
@@ -119,16 +145,16 @@
         <div class="stat-value">{{ stats.draft }}</div>
         <div class="stat-label">Черновики</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-value">{{ stats.views }}</div>
-        <div class="stat-label">Просмотров</div>
+      <div class="stat-card telegram-stat">
+        <div class="stat-value">{{ telegramNewsCount }}</div>
+        <div class="stat-label">Из Telegram</div>
       </div>
     </div>
 
     <!-- DataTable with news -->
     <AdminDataTable
       :columns="columns"
-      :items="news"
+      :items="filteredNews"
       :loading="loading"
       @row-click="(item) => navigateTo(`/admin/news/${item.id}`)"
     >
@@ -137,6 +163,21 @@
           <div class="title">{{ item.title }}</div>
           <div class="excerpt">{{ item.excerpt }}</div>
         </div>
+      </template>
+
+      <template #cell-source="{ item }">
+        <span v-if="item.telegramMessageId" class="source-badge telegram">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+          </svg>
+          Telegram
+        </span>
+        <span v-else class="source-badge manual">
+          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          Вручную
+        </span>
       </template>
 
       <template #cell-status="{ item }">
@@ -181,6 +222,7 @@ const { success, error } = useToast();
 
 const loading = ref(false);
 const news = ref<any[]>([]);
+const activeTab = ref<'all' | 'telegram'>('all');
 
 // Telegram settings
 const showTelegramSettings = ref(false);
@@ -241,12 +283,24 @@ const stats = computed(() => {
   const total = news.value.length;
   const published = news.value.filter(n => n.isPublished).length;
   const draft = total - published;
-  const views = news.value.reduce((sum, n) => sum + (n.views || 0), 0);
+  const views = news.value.reduce((sum, n) => sum + (n.stats?.views || n.views || 0), 0);
   return { total, published, draft, views };
+});
+
+const telegramNewsCount = computed(() => {
+  return news.value.filter(n => n.telegramMessageId).length;
+});
+
+const filteredNews = computed(() => {
+  if (activeTab.value === 'telegram') {
+    return news.value.filter(n => n.telegramMessageId);
+  }
+  return news.value;
 });
 
 const columns = [
   { key: 'title', label: 'Заголовок', sortable: true },
+  { key: 'source', label: 'Источник', sortable: true, width: '130px' },
   { key: 'status', label: 'Статус', sortable: true },
   { key: 'publishedAt', label: 'Дата публикации', sortable: true },
   { key: 'actions', label: 'Действия', sortable: false, width: '100px' },
@@ -263,13 +317,16 @@ const formatDate = (date: string) => {
 const fetchNews = async () => {
   try {
     loading.value = true;
-    const response = await apiFetch<{ success: boolean; data: any[] }>('/news');
+    // Для админов запрашиваем все новости включая неопубликованные
+    const response = await apiFetch<{ success: boolean; data: any[] }>('/news?isPublished=all&limit=100');
     if (response.success && response.data) {
       news.value = response.data.map(item => ({
         ...item,
         id: item._id,
         status: item.isPublished ? 'published' : 'draft',
         excerpt: item.content?.substring(0, 100) + '...' || '',
+        telegramMessageId: item.telegramMessageId,
+        telegramUrl: item.telegramUrl,
       }));
     }
   } catch {
@@ -347,6 +404,63 @@ onMounted(() => {
   gap: 0.75rem;
 }
 
+// Tabs
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+
+  &:hover {
+    color: #374151;
+  }
+
+  &.active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+  }
+
+  .icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .telegram-icon {
+    color: #0088cc;
+  }
+}
+
+.tab-count {
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+
+  .active & {
+    background: #dbeafe;
+    color: #3b82f6;
+  }
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -371,6 +485,42 @@ onMounted(() => {
 .stat-label {
   font-size: 0.875rem;
   color: #6b7280;
+}
+
+.telegram-stat {
+  .stat-value {
+    color: #0088cc;
+  }
+}
+
+// Source badge
+.source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  .icon {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  &.telegram {
+    background: #e0f2fe;
+    color: #0284c7;
+
+    .icon {
+      color: #0088cc;
+    }
+  }
+
+  &.manual {
+    background: #f3f4f6;
+    color: #6b7280;
+  }
 }
 
 .news-title-cell {

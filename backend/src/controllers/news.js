@@ -29,7 +29,12 @@ export const getNews = async (req, res, next) => {
     const filter = {};
 
     // Для обычных пользователей показываем только опубликованные
-    if (isPublished !== undefined) {
+    // isPublished=all - показать все (для админов)
+    // isPublished=true - только опубликованные
+    // isPublished=false - только черновики
+    if (isPublished === 'all') {
+      // Не фильтруем по статусу публикации
+    } else if (isPublished !== undefined) {
       filter.isPublished = isPublished === 'true';
     } else {
       filter.isPublished = true;
