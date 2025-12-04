@@ -231,7 +231,7 @@ interface NewsItem {
 
 const route = useRoute();
 const config = useRuntimeConfig();
-const apiBase = config.public.apiBase;
+const apiBase = config.public.apiBaseUrl;
 
 const slug = computed(() => route.params.slug as string);
 

@@ -142,7 +142,7 @@ interface Pagination {
 }
 
 const config = useRuntimeConfig();
-const apiBase = config.public.apiBase;
+const apiBase = config.public.apiBaseUrl;
 
 const isLoading = ref(true);
 const news = ref<NewsItem[]>([]);
