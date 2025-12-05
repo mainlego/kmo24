@@ -80,6 +80,16 @@
                 {{ feature }}
               </span>
             </div>
+
+            <!-- Delivery Calculator -->
+            <ProductDeliveryCalculator
+              :product="{
+                _id: product._id,
+                name: product.name,
+                price: product.price,
+                dimensions: product.dimensions
+              }"
+            />
           </div>
 
           <!-- Specs Column -->
@@ -190,6 +200,12 @@ interface Product {
     name: string;
     value: string;
   }>;
+  dimensions?: {
+    length?: number;
+    width?: number;
+    height?: number;
+    weight?: number;
+  };
   isActive: boolean;
   isFeatured?: boolean;
   createdAt?: string;
