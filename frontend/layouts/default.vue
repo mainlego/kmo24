@@ -613,6 +613,7 @@ onUnmounted(() => {
   position: relative;
   padding: $spacing-sm $spacing-lg;
   color: $gray-700;
+  font-size: $font-size-lg;
   font-weight: $font-weight-semibold;
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

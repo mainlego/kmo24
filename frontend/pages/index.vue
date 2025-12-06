@@ -23,13 +23,6 @@
         <div class="hero-wrapper">
           <!-- Main Content -->
           <div class="hero-content">
-            <div class="hero-badge animate-fade-in" :class="{ 'is-visible': isVisible }">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
-              </svg>
-              <span>Проверенное оборудование премиум-класса</span>
-            </div>
-
             <h1 class="hero-title animate-fade-in delay-1" :class="{ 'is-visible': isVisible }">
               Профессиональное<br>
               <span class="gradient-text">кухонное оборудование</span><br>
@@ -128,12 +121,12 @@
             <div class="advantage-card">
               <div class="advantage-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2"/>
                 </svg>
               </div>
               <div class="advantage-content">
-                <div class="advantage-title">Выкуп техники</div>
-                <div class="advantage-desc">Покупаем ваше оборудование</div>
+                <div class="advantage-title">Широкий ассортимент</div>
+                <div class="advantage-desc">Более 300 единиц техники</div>
               </div>
             </div>
 
@@ -152,12 +145,12 @@
             <div class="advantage-card">
               <div class="advantage-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414 1 1 0 01-1.414-1.414z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
                 </svg>
               </div>
               <div class="advantage-content">
-                <div class="advantage-title">Техподдержка</div>
-                <div class="advantage-desc">Консультации специалистов</div>
+                <div class="advantage-title">Выгодные цены</div>
+                <div class="advantage-desc">Экономия до 70%</div>
               </div>
             </div>
           </div>
@@ -169,65 +162,6 @@
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M12 5v14m0 0l-7-7m7 7l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-      </div>
-    </section>
-
-    <!-- Features Section (Hero Style) -->
-    <section class="features">
-      <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">Почему выбирают <span class="gradient-accent">КМО24</span></h2>
-          <p class="section-subtitle">Надежный партнер для оснащения вашего заведения</p>
-        </div>
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor"/>
-              </svg>
-            </div>
-            <h3 class="feature-title">Проверенное качество</h3>
-            <p class="feature-description">
-              Каждая единица оборудования проходит тщательную проверку перед продажей. Работаем только с исправной техникой.
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor"/>
-              </svg>
-            </div>
-            <h3 class="feature-title">Широкий ассортимент</h3>
-            <p class="feature-description">
-              Более 300 единиц оборудования: печи, холодильники, витрины, посудомойки и многое другое для вашего бизнеса.
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor"/>
-              </svg>
-            </div>
-            <h3 class="feature-title">Быстрая доставка</h3>
-            <p class="feature-description">
-              Доставка по Красноярску и области. Организуем экспресс-доставку по всей России с надежными партнерами.
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor"/>
-              </svg>
-            </div>
-            <h3 class="feature-title">Выгодные цены</h3>
-            <p class="feature-description">
-              Экономия до 70% от стоимости нового оборудования. Комиссионная схема работы позволяет предлагать лучшие цены.
-            </p>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -660,7 +594,6 @@ onUnmounted(() => {
 <style scoped lang="scss">
 @use 'assets/scss/variables' as *;
 @use 'assets/scss/hero' as *;
-@use 'assets/scss/features' as *;
 
 .home-page {
   min-height: 100vh;
@@ -683,169 +616,6 @@ onUnmounted(() => {
 .section-subtitle {
   font-size: $font-size-lg;
   color: $gray-600;
-}
-
-// Features Section - Premium
-.features {
-  padding: 6rem 0;
-  background: $gray-50;
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 100px;
-    background: linear-gradient(to bottom, $white, transparent);
-  }
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: $spacing-xl;
-
-  @media (max-width: $breakpoint-sm) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.feature-card {
-  position: relative;
-  text-align: center;
-  padding: $spacing-2xl;
-  border-radius: $radius-2xl;
-  background: $white;
-  border: 1px solid transparent;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  overflow: hidden;
-  transform-style: preserve-3d;
-  perspective: 1000px;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: $radius-2xl;
-    padding: 2px;
-    background: linear-gradient(135deg,
-      rgba($primary-500, 1) 0%,
-      rgba($primary-light, 1) 50%,
-      rgba($primary-light, 1) 100%
-    );
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: $radius-2xl;
-    background: linear-gradient(135deg,
-      rgba($primary-500, 0.1) 0%,
-      rgba($primary-light, 0.1) 100%
-    );
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    z-index: -1;
-    filter: blur(20px);
-  }
-
-  &:hover {
-    transform: translateY(-16px) rotateX(5deg);
-    box-shadow:
-      0 30px 60px rgba($primary-500, 0.25),
-      0 10px 25px rgba(0, 0, 0, 0.1);
-
-    &::before {
-      opacity: 1;
-    }
-
-    &::after {
-      opacity: 1;
-    }
-
-    .feature-icon {
-      transform: translateZ(20px) scale(1.15) rotate(10deg);
-      box-shadow:
-        0 20px 40px rgba($primary-500, 0.4),
-        0 0 30px rgba($primary-light, 0.3);
-    }
-
-    .feature-title {
-      transform: translateZ(10px);
-      color: transparent;
-      background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-    }
-
-    .feature-description {
-      transform: translateZ(5px);
-    }
-  }
-
-  @for $i from 0 through 3 {
-    &[data-index='#{$i}'] {
-      animation: fadeInUp 0.6s ease-out #{$i * 0.1s} backwards;
-    }
-  }
-}
-
-.feature-icon {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto $spacing-lg;
-  padding: $spacing-lg;
-  border-radius: $radius-2xl;
-  background: linear-gradient(135deg, #f59e0be6 0%, #fbbf24 50%, #fbbf24 100%);
-  color: $white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border-radius: $radius-2xl;
-    background: inherit;
-    filter: blur(10px);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    z-index: -1;
-  }
-
-  svg {
-    width: 32px;
-    height: 32px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-  }
-}
-
-.feature-title {
-  font-size: $font-size-xl;
-  font-weight: $font-weight-semibold;
-  color: $gray-900;
-  margin-bottom: $spacing-md;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.feature-description {
-  color: $gray-600;
-  line-height: $line-height-relaxed;
-  font-size: $font-size-base;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 // Premium CTA Section
