@@ -89,44 +89,6 @@
           </div>
         </div>
 
-        <!-- Additional Services -->
-        <div class="warranty-card">
-          <h2 class="section-title">Дополнительные услуги</h2>
-
-          <div class="services-grid">
-            <div class="service-item">
-              <div class="service-icon">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2"/>
-                </svg>
-              </div>
-              <h4>Расширенная гарантия</h4>
-              <p>Возможность продления гарантийного срока до 3 месяцев за дополнительную плату</p>
-            </div>
-
-            <div class="service-item">
-              <div class="service-icon">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke="currentColor" stroke-width="2"/>
-                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2"/>
-                </svg>
-              </div>
-              <h4>Сервисное обслуживание</h4>
-              <p>Профессиональное обслуживание и настройка оборудования нашими специалистами</p>
-            </div>
-
-            <div class="service-item">
-              <div class="service-icon">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M8 7h8m-4-3v3m-1 15l-2-2m0 0l-2-2m2 2v-6.5m6 4.5l2-2m0 0l2-2m-2 2v-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </div>
-              <h4>Trade-in</h4>
-              <p>Обмен вашего старого оборудования на новое с доплатой</p>
-            </div>
-          </div>
-        </div>
-
         <!-- Contact Section -->
         <div class="warranty-card contact-card">
           <h2 class="section-title">Остались вопросы?</h2>
@@ -374,66 +336,6 @@
     font-weight: $font-weight-semibold;
     color: $gray-900;
     margin-bottom: $spacing-xs;
-  }
-
-  p {
-    color: $gray-600;
-    margin: 0;
-  }
-}
-
-// Services Grid
-.services-grid {
-  display: grid;
-  gap: $spacing-xl;
-
-  @media (min-width: $breakpoint-md) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.service-item {
-  text-align: center;
-  padding: $spacing-xl;
-  border-radius: $radius-lg;
-  background: $gray-50;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: linear-gradient(135deg,
-      rgba($primary-500, 0.05) 0%,
-      rgba($primary-light, 0.05) 100%);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba($primary-500, 0.1);
-
-    .service-icon {
-      transform: scale(1.1) rotate(5deg);
-    }
-  }
-}
-
-.service-icon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto $spacing-lg;
-  padding: $spacing-md;
-  border-radius: $radius-xl;
-  background: linear-gradient(135deg, $primary-500 0%, $primary-light 100%);
-  color: $white;
-  transition: all 0.3s ease;
-
-  svg {
-    width: 100%;
-    height: 100%;
-  }
-}
-
-.service-item {
-  h4 {
-    font-size: $font-size-lg;
-    font-weight: $font-weight-semibold;
-    color: $gray-900;
-    margin-bottom: $spacing-sm;
   }
 
   p {
