@@ -254,6 +254,7 @@ definePageMeta({
   middleware: ['auth', 'admin'],
 });
 
+const route = useRoute();
 const crmStore = useCRMStore();
 const { success, error } = useToast();
 
@@ -265,8 +266,14 @@ const currentPage = ref(1);
 const itemsPerPage = 10;
 const loading = ref(false);
 
-// Load data on mount
+// Редирект на Kanban по умолчанию (если нет параметров)
 onMounted(async () => {
+  // Если нет query параметров, редиректим на kanban
+  if (!route.query.view && !route.query.action) {
+    navigateTo('/admin/crm/kanban', { replace: true });
+    return;
+  }
+
   loading.value = true;
   try {
     await Promise.all([

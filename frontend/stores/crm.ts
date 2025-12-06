@@ -201,5 +201,10 @@ export const useCRMStore = defineStore('crm', {
     updateStatus(leadId: string, status: Lead['status']) {
       return this.updateLead(leadId, { status });
     },
+
+    // Алиас для канбан доски
+    async updateLeadStatus(leadId: string, status: Lead['status']) {
+      return this.updateLead(leadId, { status });
+    },
   },
 });

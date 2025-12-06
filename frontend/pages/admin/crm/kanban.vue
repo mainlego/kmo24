@@ -86,35 +86,44 @@
           >
           <div
             v-for="lead in getLeadsByStatus(stage.status)"
-            :key="lead.id"
+            :key="lead._id || lead.id"
             class="lead-card"
             draggable="true"
             @dragstart="handleDragStart($event, lead)"
             @dragend="handleDragEnd"
+            @click="openLeadDetails(lead)"
           >
             <div class="card-header">
               <div class="card-client">
                 <div class="client-avatar">{{ getInitials(lead.name) }}</div>
                 <div class="client-info">
                   <div class="client-name">{{ lead.name }}</div>
-                  <div class="company-name">{{ lead.company }}</div>
+                  <div class="company-name">{{ lead.company || lead.phone }}</div>
                 </div>
               </div>
-              <button class="card-menu" @click="openCardMenu(lead)">
+              <button class="card-menu" @click.stop="openCardMenu(lead)">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                 </svg>
               </button>
             </div>
 
-            <div class="card-value">{{ formatCurrency(lead.dealValue) }}</div>
+            <!-- Показываем сумму только если она больше 0 -->
+            <div v-if="lead.dealValue || lead.budget" class="card-value">{{ formatCurrency(lead.dealValue || lead.budget) }}</div>
+            <!-- Для заявок на звонок показываем тип -->
+            <div v-else class="card-type">
+              <svg class="type-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              Заявка на звонок
+            </div>
 
-            <div v-if="lead.notes" class="card-notes">{{ lead.notes }}</div>
+            <div v-if="lead.notes || lead.message" class="card-notes">{{ lead.notes || lead.message }}</div>
 
             <div class="card-footer">
               <div class="card-manager">
-                <div class="manager-avatar">{{ getInitials(lead.manager) }}</div>
-                <span>{{ lead.manager }}</span>
+                <div class="manager-avatar">{{ getInitials(lead.manager || 'НН') }}</div>
+                <span>{{ lead.manager || 'Не назначен' }}</span>
               </div>
               <div class="card-date">{{ getTimeAgo(lead.createdAt) }}</div>
             </div>
@@ -300,17 +309,22 @@ const handleDragLeave = (event: DragEvent) => {
   (event.currentTarget as HTMLElement).classList.remove('drag-over');
 };
 
-const handleDrop = (event: DragEvent, newStatus: Lead['status']) => {
+const handleDrop = async (event: DragEvent, newStatus: Lead['status']) => {
   event.preventDefault();
   (event.currentTarget as HTMLElement).classList.remove('drag-over');
 
   if (!draggedLead.value) return;
 
   const oldStatus = draggedLead.value.status;
+  const leadId = draggedLead.value._id || draggedLead.value.id;
 
-  if (oldStatus !== newStatus) {
-    crmStore.updateLeadStatus(draggedLead.value.id, newStatus);
-    success(`Лид перемещен в "${stages.find(s => s.status === newStatus)?.name}"`);
+  if (oldStatus !== newStatus && leadId) {
+    try {
+      await crmStore.updateLeadStatus(leadId, newStatus);
+      success(`Лид перемещен в "${stages.find(s => s.status === newStatus)?.name}"`);
+    } catch (err: any) {
+      error(err.message || 'Ошибка при перемещении лида');
+    }
   }
 
   draggedLead.value = null;
@@ -318,11 +332,19 @@ const handleDrop = (event: DragEvent, newStatus: Lead['status']) => {
 };
 
 const openLeadModal = () => {
-  success('Открытие формы создания лида');
+  navigateTo('/admin/crm?action=new');
+};
+
+const openLeadDetails = (lead: Lead) => {
+  const leadId = lead._id || lead.id;
+  if (leadId) {
+    navigateTo(`/admin/crm/${leadId}`);
+  }
 };
 
 const openCardMenu = (lead: Lead) => {
-  success(`Меню для: ${lead.name}`);
+  // TODO: Открыть контекстное меню с действиями
+  openLeadDetails(lead);
 };
 </script>
 
@@ -733,6 +755,25 @@ const openCardMenu = (lead: Lead) => {
   font-weight: 700;
   color: #10b981;
   margin-bottom: 0.5rem;
+}
+
+.card-type {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #3b82f6;
+  background: #eff6ff;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  margin-bottom: 0.5rem;
+  width: fit-content;
+
+  .type-icon {
+    width: 1rem;
+    height: 1rem;
+  }
 }
 
 .card-notes {
