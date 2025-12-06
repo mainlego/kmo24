@@ -280,8 +280,10 @@
       <div class="cta-overlay"></div>
       <div class="container">
         <div class="minimal-cta-content">
-          <h2 class="minimal-cta-title">Ищете надежное оборудование?</h2>
-          <p class="minimal-cta-subtitle">Более 300 единиц техники с экономией до 70%</p>
+          <div class="minimal-cta-text">
+            <h2 class="minimal-cta-title">Ищете надежное оборудование для бизнеса?</h2>
+            <p class="minimal-cta-subtitle">Более 300 единиц проверенного б/у оборудования для кафе и ресторанов. Экономия до 70%</p>
+          </div>
           <div class="cta-actions">
             <NuxtLink to="/products" class="btn btn-white">
               <span>Смотреть каталог</span>
@@ -603,36 +605,35 @@ onUnmounted(() => {
   z-index: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: $spacing-xl;
-  flex-wrap: wrap;
-  text-align: center;
 
-  @media (max-width: $breakpoint-md) {
+  @media (max-width: $breakpoint-lg) {
     flex-direction: column;
+    text-align: center;
     gap: $spacing-lg;
   }
 }
 
+.minimal-cta-text {
+  flex: 1;
+}
+
 .minimal-cta-title {
-  font-size: $font-size-2xl;
+  font-size: $font-size-xl;
   font-weight: $font-weight-bold;
   color: $white;
-  margin: 0;
+  margin: 0 0 $spacing-xs;
 
   @media (max-width: $breakpoint-md) {
-    font-size: $font-size-xl;
+    font-size: $font-size-lg;
   }
 }
 
 .minimal-cta-subtitle {
-  font-size: $font-size-base;
+  font-size: $font-size-sm;
   color: rgba($white, 0.9);
   margin: 0;
-
-  @media (max-width: $breakpoint-md) {
-    font-size: $font-size-sm;
-  }
 }
 
 .cta-actions {

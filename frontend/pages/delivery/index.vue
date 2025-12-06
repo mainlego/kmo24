@@ -246,36 +246,6 @@
       </div>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="faq-section">
-      <div class="container">
-        <h2 class="section-title">Часто задаваемые вопросы</h2>
-        <div class="faq-list">
-          <div v-for="(item, index) in faqItems" :key="index" class="faq-item">
-            <button
-              class="faq-question"
-              :class="{ 'faq-question--active': activeIndex === index }"
-              @click="toggleFaq(index)"
-            >
-              <span>{{ item.question }}</span>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                :class="{ 'rotate': activeIndex === index }"
-              >
-                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <div v-if="activeIndex === index" class="faq-answer">
-              {{ item.answer }}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- CTA Section -->
     <section class="cta-section">
       <div class="container">
@@ -297,8 +267,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-
 useHead({
   title: 'Доставка и оплата',
   meta: [
@@ -308,39 +276,6 @@ useHead({
     },
   ],
 });
-
-const activeIndex = ref<number | null>(null);
-
-const faqItems = [
-  {
-    question: 'Сколько стоит доставка?',
-    answer: 'Стоимость доставки зависит от способа и региона. Курьерская доставка по Москве - от 500₽, бесплатно при заказе от 5000₽. Самовывоз всегда бесплатный. Экспресс-доставка - от 1000₽.',
-  },
-  {
-    question: 'Как долго ждать доставку?',
-    answer: 'Стандартная доставка курьером занимает 1-3 рабочих дня. Самовывоз - 1-2 дня. Экспресс-доставка - в день заказа при оформлении до 12:00.',
-  },
-  {
-    question: 'Можно ли примерить товар перед оплатой?',
-    answer: 'Да, при курьерской доставке вы можете осмотреть товар перед оплатой. Если товар не подошел, вы можете отказаться от него без объяснения причин.',
-  },
-  {
-    question: 'Какие гарантии при оплате онлайн?',
-    answer: 'Мы используем защищенное соединение для всех платежей. Данные вашей карты передаются напрямую в банк и не сохраняются на нашем сервере. Все платежи сертифицированы по стандарту PCI DSS.',
-  },
-  {
-    question: 'Можно ли изменить адрес доставки после оформления?',
-    answer: 'Да, вы можете изменить адрес доставки, связавшись с нашей службой поддержки до момента отправки заказа.',
-  },
-  {
-    question: 'Что делать, если товар пришел поврежденным?',
-    answer: 'Если товар пришел поврежденным, не принимайте его у курьера. Свяжитесь с нашей поддержкой, мы заменим товар или вернем деньги.',
-  },
-];
-
-const toggleFaq = (index: number) => {
-  activeIndex.value = activeIndex.value === index ? null : index;
-};
 </script>
 
 <style scoped lang="scss">
@@ -607,83 +542,6 @@ const toggleFaq = (index: number) => {
   color: $gray-600;
   line-height: $line-height-relaxed;
   font-size: $font-size-sm;
-}
-
-// FAQ Section
-.faq-section {
-  padding: 4rem 0;
-  background: $gray-50;
-
-  @media (max-width: $breakpoint-md) {
-    padding: 3rem 0;
-  }
-}
-
-.faq-list {
-  max-width: 900px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-}
-
-.faq-item {
-  background: $white;
-  border-radius: $radius-xl;
-  box-shadow: $shadow-sm;
-  overflow: hidden;
-}
-
-.faq-question {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: $spacing-lg;
-  background: none;
-  border: none;
-  text-align: left;
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-  color: $gray-900;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: $gray-50;
-  }
-
-  &.faq-question--active {
-    color: $primary;
-  }
-
-  svg {
-    transition: transform 0.3s ease;
-    color: $gray-400;
-
-    &.rotate {
-      transform: rotate(180deg);
-      color: $primary;
-    }
-  }
-}
-
-.faq-answer {
-  padding: 0 $spacing-lg $spacing-lg;
-  color: $gray-600;
-  line-height: $line-height-relaxed;
-  animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 // CTA Section
