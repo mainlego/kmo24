@@ -5,7 +5,10 @@ import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
-// Все маршруты требуют аутентификации
+// Публичный маршрут для заявки на обратный звонок (без авторизации)
+router.post('/callback', asyncHandler(leadsController.createCallbackRequest));
+
+// Все остальные маршруты требуют аутентификации
 router.use(protect);
 
 // Маршруты доступные для менеджеров и админов

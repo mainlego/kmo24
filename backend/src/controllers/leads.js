@@ -1,5 +1,50 @@
 import Lead from '../models/Lead.js';
 import { validatePhone, validateEmail } from '../utils/validators.js';
+import config from '../config/index.js';
+
+// Отправка уведомления в Telegram
+const sendTelegramNotification = async (lead) => {
+  const botToken = config.telegram?.botToken;
+  const chatId = process.env.TELEGRAM_LEADS_CHAT_ID || config.telegram?.channelId;
+
+  if (!botToken || !chatId) {
+    console.log('Telegram notification skipped: bot token or chat ID not configured');
+    return;
+  }
+
+  try {
+    const message = `
+🔔 *Новая заявка на обратный звонок*
+
+👤 *Имя:* ${lead.name}
+📞 *Телефон:* ${lead.phone}
+${lead.message ? `💬 *Сообщение:* ${lead.message}` : ''}
+📅 *Дата:* ${new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Krasnoyarsk' })}
+
+🔗 [Открыть в CRM](${process.env.FRONTEND_URL || 'https://kmo24.ru'}/admin/leads)
+    `.trim();
+
+    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+        parse_mode: 'Markdown',
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Telegram notification failed:', await response.text());
+    } else {
+      console.log('Telegram notification sent successfully');
+    }
+  } catch (error) {
+    console.error('Error sending Telegram notification:', error);
+  }
+};
 
 // Получить все лиды с фильтрацией и пагинацией
 export const getLeads = async (req, res) => {
@@ -499,6 +544,70 @@ export const exportLeads = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Ошибка при экспорте лидов',
+      error: error.message,
+    });
+  }
+};
+
+// Публичное создание заявки на обратный звонок (без авторизации)
+export const createCallbackRequest = async (req, res) => {
+  try {
+    const { name, phone, message } = req.body;
+
+    // Валидация обязательных полей
+    if (!name || !name.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Имя обязательно',
+      });
+    }
+
+    if (!phone || !phone.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Телефон обязателен',
+      });
+    }
+
+    // Валидация телефона
+    if (!validatePhone(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Некорректный формат телефона',
+      });
+    }
+
+    // Создаем лид
+    const lead = new Lead({
+      name: name.trim(),
+      phone: phone.trim(),
+      message: message?.trim() || '',
+      source: 'website',
+      status: 'new',
+      priority: 'medium',
+      tags: ['callback', 'website-form'],
+      interactions: [{
+        type: 'note',
+        description: 'Заявка на обратный звонок с сайта',
+      }],
+    });
+
+    await lead.save();
+
+    // Отправляем уведомление в Telegram (асинхронно, не блокируя ответ)
+    sendTelegramNotification(lead).catch(err => {
+      console.error('Failed to send Telegram notification:', err);
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Заявка успешно отправлена. Мы свяжемся с вами в ближайшее время.',
+    });
+  } catch (error) {
+    console.error('Error creating callback request:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при отправке заявки. Попробуйте позже.',
       error: error.message,
     });
   }

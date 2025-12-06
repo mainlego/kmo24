@@ -259,6 +259,9 @@
       @success="closeAuthModal"
     />
 
+    <!-- Callback Modal -->
+    <CallbackModal v-model="isCallbackModalOpen" />
+
     <!-- Main Content -->
     <main class="main-content">
       <slot />
@@ -274,24 +277,12 @@
               <img src="/assets/logo.png" alt="КМО24" class="logo-image-footer" />
             </div>
             <p class="footer-description">
-              Комиссионный магазин оборудования для кафе и ресторанов. Реализация б/у пищевого и хлебопекарного оборудования.
+              Комиссионный магазин оборудования для пищевых цехов и организаций общественного питания. Реализация б/у пищевого и хлебопекарного оборудования.
             </p>
             <div class="footer-social">
-              <a href="#" class="social-link" aria-label="VK">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14c5.6 0 6.93-1.33 6.93-6.93V8.93C22 3.33 20.67 2 15.07 2zm3.45 14.8h-1.58c-.87 0-1.13-.69-2.69-2.25-1.35-1.33-1.95-1.51-2.29-1.51-.47 0-.6.13-.6.75v2.05c0 .55-.18.88-1.61.88-2.39 0-5.03-1.45-6.89-4.15-2.8-3.98-3.56-6.96-3.56-7.57 0-.34.13-.66.75-.66h1.59c.56 0 .77.26 1 .86.99 2.84 2.66 5.33 3.35 5.33.26 0 .38-.12.38-.78V8.97c-.09-1.43-.83-1.55-.83-2.06 0-.27.22-.54.58-.54h2.48c.47 0 .64.25.64.81v4.37c0 .47.21.64.35.64.26 0 .47-.17.95-.65 1.45-1.63 2.49-4.15 2.49-4.15.14-.29.39-.57.98-.57h1.59c.67 0 .82.35.67.82-.23 1.05-2.86 4.44-2.86 4.44-.22.36-.3.52 0 .93.2.3.87.85 1.32 1.37.81.9 1.43 1.65 1.6 2.18.16.52-.09.79-.67.79z"/>
-                </svg>
-              </a>
-              <a href="#" class="social-link" aria-label="Telegram">
+              <a href="https://t.me/kmo24_bot" class="social-link" aria-label="Telegram" target="_blank" rel="noopener">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
-                </svg>
-              </a>
-              <a href="#" class="social-link" aria-label="Instagram">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
                 </svg>
               </a>
             </div>
@@ -304,7 +295,6 @@
                 <li><NuxtLink to="/products">Каталог</NuxtLink></li>
                 <li><NuxtLink to="/about">О компании</NuxtLink></li>
                 <li><NuxtLink to="/delivery">Доставка</NuxtLink></li>
-                <li><NuxtLink to="/return">Возврат товара</NuxtLink></li>
               </ul>
             </div>
 
@@ -315,6 +305,7 @@
                 <li><NuxtLink to="/account/orders">Мои заказы</NuxtLink></li>
                 <li><NuxtLink to="/account/favorites">Избранное</NuxtLink></li>
                 <li><NuxtLink to="/contacts">Контакты</NuxtLink></li>
+                <li><button class="footer-callback-btn" @click="isCallbackModalOpen = true">Заказать звонок</button></li>
               </ul>
             </div>
 
@@ -388,6 +379,7 @@ const isSearchOpen = ref(false);
 const isMobileMenuOpen = ref(false);
 const isAuthModalOpen = ref(false);
 const isUserMenuOpen = ref(false);
+const isCallbackModalOpen = ref(false);
 const cartStore = useCartStore();
 const authStore = useAuthStore();
 
@@ -1104,6 +1096,27 @@ onUnmounted(() => {
         }
       }
     }
+  }
+}
+
+.footer-callback-btn {
+  background: $gradient-primary;
+  border: none;
+  border-radius: $radius-lg;
+  color: $white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  padding: $spacing-sm $spacing-lg;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  margin-top: $spacing-sm;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-glow;
   }
 }
 
