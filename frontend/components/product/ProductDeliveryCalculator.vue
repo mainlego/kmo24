@@ -490,7 +490,7 @@ onUnmounted(() => {
   .result-price {
     font-size: 16px;
     font-weight: 700;
-    color: $success-600;
+    color: $success;
   }
 
   .result-details {
@@ -543,7 +543,7 @@ onUnmounted(() => {
   border-radius: 6px;
   margin-top: 8px;
   font-size: 12px;
-  color: $danger-600;
+  color: $danger;
 
   svg {
     flex-shrink: 0;
