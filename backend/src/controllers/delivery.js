@@ -152,6 +152,35 @@ export const searchCities = async (req, res) => {
       });
     }
 
+    // Проверяем наличие API ключа
+    if (!DELLIN_APP_KEY) {
+      logger.warn('Dellin API key not configured, using fallback city list');
+
+      // Fallback: возвращаем статический список популярных городов
+      const fallbackCities = [
+        { code: '2400000100000', name: 'Красноярск', fullName: 'Красноярск, Красноярский край', region: 'Красноярский край' },
+        { code: '7700000000000', name: 'Москва', fullName: 'Москва', region: null },
+        { code: '7800000000000', name: 'Санкт-Петербург', fullName: 'Санкт-Петербург', region: null },
+        { code: '5400000100000', name: 'Новосибирск', fullName: 'Новосибирск, Новосибирская область', region: 'Новосибирская область' },
+        { code: '6600000100000', name: 'Екатеринбург', fullName: 'Екатеринбург, Свердловская область', region: 'Свердловская область' },
+        { code: '1600000100000', name: 'Казань', fullName: 'Казань, Республика Татарстан', region: 'Республика Татарстан' },
+        { code: '5200000100000', name: 'Нижний Новгород', fullName: 'Нижний Новгород, Нижегородская область', region: 'Нижегородская область' },
+        { code: '7400000100000', name: 'Челябинск', fullName: 'Челябинск, Челябинская область', region: 'Челябинская область' },
+        { code: '6300000100000', name: 'Самара', fullName: 'Самара, Самарская область', region: 'Самарская область' },
+        { code: '5500000100000', name: 'Омск', fullName: 'Омск, Омская область', region: 'Омская область' },
+      ];
+
+      const filtered = fallbackCities.filter(city =>
+        city.name.toLowerCase().includes(query.toLowerCase()) ||
+        (city.region && city.region.toLowerCase().includes(query.toLowerCase()))
+      );
+
+      return res.json({
+        success: true,
+        data: filtered,
+      });
+    }
+
     // Запрос к API Деловых Линий для поиска городов
     const response = await axios.post(
       `${DELLIN_API_URL}/request_cities.json`,
@@ -177,7 +206,7 @@ export const searchCities = async (req, res) => {
     }
 
     // Форматируем результаты
-    const cities = response.data.city.map((city) => ({
+    const cities = (response.data.city || []).map((city) => ({
       code: city.code,
       name: city.name,
       fullName: city.name + (city.region ? `, ${city.region}` : ''),
@@ -194,6 +223,7 @@ export const searchCities = async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Ошибка при поиске городов',
+      details: error.message,
     });
   }
 };
