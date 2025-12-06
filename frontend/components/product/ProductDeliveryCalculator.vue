@@ -463,7 +463,7 @@ onUnmounted(() => {
 // Result
 .delivery-result {
   background: $white;
-  border: 1px solid $success-200;
+  border: 1px solid $success-light;
   border-radius: 6px;
   padding: 10px 12px;
   margin-top: 8px;
@@ -557,15 +557,15 @@ onUnmounted(() => {
 .retry-btn {
   padding: 4px 8px;
   background: $white;
-  border: 1px solid $danger-300;
+  border: 1px solid $error-light;
   border-radius: 4px;
   font-size: 11px;
-  color: $danger-600;
+  color: $danger-500;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: $danger-50;
+    background: $error-light;
   }
 }
 
