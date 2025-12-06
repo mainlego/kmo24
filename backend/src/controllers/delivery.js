@@ -13,7 +13,7 @@ const DELLIN_APP_KEY = config.delivery.dellin.apiKey;
 export const calculateDelivery = async (req, res) => {
   try {
     const {
-      arrivalCity,      // Город доставки
+      arrivalCity,      // Город доставки (КЛАДР код)
       cargo,            // Массив товаров с габаритами
     } = req.body;
 
@@ -32,9 +32,6 @@ export const calculateDelivery = async (req, res) => {
       });
     }
 
-    // Используем адрес магазина из конфигурации
-    const storeCity = config.delivery.storeAddress.city;
-
     // Подсчитываем общий вес и объем
     let totalWeight = 0;
     let totalVolume = 0;
@@ -50,6 +47,64 @@ export const calculateDelivery = async (req, res) => {
       // Объем = длина × ширина × высота (в м³)
       totalVolume += (length / 100) * (width / 100) * (height / 100) * quantity;
     });
+
+    // Если API ключ не настроен, используем fallback расчёт
+    if (!DELLIN_APP_KEY) {
+      logger.warn('Dellin API key not configured, using fallback calculation');
+
+      // Расстояния от Красноярска до популярных городов (примерные, в км)
+      const distances = {
+        '2400000100000': 0,      // Красноярск
+        '7700000000000': 4100,   // Москва
+        '7800000000000': 4500,   // Санкт-Петербург
+        '5400000100000': 800,    // Новосибирск
+        '6600000100000': 2000,   // Екатеринбург
+        '1600000100000': 2800,   // Казань
+        '5200000100000': 3200,   // Нижний Новгород
+        '7400000100000': 1900,   // Челябинск
+        '6300000100000': 2600,   // Самара
+        '5500000100000': 1300,   // Омск
+      };
+
+      // Получаем расстояние (или используем среднее)
+      const distance = distances[arrivalCity] || 2500;
+
+      // Базовая ставка: 50 руб/кг + 15 руб/км (для первых 100 кг)
+      // + объёмный коэффициент
+      const weightRate = 50;
+      const distanceRate = 0.5; // за км
+      const volumeRate = 3000; // за м³
+
+      const weightCost = totalWeight * weightRate;
+      const distanceCost = distance * distanceRate;
+      const volumeCost = totalVolume * volumeRate;
+
+      // Итоговая стоимость (минимум 500 руб)
+      const price = Math.max(500, Math.round(weightCost + distanceCost + volumeCost));
+
+      // Сроки доставки (примерные)
+      const minDays = Math.max(1, Math.ceil(distance / 800)); // ~800 км/день
+      const maxDays = minDays + 3;
+
+      return res.json({
+        success: true,
+        data: {
+          price,
+          minDeliveryTime: minDays,
+          maxDeliveryTime: maxDays,
+          currency: 'RUB',
+          provider: 'estimate',
+          details: {
+            note: 'Примерный расчёт. Точная стоимость будет уточнена менеджером.',
+            weight: totalWeight,
+            volume: Math.round(totalVolume * 1000) / 1000,
+          },
+        },
+      });
+    }
+
+    // Используем адрес магазина из конфигурации
+    const storeCity = config.delivery.storeAddress.city;
 
     // Подготовка данных для API Деловых Линий
     const requestData = {
