@@ -275,63 +275,22 @@
     <!-- Recently Viewed Products -->
     <ProductRecentlyViewed />
 
-    <!-- Premium CTA Section -->
-    <section class="premium-cta">
-      <div class="cta-background">
-        <img
-          src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=1920&q=80"
-          alt="Профессиональное кухонное оборудование"
-          class="cta-bg-image"
-        />
-        <div class="cta-overlay"></div>
-      </div>
-      <div class="cta-gradient-orbs"></div>
+    <!-- Minimal CTA Section -->
+    <section class="minimal-cta">
+      <div class="cta-overlay"></div>
       <div class="container">
-        <div class="premium-cta-content">
-          <div class="premium-cta-text">
-            <div class="cta-badge">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span>Проверенное качество</span>
-            </div>
-            <h2 class="premium-cta-title">Ищете надежное оборудование для бизнеса?</h2>
-            <p class="premium-cta-subtitle">
-              Более 300 единиц проверенного б/у оборудования для кафе и ресторанов в Красноярске. Экономьте до 70% на покупке профессионального оборудования
-            </p>
-            <div class="cta-features">
-              <div class="cta-feature">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>Проверка перед продажей</span>
-              </div>
-              <div class="cta-feature">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>Быстрая доставка по России</span>
-              </div>
-              <div class="cta-feature">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>Гарантия качества</span>
-              </div>
-            </div>
-          </div>
+        <div class="minimal-cta-content">
+          <h2 class="minimal-cta-title">Ищете надежное оборудование?</h2>
+          <p class="minimal-cta-subtitle">Более 300 единиц техники с экономией до 70%</p>
           <div class="cta-actions">
-            <NuxtLink to="/products" class="btn btn-white btn-lg">
+            <NuxtLink to="/products" class="btn btn-white">
               <span>Смотреть каталог</span>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </NuxtLink>
-            <NuxtLink to="/contacts" class="btn btn-glass btn-lg">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span>Получить консультацию</span>
+            <NuxtLink to="/contacts" class="btn btn-glass">
+              <span>Связаться с нами</span>
             </NuxtLink>
           </div>
         </div>
@@ -618,190 +577,61 @@ onUnmounted(() => {
   color: $gray-600;
 }
 
-// Premium CTA Section
-.premium-cta {
-  padding: 8rem 0;
+// Minimal CTA Section
+.minimal-cta {
+  padding: 4rem 0;
   position: relative;
   overflow: hidden;
+  background: $gradient-primary;
 
   @media (max-width: $breakpoint-md) {
-    padding: 5rem 0;
+    padding: 3rem 0;
   }
 }
 
-.cta-background {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-
-  .cta-bg-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-  }
-}
-
-.cta-overlay {
+.minimal-cta .cta-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg,
-    rgba(245, 158, 11, 0.92) 0%,
-    rgba(234, 88, 12, 0.9) 50%,
-    rgba(220, 38, 38, 0.88) 100%
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.05) 100%
   );
-  backdrop-filter: blur(2px);
 }
 
-.cta-gradient-orbs {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  opacity: 0.3;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
-    filter: blur(60px);
-  }
-
-  &::before {
-    width: 600px;
-    height: 600px;
-    top: -200px;
-    right: -100px;
-    animation: float 20s infinite ease-in-out;
-
-    @media (max-width: $breakpoint-md) {
-      width: 400px;
-      height: 400px;
-      top: -150px;
-      right: -50px;
-    }
-  }
-
-  &::after {
-    width: 500px;
-    height: 500px;
-    bottom: -150px;
-    left: -100px;
-    animation: float 25s infinite ease-in-out reverse;
-
-    @media (max-width: $breakpoint-md) {
-      width: 350px;
-      height: 350px;
-      bottom: -100px;
-      left: -50px;
-    }
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  33% {
-    transform: translate(30px, -30px) rotate(120deg);
-  }
-  66% {
-    transform: translate(-20px, 20px) rotate(240deg);
-  }
-}
-
-.premium-cta-content {
+.minimal-cta-content {
   position: relative;
   z-index: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-  gap: $spacing-2xl;
-}
-
-.premium-cta-text {
-  max-width: 800px;
-}
-
-.cta-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-sm;
-  padding: $spacing-sm $spacing-lg;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: $radius-full;
-  color: $white;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  margin-bottom: $spacing-xl;
-  animation: fadeInUp 0.8s ease-out backwards;
-
-  svg {
-    stroke-width: 2.5;
-  }
-}
-
-.premium-cta-title {
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: $font-weight-bold;
-  color: $white;
-  margin-bottom: $spacing-lg;
-  line-height: 1.2;
-  animation: fadeInUp 0.8s ease-out 0.1s backwards;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.premium-cta-subtitle {
-  font-size: clamp(1rem, 2vw, 1.25rem);
-  color: rgba($white, 0.95);
-  line-height: 1.7;
-  margin-bottom: $spacing-2xl;
-  animation: fadeInUp 0.8s ease-out 0.2s backwards;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.cta-features {
-  display: flex;
-  flex-wrap: wrap;
   justify-content: center;
   gap: $spacing-xl;
-  margin-bottom: $spacing-2xl;
-  animation: fadeInUp 0.8s ease-out 0.3s backwards;
+  flex-wrap: wrap;
+  text-align: center;
 
-  @media (max-width: $breakpoint-sm) {
+  @media (max-width: $breakpoint-md) {
     flex-direction: column;
-    align-items: center;
-    gap: $spacing-md;
+    gap: $spacing-lg;
   }
 }
 
-.cta-feature {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
+.minimal-cta-title {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
   color: $white;
-  font-size: $font-size-base;
-  font-weight: $font-weight-medium;
-  padding: $spacing-sm $spacing-md;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: $radius-xl;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
+  margin: 0;
 
-  svg {
-    flex-shrink: 0;
-    stroke-width: 2;
+  @media (max-width: $breakpoint-md) {
+    font-size: $font-size-xl;
   }
+}
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+.minimal-cta-subtitle {
+  font-size: $font-size-base;
+  color: rgba($white, 0.9);
+  margin: 0;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: $font-size-sm;
   }
 }
 
