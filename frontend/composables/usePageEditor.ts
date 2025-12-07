@@ -34,30 +34,39 @@ export function usePageEditor() {
 
   // Load page content without edit mode (for displaying saved content)
   const loadPageContent = async (pageId: string) => {
+    console.log(`[PageEditor] loadPageContent('${pageId}') called, cache exists:`, !!pagesContent.value[pageId]);
+
     // Always load if not in cache
     if (pagesContent.value[pageId]) {
       currentPageId.value = pageId;
+      console.log(`[PageEditor] Using cached content for '${pageId}', elements:`, pagesContent.value[pageId].elements);
       return;
     }
 
     try {
-      const response = await fetch(`${apiBase}/settings/pages/${pageId}`);
+      const url = `${apiBase}/settings/pages/${pageId}`;
+      console.log(`[PageEditor] Fetching from: ${url}`);
+      const response = await fetch(url);
       const data = await response.json();
-      console.log('Loaded page content:', pageId, data);
+      console.log(`[PageEditor] API response for '${pageId}':`, data);
+
       if (data.success && data.data) {
         // data.data may be { content: {...} } or just the content object
         const content = data.data.content || data.data;
+        console.log(`[PageEditor] Parsed content for '${pageId}':`, content);
         pagesContent.value[pageId] = {
           pageId,
           elements: typeof content === 'object' ? content : {},
           updatedAt: data.data.updatedAt,
         };
+        console.log(`[PageEditor] Stored elements for '${pageId}':`, pagesContent.value[pageId].elements);
       } else {
+        console.log(`[PageEditor] No data in response, using empty elements`);
         pagesContent.value[pageId] = { pageId, elements: {} };
       }
       currentPageId.value = pageId;
     } catch (error) {
-      console.error('Failed to load page content:', error);
+      console.error('[PageEditor] Failed to load page content:', error);
       pagesContent.value[pageId] = { pageId, elements: {} };
       currentPageId.value = pageId;
     }
@@ -118,7 +127,14 @@ export function usePageEditor() {
 
     // Then check current page content
     if (currentPageId.value && pagesContent.value[currentPageId.value]?.elements[elementId] !== undefined) {
-      return pagesContent.value[currentPageId.value].elements[elementId];
+      const savedValue = pagesContent.value[currentPageId.value].elements[elementId];
+      console.log(`[PageEditor] getElementValue('${elementId}'): found saved value`, savedValue);
+      return savedValue;
+    }
+
+    // Debug log
+    if (currentPageId.value) {
+      console.log(`[PageEditor] getElementValue('${elementId}'): no saved value, currentPageId=${currentPageId.value}, pagesContent keys=`, Object.keys(pagesContent.value), 'elements=', pagesContent.value[currentPageId.value]?.elements);
     }
 
     return defaultValue;
