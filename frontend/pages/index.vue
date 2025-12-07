@@ -1550,4 +1550,101 @@ onUnmounted(() => {
     }
   }
 }
+
+// Success state in modals
+.modal-success {
+  padding: $spacing-3xl;
+  text-align: center;
+  animation: fadeInScale 0.4s ease-out;
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto $spacing-xl;
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: bounceIn 0.6s ease-out 0.2s backwards;
+
+    svg {
+      width: 40px;
+      height: 40px;
+      color: $white;
+    }
+  }
+
+  h3 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $gray-900;
+    margin: 0 0 $spacing-md;
+  }
+
+  p {
+    font-size: $font-size-base;
+    color: $gray-600;
+    margin: 0 0 $spacing-2xl;
+    line-height: 1.6;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-md $spacing-2xl;
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    color: $white;
+    border: none;
+    border-radius: $radius-lg;
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-base;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba($primary-500, 0.3);
+    }
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.form-error-message {
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: $radius-lg;
+  color: #dc2626;
+  font-size: $font-size-sm;
+}
 </style>
