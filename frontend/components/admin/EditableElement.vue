@@ -43,31 +43,25 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const pageEditor = usePageEditor();
-const {
-  isEditMode,
-  selectedElement,
-  selectElement,
-  getElementValue,
-  registerElement,
-  unregisterElement,
-} = pageEditor;
 
 const isHovering = ref(false);
+
+// Use computed to maintain reactivity from composable
+const isEditMode = computed(() => pageEditor.isEditMode.value);
+const isSelected = computed(() => pageEditor.selectedElement.value === props.elementId);
 
 // Debug: log when edit mode changes
 watch(isEditMode, (newValue: boolean) => {
   console.log(`[EditableElement ${props.elementId}] isEditMode changed to:`, newValue);
 }, { immediate: true });
 
-const isSelected = computed(() => selectedElement.value === props.elementId);
-
 const displayValue = computed(() => {
-  return getElementValue(props.elementId, props.defaultValue);
+  return pageEditor.getElementValue(props.elementId, props.defaultValue);
 });
 
 // Register element when mounted
 onMounted(() => {
-  registerElement({
+  pageEditor.registerElement({
     id: props.elementId,
     type: props.type,
     defaultValue: props.defaultValue,
@@ -77,7 +71,7 @@ onMounted(() => {
 
 // Unregister when unmounted
 onUnmounted(() => {
-  unregisterElement(props.elementId);
+  pageEditor.unregisterElement(props.elementId);
 });
 
 const handleClick = (e: MouseEvent) => {
@@ -86,7 +80,7 @@ const handleClick = (e: MouseEvent) => {
   e.preventDefault();
   e.stopPropagation();
 
-  selectElement(props.elementId);
+  pageEditor.selectElement(props.elementId);
 };
 
 // Expose value for parent components if needed
