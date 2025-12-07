@@ -157,22 +157,21 @@ export const changeAdminPassword = async (req, res, next) => {
 export const getPageContent = async (req, res, next) => {
   try {
     const { pageId } = req.params;
-    const content = await Settings.getValue(`page_${pageId}`, null);
+    const savedData = await Settings.getValue(`page_${pageId}`, null);
 
-    if (!content) {
-      // Возвращаем дефолтный контент
-      return successResponse(res, {
-        title: '',
-        content: '',
-        seo: {
-          title: '',
-          description: '',
-          keywords: '',
-        },
-      });
+    if (!savedData) {
+      // Возвращаем пустой объект content для визуального редактора
+      return successResponse(res, { content: {} });
     }
 
-    return successResponse(res, content);
+    // savedData может быть { content: {...} } или просто {...}
+    // Нормализуем структуру
+    if (savedData.content && typeof savedData.content === 'object') {
+      return successResponse(res, savedData);
+    }
+
+    // Если сохранён просто объект с элементами, оборачиваем
+    return successResponse(res, { content: savedData });
   } catch (error) {
     next(error);
   }
@@ -187,7 +186,7 @@ export const updatePageContent = async (req, res, next) => {
     const { pageId } = req.params;
     const content = req.body;
 
-    const validPages = ['home', 'delivery', 'contacts', 'warranty', 'about'];
+    const validPages = ['home', 'index', 'delivery', 'contacts', 'warranty', 'about'];
     if (!validPages.includes(pageId)) {
       return errorResponse(res, 'Некорректный идентификатор страницы', 400);
     }

@@ -17,12 +17,12 @@ const isEditMode = ref(false);
 const currentPageId = ref<string | null>(null);
 const pendingChanges = ref<Record<string, any>>({});
 const isSaving = ref(false);
-const originalContent = ref<PageContent | null>(null);
 const selectedElement = ref<string | null>(null);
 const registeredElements = ref<Record<string, EditableElementInfo>>({});
 const selectedElementInfo = ref<EditableElementInfo | null>(null);
-const isContentLoaded = ref(false);
-const loadedPageId = ref<string | null>(null);
+
+// Store content per page
+const pagesContent = ref<Record<string, PageContent>>({});
 
 export function usePageEditor() {
   const config = useRuntimeConfig();
@@ -34,8 +34,9 @@ export function usePageEditor() {
 
   // Load page content without edit mode (for displaying saved content)
   const loadPageContent = async (pageId: string) => {
-    // Skip if already loaded for this page
-    if (loadedPageId.value === pageId && isContentLoaded.value) {
+    // Always load if not in cache
+    if (pagesContent.value[pageId]) {
+      currentPageId.value = pageId;
       return;
     }
 
@@ -46,21 +47,19 @@ export function usePageEditor() {
       if (data.success && data.data) {
         // data.data may be { content: {...} } or just the content object
         const content = data.data.content || data.data;
-        originalContent.value = {
+        pagesContent.value[pageId] = {
           pageId,
           elements: typeof content === 'object' ? content : {},
           updatedAt: data.data.updatedAt,
         };
       } else {
-        originalContent.value = { pageId, elements: {} };
+        pagesContent.value[pageId] = { pageId, elements: {} };
       }
-      loadedPageId.value = pageId;
-      isContentLoaded.value = true;
+      currentPageId.value = pageId;
     } catch (error) {
       console.error('Failed to load page content:', error);
-      originalContent.value = { pageId, elements: {} };
-      loadedPageId.value = pageId;
-      isContentLoaded.value = true;
+      pagesContent.value[pageId] = { pageId, elements: {} };
+      currentPageId.value = pageId;
     }
   };
 
@@ -83,29 +82,26 @@ export function usePageEditor() {
       if (data.success && data.data) {
         // data.data may be { content: {...} } or just the content object
         const content = data.data.content || data.data;
-        originalContent.value = {
+        pagesContent.value[pageId] = {
           pageId,
           elements: typeof content === 'object' ? content : {},
           updatedAt: data.data.updatedAt,
         };
       } else {
-        originalContent.value = { pageId, elements: {} };
+        pagesContent.value[pageId] = { pageId, elements: {} };
       }
-      loadedPageId.value = pageId;
-      isContentLoaded.value = true;
     } catch (error) {
       console.error('Failed to load page content:', error);
-      originalContent.value = { pageId, elements: {} };
+      pagesContent.value[pageId] = { pageId, elements: {} };
     }
   };
 
   // Disable edit mode
   const disableEditMode = () => {
     isEditMode.value = false;
-    currentPageId.value = null;
     pendingChanges.value = {};
     selectedElement.value = null;
-    // Don't reset originalContent - it should persist for display
+    // Don't reset pagesContent or currentPageId - they should persist for display
   };
 
   // Update element value
@@ -115,12 +111,16 @@ export function usePageEditor() {
 
   // Get element value (pending change or original)
   const getElementValue = (elementId: string, defaultValue: any = '') => {
+    // First check pending changes
     if (pendingChanges.value[elementId] !== undefined) {
       return pendingChanges.value[elementId];
     }
-    if (originalContent.value?.elements[elementId] !== undefined) {
-      return originalContent.value.elements[elementId];
+
+    // Then check current page content
+    if (currentPageId.value && pagesContent.value[currentPageId.value]?.elements[elementId] !== undefined) {
+      return pagesContent.value[currentPageId.value].elements[elementId];
     }
+
     return defaultValue;
   };
 
@@ -152,8 +152,8 @@ export function usePageEditor() {
     if (pendingChanges.value[elementId] !== undefined) {
       return pendingChanges.value[elementId];
     }
-    if (originalContent.value?.elements[elementId] !== undefined) {
-      return originalContent.value.elements[elementId];
+    if (currentPageId.value && pagesContent.value[currentPageId.value]?.elements[elementId] !== undefined) {
+      return pagesContent.value[currentPageId.value].elements[elementId];
     }
     if (registeredElements.value[elementId]) {
       return registeredElements.value[elementId].defaultValue;
@@ -161,14 +161,23 @@ export function usePageEditor() {
     return '';
   };
 
+  // Get original content for current page
+  const originalContent = computed(() => {
+    if (currentPageId.value && pagesContent.value[currentPageId.value]) {
+      return pagesContent.value[currentPageId.value];
+    }
+    return null;
+  });
+
   // Save all changes
   const saveChanges = async () => {
     if (!currentPageId.value || !hasChanges.value) return;
 
     isSaving.value = true;
     try {
+      const currentContent = pagesContent.value[currentPageId.value]?.elements || {};
       const mergedContent = {
-        ...(originalContent.value?.elements || {}),
+        ...currentContent,
         ...pendingChanges.value,
       };
 
@@ -183,10 +192,12 @@ export function usePageEditor() {
 
       const data = await response.json();
       if (data.success) {
-        // Update original content with saved changes
-        if (originalContent.value) {
-          originalContent.value.elements = mergedContent;
-        }
+        // Update cached content with saved changes
+        pagesContent.value[currentPageId.value] = {
+          pageId: currentPageId.value,
+          elements: mergedContent,
+          updatedAt: new Date().toISOString(),
+        };
         pendingChanges.value = {};
         return { success: true };
       } else {
@@ -216,6 +227,11 @@ export function usePageEditor() {
     return true;
   };
 
+  // Check if content is loaded for current page
+  const isContentLoaded = computed(() => {
+    return currentPageId.value ? !!pagesContent.value[currentPageId.value] : false;
+  });
+
   return {
     // State
     isEditMode: readonly(isEditMode),
@@ -227,7 +243,8 @@ export function usePageEditor() {
     selectedElementInfo: readonly(selectedElementInfo),
     registeredElements: readonly(registeredElements),
     hasChanges,
-    isContentLoaded: readonly(isContentLoaded),
+    isContentLoaded,
+    originalContent,
 
     // Actions
     loadPageContent,
