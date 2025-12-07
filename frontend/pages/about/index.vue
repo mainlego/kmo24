@@ -380,7 +380,15 @@
             {{ pageEditor.getElementValue('about-cta-subtitle', 'Присоединяйтесь к тысячам довольных клиентов') }}
           </AdminEditableElement>
           <NuxtLink to="/products" class="btn btn-primary btn-lg">
-            <span>Перейти в каталог</span>
+            <AdminEditableElement
+              element-id="about-cta-btn"
+              tag="span"
+              type="text"
+              label="CTA кнопка"
+              :default-value="'Перейти в каталог'"
+            >
+              {{ pageEditor.getElementValue('about-cta-btn', 'Перейти в каталог') }}
+            </AdminEditableElement>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>

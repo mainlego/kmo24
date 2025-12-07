@@ -226,8 +226,26 @@
     <section class="categories-showcase">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title">Категории оборудования</h2>
-          <p class="section-subtitle">Всё необходимое для вашего бизнеса в одном месте</p>
+          <AdminEditableElement
+            element-id="categories-title"
+            tag="h2"
+            type="text"
+            label="Категории - Заголовок"
+            class="section-title"
+            default-value="Категории оборудования"
+          >
+            {{ pageEditor.getElementValue('categories-title', 'Категории оборудования') }}
+          </AdminEditableElement>
+          <AdminEditableElement
+            element-id="categories-subtitle"
+            tag="p"
+            type="text"
+            label="Категории - Подзаголовок"
+            class="section-subtitle"
+            default-value="Всё необходимое для вашего бизнеса в одном месте"
+          >
+            {{ pageEditor.getElementValue('categories-subtitle', 'Всё необходимое для вашего бизнеса в одном месте') }}
+          </AdminEditableElement>
         </div>
         <div class="categories-grid">
           <NuxtLink to="/products?category=ovens" class="category-card">
@@ -338,18 +356,52 @@
       <div class="container">
         <div class="minimal-cta-content">
           <div class="minimal-cta-text">
-            <h2 class="minimal-cta-title">Ищете надежное оборудование для бизнеса?</h2>
-            <p class="minimal-cta-subtitle">Более 300 единиц проверенного б/у оборудования для кафе и ресторанов. Экономия до 70%</p>
+            <AdminEditableElement
+              element-id="cta-title"
+              tag="h2"
+              type="text"
+              label="CTA - Заголовок"
+              class="minimal-cta-title"
+              default-value="Ищете надежное оборудование для бизнеса?"
+            >
+              {{ pageEditor.getElementValue('cta-title', 'Ищете надежное оборудование для бизнеса?') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="cta-subtitle"
+              tag="p"
+              type="text"
+              label="CTA - Подзаголовок"
+              class="minimal-cta-subtitle"
+              default-value="Более 300 единиц проверенного б/у оборудования для кафе и ресторанов. Экономия до 70%"
+            >
+              {{ pageEditor.getElementValue('cta-subtitle', 'Более 300 единиц проверенного б/у оборудования для кафе и ресторанов. Экономия до 70%') }}
+            </AdminEditableElement>
           </div>
           <div class="cta-actions">
             <NuxtLink to="/products" class="btn btn-white">
-              <span>Смотреть каталог</span>
+              <AdminEditableElement
+                element-id="cta-btn-catalog"
+                tag="span"
+                type="text"
+                label="CTA - Кнопка Каталог"
+                default-value="Смотреть каталог"
+              >
+                {{ pageEditor.getElementValue('cta-btn-catalog', 'Смотреть каталог') }}
+              </AdminEditableElement>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </NuxtLink>
             <NuxtLink to="/contacts" class="btn btn-glass">
-              <span>Связаться с нами</span>
+              <AdminEditableElement
+                element-id="cta-btn-contact"
+                tag="span"
+                type="text"
+                label="CTA - Кнопка Контакты"
+                default-value="Связаться с нами"
+              >
+                {{ pageEditor.getElementValue('cta-btn-contact', 'Связаться с нами') }}
+              </AdminEditableElement>
             </NuxtLink>
           </div>
         </div>
