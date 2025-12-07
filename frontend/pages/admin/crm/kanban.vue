@@ -3,16 +3,10 @@
     <!-- Header -->
     <div class="page-header">
       <div>
-        <h1 class="page-title">CRM - Канбан доска</h1>
-        <p class="page-subtitle">Перетаскивайте сделки между этапами или доску для навигации</p>
+        <h1 class="page-title">CRM - Управление клиентами</h1>
+        <p class="page-subtitle">Перетаскивайте сделки между этапами</p>
       </div>
       <div class="header-actions">
-        <NuxtLink to="/admin/crm" class="btn btn-secondary">
-          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-          </svg>
-          Таблица
-        </NuxtLink>
         <button class="btn btn-primary" @click="openLeadModal">
           <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -20,6 +14,22 @@
           Новый лид
         </button>
       </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="view-tabs">
+      <NuxtLink to="/admin/crm/kanban" class="tab-btn active">
+        <svg class="tab-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+        </svg>
+        Канбан
+      </NuxtLink>
+      <NuxtLink to="/admin/crm?view=table" class="tab-btn">
+        <svg class="tab-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+        Таблица
+      </NuxtLink>
     </div>
 
     <!-- Stats -->
@@ -139,6 +149,80 @@
       </div>
     </div>
     </div>
+
+    <!-- Lead Edit Modal -->
+    <Teleport to="body">
+      <div v-if="showLeadModal" class="modal-overlay" @click.self="closeLeadModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>{{ editingLead ? 'Редактировать лид' : 'Новый лид' }}</h3>
+            <button class="modal-close" @click="closeLeadModal">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Имя *</label>
+              <input v-model="leadForm.name" type="text" placeholder="Иван Иванов" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Email</label>
+                <input v-model="leadForm.email" type="email" placeholder="email@example.com" />
+              </div>
+              <div class="form-group">
+                <label>Телефон *</label>
+                <input v-model="leadForm.phone" type="tel" placeholder="+7 (999) 123-45-67" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Компания</label>
+                <input v-model="leadForm.company" type="text" placeholder="ООО Компания" />
+              </div>
+              <div class="form-group">
+                <label>Бюджет</label>
+                <input v-model.number="leadForm.budget" type="number" placeholder="100000" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Статус</label>
+                <select v-model="leadForm.status">
+                  <option value="new">Новый</option>
+                  <option value="contacted">Контакт установлен</option>
+                  <option value="qualified">Квалифицирован</option>
+                  <option value="negotiation">Переговоры</option>
+                  <option value="won">Успех</option>
+                  <option value="lost">Проигран</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Приоритет</label>
+                <select v-model="leadForm.priority">
+                  <option value="low">Низкий</option>
+                  <option value="medium">Средний</option>
+                  <option value="high">Высокий</option>
+                  <option value="urgent">Срочный</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Заметки</label>
+              <textarea v-model="leadForm.notes" rows="3" placeholder="Дополнительная информация..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" @click="closeLeadModal">Отмена</button>
+            <button class="btn btn-primary" @click="saveLead">
+              {{ editingLead ? 'Сохранить' : 'Создать' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -331,20 +415,86 @@ const handleDrop = async (event: DragEvent, newStatus: Lead['status']) => {
   draggedOverColumn.value = null;
 };
 
-const openLeadModal = () => {
-  navigateTo('/admin/crm?action=new');
+// Modal state
+const showLeadModal = ref(false);
+const editingLead = ref<Lead | null>(null);
+const leadForm = ref({
+  name: '',
+  email: '',
+  phone: '',
+  company: '',
+  budget: 0,
+  status: 'new' as Lead['status'],
+  priority: 'medium' as Lead['priority'],
+  notes: '',
+});
+
+const resetForm = () => {
+  leadForm.value = {
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    budget: 0,
+    status: 'new',
+    priority: 'medium',
+    notes: '',
+  };
 };
 
-const openLeadDetails = (lead: Lead) => {
-  const leadId = lead._id || lead.id;
-  if (leadId) {
-    navigateTo(`/admin/crm/${leadId}`);
+const openLeadModal = (lead?: Lead) => {
+  if (lead) {
+    editingLead.value = lead;
+    leadForm.value = {
+      name: lead.name || '',
+      email: lead.email || '',
+      phone: lead.phone || '',
+      company: lead.company || '',
+      budget: lead.budget || lead.dealValue || 0,
+      status: lead.status || 'new',
+      priority: lead.priority || 'medium',
+      notes: lead.notes || lead.message || '',
+    };
+  } else {
+    editingLead.value = null;
+    resetForm();
+  }
+  showLeadModal.value = true;
+};
+
+const closeLeadModal = () => {
+  showLeadModal.value = false;
+  editingLead.value = null;
+  resetForm();
+};
+
+const saveLead = async () => {
+  if (!leadForm.value.name || !leadForm.value.phone) {
+    error('Заполните обязательные поля');
+    return;
+  }
+
+  try {
+    if (editingLead.value) {
+      await crmStore.updateLead(editingLead.value._id, leadForm.value);
+      success('Лид успешно обновлен');
+    } else {
+      await crmStore.addLead(leadForm.value);
+      success('Лид успешно создан');
+    }
+    closeLeadModal();
+    await crmStore.fetchLeads();
+  } catch (err: any) {
+    error(err.message || 'Ошибка при сохранении лида');
   }
 };
 
+const openLeadDetails = (lead: Lead) => {
+  openLeadModal(lead);
+};
+
 const openCardMenu = (lead: Lead) => {
-  // TODO: Открыть контекстное меню с действиями
-  openLeadDetails(lead);
+  openLeadModal(lead);
 };
 </script>
 
@@ -392,6 +542,50 @@ const openCardMenu = (lead: Lead) => {
   gap: 0.75rem;
 }
 
+// View Tabs
+.view-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: #f3f4f6;
+  padding: 0.25rem;
+  border-radius: 0.5rem;
+  width: fit-content;
+  flex-shrink: 0;
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+
+  .tab-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  &:hover {
+    color: #374151;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  &.active {
+    background: white;
+    color: #f59e0b;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -411,11 +605,11 @@ const openCardMenu = (lead: Lead) => {
   }
 
   &.btn-primary {
-    background: #3b82f6;
+    background: #f59e0b;
     color: white;
 
     &:hover {
-      background: #2563eb;
+      background: #d97706;
     }
   }
 
@@ -532,19 +726,33 @@ const openCardMenu = (lead: Lead) => {
   display: flex;
   gap: 1rem;
   overflow-x: auto;
+  overflow-y: hidden;
   flex: 1;
   min-height: 0;
   padding-bottom: 1rem;
   cursor: grab;
-  user-select: none;
-  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 
-  // Hide scrollbar but keep functionality
-  scrollbar-width: none; // Firefox
-  -ms-overflow-style: none; // IE/Edge
+  // Custom scrollbar for better UX
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f3f4f6;
 
   &::-webkit-scrollbar {
-    display: none; // Chrome/Safari
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+
+    &:hover {
+      background: #9ca3af;
+    }
   }
 
   &.is-dragging-board {
@@ -863,5 +1071,119 @@ const openCardMenu = (lead: Lead) => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+// Modal styles
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 0.75rem;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+  }
+}
+
+.modal-close {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  &:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+
+  label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 0.625rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+    }
+  }
+
+  textarea {
+    resize: vertical;
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e5e7eb;
 }
 </style>
