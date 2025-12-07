@@ -301,17 +301,32 @@
 
     <!-- Sell Equipment Modal -->
     <Teleport to="body">
-      <div v-if="showSellForm" class="modal-overlay" @click.self="showSellForm = false">
+      <div v-if="showSellForm" class="modal-overlay" @click.self="closeSellModal">
         <div class="modal-container">
           <div class="modal-header">
             <h2>Продать оборудование</h2>
-            <button @click="showSellForm = false" class="modal-close">
+            <button @click="closeSellModal" class="modal-close">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </button>
           </div>
-          <form @submit.prevent="submitSellForm" class="modal-form">
+
+          <!-- Success State -->
+          <div v-if="sellFormSuccess" class="modal-success">
+            <div class="success-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3>Заявка отправлена!</h3>
+            <p>Мы свяжемся с вами в ближайшее время для оценки оборудования.</p>
+            <button @click="closeSellModal" class="btn-primary">Закрыть</button>
+          </div>
+
+          <!-- Form -->
+          <form v-else @submit.prevent="submitSellForm" class="modal-form">
             <div class="form-group">
               <label>Тип оборудования *</label>
               <input type="text" v-model="sellForm.equipmentType" required placeholder="Например: Холодильник, печь, фритюрница">
@@ -350,9 +365,13 @@
               <label>Email</label>
               <input type="email" v-model="sellForm.email" placeholder="email@example.com">
             </div>
+            <div v-if="sellFormError" class="form-error-message">{{ sellFormError }}</div>
             <div class="form-actions">
-              <button type="button" @click="showSellForm = false" class="btn-secondary">Отмена</button>
-              <button type="submit" class="btn-primary">Отправить заявку</button>
+              <button type="button" @click="closeSellModal" class="btn-secondary">Отмена</button>
+              <button type="submit" class="btn-primary" :disabled="isSellFormLoading">
+                <span v-if="isSellFormLoading" class="loading-spinner"></span>
+                <span v-else>Отправить заявку</span>
+              </button>
             </div>
           </form>
         </div>
@@ -361,17 +380,32 @@
 
     <!-- Consultation Modal -->
     <Teleport to="body">
-      <div v-if="showConsultForm" class="modal-overlay" @click.self="showConsultForm = false">
+      <div v-if="showConsultForm" class="modal-overlay" @click.self="closeConsultModal">
         <div class="modal-container">
           <div class="modal-header">
             <h2>Получить консультацию</h2>
-            <button @click="showConsultForm = false" class="modal-close">
+            <button @click="closeConsultModal" class="modal-close">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </button>
           </div>
-          <form @submit.prevent="submitConsultForm" class="modal-form">
+
+          <!-- Success State -->
+          <div v-if="consultFormSuccess" class="modal-success">
+            <div class="success-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="22 4 12 14.01 9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3>Заявка отправлена!</h3>
+            <p>Наш специалист свяжется с вами в ближайшее время.</p>
+            <button @click="closeConsultModal" class="btn-primary">Закрыть</button>
+          </div>
+
+          <!-- Form -->
+          <form v-else @submit.prevent="submitConsultForm" class="modal-form">
             <div class="form-group">
               <label>Тема консультации *</label>
               <select v-model="consultForm.subject" required>
@@ -403,9 +437,13 @@
               <label>Удобное время для звонка</label>
               <input type="text" v-model="consultForm.callTime" placeholder="Например: с 10:00 до 18:00">
             </div>
+            <div v-if="consultFormError" class="form-error-message">{{ consultFormError }}</div>
             <div class="form-actions">
-              <button type="button" @click="showConsultForm = false" class="btn-secondary">Отмена</button>
-              <button type="submit" class="btn-primary">Отправить заявку</button>
+              <button type="button" @click="closeConsultModal" class="btn-secondary">Отмена</button>
+              <button type="submit" class="btn-primary" :disabled="isConsultFormLoading">
+                <span v-if="isConsultFormLoading" class="loading-spinner"></span>
+                <span v-else>Отправить заявку</span>
+              </button>
             </div>
           </form>
         </div>
@@ -419,6 +457,9 @@ import { ref, onMounted, onUnmounted } from 'vue';
 
 // SEO metadata
 
+const config = useRuntimeConfig();
+const apiBase = config.public.apiBaseUrl;
+
 // Parallax effect
 const parallaxOffset = ref(0);
 const heroSection = ref<HTMLElement | null>(null);
@@ -429,6 +470,14 @@ const isVisible = ref(false);
 // Modal states
 const showSellForm = ref(false);
 const showConsultForm = ref(false);
+
+// Form loading states
+const isSellFormLoading = ref(false);
+const isConsultFormLoading = ref(false);
+const sellFormSuccess = ref(false);
+const consultFormSuccess = ref(false);
+const sellFormError = ref('');
+const consultFormError = ref('');
 
 // Form data
 const sellForm = ref({
@@ -451,44 +500,99 @@ const consultForm = ref({
   callTime: ''
 });
 
+// Reset sell form
+const resetSellForm = () => {
+  sellForm.value = {
+    equipmentType: '',
+    brand: '',
+    condition: '',
+    year: '',
+    description: '',
+    name: '',
+    phone: '',
+    email: ''
+  };
+  sellFormSuccess.value = false;
+  sellFormError.value = '';
+};
+
+// Reset consult form
+const resetConsultForm = () => {
+  consultForm.value = {
+    subject: '',
+    question: '',
+    name: '',
+    phone: '',
+    email: '',
+    callTime: ''
+  };
+  consultFormSuccess.value = false;
+  consultFormError.value = '';
+};
+
+// Close modals with reset
+const closeSellModal = () => {
+  showSellForm.value = false;
+  setTimeout(resetSellForm, 300); // Reset after animation
+};
+
+const closeConsultModal = () => {
+  showConsultForm.value = false;
+  setTimeout(resetConsultForm, 300); // Reset after animation
+};
+
 // Form submissions
 const submitSellForm = async () => {
+  isSellFormLoading.value = true;
+  sellFormError.value = '';
+
   try {
-    // For now, just show success message - API endpoint will be added later
-    alert('Заявка на продажу оборудования отправлена! Мы свяжемся с вами в ближайшее время.');
-    showSellForm.value = false;
-    // Reset form
-    sellForm.value = {
-      equipmentType: '',
-      brand: '',
-      condition: '',
-      year: '',
-      description: '',
-      name: '',
-      phone: '',
-      email: ''
-    };
+    const response = await fetch(`${apiBase}/leads/sell-equipment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(sellForm.value),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      sellFormSuccess.value = true;
+    } else {
+      sellFormError.value = data.message || 'Ошибка при отправке заявки';
+    }
   } catch (error) {
-    alert('Ошибка при отправке заявки. Пожалуйста, попробуйте позже.');
+    sellFormError.value = 'Ошибка соединения. Пожалуйста, попробуйте позже.';
+  } finally {
+    isSellFormLoading.value = false;
   }
 };
 
 const submitConsultForm = async () => {
+  isConsultFormLoading.value = true;
+  consultFormError.value = '';
+
   try {
-    // For now, just show success message - API endpoint will be added later
-    alert('Заявка на консультацию отправлена! Наш специалист свяжется с вами в ближайшее время.');
-    showConsultForm.value = false;
-    // Reset form
-    consultForm.value = {
-      subject: '',
-      question: '',
-      name: '',
-      phone: '',
-      email: '',
-      callTime: ''
-    };
+    const response = await fetch(`${apiBase}/leads/consultation`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(consultForm.value),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      consultFormSuccess.value = true;
+    } else {
+      consultFormError.value = data.message || 'Ошибка при отправке заявки';
+    }
   } catch (error) {
-    alert('Ошибка при отправке заявки. Пожалуйста, попробуйте позже.');
+    consultFormError.value = 'Ошибка соединения. Пожалуйста, попробуйте позже.';
+  } finally {
+    isConsultFormLoading.value = false;
   }
 };
 

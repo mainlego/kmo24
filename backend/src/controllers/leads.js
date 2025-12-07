@@ -2,8 +2,30 @@ import Lead from '../models/Lead.js';
 import { validatePhone, validateEmail } from '../utils/validators.js';
 import config from '../config/index.js';
 
+// Хелперы для лейблов
+const getConditionLabel = (condition) => {
+  const labels = {
+    excellent: 'Отличное',
+    good: 'Хорошее',
+    normal: 'Нормальное',
+    repair: 'Требует ремонта',
+  };
+  return labels[condition] || condition;
+};
+
+const getSubjectLabel = (subject) => {
+  const labels = {
+    'equipment-selection': 'Подбор оборудования',
+    'technical': 'Технические вопросы',
+    'delivery': 'Доставка и оплата',
+    'warranty': 'Гарантия и сервис',
+    'other': 'Другое',
+  };
+  return labels[subject] || subject;
+};
+
 // Отправка уведомления в Telegram
-const sendTelegramNotification = async (lead) => {
+const sendTelegramNotification = async (lead, type = 'callback') => {
   const botToken = config.telegram?.botToken;
   const chatId = process.env.TELEGRAM_LEADS_CHAT_ID || config.telegram?.channelId;
 
@@ -13,16 +35,56 @@ const sendTelegramNotification = async (lead) => {
   }
 
   try {
-    const message = `
+    let message = '';
+    const date = new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Krasnoyarsk' });
+    const crmLink = `${process.env.FRONTEND_URL || 'https://kmo24.ru'}/admin/leads`;
+
+    if (type === 'callback') {
+      message = `
 🔔 *Новая заявка на обратный звонок*
 
 👤 *Имя:* ${lead.name}
 📞 *Телефон:* ${lead.phone}
 ${lead.message ? `💬 *Сообщение:* ${lead.message}` : ''}
-📅 *Дата:* ${new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Krasnoyarsk' })}
+📅 *Дата:* ${date}
 
-🔗 [Открыть в CRM](${process.env.FRONTEND_URL || 'https://kmo24.ru'}/admin/leads)
-    `.trim();
+🔗 [Открыть в CRM](${crmLink})
+      `.trim();
+    } else if (type === 'sell') {
+      message = `
+💰 *Заявка на продажу оборудования*
+
+👤 *Имя:* ${lead.name}
+📞 *Телефон:* ${lead.phone}
+${lead.email ? `📧 *Email:* ${lead.email}` : ''}
+${lead.company ? `🏢 *Компания:* ${lead.company}` : ''}
+
+🔧 *Оборудование:*
+${lead.equipmentType ? `• Тип: ${lead.equipmentType}` : ''}
+${lead.brand ? `• Марка/модель: ${lead.brand}` : ''}
+${lead.condition ? `• Состояние: ${getConditionLabel(lead.condition)}` : ''}
+${lead.year ? `• Год выпуска: ${lead.year}` : ''}
+${lead.description ? `\n📝 *Описание:* ${lead.description}` : ''}
+
+📅 *Дата:* ${date}
+🔗 [Открыть в CRM](${crmLink})
+      `.trim();
+    } else if (type === 'consultation') {
+      message = `
+💬 *Заявка на консультацию*
+
+👤 *Имя:* ${lead.name}
+📞 *Телефон:* ${lead.phone}
+${lead.email ? `📧 *Email:* ${lead.email}` : ''}
+${lead.callTime ? `⏰ *Удобное время:* ${lead.callTime}` : ''}
+
+📋 *Тема:* ${getSubjectLabel(lead.subject)}
+❓ *Вопрос:* ${lead.question}
+
+📅 *Дата:* ${date}
+🔗 [Открыть в CRM](${crmLink})
+      `.trim();
+    }
 
     const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
@@ -595,7 +657,7 @@ export const createCallbackRequest = async (req, res) => {
     await lead.save();
 
     // Отправляем уведомление в Telegram (асинхронно, не блокируя ответ)
-    sendTelegramNotification(lead).catch(err => {
+    sendTelegramNotification(lead, 'callback').catch(err => {
       console.error('Failed to send Telegram notification:', err);
     });
 
@@ -605,6 +667,230 @@ export const createCallbackRequest = async (req, res) => {
     });
   } catch (error) {
     console.error('Error creating callback request:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при отправке заявки. Попробуйте позже.',
+      error: error.message,
+    });
+  }
+};
+
+// Публичное создание заявки на продажу оборудования (без авторизации)
+export const createSellEquipmentRequest = async (req, res) => {
+  try {
+    const {
+      equipmentType,
+      brand,
+      condition,
+      year,
+      description,
+      name,
+      phone,
+      email
+    } = req.body;
+
+    // Валидация обязательных полей
+    if (!name || !name.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Имя обязательно',
+      });
+    }
+
+    if (!phone || !phone.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Телефон обязателен',
+      });
+    }
+
+    if (!equipmentType || !equipmentType.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Тип оборудования обязателен',
+      });
+    }
+
+    if (!condition) {
+      return res.status(400).json({
+        success: false,
+        message: 'Состояние оборудования обязательно',
+      });
+    }
+
+    // Валидация телефона
+    if (!validatePhone(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Некорректный формат телефона',
+      });
+    }
+
+    // Валидация email если указан
+    if (email && !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Некорректный формат email',
+      });
+    }
+
+    // Формируем описание для сообщения лида
+    const equipmentInfo = [
+      `Тип: ${equipmentType}`,
+      brand ? `Марка/модель: ${brand}` : null,
+      `Состояние: ${getConditionLabel(condition)}`,
+      year ? `Год выпуска: ${year}` : null,
+      description ? `Описание: ${description}` : null,
+    ].filter(Boolean).join('\n');
+
+    // Создаем лид
+    const lead = new Lead({
+      name: name.trim(),
+      phone: phone.trim(),
+      email: email?.trim() || undefined,
+      message: equipmentInfo,
+      source: 'website',
+      status: 'new',
+      priority: 'high', // Продажа оборудования - высокий приоритет
+      tags: ['sell-equipment', 'website-form'],
+      interactions: [{
+        type: 'note',
+        description: `Заявка на продажу оборудования: ${equipmentType}`,
+      }],
+    });
+
+    await lead.save();
+
+    // Подготовим данные для Telegram с дополнительными полями
+    const leadData = {
+      ...lead.toObject(),
+      equipmentType,
+      brand,
+      condition,
+      year,
+      description,
+    };
+
+    // Отправляем уведомление в Telegram
+    sendTelegramNotification(leadData, 'sell').catch(err => {
+      console.error('Failed to send Telegram notification:', err);
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Заявка на продажу оборудования успешно отправлена. Мы свяжемся с вами в ближайшее время для оценки.',
+    });
+  } catch (error) {
+    console.error('Error creating sell equipment request:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при отправке заявки. Попробуйте позже.',
+      error: error.message,
+    });
+  }
+};
+
+// Публичное создание заявки на консультацию (без авторизации)
+export const createConsultationRequest = async (req, res) => {
+  try {
+    const {
+      subject,
+      question,
+      name,
+      phone,
+      email,
+      callTime
+    } = req.body;
+
+    // Валидация обязательных полей
+    if (!name || !name.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Имя обязательно',
+      });
+    }
+
+    if (!phone || !phone.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Телефон обязателен',
+      });
+    }
+
+    if (!subject) {
+      return res.status(400).json({
+        success: false,
+        message: 'Тема консультации обязательна',
+      });
+    }
+
+    if (!question || !question.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Вопрос обязателен',
+      });
+    }
+
+    // Валидация телефона
+    if (!validatePhone(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Некорректный формат телефона',
+      });
+    }
+
+    // Валидация email если указан
+    if (email && !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Некорректный формат email',
+      });
+    }
+
+    // Формируем описание для сообщения лида
+    const consultInfo = [
+      `Тема: ${getSubjectLabel(subject)}`,
+      `Вопрос: ${question}`,
+      callTime ? `Удобное время для звонка: ${callTime}` : null,
+    ].filter(Boolean).join('\n');
+
+    // Создаем лид
+    const lead = new Lead({
+      name: name.trim(),
+      phone: phone.trim(),
+      email: email?.trim() || undefined,
+      message: consultInfo,
+      source: 'website',
+      status: 'new',
+      priority: 'medium',
+      tags: ['consultation', 'website-form', subject],
+      interactions: [{
+        type: 'note',
+        description: `Заявка на консультацию: ${getSubjectLabel(subject)}`,
+      }],
+    });
+
+    await lead.save();
+
+    // Подготовим данные для Telegram с дополнительными полями
+    const leadData = {
+      ...lead.toObject(),
+      subject,
+      question,
+      callTime,
+    };
+
+    // Отправляем уведомление в Telegram
+    sendTelegramNotification(leadData, 'consultation').catch(err => {
+      console.error('Failed to send Telegram notification:', err);
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Заявка на консультацию успешно отправлена. Наш специалист свяжется с вами в ближайшее время.',
+    });
+  } catch (error) {
+    console.error('Error creating consultation request:', error);
     res.status(500).json({
       success: false,
       message: 'Ошибка при отправке заявки. Попробуйте позже.',

@@ -22,7 +22,7 @@
             <div v-if="product" class="product-info">
               <img
                 v-if="product.images?.length"
-                :src="product.images[0].url"
+                :src="getProductImageUrl(product.images[0].url)"
                 :alt="product.name"
                 class="product-image"
               />
@@ -233,6 +233,8 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import type { Product } from '~/types'
+
+const { getProductImageUrl } = useMediaUrl();
 
 interface Props {
   isOpen: boolean

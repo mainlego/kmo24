@@ -139,6 +139,7 @@ import type { Cart } from '~/composables/useCart';
 
 const { getCart, updateCartItem, removeFromCart, clearCart, applyPromoCode, removePromoCode } = useCart();
 const { success, error } = useToast();
+const { getProductImageUrl } = useMediaUrl();
 
 // State
 const loading = ref(false);
@@ -221,7 +222,7 @@ const getProductName = (product: any): string => {
 
 const getProductImage = (product: any): string | null => {
   if (typeof product === 'object' && product.images && product.images.length > 0) {
-    return product.images[0].url;
+    return getProductImageUrl(product.images[0].url);
   }
   return null;
 };

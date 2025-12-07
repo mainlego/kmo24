@@ -2,7 +2,7 @@
   <div class="cart-item">
     <div class="cart-item__image">
       <img
-        :src="item.product.images?.[0]?.url || 'https://via.placeholder.com/100'"
+        :src="getProductImageUrl(item.product.images?.[0]?.url)"
         :alt="item.product.name"
       />
     </div>
@@ -53,6 +53,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const { getProductImageUrl } = useMediaUrl();
 
 const emit = defineEmits<{
   remove: [productId: string];

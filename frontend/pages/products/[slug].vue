@@ -36,7 +36,7 @@
                 :class="['gallery-thumb', { 'active': currentImageIndex === index }]"
                 @click="selectImage(index)"
               >
-                <img :src="image.url" :alt="`${product.name} ${index + 1}`" />
+                <img :src="getProductImageUrl(image.url)" :alt="`${product.name} ${index + 1}`" />
               </button>
             </div>
           </div>
@@ -116,7 +116,7 @@
               @click="navigateTo(`/products/${item.slug}`)"
             >
               <img
-                :src="item.images[0]?.url || '/images/placeholder.jpg'"
+                :src="getProductImageUrl(item.images[0]?.url)"
                 :alt="item.name"
               />
               <div class="related-content">
@@ -172,6 +172,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+
+const { getProductImageUrl } = useMediaUrl();
 
 // Define Product type locally since ~/types might not exist
 interface Product {
@@ -239,7 +241,11 @@ const tabs = [
 ];
 
 const currentImage = computed(() => {
-  return product.value?.images[currentImageIndex.value] || product.value?.images[0];
+  const img = product.value?.images[currentImageIndex.value] || product.value?.images[0];
+  if (img) {
+    return { ...img, url: getProductImageUrl(img.url) };
+  }
+  return img;
 });
 
 const isInStock = computed(() => {

@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // База для загрузок - /var/data/uploads на продакшене (Render), иначе локальная папка
-const UPLOAD_BASE = process.env.UPLOAD_PATH || (
+const UPLOAD_BASE = process.env.UPLOADS_PATH || process.env.UPLOAD_PATH || (
   process.env.NODE_ENV === 'production'
     ? '/var/data/uploads'
     : path.join(__dirname, '../../uploads')

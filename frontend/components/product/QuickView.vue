@@ -21,10 +21,10 @@
                   v-for="(image, index) in product.images"
                   :key="index"
                   class="thumbnail"
-                  :class="{ active: selectedImage === image.url }"
-                  @click="selectedImage = image.url"
+                  :class="{ active: selectedImage === getProductImageUrl(image.url) }"
+                  @click="selectedImage = getProductImageUrl(image.url)"
                 >
-                  <img :src="image.url" :alt="`${product.name} - ${index + 1}`" />
+                  <img :src="getProductImageUrl(image.url)" :alt="`${product.name} - ${index + 1}`" />
                 </button>
               </div>
             </div>
@@ -138,6 +138,8 @@
 import { ref, computed, watch } from 'vue';
 import { useToast } from '~/composables/useToast';
 
+const { getProductImageUrl } = useMediaUrl();
+
 interface Product {
   _id: string;
   slug: string;
@@ -173,7 +175,7 @@ const selectedImage = ref('');
 // Initialize selected image when product changes
 watch(() => props.product, (newProduct) => {
   if (newProduct && newProduct.images && newProduct.images.length > 0) {
-    selectedImage.value = newProduct.images[0].url;
+    selectedImage.value = getProductImageUrl(newProduct.images[0].url);
   }
   quantity.value = 1;
 }, { immediate: true });

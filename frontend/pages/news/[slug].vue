@@ -150,7 +150,7 @@
             >
               <div class="related-card__image">
                 <img
-                  :src="item.thumbnail || '/images/news-placeholder.jpg'"
+                  :src="getMediaUrl(item.thumbnail)"
                   :alt="item.title"
                 />
               </div>

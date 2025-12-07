@@ -5,7 +5,7 @@
         <!-- Product Info -->
         <div class="sticky-cart__product">
           <div class="sticky-cart__image">
-            <img :src="product.images?.[0]?.url || '/placeholder.jpg'" :alt="product.name" />
+            <img :src="getProductImageUrl(product.images?.[0]?.url)" :alt="product.name" />
           </div>
           <div class="sticky-cart__info">
             <h3 class="sticky-cart__name">{{ product.name }}</h3>
@@ -88,6 +88,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useToast } from '~/composables/useToast';
+
+const { getProductImageUrl } = useMediaUrl();
 
 interface Product {
   _id: string;

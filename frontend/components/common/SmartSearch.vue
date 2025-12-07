@@ -52,7 +52,7 @@
           >
             <div class="smart-search__item-image">
               <img
-                :src="product.images?.[0]?.url || '/placeholder.jpg'"
+                :src="getProductImageUrl(product.images?.[0]?.url)"
                 :alt="product.images?.[0]?.alt || product.name"
                 loading="lazy"
               />
@@ -173,6 +173,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import type { Product } from '~/types';
+
+const { getProductImageUrl } = useMediaUrl();
 
 const searchQuery = ref('');
 const isOpen = ref(false);

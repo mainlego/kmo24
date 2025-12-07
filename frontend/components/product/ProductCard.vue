@@ -11,7 +11,7 @@
       <div class="product-card__image-wrapper">
         <img
           v-if="product.images?.length"
-          :src="product.images[0].url"
+          :src="getProductImageUrl(product.images[0]?.url)"
           :alt="product.images[0].alt || product.name"
           class="product-card__image"
         />
@@ -164,6 +164,7 @@ const emit = defineEmits(['openQuickView', 'openDeliveryCalc']);
 const router = useRouter();
 const cartStore = useCartStore();
 const wishlistStore = useWishlistStore();
+const { getProductImageUrl } = useMediaUrl();
 
 const isAddingToCart = ref(false);
 
