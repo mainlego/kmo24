@@ -23,16 +23,38 @@
         <div class="hero-wrapper">
           <!-- Main Content -->
           <div class="hero-content">
-            <h1 class="hero-title animate-fade-in delay-1" :class="{ 'is-visible': isVisible }">
-              Профессиональное<br>
-              <span class="gradient-text">кухонное оборудование</span><br>
-              для вашего бизнеса
-            </h1>
+            <AdminEditableElement
+              element-id="hero-title"
+              tag="h1"
+              class="hero-title animate-fade-in delay-1"
+              :class="{ 'is-visible': isVisible }"
+              :default-value="heroTitle"
+            >
+              <template v-if="!pageEditor.isEditMode.value || !pageEditor.getElementValue('hero-title', '')">
+                Профессиональное<br>
+                <span class="gradient-text">кухонное оборудование</span><br>
+                для вашего бизнеса
+              </template>
+              <template v-else>
+                <span v-html="pageEditor.getElementValue('hero-title', heroTitle)"></span>
+              </template>
+            </AdminEditableElement>
 
-            <p class="hero-subtitle animate-fade-in delay-2" :class="{ 'is-visible': isVisible }">
-              Крупнейший выбор б/у оборудования для HoReCa в Красноярске.<br>
-              Гарантия качества, техническая поддержка, выгодный обмен вашей техники.
-            </p>
+            <AdminEditableElement
+              element-id="hero-subtitle"
+              tag="p"
+              class="hero-subtitle animate-fade-in delay-2"
+              :class="{ 'is-visible': isVisible }"
+              :default-value="heroSubtitle"
+            >
+              <template v-if="!pageEditor.isEditMode.value || !pageEditor.getElementValue('hero-subtitle', '')">
+                Крупнейший выбор б/у оборудования для HoReCa в Красноярске.<br>
+                Гарантия качества, техническая поддержка, выгодный обмен вашей техники.
+              </template>
+              <template v-else>
+                <span v-html="pageEditor.getElementValue('hero-subtitle', heroSubtitle)"></span>
+              </template>
+            </AdminEditableElement>
 
             <div class="hero-actions animate-fade-in delay-3" :class="{ 'is-visible': isVisible }">
               <NuxtLink to="/products" class="btn btn-primary">
@@ -454,11 +476,19 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
+import { usePageEditor } from '../composables/usePageEditor';
 
 // SEO metadata
 
 const config = useRuntimeConfig();
 const apiBase = config.public.apiBaseUrl;
+
+// Page editor for visual editing
+const pageEditor = usePageEditor();
+
+// Default content values
+const heroTitle = 'Профессиональное кухонное оборудование для вашего бизнеса';
+const heroSubtitle = 'Крупнейший выбор б/у оборудования для HoReCa в Красноярске. Гарантия качества, техническая поддержка, выгодный обмен вашей техники.';
 
 // Parallax effect
 const parallaxOffset = ref(0);
