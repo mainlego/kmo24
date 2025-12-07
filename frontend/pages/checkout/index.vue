@@ -83,6 +83,17 @@
               </label>
             </div>
 
+            <!-- City field for courier and transport company -->
+            <div v-if="formData.deliveryMethod === 'courier' || formData.deliveryMethod === 'transport_company'" class="checkout-page__city-field">
+              <BaseInput
+                v-model="formData.address.city"
+                label="Город"
+                placeholder="Красноярск"
+                :error="errors['address.city']"
+                required
+              />
+            </div>
+
             <div v-if="formData.deliveryMethod === 'courier'" class="checkout-page__form-grid">
               <BaseInput
                 v-model="formData.address.street"
@@ -125,6 +136,7 @@
             <div v-if="formData.deliveryMethod === 'transport_company'" class="checkout-page__calculator">
               <CheckoutDeliveryCalculator
                 :cart-items="cartStore.items"
+                :initial-city="formData.address.city"
                 @delivery-calculated="handleDeliveryCalculated"
               />
             </div>
@@ -302,6 +314,7 @@ const formData = ref({
   phone: '',
   deliveryMethod: 'courier',
   address: {
+    city: '',
     street: '',
     house: '',
     apartment: '',
@@ -383,19 +396,35 @@ const totalWithDelivery = computed(() => {
 });
 
 const isFormValid = computed(() => {
-  return (
+  const hasBasicInfo = (
     formData.value.firstName.trim() &&
     formData.value.lastName.trim() &&
     formData.value.email.trim() &&
     formData.value.phone.trim() &&
     formData.value.deliveryMethod &&
     formData.value.paymentMethod &&
-    formData.value.agreeToTerms &&
-    (formData.value.deliveryMethod !== 'courier' ||
-      (formData.value.address.street.trim() && formData.value.address.house.trim())) &&
-    (formData.value.deliveryMethod !== 'transport_company' ||
-      formData.value.transportCompanyDelivery.price > 0)
+    formData.value.agreeToTerms
   );
+
+  // Validate city for delivery methods that need it
+  const hasCityIfNeeded = (
+    formData.value.deliveryMethod !== 'courier' &&
+    formData.value.deliveryMethod !== 'transport_company'
+  ) || formData.value.address.city.trim();
+
+  // Validate courier address
+  const hasCourierAddress = (
+    formData.value.deliveryMethod !== 'courier' ||
+    (formData.value.address.street.trim() && formData.value.address.house.trim())
+  );
+
+  // Validate transport company calculation
+  const hasTransportCalculation = (
+    formData.value.deliveryMethod !== 'transport_company' ||
+    formData.value.transportCompanyDelivery.price > 0
+  );
+
+  return hasBasicInfo && hasCityIfNeeded && hasCourierAddress && hasTransportCalculation;
 });
 
 const formatPrice = (price: number): string => {
@@ -444,6 +473,14 @@ const validateForm = (): boolean => {
     isValid = false;
   }
 
+  // Validate city for courier and transport company
+  if (formData.value.deliveryMethod === 'courier' || formData.value.deliveryMethod === 'transport_company') {
+    if (!formData.value.address.city.trim()) {
+      errors.value['address.city'] = 'Введите город';
+      isValid = false;
+    }
+  }
+
   if (formData.value.deliveryMethod === 'courier') {
     if (!formData.value.address.street.trim()) {
       errors.value['address.street'] = 'Введите улицу';
@@ -485,7 +522,7 @@ const handleSubmitOrder = async () => {
       entrance: formData.value.address.entrance || '',
       floor: formData.value.address.floor || '',
       intercom: formData.value.address.intercom || '',
-      city: 'Красноярск', // Default city
+      city: formData.value.address.city || formData.value.transportCompanyDelivery.city || 'Красноярск',
       postalCode: '',
       country: 'Россия',
     };
@@ -832,6 +869,10 @@ useHead({
 
   &__calculator {
     margin-top: $spacing-lg;
+  }
+
+  &__city-field {
+    margin-bottom: $spacing-lg;
   }
 }
 

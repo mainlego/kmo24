@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
 interface City {
   code: string;
@@ -105,6 +105,7 @@ interface CartItem {
 
 const props = defineProps<{
   cartItems: CartItem[];
+  initialCity?: string; // City name from previous step
 }>();
 
 const emit = defineEmits<{
@@ -122,6 +123,7 @@ const selectedCity = ref<City | null>(null);
 const calculating = ref(false);
 const deliveryResult = ref<DeliveryResult | null>(null);
 const error = ref('');
+const autoSearched = ref(false);
 
 // Search cities with debounce
 let searchTimeout: ReturnType<typeof setTimeout>;
@@ -236,6 +238,42 @@ const formatPrice = (price: number) => {
   }).format(price);
 };
 
+// Auto-search city if initialCity is provided
+const autoSearchCity = async (cityName: string) => {
+  if (!cityName || cityName.length < 2 || autoSearched.value) return;
+
+  autoSearched.value = true;
+  searchQuery.value = cityName;
+
+  try {
+    const response = await fetch(
+      `${apiBase}/delivery/cities/search?query=${encodeURIComponent(cityName)}`
+    );
+    const data = await response.json();
+
+    if (data.success && data.data.length > 0) {
+      // Auto-select first matching city
+      const matchingCity = data.data.find(
+        (c: City) => c.name.toLowerCase() === cityName.toLowerCase()
+      ) || data.data[0];
+
+      selectCity(matchingCity);
+
+      // Auto-calculate delivery
+      await calculateDelivery();
+    }
+  } catch (err) {
+    console.error('Error auto-searching city:', err);
+  }
+};
+
+// Watch for initialCity changes
+watch(() => props.initialCity, (newCity) => {
+  if (newCity && !selectedCity.value) {
+    autoSearchCity(newCity);
+  }
+}, { immediate: true });
+
 // Close suggestions on click outside
 onMounted(() => {
   document.addEventListener('click', (e) => {
@@ -244,6 +282,11 @@ onMounted(() => {
       showSuggestions.value = false;
     }
   });
+
+  // Initial auto-search if city is provided
+  if (props.initialCity && !selectedCity.value) {
+    autoSearchCity(props.initialCity);
+  }
 });
 </script>
 

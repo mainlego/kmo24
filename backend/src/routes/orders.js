@@ -23,6 +23,7 @@ router.get('/all/list', protect, authorize('admin', 'manager'), asyncHandler(get
 // Публичные/защищенные маршруты
 router.post('/', protect, asyncHandler(createOrder));
 router.get('/', protect, asyncHandler(getMyOrders));
+router.get('/my', protect, asyncHandler(getMyOrders)); // Alias for /orders
 
 // Динамические маршруты с :id в конце
 router.get('/:id', protect, asyncHandler(getOrder));
