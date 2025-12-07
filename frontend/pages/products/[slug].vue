@@ -197,6 +197,7 @@ interface Product {
   stock: {
     quantity: number;
     reserved: number;
+    available?: number;
   };
   features?: string[];
   specifications?: Array<{
@@ -250,7 +251,10 @@ const currentImage = computed(() => {
 });
 
 const isInStock = computed(() => {
-  return product.value && product.value.stock.quantity > 0 && product.value.isActive;
+  if (!product.value || !product.value.isActive) return false;
+  // Используем available если есть, иначе вычисляем из quantity - reserved
+  const available = product.value.stock.available ?? (product.value.stock.quantity - (product.value.stock.reserved || 0));
+  return available > 0;
 });
 
 // oldPrice теперь используется как "Цена нового"
