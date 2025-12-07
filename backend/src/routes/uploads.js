@@ -33,7 +33,7 @@ router.post(
       });
     }
 
-    const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+    // Используем относительные URL для работы с Render Disk
     const relativePath = path.relative(UPLOADS_PATH, req.file.path);
     const thumbnailRelativePath = req.file.thumbnailPath
       ? path.relative(UPLOADS_PATH, req.file.thumbnailPath)
@@ -43,9 +43,9 @@ router.post(
       success: true,
       message: 'Изображение загружено',
       data: {
-        url: `${baseUrl}/uploads/${relativePath.replace(/\\/g, '/')}`,
+        url: `/uploads/${relativePath.replace(/\\/g, '/')}`,
         thumbnail: thumbnailRelativePath
-          ? `${baseUrl}/uploads/${thumbnailRelativePath.replace(/\\/g, '/')}`
+          ? `/uploads/${thumbnailRelativePath.replace(/\\/g, '/')}`
           : null,
         filename: req.file.filename,
         originalname: req.file.originalname,
@@ -76,7 +76,6 @@ router.post(
       });
     }
 
-    const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
     const uploadedFiles = req.files.map((file) => {
       const relativePath = path.relative(UPLOADS_PATH, file.path);
       const thumbnailRelativePath = file.thumbnailPath
@@ -84,9 +83,9 @@ router.post(
         : null;
 
       return {
-        url: `${baseUrl}/uploads/${relativePath.replace(/\\/g, '/')}`,
+        url: `/uploads/${relativePath.replace(/\\/g, '/')}`,
         thumbnail: thumbnailRelativePath
-          ? `${baseUrl}/uploads/${thumbnailRelativePath.replace(/\\/g, '/')}`
+          ? `/uploads/${thumbnailRelativePath.replace(/\\/g, '/')}`
           : null,
         filename: file.filename,
         originalname: file.originalname,
@@ -121,14 +120,13 @@ router.post(
       });
     }
 
-    const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
     const relativePath = path.relative(UPLOADS_PATH, req.file.path);
 
     res.json({
       success: true,
       message: 'Документ загружен',
       data: {
-        url: `${baseUrl}/uploads/${relativePath.replace(/\\/g, '/')}`,
+        url: `/uploads/${relativePath.replace(/\\/g, '/')}`,
         filename: req.file.filename,
         originalname: req.file.originalname,
         mimetype: req.file.mimetype,
@@ -158,7 +156,6 @@ router.post(
       });
     }
 
-    const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
     const relativePath = path.relative(UPLOADS_PATH, req.file.path);
     const thumbnailRelativePath = req.file.thumbnailPath
       ? path.relative(UPLOADS_PATH, req.file.thumbnailPath)
@@ -168,9 +165,9 @@ router.post(
       success: true,
       message: 'Изображение загружено',
       data: {
-        url: `${baseUrl}/uploads/${relativePath.replace(/\\/g, '/')}`,
+        url: `/uploads/${relativePath.replace(/\\/g, '/')}`,
         thumbnail: thumbnailRelativePath
-          ? `${baseUrl}/uploads/${thumbnailRelativePath.replace(/\\/g, '/')}`
+          ? `/uploads/${thumbnailRelativePath.replace(/\\/g, '/')}`
           : null,
         filename: req.file.filename,
         originalname: req.file.originalname,

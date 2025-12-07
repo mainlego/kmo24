@@ -8,11 +8,18 @@ import {
   getProductReviews,
   getRelatedProducts,
   getProductStats,
+  uploadProductImages,
+  deleteProductImage,
 } from '../controllers/products.js';
 import { protect, authorize } from '../middleware/auth.js';
 import { validate, productSchemas } from '../utils/validation.js';
 import { apiLimiter } from '../middleware/rateLimiter.js';
 import asyncHandler from '../middleware/asyncHandler.js';
+import {
+  uploadMultipleImages,
+  processImage,
+  createThumbnail,
+} from '../middleware/upload.js';
 
 const router = express.Router();
 
@@ -83,5 +90,32 @@ router.put(
  * @access  Private (Admin)
  */
 router.delete('/:id', protect, authorize('admin'), asyncHandler(deleteProduct));
+
+/**
+ * @route   POST /api/v1/products/:id/images
+ * @desc    Загрузка изображений товара
+ * @access  Private (Admin, Manager)
+ */
+router.post(
+  '/:id/images',
+  protect,
+  authorize('admin', 'manager'),
+  uploadMultipleImages('images', 10, 'products'),
+  processImage({ width: 1200, quality: 85 }),
+  createThumbnail({ width: 300, height: 300 }),
+  asyncHandler(uploadProductImages)
+);
+
+/**
+ * @route   DELETE /api/v1/products/:id/images/:imageIndex
+ * @desc    Удаление изображения товара
+ * @access  Private (Admin, Manager)
+ */
+router.delete(
+  '/:id/images/:imageIndex',
+  protect,
+  authorize('admin', 'manager'),
+  asyncHandler(deleteProductImage)
+);
 
 export default router;

@@ -1,7 +1,10 @@
+import path from 'path';
+import fs from 'fs/promises';
 import Product from '../models/Product.js';
 import { successResponse, errorResponse, paginatedResponse, createPagination } from '../utils/response.js';
 import { getCache, setCache, deleteCache, deleteCachePattern } from '../config/redis-mock.js';
 import logger from '../utils/logger.js';
+import { UPLOADS_PATH } from '../middleware/upload.js';
 
 /**
  * Получение списка товаров с фильтрацией и пагинацией
@@ -308,6 +311,134 @@ export const getProductStats = async (req, res, next) => {
   }
 };
 
+/**
+ * Загрузка изображений товара
+ * POST /api/v1/products/:id/images
+ */
+export const uploadProductImages = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const product = await Product.findById(id);
+    if (!product) {
+      return errorResponse(res, 'Товар не найден', 404);
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return errorResponse(res, 'Файлы не загружены', 400);
+    }
+
+    // Обрабатываем загруженные файлы
+    const newImages = req.files.map((file, index) => {
+      // Создаем относительный путь от UPLOADS_PATH
+      const relativePath = path.relative(UPLOADS_PATH, file.path);
+      const thumbnailRelativePath = file.thumbnailPath
+        ? path.relative(UPLOADS_PATH, file.thumbnailPath)
+        : null;
+
+      return {
+        url: `/uploads/${relativePath.replace(/\\/g, '/')}`,
+        thumbnail: thumbnailRelativePath
+          ? `/uploads/${thumbnailRelativePath.replace(/\\/g, '/')}`
+          : null,
+        alt: product.name,
+        isPrimary: product.images.length === 0 && index === 0, // Первое изображение - главное
+        sortOrder: product.images.length + index,
+      };
+    });
+
+    // Добавляем новые изображения к существующим
+    product.images.push(...newImages);
+    await product.save();
+
+    // Очистка кэша
+    await deleteCache(`product:${id}`);
+    await deleteCache(`product:${product.slug}`);
+    await deleteCachePattern('products:*');
+
+    logger.info(`Added ${newImages.length} images to product: ${product.name} (${product._id})`);
+
+    return successResponse(res, {
+      images: newImages,
+      totalImages: product.images.length,
+    }, `Загружено ${newImages.length} изображений`);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Удаление изображения товара
+ * DELETE /api/v1/products/:id/images/:imageIndex
+ */
+export const deleteProductImage = async (req, res, next) => {
+  try {
+    const { id, imageIndex } = req.params;
+    const index = parseInt(imageIndex);
+
+    const product = await Product.findById(id);
+    if (!product) {
+      return errorResponse(res, 'Товар не найден', 404);
+    }
+
+    if (index < 0 || index >= product.images.length) {
+      return errorResponse(res, 'Изображение не найдено', 404);
+    }
+
+    const imageToDelete = product.images[index];
+
+    // Удаляем файлы с диска (если они локальные)
+    if (imageToDelete.url && imageToDelete.url.startsWith('/uploads/')) {
+      const filePath = path.join(UPLOADS_PATH, imageToDelete.url.replace('/uploads/', ''));
+      try {
+        await fs.unlink(filePath);
+        logger.info(`Deleted image file: ${filePath}`);
+      } catch (err) {
+        logger.warn(`Failed to delete image file: ${filePath}`, err.message);
+      }
+
+      // Удаляем thumbnail если есть
+      if (imageToDelete.thumbnail && imageToDelete.thumbnail.startsWith('/uploads/')) {
+        const thumbPath = path.join(UPLOADS_PATH, imageToDelete.thumbnail.replace('/uploads/', ''));
+        try {
+          await fs.unlink(thumbPath);
+          logger.info(`Deleted thumbnail file: ${thumbPath}`);
+        } catch (err) {
+          logger.warn(`Failed to delete thumbnail file: ${thumbPath}`, err.message);
+        }
+      }
+    }
+
+    // Удаляем изображение из массива
+    product.images.splice(index, 1);
+
+    // Если удалили главное изображение, делаем первое оставшееся главным
+    if (imageToDelete.isPrimary && product.images.length > 0) {
+      product.images[0].isPrimary = true;
+    }
+
+    // Пересчитываем sortOrder
+    product.images.forEach((img, i) => {
+      img.sortOrder = i;
+    });
+
+    await product.save();
+
+    // Очистка кэша
+    await deleteCache(`product:${id}`);
+    await deleteCache(`product:${product.slug}`);
+    await deleteCachePattern('products:*');
+
+    logger.info(`Deleted image from product: ${product.name} (${product._id})`);
+
+    return successResponse(res, {
+      remainingImages: product.images.length,
+    }, 'Изображение удалено');
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   getProducts,
   getProduct,
@@ -317,4 +448,6 @@ export default {
   getProductReviews,
   getRelatedProducts,
   getProductStats,
+  uploadProductImages,
+  deleteProductImage,
 };
