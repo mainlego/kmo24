@@ -273,40 +273,6 @@
       </div>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="py-20 px-4">
-      <div class="max-w-4xl mx-auto">
-        <div class="text-center mb-16">
-          <h2 class="text-4xl md:text-5xl font-bold mb-4">
-            Частые вопросы о доставке
-          </h2>
-          <div class="w-24 h-1 bg-gradient-to-r from-primary-500 to-primary-light mx-auto rounded-full mt-4"></div>
-        </div>
-
-        <div class="space-y-4">
-          <div v-for="(faq, index) in faqs" :key="index" class="faq-item">
-            <button @click="toggleFaq(index)" class="w-full text-left p-6 bg-white rounded-2xl shadow-md hover:shadow-xl transition-all">
-              <div class="flex justify-between items-center">
-                <h3 class="text-lg font-semibold pr-4">{{ faq.question }}</h3>
-                <svg
-                  class="w-6 h-6 text-gray-400 transition-transform flex-shrink-0"
-                  :class="{ 'rotate-180': faq.isOpen }"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </div>
-              <div v-show="faq.isOpen" class="mt-4 text-gray-600 border-t pt-4">
-                {{ faq.answer }}
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- CTA Section -->
     <section class="py-20 px-4 relative overflow-hidden">
       <div class="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-500 to-primary-light"></div>
@@ -337,8 +303,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
 // SEO Meta
 useHead({
   title: 'Доставка и оплата - КМО24',
@@ -347,39 +311,6 @@ useHead({
     { name: 'keywords', content: 'доставка оборудования, оплата, курьерская доставка, транспортная компания, самовывоз' }
   ]
 })
-
-// FAQs
-const faqs = ref([
-  {
-    question: 'Как рассчитывается стоимость доставки?',
-    answer: 'Стоимость доставки зависит от веса, габаритов груза и расстояния до места доставки. Наш менеджер произведет точный расчет после оформления заказа.',
-    isOpen: false
-  },
-  {
-    question: 'Можно ли отследить заказ?',
-    answer: 'Да, после отправки заказа вы получите трек-номер для отслеживания. Также наш менеджер будет держать вас в курсе на всех этапах доставки.',
-    isOpen: false
-  },
-  {
-    question: 'Что делать, если при получении обнаружен брак?',
-    answer: 'При получении обязательно осмотрите товар. Если обнаружен брак или повреждения - составьте акт с курьером или в пункте выдачи. Мы заменим товар или вернем деньги.',
-    isOpen: false
-  },
-  {
-    question: 'Доставляете ли в другие города?',
-    answer: 'Да, мы доставляем по всей России через транспортные компании. Сроки доставки составляют от 3 до 14 дней в зависимости от региона.',
-    isOpen: false
-  },
-  {
-    question: 'Можно ли забрать заказ самовывозом?',
-    answer: 'Да, вы можете забрать заказ самовывозом из нашего склада. После готовности заказа мы сообщим вам адрес и время работы склада.',
-    isOpen: false
-  }
-])
-
-const toggleFaq = (index) => {
-  faqs.value[index].isOpen = !faqs.value[index].isOpen
-}
 </script>
 
 <style scoped>
@@ -512,16 +443,4 @@ const toggleFaq = (index) => {
   animation: float 20s ease-in-out infinite;
 }
 
-/* FAQ Item */
-.faq-item {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fade-in-up 0.4s ease forwards;
-}
-
-.faq-item:nth-child(1) { animation-delay: 0.1s; }
-.faq-item:nth-child(2) { animation-delay: 0.2s; }
-.faq-item:nth-child(3) { animation-delay: 0.3s; }
-.faq-item:nth-child(4) { animation-delay: 0.4s; }
-.faq-item:nth-child(5) { animation-delay: 0.5s; }
 </style>
