@@ -1,27 +1,11 @@
 <template>
   <div class="delivery-page">
-    <!-- Editor Toolbar -->
-    <EditorToolbar
-      v-if="isEditMode"
-      page-name="Доставка"
-      @save="handleSave"
-      @exit="handleExitEdit"
-    />
-
     <!-- Hero Section -->
     <section class="delivery-hero">
       <!-- Background Image -->
       <div class="hero-background">
-        <EditorEditableImage
-          v-if="isEditMode"
-          element-id="hero_image"
-          default-value="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1920&q=80"
-          alt="Доставка"
-          img-class="hero-bg-image"
-        />
         <img
-          v-else
-          :src="getElementValue('hero_image', 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1920&q=80')"
+          :src="pageEditor.getElementValue('delivery-hero-image', 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1920&q=80')"
           alt="Доставка"
           class="hero-bg-image"
         />
@@ -30,33 +14,27 @@
       </div>
       <div class="container">
         <div class="hero-content">
-          <h1 class="hero-title">
-            <EditorEditableText
-              v-if="isEditMode"
-              element-id="hero_title_1"
-              default-value="Доставка и"
-              tag="span"
-            />
-            <template v-else>{{ getElementValue('hero_title_1', 'Доставка и') }}</template>
-            <span class="gradient-text">
-              <EditorEditableText
-                v-if="isEditMode"
-                element-id="hero_title_2"
-                default-value="оплата"
-                tag="span"
-              />
-              <template v-else>{{ getElementValue('hero_title_2', 'оплата') }}</template>
-            </span>
-          </h1>
-          <p class="hero-subtitle">
-            <EditorEditableText
-              v-if="isEditMode"
-              element-id="hero_subtitle"
-              default-value="Быстрая доставка по всей России и удобные способы оплаты"
-              tag="span"
-            />
-            <template v-else>{{ getElementValue('hero_subtitle', 'Быстрая доставка по всей России и удобные способы оплаты') }}</template>
-          </p>
+          <AdminEditableElement
+            element-id="delivery-hero-title"
+            tag="h1"
+            type="html"
+            label="Заголовок страницы"
+            class="hero-title"
+            :default-value="'Доставка и <span class=\'gradient-text\'>оплата</span>'"
+          >
+            <span v-html="pageEditor.getElementValue('delivery-hero-title', 'Доставка и <span class=\'gradient-text\'>оплата</span>')"></span>
+          </AdminEditableElement>
+
+          <AdminEditableElement
+            element-id="delivery-hero-subtitle"
+            tag="p"
+            type="text"
+            label="Подзаголовок"
+            class="hero-subtitle"
+            default-value="Быстрая доставка по всей России и удобные способы оплаты"
+          >
+            {{ pageEditor.getElementValue('delivery-hero-subtitle', 'Быстрая доставка по всей России и удобные способы оплаты') }}
+          </AdminEditableElement>
         </div>
       </div>
     </section>
@@ -64,8 +42,19 @@
     <!-- Delivery Methods Section -->
     <section class="delivery-methods-section">
       <div class="container">
-        <h2 class="section-title">Способы доставки</h2>
+        <AdminEditableElement
+          element-id="delivery-methods-title"
+          tag="h2"
+          type="text"
+          label="Заголовок секции доставки"
+          class="section-title"
+          default-value="Способы доставки"
+        >
+          {{ pageEditor.getElementValue('delivery-methods-title', 'Способы доставки') }}
+        </AdminEditableElement>
+
         <div class="delivery-grid">
+          <!-- Курьерская доставка -->
           <div class="delivery-card">
             <div class="delivery-icon">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
@@ -75,33 +64,74 @@
                 <path d="M5.5 19V21M10.5 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </div>
-            <h3 class="delivery-title">Курьерская доставка</h3>
-            <p class="delivery-description">
-              Доставим заказ прямо к вашей двери. Курьер свяжется с вами за час до приезда.
-            </p>
+            <AdminEditableElement
+              element-id="delivery-courier-title"
+              tag="h3"
+              type="text"
+              label="Курьерская доставка - Заголовок"
+              class="delivery-title"
+              default-value="Курьерская доставка"
+            >
+              {{ pageEditor.getElementValue('delivery-courier-title', 'Курьерская доставка') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="delivery-courier-desc"
+              tag="p"
+              type="text"
+              label="Курьерская доставка - Описание"
+              class="delivery-description"
+              default-value="Доставим заказ прямо к вашей двери. Курьер свяжется с вами за час до приезда."
+            >
+              {{ pageEditor.getElementValue('delivery-courier-desc', 'Доставим заказ прямо к вашей двери. Курьер свяжется с вами за час до приезда.') }}
+            </AdminEditableElement>
             <div class="delivery-details">
               <div class="detail-item">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
                   <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <span>1-3 рабочих дня</span>
+                <AdminEditableElement
+                  element-id="delivery-courier-time"
+                  tag="span"
+                  type="text"
+                  label="Курьерская - Срок"
+                  default-value="1-3 рабочих дня"
+                >
+                  {{ pageEditor.getElementValue('delivery-courier-time', '1-3 рабочих дня') }}
+                </AdminEditableElement>
               </div>
               <div class="detail-item">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <span>От 500 ₽</span>
+                <AdminEditableElement
+                  element-id="delivery-courier-price"
+                  tag="span"
+                  type="text"
+                  label="Курьерская - Цена"
+                  default-value="От 500 ₽"
+                >
+                  {{ pageEditor.getElementValue('delivery-courier-price', 'От 500 ₽') }}
+                </AdminEditableElement>
               </div>
               <div class="detail-item">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <span>Бесплатно от 5000 ₽</span>
+                <AdminEditableElement
+                  element-id="delivery-courier-free"
+                  tag="span"
+                  type="text"
+                  label="Курьерская - Бесплатно от"
+                  default-value="Бесплатно от 5000 ₽"
+                >
+                  {{ pageEditor.getElementValue('delivery-courier-free', 'Бесплатно от 5000 ₽') }}
+                </AdminEditableElement>
               </div>
             </div>
           </div>
 
+          <!-- Самовывоз -->
           <div class="delivery-card">
             <div class="delivery-icon">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
@@ -109,63 +139,144 @@
                 <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h3 class="delivery-title">Самовывоз</h3>
-            <p class="delivery-description">
-              Заберите заказ из нашего пункта выдачи в удобное для вас время.
-            </p>
+            <AdminEditableElement
+              element-id="delivery-pickup-title"
+              tag="h3"
+              type="text"
+              label="Самовывоз - Заголовок"
+              class="delivery-title"
+              default-value="Самовывоз"
+            >
+              {{ pageEditor.getElementValue('delivery-pickup-title', 'Самовывоз') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="delivery-pickup-desc"
+              tag="p"
+              type="text"
+              label="Самовывоз - Описание"
+              class="delivery-description"
+              default-value="Заберите заказ из нашего пункта выдачи в удобное для вас время."
+            >
+              {{ pageEditor.getElementValue('delivery-pickup-desc', 'Заберите заказ из нашего пункта выдачи в удобное для вас время.') }}
+            </AdminEditableElement>
             <div class="delivery-details">
               <div class="detail-item">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
                   <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <span>1-2 рабочих дня</span>
+                <AdminEditableElement
+                  element-id="delivery-pickup-time"
+                  tag="span"
+                  type="text"
+                  label="Самовывоз - Срок"
+                  default-value="1-2 рабочих дня"
+                >
+                  {{ pageEditor.getElementValue('delivery-pickup-time', '1-2 рабочих дня') }}
+                </AdminEditableElement>
               </div>
               <div class="detail-item">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <span>Бесплатно</span>
+                <AdminEditableElement
+                  element-id="delivery-pickup-price"
+                  tag="span"
+                  type="text"
+                  label="Самовывоз - Цена"
+                  default-value="Бесплатно"
+                >
+                  {{ pageEditor.getElementValue('delivery-pickup-price', 'Бесплатно') }}
+                </AdminEditableElement>
               </div>
               <div class="detail-item">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <span>г. Москва, ул. Тверская, 1</span>
+                <AdminEditableElement
+                  element-id="delivery-pickup-address"
+                  tag="span"
+                  type="text"
+                  label="Самовывоз - Адрес"
+                  default-value="г. Красноярск, ул. Тверская, 1"
+                >
+                  {{ pageEditor.getElementValue('delivery-pickup-address', 'г. Красноярск, ул. Тверская, 1') }}
+                </AdminEditableElement>
               </div>
             </div>
           </div>
 
+          <!-- Экспресс-доставка -->
           <div class="delivery-card">
             <div class="delivery-icon">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
                 <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h3 class="delivery-title">Экспресс-доставка</h3>
-            <p class="delivery-description">
-              Получите заказ в день оформления! Доступно для Москвы и МО.
-            </p>
+            <AdminEditableElement
+              element-id="delivery-express-title"
+              tag="h3"
+              type="text"
+              label="Экспресс-доставка - Заголовок"
+              class="delivery-title"
+              default-value="Экспресс-доставка"
+            >
+              {{ pageEditor.getElementValue('delivery-express-title', 'Экспресс-доставка') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="delivery-express-desc"
+              tag="p"
+              type="text"
+              label="Экспресс-доставка - Описание"
+              class="delivery-description"
+              default-value="Получите заказ в день оформления! Доступно для Красноярска."
+            >
+              {{ pageEditor.getElementValue('delivery-express-desc', 'Получите заказ в день оформления! Доступно для Красноярска.') }}
+            </AdminEditableElement>
             <div class="delivery-details">
               <div class="detail-item">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
                   <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <span>В день заказа</span>
+                <AdminEditableElement
+                  element-id="delivery-express-time"
+                  tag="span"
+                  type="text"
+                  label="Экспресс - Срок"
+                  default-value="В день заказа"
+                >
+                  {{ pageEditor.getElementValue('delivery-express-time', 'В день заказа') }}
+                </AdminEditableElement>
               </div>
               <div class="detail-item">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <span>От 1000 ₽</span>
+                <AdminEditableElement
+                  element-id="delivery-express-price"
+                  tag="span"
+                  type="text"
+                  label="Экспресс - Цена"
+                  default-value="От 1000 ₽"
+                >
+                  {{ pageEditor.getElementValue('delivery-express-price', 'От 1000 ₽') }}
+                </AdminEditableElement>
               </div>
               <div class="detail-item">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <span>Заказ до 12:00</span>
+                <AdminEditableElement
+                  element-id="delivery-express-note"
+                  tag="span"
+                  type="text"
+                  label="Экспресс - Примечание"
+                  default-value="Заказ до 12:00"
+                >
+                  {{ pageEditor.getElementValue('delivery-express-note', 'Заказ до 12:00') }}
+                </AdminEditableElement>
               </div>
             </div>
           </div>
@@ -176,8 +287,19 @@
     <!-- Payment Methods Section -->
     <section class="payment-methods-section">
       <div class="container">
-        <h2 class="section-title">Способы оплаты</h2>
+        <AdminEditableElement
+          element-id="delivery-payment-title"
+          tag="h2"
+          type="text"
+          label="Заголовок секции оплаты"
+          class="section-title"
+          default-value="Способы оплаты"
+        >
+          {{ pageEditor.getElementValue('delivery-payment-title', 'Способы оплаты') }}
+        </AdminEditableElement>
+
         <div class="payment-grid">
+          <!-- Банковская карта -->
           <div class="payment-card">
             <div class="payment-icon">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
@@ -186,38 +308,58 @@
                 <path d="M5 15H9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </div>
-            <h3 class="payment-title">Банковской картой</h3>
-            <p class="payment-description">
-              Принимаем Visa, MasterCard, МИР. Безопасная оплата через защищенное соединение.
-            </p>
+            <AdminEditableElement
+              element-id="payment-card-title"
+              tag="h3"
+              type="text"
+              label="Оплата картой - Заголовок"
+              class="payment-title"
+              default-value="Банковской картой"
+            >
+              {{ pageEditor.getElementValue('payment-card-title', 'Банковской картой') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="payment-card-desc"
+              tag="p"
+              type="text"
+              label="Оплата картой - Описание"
+              class="payment-description"
+              default-value="Принимаем Visa, MasterCard, МИР. Безопасная оплата через защищенное соединение."
+            >
+              {{ pageEditor.getElementValue('payment-card-desc', 'Принимаем Visa, MasterCard, МИР. Безопасная оплата через защищенное соединение.') }}
+            </AdminEditableElement>
           </div>
 
+          <!-- Наличные -->
           <div class="payment-card">
             <div class="payment-icon">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
                 <path d="M12 1V23M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h3 class="payment-title">Наличными</h3>
-            <p class="payment-description">
-              Оплата курьеру при получении заказа или в пункте самовывоза.
-            </p>
+            <AdminEditableElement
+              element-id="payment-cash-title"
+              tag="h3"
+              type="text"
+              label="Оплата наличными - Заголовок"
+              class="payment-title"
+              default-value="Наличными"
+            >
+              {{ pageEditor.getElementValue('payment-cash-title', 'Наличными') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="payment-cash-desc"
+              tag="p"
+              type="text"
+              label="Оплата наличными - Описание"
+              class="payment-description"
+              default-value="Оплата курьеру при получении заказа или в пункте самовывоза."
+            >
+              {{ pageEditor.getElementValue('payment-cash-desc', 'Оплата курьеру при получении заказа или в пункте самовывоза.') }}
+            </AdminEditableElement>
           </div>
 
-          <div class="payment-card">
-            <div class="payment-icon">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <h3 class="payment-title">Электронными деньгами</h3>
-            <p class="payment-description">
-              Поддерживаем ЮMoney, QIWI, WebMoney и другие платежные системы.
-            </p>
-          </div>
-
+          <!-- Безнал -->
           <div class="payment-card">
             <div class="payment-icon">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
@@ -225,10 +367,26 @@
                 <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h3 class="payment-title">Банковский перевод</h3>
-            <p class="payment-description">
-              Оплата по счету для юридических лиц с НДС или без НДС.
-            </p>
+            <AdminEditableElement
+              element-id="payment-invoice-title"
+              tag="h3"
+              type="text"
+              label="Безналичная оплата - Заголовок"
+              class="payment-title"
+              default-value="Банковский перевод"
+            >
+              {{ pageEditor.getElementValue('payment-invoice-title', 'Банковский перевод') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="payment-invoice-desc"
+              tag="p"
+              type="text"
+              label="Безналичная оплата - Описание"
+              class="payment-description"
+              default-value="Оплата по счету для юридических лиц с НДС или без НДС."
+            >
+              {{ pageEditor.getElementValue('payment-invoice-desc', 'Оплата по счету для юридических лиц с НДС или без НДС.') }}
+            </AdminEditableElement>
           </div>
         </div>
       </div>
@@ -237,45 +395,119 @@
     <!-- Process Section -->
     <section class="process-section">
       <div class="container">
-        <h2 class="section-title">Как происходит доставка</h2>
+        <AdminEditableElement
+          element-id="delivery-process-title"
+          tag="h2"
+          type="text"
+          label="Заголовок секции процесса"
+          class="section-title"
+          default-value="Как происходит доставка"
+        >
+          {{ pageEditor.getElementValue('delivery-process-title', 'Как происходит доставка') }}
+        </AdminEditableElement>
+
         <div class="process-steps">
           <div class="process-step">
             <div class="step-number">1</div>
             <div class="step-content">
-              <h3 class="step-title">Оформление заказа</h3>
-              <p class="step-description">
-                Выберите товары, добавьте их в корзину и оформите заказ с указанием адреса доставки.
-              </p>
+              <AdminEditableElement
+                element-id="process-step1-title"
+                tag="h3"
+                type="text"
+                label="Шаг 1 - Заголовок"
+                class="step-title"
+                default-value="Оформление заказа"
+              >
+                {{ pageEditor.getElementValue('process-step1-title', 'Оформление заказа') }}
+              </AdminEditableElement>
+              <AdminEditableElement
+                element-id="process-step1-desc"
+                tag="p"
+                type="text"
+                label="Шаг 1 - Описание"
+                class="step-description"
+                default-value="Выберите товары, добавьте их в корзину и оформите заказ с указанием адреса доставки."
+              >
+                {{ pageEditor.getElementValue('process-step1-desc', 'Выберите товары, добавьте их в корзину и оформите заказ с указанием адреса доставки.') }}
+              </AdminEditableElement>
             </div>
           </div>
 
           <div class="process-step">
             <div class="step-number">2</div>
             <div class="step-content">
-              <h3 class="step-title">Подтверждение</h3>
-              <p class="step-description">
-                Наш менеджер свяжется с вами для подтверждения заказа и уточнения деталей.
-              </p>
+              <AdminEditableElement
+                element-id="process-step2-title"
+                tag="h3"
+                type="text"
+                label="Шаг 2 - Заголовок"
+                class="step-title"
+                default-value="Подтверждение"
+              >
+                {{ pageEditor.getElementValue('process-step2-title', 'Подтверждение') }}
+              </AdminEditableElement>
+              <AdminEditableElement
+                element-id="process-step2-desc"
+                tag="p"
+                type="text"
+                label="Шаг 2 - Описание"
+                class="step-description"
+                default-value="Наш менеджер свяжется с вами для подтверждения заказа и уточнения деталей."
+              >
+                {{ pageEditor.getElementValue('process-step2-desc', 'Наш менеджер свяжется с вами для подтверждения заказа и уточнения деталей.') }}
+              </AdminEditableElement>
             </div>
           </div>
 
           <div class="process-step">
             <div class="step-number">3</div>
             <div class="step-content">
-              <h3 class="step-title">Сборка и отправка</h3>
-              <p class="step-description">
-                Мы тщательно упакуем ваш заказ и передадим его курьеру или в пункт выдачи.
-              </p>
+              <AdminEditableElement
+                element-id="process-step3-title"
+                tag="h3"
+                type="text"
+                label="Шаг 3 - Заголовок"
+                class="step-title"
+                default-value="Сборка и отправка"
+              >
+                {{ pageEditor.getElementValue('process-step3-title', 'Сборка и отправка') }}
+              </AdminEditableElement>
+              <AdminEditableElement
+                element-id="process-step3-desc"
+                tag="p"
+                type="text"
+                label="Шаг 3 - Описание"
+                class="step-description"
+                default-value="Мы тщательно упакуем ваш заказ и передадим его курьеру или в пункт выдачи."
+              >
+                {{ pageEditor.getElementValue('process-step3-desc', 'Мы тщательно упакуем ваш заказ и передадим его курьеру или в пункт выдачи.') }}
+              </AdminEditableElement>
             </div>
           </div>
 
           <div class="process-step">
             <div class="step-number">4</div>
             <div class="step-content">
-              <h3 class="step-title">Получение</h3>
-              <p class="step-description">
-                Получите заказ, проверьте комплектность и оплатите удобным способом.
-              </p>
+              <AdminEditableElement
+                element-id="process-step4-title"
+                tag="h3"
+                type="text"
+                label="Шаг 4 - Заголовок"
+                class="step-title"
+                default-value="Получение"
+              >
+                {{ pageEditor.getElementValue('process-step4-title', 'Получение') }}
+              </AdminEditableElement>
+              <AdminEditableElement
+                element-id="process-step4-desc"
+                tag="p"
+                type="text"
+                label="Шаг 4 - Описание"
+                class="step-description"
+                default-value="Получите заказ, проверьте комплектность и оплатите удобным способом."
+              >
+                {{ pageEditor.getElementValue('process-step4-desc', 'Получите заказ, проверьте комплектность и оплатите удобным способом.') }}
+              </AdminEditableElement>
             </div>
           </div>
         </div>
@@ -286,12 +518,36 @@
     <section class="cta-section">
       <div class="container">
         <div class="cta-content">
-          <h2 class="cta-title">Готовы сделать заказ?</h2>
-          <p class="cta-subtitle">
-            Выберите товары и мы доставим их в удобное для вас время
-          </p>
+          <AdminEditableElement
+            element-id="delivery-cta-title"
+            tag="h2"
+            type="text"
+            label="CTA - Заголовок"
+            class="cta-title"
+            default-value="Готовы сделать заказ?"
+          >
+            {{ pageEditor.getElementValue('delivery-cta-title', 'Готовы сделать заказ?') }}
+          </AdminEditableElement>
+          <AdminEditableElement
+            element-id="delivery-cta-subtitle"
+            tag="p"
+            type="text"
+            label="CTA - Подзаголовок"
+            class="cta-subtitle"
+            default-value="Выберите товары и мы доставим их в удобное для вас время"
+          >
+            {{ pageEditor.getElementValue('delivery-cta-subtitle', 'Выберите товары и мы доставим их в удобное для вас время') }}
+          </AdminEditableElement>
           <NuxtLink to="/products" class="btn btn-primary btn-lg">
-            <span>Перейти в каталог</span>
+            <AdminEditableElement
+              element-id="delivery-cta-btn"
+              tag="span"
+              type="text"
+              label="CTA - Кнопка"
+              default-value="Перейти в каталог"
+            >
+              {{ pageEditor.getElementValue('delivery-cta-btn', 'Перейти в каталог') }}
+            </AdminEditableElement>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -303,35 +559,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from 'vue';
-
-const route = useRoute();
-const router = useRouter();
+import { onMounted } from 'vue';
+import { usePageEditor } from '../../composables/usePageEditor';
 
 // Page Editor
-const { isEditMode, getElementValue, enableEditMode, disableEditMode } = usePageEditor();
+const pageEditor = usePageEditor();
 
-// Check for edit mode from query param
+// Load saved content on mount
 onMounted(async () => {
-  if (route.query.edit === 'true') {
-    await enableEditMode('delivery');
-  }
+  await pageEditor.loadPageContent('delivery');
 });
-
-// Watch for route changes to disable edit mode
-watch(() => route.query.edit, (newVal) => {
-  if (newVal !== 'true' && isEditMode.value) {
-    disableEditMode();
-  }
-});
-
-const handleSave = () => {
-  // Page saved successfully
-};
-
-const handleExitEdit = () => {
-  router.push('/admin/pages');
-};
 
 useHead({
   title: 'Доставка и оплата',
@@ -404,12 +641,12 @@ useHead({
   margin-bottom: $spacing-lg;
   line-height: 1.2;
   text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
 
-.gradient-text {
-  display: inline-block;
-  color: $white;
-  text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+  :deep(.gradient-text) {
+    display: inline-block;
+    color: $white;
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+  }
 }
 
 .hero-subtitle {
@@ -677,6 +914,4 @@ useHead({
     transform: translateX(4px);
   }
 }
-
-// Container is defined globally in main.scss
 </style>
