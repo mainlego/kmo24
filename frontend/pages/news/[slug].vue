@@ -71,10 +71,23 @@
           </div>
         </header>
 
-        <!-- Featured Image -->
-        <div v-if="newsItem.thumbnail || newsItem.images?.length" class="news-article__image">
+        <!-- Video -->
+        <div v-if="newsItem.video?.url" class="news-article__video">
+          <video
+            controls
+            playsinline
+            :class="{ 'video-note': newsItem.video.isVideoNote }"
+            :poster="newsItem.thumbnail"
+          >
+            <source :src="getMediaUrl(newsItem.video.url)" type="video/mp4" />
+            Ваш браузер не поддерживает воспроизведение видео.
+          </video>
+        </div>
+
+        <!-- Featured Image (only if no video) -->
+        <div v-else-if="newsItem.thumbnail || newsItem.images?.length" class="news-article__image">
           <img
-            :src="newsItem.thumbnail || newsItem.images[0]?.url"
+            :src="getMediaUrl(newsItem.thumbnail || newsItem.images[0]?.url)"
             :alt="newsItem.title"
           />
         </div>
@@ -92,7 +105,7 @@
               class="gallery-item"
               @click="openLightbox(index)"
             >
-              <img :src="image.url" :alt="image.alt || `Изображение ${index + 1}`" />
+              <img :src="getMediaUrl(image.url)" :alt="image.alt || `Изображение ${index + 1}`" />
             </div>
           </div>
         </div>
@@ -181,7 +194,7 @@
           <div class="lightbox__content" @click.stop>
             <img
               v-if="newsItem?.images?.[lightboxIndex]"
-              :src="newsItem.images[lightboxIndex].url"
+              :src="getMediaUrl(newsItem.images[lightboxIndex].url)"
               :alt="newsItem.images[lightboxIndex].alt || newsItem.title"
             />
             <div class="lightbox__counter">
@@ -202,6 +215,15 @@ interface NewsImage {
   alt?: string;
 }
 
+interface NewsVideo {
+  url: string;
+  duration?: number;
+  width?: number;
+  height?: number;
+  isVideoNote?: boolean;
+  isAnimation?: boolean;
+}
+
 interface NewsItem {
   _id: string;
   title: string;
@@ -210,6 +232,7 @@ interface NewsItem {
   excerpt?: string;
   thumbnail?: string;
   images?: NewsImage[];
+  video?: NewsVideo;
   tags?: string[];
   publishedAt: string;
   telegramMessageId?: number;
@@ -250,6 +273,20 @@ const formatDate = (dateStr: string): string => {
     month: 'long',
     year: 'numeric',
   }).format(date);
+};
+
+// Get full media URL (handle relative paths from backend)
+const getMediaUrl = (url: string | undefined): string => {
+  if (!url) return '/images/news-placeholder.jpg';
+  // If it's already a full URL, return as is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  // If it's a relative path starting with /uploads, prepend API base
+  if (url.startsWith('/uploads')) {
+    return `${apiBase.replace('/api/v1', '')}${url}`;
+  }
+  return url;
 };
 
 // Format content with line breaks
@@ -508,6 +545,26 @@ useHead(() => ({
 
       &:hover {
         background: rgba($primary-500, 0.2);
+      }
+    }
+  }
+
+  &__video {
+    width: 100%;
+    background: $gray-900;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    video {
+      max-width: 100%;
+      max-height: 70vh;
+
+      &.video-note {
+        border-radius: 50%;
+        max-width: 400px;
+        max-height: 400px;
+        margin: 20px auto;
       }
     }
   }

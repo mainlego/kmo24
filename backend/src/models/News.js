@@ -44,6 +44,16 @@ const newsSchema = new mongoose.Schema(
       type: String,
     },
 
+    // Видео контент
+    video: {
+      url: String,
+      duration: Number,
+      width: Number,
+      height: Number,
+      isVideoNote: Boolean, // Круглое видео
+      isAnimation: Boolean, // GIF
+    },
+
     // Хэштеги
     tags: [String],
 
@@ -52,6 +62,9 @@ const newsSchema = new mongoose.Schema(
 
     // ID поста в Telegram
     telegramMessageId: Number,
+
+    // ID группы медиа в Telegram (для постов с несколькими фото)
+    telegramMediaGroupId: String,
 
     // Ссылка на пост в Telegram
     telegramUrl: String,
@@ -117,6 +130,7 @@ newsSchema.index({ publishedAt: -1 });
 newsSchema.index({ isPublished: 1 });
 newsSchema.index({ tags: 1 });
 newsSchema.index({ telegramMessageId: 1 });
+newsSchema.index({ telegramMediaGroupId: 1 });
 newsSchema.index({ priority: -1 });
 
 // Текстовый индекс для поиска

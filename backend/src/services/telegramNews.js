@@ -2,6 +2,14 @@ import News from '../models/News.js';
 import logger from '../utils/logger.js';
 import config from '../config/index.js';
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import { pipeline } from 'stream/promises';
+import { Readable } from 'stream';
+
+// Путь для сохранения загруженных файлов
+const UPLOADS_DIR = process.env.UPLOADS_PATH || path.join(process.cwd(), 'uploads');
+const NEWS_UPLOADS_DIR = path.join(UPLOADS_DIR, 'news');
 
 /**
  * Сервис для интеграции с Telegram каналом
@@ -95,6 +103,52 @@ export const getFileUrl = (botToken, filePath) => {
 };
 
 /**
+ * Скачивание и сохранение файла из Telegram
+ * Возвращает локальный URL для доступа к файлу
+ */
+export const downloadAndSaveFile = async (botToken, fileId, type = 'image') => {
+  try {
+    // Создаем директорию если не существует
+    if (!fs.existsSync(NEWS_UPLOADS_DIR)) {
+      fs.mkdirSync(NEWS_UPLOADS_DIR, { recursive: true });
+    }
+
+    // Получаем информацию о файле
+    const fileInfo = await getFileInfo(botToken, fileId);
+    if (!fileInfo || !fileInfo.file_path) {
+      logger.error('Failed to get file info for', fileId);
+      return null;
+    }
+
+    // Определяем расширение файла
+    const ext = path.extname(fileInfo.file_path) || (type === 'video' ? '.mp4' : '.jpg');
+    const fileName = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}${ext}`;
+    const localPath = path.join(NEWS_UPLOADS_DIR, fileName);
+
+    // URL файла на серверах Telegram
+    const fileUrl = getFileUrl(botToken, fileInfo.file_path);
+
+    // Скачиваем файл
+    const response = await fetch(fileUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to download file: ${response.status}`);
+    }
+
+    // Сохраняем файл локально
+    const fileStream = fs.createWriteStream(localPath);
+    await pipeline(Readable.fromWeb(response.body), fileStream);
+
+    logger.info(`File downloaded: ${fileName}`);
+
+    // Возвращаем относительный URL для доступа к файлу
+    return `/uploads/news/${fileName}`;
+  } catch (error) {
+    logger.error('Error downloading file:', error);
+    return null;
+  }
+};
+
+/**
  * Генерация slug из заголовка
  */
 const generateSlug = (title) => {
@@ -152,6 +206,7 @@ const extractTitle = (text) => {
 
 /**
  * Обработка поста из Telegram и создание новости
+ * Поддерживает: одиночные фото, media groups (несколько фото), видео
  */
 export const processChannelPost = async (post, botToken) => {
   try {
@@ -159,9 +214,36 @@ export const processChannelPost = async (post, botToken) => {
     const chatId = post.chat?.id;
     const text = post.text || post.caption || '';
     const date = new Date(post.date * 1000);
+    const mediaGroupId = post.media_group_id;
 
-    // Проверяем, не существует ли уже такая новость
-    const existingNews = await News.findOne({ telegramMessageId: messageId });
+    // Если это часть media group, проверяем существующую новость по media_group_id
+    let existingNews = null;
+    if (mediaGroupId) {
+      existingNews = await News.findOne({ telegramMediaGroupId: mediaGroupId });
+    } else {
+      existingNews = await News.findOne({ telegramMessageId: messageId });
+    }
+
+    // Если новость существует и это media group - добавляем изображения к существующей
+    if (existingNews && mediaGroupId) {
+      // Обработка дополнительных изображений для media group
+      if (post.photo && post.photo.length > 0) {
+        const largestPhoto = post.photo[post.photo.length - 1];
+        const imageUrl = await downloadAndSaveFile(botToken, largestPhoto.file_id, 'image');
+
+        if (imageUrl) {
+          existingNews.images.push({
+            url: imageUrl,
+            alt: existingNews.title,
+          });
+          await existingNews.save();
+          logger.info(`Added image to existing news media group: ${existingNews._id}`);
+        }
+      }
+      return null;
+    }
+
+    // Новость уже существует (не media group)
     if (existingNews) {
       logger.info(`News already exists for Telegram message ${messageId}`);
       return null;
@@ -173,22 +255,82 @@ export const processChannelPost = async (post, botToken) => {
     const content = text;
     const excerpt = text.slice(0, 300) + (text.length > 300 ? '...' : '');
 
-    // Обработка изображений
+    // Обработка медиа-контента
     let thumbnail = null;
     const images = [];
+    let video = null;
 
+    // Обработка фото
     if (post.photo && post.photo.length > 0) {
-      // Берем самое большое изображение
+      // Берем самое большое изображение (последнее в массиве)
       const largestPhoto = post.photo[post.photo.length - 1];
-      const fileInfo = await getFileInfo(botToken, largestPhoto.file_id);
+      const imageUrl = await downloadAndSaveFile(botToken, largestPhoto.file_id, 'image');
 
-      if (fileInfo) {
-        const imageUrl = getFileUrl(botToken, fileInfo.file_path);
+      if (imageUrl) {
         thumbnail = imageUrl;
         images.push({
           url: imageUrl,
           alt: title,
         });
+      }
+    }
+
+    // Обработка видео
+    if (post.video) {
+      const videoUrl = await downloadAndSaveFile(botToken, post.video.file_id, 'video');
+      if (videoUrl) {
+        video = {
+          url: videoUrl,
+          duration: post.video.duration,
+          width: post.video.width,
+          height: post.video.height,
+        };
+
+        // Если есть thumbnail видео, используем его
+        if (post.video.thumb) {
+          const thumbUrl = await downloadAndSaveFile(botToken, post.video.thumb.file_id, 'image');
+          if (thumbUrl) {
+            thumbnail = thumbUrl;
+          }
+        }
+      }
+    }
+
+    // Обработка video_note (круглые видео)
+    if (post.video_note) {
+      const videoUrl = await downloadAndSaveFile(botToken, post.video_note.file_id, 'video');
+      if (videoUrl) {
+        video = {
+          url: videoUrl,
+          duration: post.video_note.duration,
+          isVideoNote: true,
+        };
+
+        if (post.video_note.thumb) {
+          const thumbUrl = await downloadAndSaveFile(botToken, post.video_note.thumb.file_id, 'image');
+          if (thumbUrl) {
+            thumbnail = thumbUrl;
+          }
+        }
+      }
+    }
+
+    // Обработка анимаций (GIF)
+    if (post.animation) {
+      const animationUrl = await downloadAndSaveFile(botToken, post.animation.file_id, 'video');
+      if (animationUrl) {
+        video = {
+          url: animationUrl,
+          duration: post.animation.duration,
+          isAnimation: true,
+        };
+
+        if (post.animation.thumb) {
+          const thumbUrl = await downloadAndSaveFile(botToken, post.animation.thumb.file_id, 'image');
+          if (thumbUrl) {
+            thumbnail = thumbUrl;
+          }
+        }
       }
     }
 
@@ -201,7 +343,9 @@ export const processChannelPost = async (post, botToken) => {
       tags,
       thumbnail,
       images,
+      video,
       telegramMessageId: messageId,
+      telegramMediaGroupId: mediaGroupId || null,
       telegramDate: date,
       telegramUrl: chatId ? `https://t.me/c/${String(chatId).replace('-100', '')}/${messageId}` : null,
       type: 'news',

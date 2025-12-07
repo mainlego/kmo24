@@ -42,7 +42,7 @@
         >
           <div class="news-card__image">
             <img
-              :src="item.thumbnail || '/images/news-placeholder.jpg'"
+              :src="getMediaUrl(item.thumbnail)"
               :alt="item.title"
             />
             <div v-if="item.telegramMessageId" class="news-card__badge">
@@ -164,6 +164,20 @@ const formatDate = (dateStr: string): string => {
     month: 'long',
     year: 'numeric',
   }).format(date);
+};
+
+// Get full media URL (handle relative paths from backend)
+const getMediaUrl = (url: string | undefined): string => {
+  if (!url) return '/images/news-placeholder.jpg';
+  // If it's already a full URL, return as is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  // If it's a relative path starting with /uploads, prepend API base
+  if (url.startsWith('/uploads')) {
+    return `${apiBase.replace('/api/v1', '')}${url}`;
+  }
+  return url;
 };
 
 const fetchNews = async () => {
