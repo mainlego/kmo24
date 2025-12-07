@@ -1,7 +1,7 @@
 <template>
   <div class="contacts-page">
     <!-- Editor Toolbar -->
-    <EditorEditorToolbar
+    <EditorToolbar
       v-if="isEditMode"
       page-name="Контакты"
       @save="handleSave"

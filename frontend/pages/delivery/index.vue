@@ -1,7 +1,7 @@
 <template>
   <div class="delivery-page">
     <!-- Editor Toolbar -->
-    <EditorEditorToolbar
+    <EditorToolbar
       v-if="isEditMode"
       page-name="Доставка"
       @save="handleSave"

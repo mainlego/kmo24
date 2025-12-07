@@ -41,7 +41,7 @@ export function usePageEditor() {
     try {
       const response = await fetch(`${apiBase}/settings/pages/${pageId}`, {
         headers: {
-          Authorization: `Bearer ${authStore.token}`,
+          Authorization: `Bearer ${authStore.accessToken}`,
         },
       });
       const data = await response.json();
@@ -108,7 +108,7 @@ export function usePageEditor() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${authStore.token}`,
+          Authorization: `Bearer ${authStore.accessToken}`,
         },
         body: JSON.stringify({ content: mergedContent }),
       });

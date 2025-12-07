@@ -186,7 +186,7 @@ const uploadFile = async (file: File) => {
     const response = await fetch(`${config.public.apiBaseUrl}/uploads/image`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${authStore.token}`,
+        Authorization: `Bearer ${authStore.accessToken}`,
       },
       body: formData,
     });
