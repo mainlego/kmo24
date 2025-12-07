@@ -70,18 +70,21 @@ const allowedOrigins = Array.isArray(config.cors.origin)
 console.log('CORS_ORIGIN env:', process.env.CORS_ORIGIN);
 console.log('Allowed CORS origins:', allowedOrigins);
 
-// Простой и надёжный CORS middleware
+// Безопасный CORS middleware - проверяем origin по whitelist
 app.use((req, res, next) => {
   const origin = req.headers.origin;
 
-  // Всегда устанавливаем CORS заголовки
-  if (origin) {
+  // Проверяем origin по whitelist для credentials
+  if (origin && allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
-  } else {
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  } else if (!origin) {
+    // Запросы без origin (например, серверные) - разрешаем без credentials
     res.setHeader('Access-Control-Allow-Origin', '*');
+    // НЕ устанавливаем Allow-Credentials для wildcard
   }
+  // Для неизвестных origins - не устанавливаем CORS headers (запрос будет заблокирован браузером)
 
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Session-ID, X-Requested-With, Accept, Origin');
   res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours

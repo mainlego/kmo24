@@ -1,27 +1,5 @@
 import { defineStore } from 'pinia';
-import { useLeads } from '~/composables/useLeads';
-
-export interface Lead {
-  _id: string;
-  id?: string; // для обратной совместимости
-  name: string;
-  email: string;
-  phone: string;
-  company?: string;
-  companyType?: string;
-  budget?: number;
-  dealValue?: number; // для обратной совместимости
-  status: 'new' | 'contacted' | 'qualified' | 'negotiation' | 'won' | 'lost';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  manager?: string;
-  assignedTo?: any;
-  createdAt: string;
-  notes?: string;
-  message?: string;
-  source: string;
-  tags?: string[];
-  interactions?: any[];
-}
+import { useLeads, type Lead } from '~/composables/useLeads';
 
 interface CRMState {
   leads: Lead[];

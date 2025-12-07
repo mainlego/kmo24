@@ -111,6 +111,8 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 
+const { apiFetch } = useApi();
+
 interface NewsItem {
   _id: string;
   title: string;
@@ -204,8 +206,7 @@ const fetchNews = async () => {
       params.append('tag', selectedTag.value);
     }
 
-    const response = await fetch(`${apiBase}/news?${params}`);
-    const data = await response.json();
+    const data = await apiFetch<{ success: boolean; data: NewsItem[]; pagination: Pagination }>(`/news?${params}`);
 
     if (data.success) {
       news.value = data.data;
@@ -220,8 +221,7 @@ const fetchNews = async () => {
 
 const fetchTags = async () => {
   try {
-    const response = await fetch(`${apiBase}/news/tags/all`);
-    const data = await response.json();
+    const data = await apiFetch<{ success: boolean; data: Tag[] }>('/news/tags/all');
 
     if (data.success) {
       tags.value = data.data;

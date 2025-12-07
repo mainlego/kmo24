@@ -64,10 +64,26 @@ export const reviewLimiter = rateLimit({
   },
 });
 
+/**
+ * Rate limiter для публичных форм (callback, consultation, sell-equipment)
+ * Защита от спама и ботов
+ */
+export const publicFormsLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 час
+  max: 5, // 5 заявок в час с одного IP
+  message: {
+    success: false,
+    error: 'Слишком много заявок, попробуйте позже',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 export default {
   generalLimiter,
   authLimiter,
   apiLimiter,
   orderLimiter,
   reviewLimiter,
+  publicFormsLimiter,
 };

@@ -172,7 +172,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const { getProductImageUrl } = useMediaUrl();
 
@@ -366,6 +366,11 @@ onMounted(async () => {
   } finally {
     isLoading.value = false;
   }
+});
+
+// Cleanup: restore body overflow if component unmounts while lightbox is open
+onUnmounted(() => {
+  document.body.style.overflow = '';
 });
 </script>
 

@@ -71,7 +71,7 @@ export const useCart = () => {
   };
 
   /**
-   * Добавить товар в корзину (только 1 экземпляр)
+   * Добавить товар в корзину
    */
   const addToCart = async (productId: string, quantity: number = 1, variant?: { name: string; value: string }) => {
     try {
@@ -80,7 +80,7 @@ export const useCart = () => {
         method: 'POST',
         body: {
           productId,
-          quantity: 1, // Всегда добавляем только 1 товар
+          quantity, // Используем переданное количество
           variant,
         },
       });

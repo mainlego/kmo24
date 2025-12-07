@@ -2,13 +2,14 @@ import express from 'express';
 import * as leadsController from '../controllers/leads.js';
 import { protect, authorize } from '../middleware/auth.js';
 import asyncHandler from '../middleware/asyncHandler.js';
+import { publicFormsLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
-// Публичные маршруты (без авторизации)
-router.post('/callback', asyncHandler(leadsController.createCallbackRequest));
-router.post('/sell-equipment', asyncHandler(leadsController.createSellEquipmentRequest));
-router.post('/consultation', asyncHandler(leadsController.createConsultationRequest));
+// Публичные маршруты (без авторизации) - с rate limiting для защиты от спама
+router.post('/callback', publicFormsLimiter, asyncHandler(leadsController.createCallbackRequest));
+router.post('/sell-equipment', publicFormsLimiter, asyncHandler(leadsController.createSellEquipmentRequest));
+router.post('/consultation', publicFormsLimiter, asyncHandler(leadsController.createConsultationRequest));
 
 // Все остальные маршруты требуют аутентификации
 router.use(protect);

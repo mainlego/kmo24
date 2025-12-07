@@ -58,6 +58,11 @@ export interface RefreshTokenResponse {
   };
 }
 
+export interface UserResponse {
+  success: boolean;
+  data: User;
+}
+
 // ===== PRODUCT TYPES =====
 
 export interface Product {

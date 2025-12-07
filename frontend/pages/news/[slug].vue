@@ -211,7 +211,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+
+const { apiFetch } = useApi();
 
 interface NewsImage {
   url: string;
@@ -381,15 +383,13 @@ const fetchNews = async () => {
   error.value = '';
 
   try {
-    const response = await fetch(`${apiBase}/news/${slug.value}`);
-    const data = await response.json();
+    const data = await apiFetch<{ success: boolean; data: NewsItem; message?: string }>(`/news/${slug.value}`);
 
     if (data.success) {
       newsItem.value = data.data;
 
       // Fetch related news
-      const relatedResponse = await fetch(`${apiBase}/news/${newsItem.value?._id}/related?limit=3`);
-      const relatedData = await relatedResponse.json();
+      const relatedData = await apiFetch<{ success: boolean; data: NewsItem[] }>(`/news/${newsItem.value?._id}/related?limit=3`);
       if (relatedData.success) {
         relatedNews.value = relatedData.data;
       }
@@ -406,6 +406,11 @@ const fetchNews = async () => {
 
 onMounted(() => {
   fetchNews();
+});
+
+// Cleanup: restore body overflow if component unmounts while lightbox is open
+onUnmounted(() => {
+  document.body.style.overflow = '';
 });
 
 // SEO

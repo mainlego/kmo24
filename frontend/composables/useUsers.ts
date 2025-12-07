@@ -1,37 +1,4 @@
-export interface User {
-  _id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  fullName: string;
-  phone?: string;
-  role: 'user' | 'admin' | 'manager';
-  avatar?: string;
-  isEmailVerified: boolean;
-  isActive: boolean;
-  lastLogin?: string;
-  addresses?: Array<{
-    type: 'home' | 'work' | 'other';
-    country?: string;
-    city?: string;
-    street?: string;
-    building?: string;
-    apartment?: string;
-    postalCode?: string;
-    isDefault: boolean;
-  }>;
-  notifications?: {
-    email: {
-      orders: boolean;
-      promotions: boolean;
-      news: boolean;
-    };
-    sms: {
-      orders: boolean;
-    };
-  };
-  createdAt: string;
-}
+import type { User, UserResponse } from '~/types';
 
 export interface UsersResponse {
   success: boolean;
@@ -42,11 +9,6 @@ export interface UsersResponse {
     pages: number;
     limit: number;
   };
-}
-
-export interface UserResponse {
-  success: boolean;
-  data: User;
 }
 
 export interface UserFilters {
