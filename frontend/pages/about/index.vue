@@ -1,8 +1,8 @@
 <template>
   <div class="about-page">
     <PageHeader
-      title="О компании КМО24"
-      description="Комиссионный магазин профессионального оборудования для кафе и ресторанов"
+      :title="pageEditor.getElementValue('about-header-title', 'О компании КМО24')"
+      :description="pageEditor.getElementValue('about-header-description', 'Комиссионный магазин профессионального оборудования для кафе и ресторанов')"
       background-image="https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=1920&h=400&fit=crop"
       :breadcrumbs="[{ text: 'О компании' }]"
     />
@@ -12,16 +12,36 @@
       <div class="container">
         <div class="story-grid">
           <div class="story-content">
-            <h2 class="section-title">Наша история</h2>
-            <p class="story-text">
-              КМО24 - комиссионный магазин оборудования для кафе и ресторанов в Красноярске.
-              Мы специализируемся на реализации б/у пищевого и хлебопекарного оборудования высокого качества.
-            </p>
-            <p class="story-text">
-              ИП Нижник Виталий Робертович предлагает широкий ассортимент профессионального оборудования:
-              от тепловых плит и печей до мясоперерабатывающих машин и холодильного оборудования.
-              Мы помогаем ресторанам и кафе экономить, предлагая качественное оборудование по доступным ценам.
-            </p>
+            <AdminEditableElement
+              element-id="about-story-title"
+              tag="h2"
+              type="text"
+              label="Заголовок истории"
+              class="section-title"
+              :default-value="'Наша история'"
+            >
+              {{ pageEditor.getElementValue('about-story-title', 'Наша история') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="about-story-text1"
+              tag="p"
+              type="text"
+              label="Текст истории (параграф 1)"
+              class="story-text"
+              :default-value="'КМО24 - комиссионный магазин оборудования для кафе и ресторанов в Красноярске. Мы специализируемся на реализации б/у пищевого и хлебопекарного оборудования высокого качества.'"
+            >
+              {{ pageEditor.getElementValue('about-story-text1', 'КМО24 - комиссионный магазин оборудования для кафе и ресторанов в Красноярске. Мы специализируемся на реализации б/у пищевого и хлебопекарного оборудования высокого качества.') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="about-story-text2"
+              tag="p"
+              type="text"
+              label="Текст истории (параграф 2)"
+              class="story-text"
+              :default-value="'ИП Нижник Виталий Робертович предлагает широкий ассортимент профессионального оборудования: от тепловых плит и печей до мясоперерабатывающих машин и холодильного оборудования. Мы помогаем ресторанам и кафе экономить, предлагая качественное оборудование по доступным ценам.'"
+            >
+              {{ pageEditor.getElementValue('about-story-text2', 'ИП Нижник Виталий Робертович предлагает широкий ассортимент профессионального оборудования: от тепловых плит и печей до мясоперерабатывающих машин и холодильного оборудования. Мы помогаем ресторанам и кафе экономить, предлагая качественное оборудование по доступным ценам.') }}
+            </AdminEditableElement>
             <div class="story-features">
               <div class="feature-item">
                 <div class="feature-icon">
@@ -29,7 +49,15 @@
                     <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </div>
-                <span>Проверенное б/у оборудование</span>
+                <AdminEditableElement
+                  element-id="about-feature1"
+                  tag="span"
+                  type="text"
+                  label="Преимущество 1"
+                  :default-value="'Проверенное б/у оборудование'"
+                >
+                  {{ pageEditor.getElementValue('about-feature1', 'Проверенное б/у оборудование') }}
+                </AdminEditableElement>
               </div>
               <div class="feature-item">
                 <div class="feature-icon">
@@ -37,7 +65,15 @@
                     <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </div>
-                <span>Выгодные цены</span>
+                <AdminEditableElement
+                  element-id="about-feature2"
+                  tag="span"
+                  type="text"
+                  label="Преимущество 2"
+                  :default-value="'Выгодные цены'"
+                >
+                  {{ pageEditor.getElementValue('about-feature2', 'Выгодные цены') }}
+                </AdminEditableElement>
               </div>
               <div class="feature-item">
                 <div class="feature-icon">
@@ -46,7 +82,15 @@
                     <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                   </svg>
                 </div>
-                <span>Работаем пн-пт 9:00-17:30</span>
+                <AdminEditableElement
+                  element-id="about-feature3"
+                  tag="span"
+                  type="text"
+                  label="Преимущество 3"
+                  :default-value="'Работаем пн-пт 9:00-17:30'"
+                >
+                  {{ pageEditor.getElementValue('about-feature3', 'Работаем пн-пт 9:00-17:30') }}
+                </AdminEditableElement>
               </div>
             </div>
           </div>
@@ -77,20 +121,92 @@
       <div class="container">
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-number">300+</div>
-            <div class="stat-label">Единиц оборудования</div>
+            <AdminEditableElement
+              element-id="about-stat1-number"
+              tag="div"
+              type="text"
+              label="Статистика 1: число"
+              class="stat-number"
+              :default-value="'300+'"
+            >
+              {{ pageEditor.getElementValue('about-stat1-number', '300+') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="about-stat1-label"
+              tag="div"
+              type="text"
+              label="Статистика 1: подпись"
+              class="stat-label"
+              :default-value="'Единиц оборудования'"
+            >
+              {{ pageEditor.getElementValue('about-stat1-label', 'Единиц оборудования') }}
+            </AdminEditableElement>
           </div>
           <div class="stat-card">
-            <div class="stat-number">7</div>
-            <div class="stat-label">Категорий товаров</div>
+            <AdminEditableElement
+              element-id="about-stat2-number"
+              tag="div"
+              type="text"
+              label="Статистика 2: число"
+              class="stat-number"
+              :default-value="'7'"
+            >
+              {{ pageEditor.getElementValue('about-stat2-number', '7') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="about-stat2-label"
+              tag="div"
+              type="text"
+              label="Статистика 2: подпись"
+              class="stat-label"
+              :default-value="'Категорий товаров'"
+            >
+              {{ pageEditor.getElementValue('about-stat2-label', 'Категорий товаров') }}
+            </AdminEditableElement>
           </div>
           <div class="stat-card">
-            <div class="stat-number">100%</div>
-            <div class="stat-label">Проверенное оборудование</div>
+            <AdminEditableElement
+              element-id="about-stat3-number"
+              tag="div"
+              type="text"
+              label="Статистика 3: число"
+              class="stat-number"
+              :default-value="'100%'"
+            >
+              {{ pageEditor.getElementValue('about-stat3-number', '100%') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="about-stat3-label"
+              tag="div"
+              type="text"
+              label="Статистика 3: подпись"
+              class="stat-label"
+              :default-value="'Проверенное оборудование'"
+            >
+              {{ pageEditor.getElementValue('about-stat3-label', 'Проверенное оборудование') }}
+            </AdminEditableElement>
           </div>
           <div class="stat-card">
-            <div class="stat-number">9-20</div>
-            <div class="stat-label">Часы работы ежедневно</div>
+            <AdminEditableElement
+              element-id="about-stat4-number"
+              tag="div"
+              type="text"
+              label="Статистика 4: число"
+              class="stat-number"
+              :default-value="'9-20'"
+            >
+              {{ pageEditor.getElementValue('about-stat4-number', '9-20') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="about-stat4-label"
+              tag="div"
+              type="text"
+              label="Статистика 4: подпись"
+              class="stat-label"
+              :default-value="'Часы работы ежедневно'"
+            >
+              {{ pageEditor.getElementValue('about-stat4-label', 'Часы работы ежедневно') }}
+            </AdminEditableElement>
           </div>
         </div>
       </div>
@@ -99,10 +215,26 @@
     <!-- Values Section -->
     <section class="values-section">
       <div class="container">
-        <h2 class="section-title text-center">Наши ценности</h2>
-        <p class="section-subtitle text-center">
-          Принципы, которыми мы руководствуемся в работе
-        </p>
+        <AdminEditableElement
+          element-id="about-values-title"
+          tag="h2"
+          type="text"
+          label="Заголовок ценностей"
+          class="section-title text-center"
+          :default-value="'Наши ценности'"
+        >
+          {{ pageEditor.getElementValue('about-values-title', 'Наши ценности') }}
+        </AdminEditableElement>
+        <AdminEditableElement
+          element-id="about-values-subtitle"
+          tag="p"
+          type="text"
+          label="Подзаголовок ценностей"
+          class="section-subtitle text-center"
+          :default-value="'Принципы, которыми мы руководствуемся в работе'"
+        >
+          {{ pageEditor.getElementValue('about-values-subtitle', 'Принципы, которыми мы руководствуемся в работе') }}
+        </AdminEditableElement>
         <div class="values-grid">
           <div class="value-card">
             <div class="value-icon">
@@ -112,10 +244,26 @@
                 <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h3 class="value-title">Качество</h3>
-            <p class="value-description">
-              Мы тщательно отбираем каждый товар, чтобы гарантировать высочайшее качество и подлинность.
-            </p>
+            <AdminEditableElement
+              element-id="about-value1-title"
+              tag="h3"
+              type="text"
+              label="Ценность 1: заголовок"
+              class="value-title"
+              :default-value="'Качество'"
+            >
+              {{ pageEditor.getElementValue('about-value1-title', 'Качество') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="about-value1-description"
+              tag="p"
+              type="text"
+              label="Ценность 1: описание"
+              class="value-description"
+              :default-value="'Мы тщательно отбираем каждый товар, чтобы гарантировать высочайшее качество и подлинность.'"
+            >
+              {{ pageEditor.getElementValue('about-value1-description', 'Мы тщательно отбираем каждый товар, чтобы гарантировать высочайшее качество и подлинность.') }}
+            </AdminEditableElement>
           </div>
 
           <div class="value-card">
@@ -125,10 +273,26 @@
                 <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </div>
-            <h3 class="value-title">Надежность</h3>
-            <p class="value-description">
-              Мы всегда выполняем свои обещания и обеспечиваем надежное обслуживание на каждом этапе.
-            </p>
+            <AdminEditableElement
+              element-id="about-value2-title"
+              tag="h3"
+              type="text"
+              label="Ценность 2: заголовок"
+              class="value-title"
+              :default-value="'Надежность'"
+            >
+              {{ pageEditor.getElementValue('about-value2-title', 'Надежность') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="about-value2-description"
+              tag="p"
+              type="text"
+              label="Ценность 2: описание"
+              class="value-description"
+              :default-value="'Мы всегда выполняем свои обещания и обеспечиваем надежное обслуживание на каждом этапе.'"
+            >
+              {{ pageEditor.getElementValue('about-value2-description', 'Мы всегда выполняем свои обещания и обеспечиваем надежное обслуживание на каждом этапе.') }}
+            </AdminEditableElement>
           </div>
 
           <div class="value-card">
@@ -137,10 +301,26 @@
                 <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h3 class="value-title">Забота</h3>
-            <p class="value-description">
-              Мы ставим потребности наших клиентов на первое место и стремимся превзойти ожидания.
-            </p>
+            <AdminEditableElement
+              element-id="about-value3-title"
+              tag="h3"
+              type="text"
+              label="Ценность 3: заголовок"
+              class="value-title"
+              :default-value="'Забота'"
+            >
+              {{ pageEditor.getElementValue('about-value3-title', 'Забота') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="about-value3-description"
+              tag="p"
+              type="text"
+              label="Ценность 3: описание"
+              class="value-description"
+              :default-value="'Мы ставим потребности наших клиентов на первое место и стремимся превзойти ожидания.'"
+            >
+              {{ pageEditor.getElementValue('about-value3-description', 'Мы ставим потребности наших клиентов на первое место и стремимся превзойти ожидания.') }}
+            </AdminEditableElement>
           </div>
 
           <div class="value-card">
@@ -149,10 +329,26 @@
                 <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h3 class="value-title">Инновации</h3>
-            <p class="value-description">
-              Мы постоянно совершенствуемся и внедряем новые технологии для улучшения вашего опыта.
-            </p>
+            <AdminEditableElement
+              element-id="about-value4-title"
+              tag="h3"
+              type="text"
+              label="Ценность 4: заголовок"
+              class="value-title"
+              :default-value="'Инновации'"
+            >
+              {{ pageEditor.getElementValue('about-value4-title', 'Инновации') }}
+            </AdminEditableElement>
+            <AdminEditableElement
+              element-id="about-value4-description"
+              tag="p"
+              type="text"
+              label="Ценность 4: описание"
+              class="value-description"
+              :default-value="'Мы постоянно совершенствуемся и внедряем новые технологии для улучшения вашего опыта.'"
+            >
+              {{ pageEditor.getElementValue('about-value4-description', 'Мы постоянно совершенствуемся и внедряем новые технологии для улучшения вашего опыта.') }}
+            </AdminEditableElement>
           </div>
         </div>
       </div>
@@ -163,10 +359,26 @@
     <section class="cta-section">
       <div class="container">
         <div class="cta-content">
-          <h2 class="cta-title">Готовы начать покупки?</h2>
-          <p class="cta-subtitle">
-            Присоединяйтесь к тысячам довольных клиентов
-          </p>
+          <AdminEditableElement
+            element-id="about-cta-title"
+            tag="h2"
+            type="text"
+            label="CTA заголовок"
+            class="cta-title"
+            :default-value="'Готовы начать покупки?'"
+          >
+            {{ pageEditor.getElementValue('about-cta-title', 'Готовы начать покупки?') }}
+          </AdminEditableElement>
+          <AdminEditableElement
+            element-id="about-cta-subtitle"
+            tag="p"
+            type="text"
+            label="CTA подзаголовок"
+            class="cta-subtitle"
+            :default-value="'Присоединяйтесь к тысячам довольных клиентов'"
+          >
+            {{ pageEditor.getElementValue('about-cta-subtitle', 'Присоединяйтесь к тысячам довольных клиентов') }}
+          </AdminEditableElement>
           <NuxtLink to="/products" class="btn btn-primary btn-lg">
             <span>Перейти в каталог</span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -180,6 +392,15 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue';
+import { usePageEditor } from '../../composables/usePageEditor';
+
+const pageEditor = usePageEditor();
+
+onMounted(async () => {
+  await pageEditor.loadPageContent('about');
+});
+
 useHead({
   title: 'О компании - КМО24',
   meta: [

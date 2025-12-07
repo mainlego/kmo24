@@ -3,8 +3,26 @@
     <!-- Page Header -->
     <section class="page-header">
       <div class="container">
-        <h1 class="page-title">Гарантийные обязательства</h1>
-        <p class="page-subtitle">Надежность и качество каждой единицы оборудования</p>
+        <AdminEditableElement
+          element-id="warranty-hero-title"
+          tag="h1"
+          type="text"
+          label="Заголовок страницы"
+          class="page-title"
+          :default-value="'Гарантийные обязательства'"
+        >
+          {{ pageEditor.getElementValue('warranty-hero-title', 'Гарантийные обязательства') }}
+        </AdminEditableElement>
+        <AdminEditableElement
+          element-id="warranty-hero-subtitle"
+          tag="p"
+          type="text"
+          label="Подзаголовок страницы"
+          class="page-subtitle"
+          :default-value="'Надежность и качество каждой единицы оборудования'"
+        >
+          {{ pageEditor.getElementValue('warranty-hero-subtitle', 'Надежность и качество каждой единицы оборудования') }}
+        </AdminEditableElement>
       </div>
     </section>
 
@@ -12,28 +30,131 @@
     <section class="warranty-content">
       <div class="container">
         <div class="warranty-card main-card">
-          <h2 class="section-title">Условия гарантии</h2>
+          <AdminEditableElement
+            element-id="warranty-conditions-title"
+            tag="h2"
+            type="text"
+            label="Заголовок условий гарантии"
+            class="section-title"
+            :default-value="'Условия гарантии'"
+          >
+            {{ pageEditor.getElementValue('warranty-conditions-title', 'Условия гарантии') }}
+          </AdminEditableElement>
 
           <div class="warranty-text">
-            <p>
-              На все единицы оборудования, приобретенные в ООО "КМО24", распространяется гарантийное обслуживание сроком <strong>1 месяц</strong> с момента приобретения. Мы гарантируем, что техника находится в технически исправном состоянии на момент продажи.
-            </p>
+            <AdminEditableElement
+              element-id="warranty-conditions-text"
+              tag="p"
+              type="html"
+              label="Описание условий гарантии"
+              :default-value="warrantyConditionsDefault"
+            >
+              <span v-html="pageEditor.getElementValue('warranty-conditions-text', warrantyConditionsDefault)"></span>
+            </AdminEditableElement>
 
-            <h3>Что включает гарантия:</h3>
+            <AdminEditableElement
+              element-id="warranty-includes-title"
+              tag="h3"
+              type="text"
+              label="Заголовок 'Что включает гарантия'"
+              :default-value="'Что включает гарантия:'"
+            >
+              {{ pageEditor.getElementValue('warranty-includes-title', 'Что включает гарантия:') }}
+            </AdminEditableElement>
             <ul class="warranty-list">
-              <li>Бесплатная диагностика оборудования</li>
-              <li>Устранение технических неисправностей, возникших не по вине покупателя</li>
-              <li>Консультации по эксплуатации и обслуживанию</li>
-              <li>Техническая поддержка по телефону</li>
+              <AdminEditableElement
+                element-id="warranty-includes-1"
+                tag="li"
+                type="text"
+                label="Включает: пункт 1"
+                :default-value="'Бесплатная диагностика оборудования'"
+              >
+                {{ pageEditor.getElementValue('warranty-includes-1', 'Бесплатная диагностика оборудования') }}
+              </AdminEditableElement>
+              <AdminEditableElement
+                element-id="warranty-includes-2"
+                tag="li"
+                type="text"
+                label="Включает: пункт 2"
+                :default-value="'Устранение технических неисправностей, возникших не по вине покупателя'"
+              >
+                {{ pageEditor.getElementValue('warranty-includes-2', 'Устранение технических неисправностей, возникших не по вине покупателя') }}
+              </AdminEditableElement>
+              <AdminEditableElement
+                element-id="warranty-includes-3"
+                tag="li"
+                type="text"
+                label="Включает: пункт 3"
+                :default-value="'Консультации по эксплуатации и обслуживанию'"
+              >
+                {{ pageEditor.getElementValue('warranty-includes-3', 'Консультации по эксплуатации и обслуживанию') }}
+              </AdminEditableElement>
+              <AdminEditableElement
+                element-id="warranty-includes-4"
+                tag="li"
+                type="text"
+                label="Включает: пункт 4"
+                :default-value="'Техническая поддержка по телефону'"
+              >
+                {{ pageEditor.getElementValue('warranty-includes-4', 'Техническая поддержка по телефону') }}
+              </AdminEditableElement>
             </ul>
 
-            <h3>Гарантия не распространяется на:</h3>
+            <AdminEditableElement
+              element-id="warranty-excludes-title"
+              tag="h3"
+              type="text"
+              label="Заголовок 'Гарантия не распространяется на'"
+              :default-value="'Гарантия не распространяется на:'"
+            >
+              {{ pageEditor.getElementValue('warranty-excludes-title', 'Гарантия не распространяется на:') }}
+            </AdminEditableElement>
             <ul class="warranty-list excluded">
-              <li>Механические повреждения, возникшие после получения товара</li>
-              <li>Неисправности, вызванные неправильной эксплуатацией</li>
-              <li>Повреждения, вызванные стихийными бедствиями</li>
-              <li>Оборудование со следами самостоятельного ремонта</li>
-              <li>Расходные материалы и комплектующие</li>
+              <AdminEditableElement
+                element-id="warranty-excludes-1"
+                tag="li"
+                type="text"
+                label="Исключение: пункт 1"
+                :default-value="'Механические повреждения, возникшие после получения товара'"
+              >
+                {{ pageEditor.getElementValue('warranty-excludes-1', 'Механические повреждения, возникшие после получения товара') }}
+              </AdminEditableElement>
+              <AdminEditableElement
+                element-id="warranty-excludes-2"
+                tag="li"
+                type="text"
+                label="Исключение: пункт 2"
+                :default-value="'Неисправности, вызванные неправильной эксплуатацией'"
+              >
+                {{ pageEditor.getElementValue('warranty-excludes-2', 'Неисправности, вызванные неправильной эксплуатацией') }}
+              </AdminEditableElement>
+              <AdminEditableElement
+                element-id="warranty-excludes-3"
+                tag="li"
+                type="text"
+                label="Исключение: пункт 3"
+                :default-value="'Повреждения, вызванные стихийными бедствиями'"
+              >
+                {{ pageEditor.getElementValue('warranty-excludes-3', 'Повреждения, вызванные стихийными бедствиями') }}
+              </AdminEditableElement>
+              <AdminEditableElement
+                element-id="warranty-excludes-4"
+                tag="li"
+                type="text"
+                label="Исключение: пункт 4"
+                :default-value="'Оборудование со следами самостоятельного ремонта'"
+              >
+                {{ pageEditor.getElementValue('warranty-excludes-4', 'Оборудование со следами самостоятельного ремонта') }}
+              </AdminEditableElement>
+              <AdminEditableElement
+                element-id="warranty-excludes-5"
+                tag="li"
+                type="text"
+                label="Исключение: пункт 5"
+                :default-value="'Расходные материалы и комплектующие'"
+              >
+                {{ pageEditor.getElementValue('warranty-excludes-5', 'Расходные материалы и комплектующие') }}
+              </AdminEditableElement>
             </ul>
 
             <div class="important-note">
@@ -41,10 +162,24 @@
                 <path d="M13 16h-1v-4h1m0-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
               <div class="note-content">
-                <h4>Важно знать</h4>
-                <p>
-                  Все оборудование проходит тщательную проверку перед продажей. Мы тестируем работоспособность всех функций и систем, чтобы гарантировать качество нашей продукции.
-                </p>
+                <AdminEditableElement
+                  element-id="warranty-note-title"
+                  tag="h4"
+                  type="text"
+                  label="Заголовок важной заметки"
+                  :default-value="'Важно знать'"
+                >
+                  {{ pageEditor.getElementValue('warranty-note-title', 'Важно знать') }}
+                </AdminEditableElement>
+                <AdminEditableElement
+                  element-id="warranty-note-text"
+                  tag="p"
+                  type="text"
+                  label="Текст важной заметки"
+                  :default-value="'Все оборудование проходит тщательную проверку перед продажей. Мы тестируем работоспособность всех функций и систем, чтобы гарантировать качество нашей продукции.'"
+                >
+                  {{ pageEditor.getElementValue('warranty-note-text', 'Все оборудование проходит тщательную проверку перед продажей. Мы тестируем работоспособность всех функций и систем, чтобы гарантировать качество нашей продукции.') }}
+                </AdminEditableElement>
               </div>
             </div>
           </div>
@@ -52,38 +187,111 @@
 
         <!-- How to Use Warranty -->
         <div class="warranty-card">
-          <h2 class="section-title">Как воспользоваться гарантией</h2>
+          <AdminEditableElement
+            element-id="warranty-steps-title"
+            tag="h2"
+            type="text"
+            label="Заголовок шагов гарантии"
+            class="section-title"
+            :default-value="'Как воспользоваться гарантией'"
+          >
+            {{ pageEditor.getElementValue('warranty-steps-title', 'Как воспользоваться гарантией') }}
+          </AdminEditableElement>
 
           <div class="warranty-steps">
             <div class="step">
               <div class="step-number">1</div>
               <div class="step-content">
-                <h4>Свяжитесь с нами</h4>
-                <p>Позвоните по телефону +7 (391) 989-20-13 или напишите на email</p>
+                <AdminEditableElement
+                  element-id="warranty-step1-title"
+                  tag="h4"
+                  type="text"
+                  label="Шаг 1: заголовок"
+                  :default-value="'Свяжитесь с нами'"
+                >
+                  {{ pageEditor.getElementValue('warranty-step1-title', 'Свяжитесь с нами') }}
+                </AdminEditableElement>
+                <AdminEditableElement
+                  element-id="warranty-step1-text"
+                  tag="p"
+                  type="text"
+                  label="Шаг 1: описание"
+                  :default-value="'Позвоните по телефону +7 (391) 989-20-13 или напишите на email'"
+                >
+                  {{ pageEditor.getElementValue('warranty-step1-text', 'Позвоните по телефону +7 (391) 989-20-13 или напишите на email') }}
+                </AdminEditableElement>
               </div>
             </div>
 
             <div class="step">
               <div class="step-number">2</div>
               <div class="step-content">
-                <h4>Опишите проблему</h4>
-                <p>Расскажите о возникшей неисправности и условиях эксплуатации</p>
+                <AdminEditableElement
+                  element-id="warranty-step2-title"
+                  tag="h4"
+                  type="text"
+                  label="Шаг 2: заголовок"
+                  :default-value="'Опишите проблему'"
+                >
+                  {{ pageEditor.getElementValue('warranty-step2-title', 'Опишите проблему') }}
+                </AdminEditableElement>
+                <AdminEditableElement
+                  element-id="warranty-step2-text"
+                  tag="p"
+                  type="text"
+                  label="Шаг 2: описание"
+                  :default-value="'Расскажите о возникшей неисправности и условиях эксплуатации'"
+                >
+                  {{ pageEditor.getElementValue('warranty-step2-text', 'Расскажите о возникшей неисправности и условиях эксплуатации') }}
+                </AdminEditableElement>
               </div>
             </div>
 
             <div class="step">
               <div class="step-number">3</div>
               <div class="step-content">
-                <h4>Диагностика</h4>
-                <p>Привезите оборудование для диагностики или вызовите специалиста</p>
+                <AdminEditableElement
+                  element-id="warranty-step3-title"
+                  tag="h4"
+                  type="text"
+                  label="Шаг 3: заголовок"
+                  :default-value="'Диагностика'"
+                >
+                  {{ pageEditor.getElementValue('warranty-step3-title', 'Диагностика') }}
+                </AdminEditableElement>
+                <AdminEditableElement
+                  element-id="warranty-step3-text"
+                  tag="p"
+                  type="text"
+                  label="Шаг 3: описание"
+                  :default-value="'Привезите оборудование для диагностики или вызовите специалиста'"
+                >
+                  {{ pageEditor.getElementValue('warranty-step3-text', 'Привезите оборудование для диагностики или вызовите специалиста') }}
+                </AdminEditableElement>
               </div>
             </div>
 
             <div class="step">
               <div class="step-number">4</div>
               <div class="step-content">
-                <h4>Решение проблемы</h4>
-                <p>Мы устраним неисправность или предложим замену оборудования</p>
+                <AdminEditableElement
+                  element-id="warranty-step4-title"
+                  tag="h4"
+                  type="text"
+                  label="Шаг 4: заголовок"
+                  :default-value="'Решение проблемы'"
+                >
+                  {{ pageEditor.getElementValue('warranty-step4-title', 'Решение проблемы') }}
+                </AdminEditableElement>
+                <AdminEditableElement
+                  element-id="warranty-step4-text"
+                  tag="p"
+                  type="text"
+                  label="Шаг 4: описание"
+                  :default-value="'Мы устраним неисправность или предложим замену оборудования'"
+                >
+                  {{ pageEditor.getElementValue('warranty-step4-text', 'Мы устраним неисправность или предложим замену оборудования') }}
+                </AdminEditableElement>
               </div>
             </div>
           </div>
@@ -91,10 +299,26 @@
 
         <!-- Contact Section -->
         <div class="warranty-card contact-card">
-          <h2 class="section-title">Остались вопросы?</h2>
-          <p class="contact-text">
-            Наши специалисты готовы ответить на все вопросы о гарантии и помочь с выбором оборудования
-          </p>
+          <AdminEditableElement
+            element-id="warranty-contact-title"
+            tag="h2"
+            type="text"
+            label="Заголовок контактной секции"
+            class="section-title"
+            :default-value="'Остались вопросы?'"
+          >
+            {{ pageEditor.getElementValue('warranty-contact-title', 'Остались вопросы?') }}
+          </AdminEditableElement>
+          <AdminEditableElement
+            element-id="warranty-contact-text"
+            tag="p"
+            type="text"
+            label="Описание контактной секции"
+            class="contact-text"
+            :default-value="'Наши специалисты готовы ответить на все вопросы о гарантии и помочь с выбором оборудования'"
+          >
+            {{ pageEditor.getElementValue('warranty-contact-text', 'Наши специалисты готовы ответить на все вопросы о гарантии и помочь с выбором оборудования') }}
+          </AdminEditableElement>
           <div class="contact-buttons">
             <a href="tel:+73919892013" class="btn-primary">
               <svg viewBox="0 0 24 24" fill="none">
@@ -117,7 +341,17 @@
 </template>
 
 <script setup lang="ts">
-// SEO metadata
+import { onMounted } from 'vue';
+import { usePageEditor } from '../composables/usePageEditor';
+
+const pageEditor = usePageEditor();
+
+// Default values with HTML content
+const warrantyConditionsDefault = 'На все единицы оборудования, приобретенные в ООО "КМО24", распространяется гарантийное обслуживание сроком <strong>1 месяц</strong> с момента приобретения. Мы гарантируем, что техника находится в технически исправном состоянии на момент продажи.';
+
+onMounted(async () => {
+  await pageEditor.loadPageContent('warranty');
+});
 </script>
 
 <style scoped lang="scss">
