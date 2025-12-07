@@ -698,7 +698,10 @@ const handleMouseMove = (e: MouseEvent) => {
   });
 };
 
-onMounted(() => {
+onMounted(async () => {
+  // Load saved page content
+  await pageEditor.loadPageContent('home');
+
   // Trigger animations
   setTimeout(() => {
     isVisible.value = true;

@@ -21,6 +21,8 @@ const originalContent = ref<PageContent | null>(null);
 const selectedElement = ref<string | null>(null);
 const registeredElements = ref<Record<string, EditableElementInfo>>({});
 const selectedElementInfo = ref<EditableElementInfo | null>(null);
+const isContentLoaded = ref(false);
+const loadedPageId = ref<string | null>(null);
 
 export function usePageEditor() {
   const config = useRuntimeConfig();
@@ -29,6 +31,38 @@ export function usePageEditor() {
   // Check if user is admin
   const authStore = useAuthStore();
   const isAdmin = computed(() => authStore.user?.role === 'admin');
+
+  // Load page content without edit mode (for displaying saved content)
+  const loadPageContent = async (pageId: string) => {
+    // Skip if already loaded for this page
+    if (loadedPageId.value === pageId && isContentLoaded.value) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiBase}/settings/pages/${pageId}`);
+      const data = await response.json();
+      console.log('Loaded page content:', pageId, data);
+      if (data.success && data.data) {
+        // data.data may be { content: {...} } or just the content object
+        const content = data.data.content || data.data;
+        originalContent.value = {
+          pageId,
+          elements: typeof content === 'object' ? content : {},
+          updatedAt: data.data.updatedAt,
+        };
+      } else {
+        originalContent.value = { pageId, elements: {} };
+      }
+      loadedPageId.value = pageId;
+      isContentLoaded.value = true;
+    } catch (error) {
+      console.error('Failed to load page content:', error);
+      originalContent.value = { pageId, elements: {} };
+      loadedPageId.value = pageId;
+      isContentLoaded.value = true;
+    }
+  };
 
   // Enable edit mode for a specific page
   const enableEditMode = async (pageId: string) => {
@@ -47,14 +81,18 @@ export function usePageEditor() {
       });
       const data = await response.json();
       if (data.success && data.data) {
+        // data.data may be { content: {...} } or just the content object
+        const content = data.data.content || data.data;
         originalContent.value = {
           pageId,
-          elements: data.data.content || {},
+          elements: typeof content === 'object' ? content : {},
           updatedAt: data.data.updatedAt,
         };
       } else {
         originalContent.value = { pageId, elements: {} };
       }
+      loadedPageId.value = pageId;
+      isContentLoaded.value = true;
     } catch (error) {
       console.error('Failed to load page content:', error);
       originalContent.value = { pageId, elements: {} };
@@ -67,7 +105,7 @@ export function usePageEditor() {
     currentPageId.value = null;
     pendingChanges.value = {};
     selectedElement.value = null;
-    originalContent.value = null;
+    // Don't reset originalContent - it should persist for display
   };
 
   // Update element value
@@ -189,8 +227,10 @@ export function usePageEditor() {
     selectedElementInfo: readonly(selectedElementInfo),
     registeredElements: readonly(registeredElements),
     hasChanges,
+    isContentLoaded: readonly(isContentLoaded),
 
     // Actions
+    loadPageContent,
     enableEditMode,
     disableEditMode,
     cancelEditMode,
