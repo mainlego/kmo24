@@ -44,6 +44,7 @@
             <img
               :src="getMediaUrl(item.thumbnail)"
               :alt="item.title"
+              @error="handleImageError"
             />
             <div v-if="item.telegramMessageId" class="news-card__badge">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -166,9 +167,12 @@ const formatDate = (dateStr: string): string => {
   }).format(date);
 };
 
+// Placeholder for missing images
+const PLACEHOLDER_IMAGE = '/images/news-placeholder.svg';
+
 // Get full media URL (handle relative paths from backend)
 const getMediaUrl = (url: string | undefined): string => {
-  if (!url) return '/images/news-placeholder.jpg';
+  if (!url) return PLACEHOLDER_IMAGE;
   // If it's already a full URL, return as is
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return url;
@@ -178,6 +182,14 @@ const getMediaUrl = (url: string | undefined): string => {
     return `${apiBase.replace('/api/v1', '')}${url}`;
   }
   return url;
+};
+
+// Handle image load errors
+const handleImageError = (event: Event) => {
+  const target = event.target as HTMLImageElement;
+  if (target && target.src !== PLACEHOLDER_IMAGE) {
+    target.src = PLACEHOLDER_IMAGE;
+  }
 };
 
 const fetchNews = async () => {

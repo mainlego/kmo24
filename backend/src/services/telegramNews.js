@@ -458,6 +458,92 @@ export const handleTelegramWebhook = async (update) => {
   }
 };
 
+/**
+ * Повторное скачивание изображений для новости через Bot API
+ * Используется для восстановления изображений, когда файлы потеряны
+ */
+export const refetchNewsImages = async (newsId, botToken) => {
+  try {
+    const news = await News.findById(newsId);
+    if (!news) {
+      return { success: false, error: 'News not found' };
+    }
+
+    // Если нет telegramMessageId, невозможно восстановить
+    if (!news.telegramMessageId) {
+      return { success: false, error: 'No Telegram message ID - cannot refetch' };
+    }
+
+    // К сожалению, Telegram Bot API не позволяет получить сообщение по ID
+    // Мы можем только получить новые сообщения через webhook
+    // Поэтому для старых новостей нужно либо:
+    // 1. Вручную загрузить изображение
+    // 2. Использовать плейсхолдер
+
+    return {
+      success: false,
+      error: 'Cannot refetch - Telegram Bot API does not allow fetching messages by ID',
+      hint: 'Upload image manually or use placeholder',
+    };
+  } catch (error) {
+    logger.error('Error refetching news images:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Проверка существования файла на диске
+ */
+export const checkLocalFile = (localUrl) => {
+  if (!localUrl || !localUrl.startsWith('/uploads/')) {
+    return false;
+  }
+
+  const filePath = path.join(UPLOADS_DIR, localUrl.replace('/uploads/', ''));
+  return fs.existsSync(filePath);
+};
+
+/**
+ * Получение статуса изображений всех новостей
+ */
+export const getNewsImagesStatus = async () => {
+  try {
+    const news = await News.find({}).select('_id title thumbnail images video telegramMessageId');
+
+    const results = [];
+
+    for (const item of news) {
+      const status = {
+        _id: item._id,
+        title: item.title,
+        thumbnail: {
+          url: item.thumbnail,
+          exists: item.thumbnail ? checkLocalFile(item.thumbnail) : null,
+          isExternal: item.thumbnail ? (item.thumbnail.startsWith('http') ? true : false) : null,
+        },
+        images: (item.images || []).map(img => ({
+          url: img.url,
+          exists: img.url ? checkLocalFile(img.url) : null,
+          isExternal: img.url ? (img.url.startsWith('http') ? true : false) : null,
+        })),
+        video: item.video ? {
+          url: item.video.url,
+          exists: item.video.url ? checkLocalFile(item.video.url) : null,
+          isExternal: item.video.url ? (item.video.url.startsWith('http') ? true : false) : null,
+        } : null,
+        hasTelegramId: !!item.telegramMessageId,
+      };
+
+      results.push(status);
+    }
+
+    return results;
+  } catch (error) {
+    logger.error('Error getting news images status:', error);
+    throw error;
+  }
+};
+
 export default {
   getChannelUpdates,
   processChannelPost,
@@ -465,4 +551,8 @@ export default {
   handleTelegramWebhook,
   getFileInfo,
   getFileUrl,
+  downloadAndSaveFile,
+  refetchNewsImages,
+  checkLocalFile,
+  getNewsImagesStatus,
 };

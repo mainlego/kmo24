@@ -426,6 +426,121 @@ export const setupTelegramWebhook = async (req, res, next) => {
   }
 };
 
+/**
+ * Получение статуса изображений всех новостей
+ * GET /api/v1/news/admin/images-status
+ */
+export const getImagesStatus = async (req, res, next) => {
+  try {
+    const { getNewsImagesStatus } = await import('../services/telegramNews.js');
+    const status = await getNewsImagesStatus();
+
+    const summary = {
+      total: status.length,
+      withMissingImages: status.filter(n =>
+        (n.thumbnail?.url && !n.thumbnail?.exists) ||
+        n.images?.some(img => img.url && !img.exists) ||
+        (n.video?.url && !n.video?.exists)
+      ).length,
+      withExternalUrls: status.filter(n =>
+        n.thumbnail?.isExternal ||
+        n.images?.some(img => img.isExternal) ||
+        n.video?.isExternal
+      ).length,
+    };
+
+    return res.json({
+      success: true,
+      summary,
+      data: status,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Загрузка изображения для новости
+ * POST /api/v1/news/:id/upload-image
+ */
+export const uploadNewsImage = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const newsItem = await News.findById(id);
+    if (!newsItem) {
+      return errorResponse(res, 'Новость не найдена', 404);
+    }
+
+    if (!req.file) {
+      return errorResponse(res, 'Файл не загружен', 400);
+    }
+
+    // Формируем URL
+    const imageUrl = `/uploads/news/${req.file.filename}`;
+
+    // Обновляем thumbnail
+    newsItem.thumbnail = imageUrl;
+
+    // Добавляем в массив images
+    if (!newsItem.images) {
+      newsItem.images = [];
+    }
+    newsItem.images.push({
+      url: imageUrl,
+      alt: newsItem.title,
+    });
+
+    await newsItem.save();
+
+    // Очистка кэша
+    await deleteCache(`news:item:${id}`);
+    await deleteCache(`news:item:${newsItem.slug}`);
+    await deleteCachePattern('news:*');
+
+    logger.info(`News image uploaded: ${newsItem.title} (${newsItem._id})`);
+
+    return successResponse(res, newsItem, 'Изображение загружено');
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Удаление новостей без изображений
+ * DELETE /api/v1/news/admin/cleanup-broken
+ */
+export const cleanupBrokenNews = async (req, res, next) => {
+  try {
+    const { getNewsImagesStatus } = await import('../services/telegramNews.js');
+    const status = await getNewsImagesStatus();
+
+    // Находим новости с отсутствующими файлами
+    const brokenNews = status.filter(n =>
+      (n.thumbnail?.url && !n.thumbnail?.exists && !n.thumbnail?.isExternal)
+    );
+
+    const deleted = [];
+
+    for (const item of brokenNews) {
+      await News.findByIdAndDelete(item._id);
+      deleted.push({ _id: item._id, title: item.title });
+      logger.info(`Deleted broken news: ${item.title} (${item._id})`);
+    }
+
+    // Очистка кэша
+    await deleteCachePattern('news:*');
+
+    return res.json({
+      success: true,
+      message: `Удалено ${deleted.length} новостей с отсутствующими изображениями`,
+      deleted,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   getNews,
   getNewsItem,
@@ -439,4 +554,7 @@ export default {
   telegramWebhook,
   getTelegramSettings,
   setupTelegramWebhook,
+  getImagesStatus,
+  uploadNewsImage,
+  cleanupBrokenNews,
 };

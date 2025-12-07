@@ -12,9 +12,13 @@ import {
   telegramWebhook,
   getTelegramSettings,
   setupTelegramWebhook,
+  getImagesStatus,
+  uploadNewsImage,
+  cleanupBrokenNews,
 } from '../controllers/news.js';
 import { protect, authorize } from '../middleware/auth.js';
 import asyncHandler from '../middleware/asyncHandler.js';
+import { uploadSingleImage } from '../middleware/upload.js';
 
 const router = express.Router();
 
@@ -29,6 +33,10 @@ router.get('/telegram/settings', protect, authorize('admin'), asyncHandler(getTe
 router.post('/telegram/setup-webhook', protect, authorize('admin'), asyncHandler(setupTelegramWebhook));
 router.post('/sync/telegram', protect, authorize('admin', 'manager'), asyncHandler(syncFromTelegram));
 
+// Админ маршруты для управления изображениями
+router.get('/admin/images-status', protect, authorize('admin'), asyncHandler(getImagesStatus));
+router.delete('/admin/cleanup-broken', protect, authorize('admin'), asyncHandler(cleanupBrokenNews));
+
 // Публичные маршруты
 router.get('/', asyncHandler(getNews));
 
@@ -41,5 +49,14 @@ router.get('/:id/related', asyncHandler(getRelatedNews));
 router.put('/:id', protect, authorize('admin', 'manager'), asyncHandler(updateNews));
 router.delete('/:id', protect, authorize('admin', 'manager'), asyncHandler(deleteNews));
 router.patch('/:id/publish', protect, authorize('admin', 'manager'), asyncHandler(togglePublish));
+
+// Загрузка изображения для новости
+router.post(
+  '/:id/upload-image',
+  protect,
+  authorize('admin', 'manager'),
+  uploadSingleImage('image', 'news'),
+  asyncHandler(uploadNewsImage)
+);
 
 export default router;

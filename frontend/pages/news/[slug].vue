@@ -89,6 +89,7 @@
           <img
             :src="getMediaUrl(newsItem.thumbnail || newsItem.images[0]?.url)"
             :alt="newsItem.title"
+            @error="handleImageError"
           />
         </div>
 
@@ -105,7 +106,7 @@
               class="gallery-item"
               @click="openLightbox(index)"
             >
-              <img :src="getMediaUrl(image.url)" :alt="image.alt || `Изображение ${index + 1}`" />
+              <img :src="getMediaUrl(image.url)" :alt="image.alt || `Изображение ${index + 1}`" @error="handleImageError" />
             </div>
           </div>
         </div>
@@ -152,6 +153,7 @@
                 <img
                   :src="getMediaUrl(item.thumbnail)"
                   :alt="item.title"
+                  @error="handleImageError"
                 />
               </div>
               <div class="related-card__content">
@@ -196,6 +198,7 @@
               v-if="newsItem?.images?.[lightboxIndex]"
               :src="getMediaUrl(newsItem.images[lightboxIndex].url)"
               :alt="newsItem.images[lightboxIndex].alt || newsItem.title"
+              @error="handleImageError"
             />
             <div class="lightbox__counter">
               {{ lightboxIndex + 1 }} / {{ newsItem?.images?.length }}
@@ -275,9 +278,12 @@ const formatDate = (dateStr: string): string => {
   }).format(date);
 };
 
+// Placeholder for missing images
+const PLACEHOLDER_IMAGE = '/images/news-placeholder.svg';
+
 // Get full media URL (handle relative paths from backend)
 const getMediaUrl = (url: string | undefined): string => {
-  if (!url) return '/images/news-placeholder.jpg';
+  if (!url) return PLACEHOLDER_IMAGE;
   // If it's already a full URL, return as is
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return url;
@@ -287,6 +293,14 @@ const getMediaUrl = (url: string | undefined): string => {
     return `${apiBase.replace('/api/v1', '')}${url}`;
   }
   return url;
+};
+
+// Handle image load errors
+const handleImageError = (event: Event) => {
+  const target = event.target as HTMLImageElement;
+  if (target && target.src !== PLACEHOLDER_IMAGE) {
+    target.src = PLACEHOLDER_IMAGE;
+  }
 };
 
 // Format content with line breaks
