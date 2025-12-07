@@ -18,7 +18,12 @@ export const validatePhone = (phone) => {
     return cleanPhone.startsWith('7') || cleanPhone.startsWith('8');
   }
   if (cleanPhone.length === 10) {
+    // Номер без кода страны (начинается с 9)
     return cleanPhone.startsWith('9');
+  }
+  // Также принимаем номера с + перед 7 (в некоторых случаях может остаться лишняя цифра)
+  if (cleanPhone.length === 12 && cleanPhone.startsWith('7')) {
+    return true;
   }
 
   return false;
