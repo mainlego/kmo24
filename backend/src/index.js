@@ -1,7 +1,6 @@
 console.log('Starting server initialization...');
 
 import express from 'express';
-import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
@@ -62,7 +61,7 @@ connectRedis();
 // Trust proxy
 app.set('trust proxy', 1);
 
-// CORS - должен быть ПЕРЕД helmet и другими middleware
+// CORS - должен быть ПЕРЕД всеми другими middleware
 const allowedOrigins = Array.isArray(config.cors.origin)
   ? config.cors.origin
   : [config.cors.origin];
@@ -70,30 +69,29 @@ const allowedOrigins = Array.isArray(config.cors.origin)
 console.log('CORS_ORIGIN env:', process.env.CORS_ORIGIN);
 console.log('Allowed CORS origins:', allowedOrigins);
 
-const corsOptions = {
-  origin: (origin, callback) => {
-    // Разрешаем запросы без origin (мобильные приложения, Postman и т.д.)
-    if (!origin) {
-      return callback(null, true);
-    }
+// Простой и надёжный CORS middleware
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
 
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.warn(`CORS blocked origin: ${origin}. Allowed: ${allowedOrigins.join(', ')}`);
-      // В продакшене разрешаем, но логируем для отладки
-      callback(null, true);
-    }
-  },
-  credentials: config.cors.credentials,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Session-ID', 'X-Requested-With'],
-};
+  // Всегда устанавливаем CORS заголовки
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
 
-app.use(cors(corsOptions));
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Session-ID, X-Requested-With, Accept, Origin');
+  res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
 
-// Явная обработка preflight OPTIONS запросов
-app.options('*', cors(corsOptions));
+  // Обработка preflight запросов
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
+  next();
+});
 
 // Middleware для безопасности (после CORS)
 app.use(helmet({
