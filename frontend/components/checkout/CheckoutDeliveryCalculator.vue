@@ -111,7 +111,8 @@ const emit = defineEmits<{
   (e: 'delivery-calculated', result: DeliveryResult & { city: City }): void;
 }>();
 
-const { apiFetch } = useApi();
+const config = useRuntimeConfig();
+const apiBase = config.public.apiBaseUrl;
 
 // State
 const searchQuery = ref('');
@@ -123,7 +124,7 @@ const deliveryResult = ref<DeliveryResult | null>(null);
 const error = ref('');
 
 // Search cities with debounce
-let searchTimeout: NodeJS.Timeout;
+let searchTimeout: ReturnType<typeof setTimeout>;
 const searchCities = () => {
   if (searchQuery.value.length < 2) {
     cities.value = [];
@@ -134,12 +135,13 @@ const searchCities = () => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(async () => {
     try {
-      const response = await apiFetch<{ success: boolean; data: City[] }>(
-        `/delivery/cities/search?query=${encodeURIComponent(searchQuery.value)}`
+      const response = await fetch(
+        `${apiBase}/delivery/cities/search?query=${encodeURIComponent(searchQuery.value)}`
       );
+      const data = await response.json();
 
-      if (response.success) {
-        cities.value = response.data;
+      if (data.success) {
+        cities.value = data.data;
         showSuggestions.value = true;
       }
     } catch (err: any) {
@@ -190,19 +192,20 @@ const calculateDelivery = async () => {
       };
     });
 
-    const response = await apiFetch<{
-      success: boolean;
-      data: DeliveryResult;
-    }>('/delivery/calculate', {
+    const response = await fetch(`${apiBase}/delivery/calculate`, {
       method: 'POST',
-      body: {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         arrivalCity: selectedCity.value.code,
         cargo,
-      },
+      }),
     });
+    const data = await response.json();
 
-    if (response.success) {
-      deliveryResult.value = response.data;
+    if (data.success) {
+      deliveryResult.value = data.data;
     } else {
       error.value = 'Не удалось рассчитать доставку';
     }
@@ -298,8 +301,8 @@ onMounted(() => {
   margin-top: 0.25rem;
   max-height: 200px;
   overflow-y: auto;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
 }
 
 .city-suggestion {

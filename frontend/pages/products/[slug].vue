@@ -496,6 +496,7 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    overflow: visible; // Allow delivery calculator dropdown to overflow
 
     .info-title {
       font-size: 20px;

@@ -326,7 +326,7 @@ onUnmounted(() => {
   background: $gray-50;
   border: 1px solid $gray-200;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible; // Allow dropdown to overflow
 
   &__header {
     display: flex;
