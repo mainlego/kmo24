@@ -8,13 +8,25 @@
       </div>
     </div>
 
+    <!-- Info Banner -->
+    <div class="info-banner">
+      <div class="info-banner__icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div class="info-banner__content">
+        <p><strong>Визуальное редактирование:</strong> Нажмите "Редактировать визуально" чтобы редактировать контент прямо на странице сайта.</p>
+        <p><strong>Редактор форм:</strong> Нажмите "Редактор форм" для детальной настройки через формы.</p>
+      </div>
+    </div>
+
     <!-- Pages Grid -->
     <div class="pages-grid">
       <div
         v-for="page in pages"
         :key="page.id"
         class="page-card"
-        @click="openEditor(page)"
       >
         <div class="page-card__icon">
           <component :is="page.icon" />
@@ -22,11 +34,21 @@
         <div class="page-card__content">
           <h3 class="page-card__title">{{ page.name }}</h3>
           <p class="page-card__description">{{ page.description }}</p>
-        </div>
-        <div class="page-card__arrow">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
+          <div class="page-card__actions">
+            <button class="btn btn-visual" @click="openVisualEditor(page)">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              Редактировать визуально
+            </button>
+            <button class="btn btn-form" @click="openEditor(page)">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Редактор форм
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -226,16 +248,38 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useToast } from '~/composables/useToast';
-import { useApi } from '~/composables/useApi';
+import { useRouter } from 'vue-router';
 
 definePageMeta({
   layout: 'admin',
   middleware: ['auth', 'admin'],
 });
 
-const { success: showSuccess, error: showError } = useToast();
+// Composables (auto-imported by Nuxt)
+const router = useRouter();
+const toast = useToast();
 const { apiFetch } = useApi();
+const pageEditor = usePageEditor();
+
+const showSuccess = toast.success;
+const showError = toast.error;
+const { enableEditMode } = pageEditor;
+
+// Page URL mapping
+const pageUrls: Record<string, string> = {
+  home: '/',
+  delivery: '/delivery',
+  contacts: '/contacts',
+  warranty: '/warranty',
+  about: '/about',
+};
+
+// Open visual editor - redirect to actual page with edit mode
+const openVisualEditor = async (page: typeof pages[0]) => {
+  await enableEditMode(page.id);
+  const url = pageUrls[page.id] || '/';
+  router.push(url + '?edit=true');
+};
 
 // Icons
 const IconHome = {
@@ -495,20 +539,56 @@ const savePageContent = async () => {
   gap: 1rem;
 }
 
+// Info Banner
+.info-banner {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+
+  &__icon {
+    flex-shrink: 0;
+    color: #3b82f6;
+
+    svg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+
+  &__content {
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: #1e40af;
+      line-height: 1.5;
+
+      &:not(:last-child) {
+        margin-bottom: 0.25rem;
+      }
+
+      strong {
+        font-weight: 600;
+      }
+    }
+  }
+}
+
 .page-card {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
   padding: 1.5rem;
   background: white;
   border-radius: 0.75rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
   }
 
   &__icon {
@@ -542,17 +622,52 @@ const savePageContent = async () => {
   &__description {
     font-size: 0.875rem;
     color: #6b7280;
-    margin: 0;
+    margin: 0 0 1rem 0;
   }
 
-  &__arrow {
-    color: #9ca3af;
-    flex-shrink: 0;
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+}
 
-    svg {
-      width: 1.25rem;
-      height: 1.25rem;
-    }
+.btn-visual,
+.btn-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.btn-visual {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+  color: white;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  }
+}
+
+.btn-form {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+
+  &:hover {
+    background: #e5e7eb;
   }
 }
 

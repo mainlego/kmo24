@@ -1,11 +1,27 @@
 <template>
   <div class="delivery-page">
+    <!-- Editor Toolbar -->
+    <EditorEditorToolbar
+      v-if="isEditMode"
+      page-name="Доставка"
+      @save="handleSave"
+      @exit="handleExitEdit"
+    />
+
     <!-- Hero Section -->
     <section class="delivery-hero">
       <!-- Background Image -->
       <div class="hero-background">
+        <EditorEditableImage
+          v-if="isEditMode"
+          element-id="hero_image"
+          default-value="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1920&q=80"
+          alt="Доставка"
+          img-class="hero-bg-image"
+        />
         <img
-          src="https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1920&q=80"
+          v-else
+          :src="getElementValue('hero_image', 'https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?w=1920&q=80')"
           alt="Доставка"
           class="hero-bg-image"
         />
@@ -15,11 +31,31 @@
       <div class="container">
         <div class="hero-content">
           <h1 class="hero-title">
-            Доставка и
-            <span class="gradient-text">оплата</span>
+            <EditorEditableText
+              v-if="isEditMode"
+              element-id="hero_title_1"
+              default-value="Доставка и"
+              tag="span"
+            />
+            <template v-else>{{ getElementValue('hero_title_1', 'Доставка и') }}</template>
+            <span class="gradient-text">
+              <EditorEditableText
+                v-if="isEditMode"
+                element-id="hero_title_2"
+                default-value="оплата"
+                tag="span"
+              />
+              <template v-else>{{ getElementValue('hero_title_2', 'оплата') }}</template>
+            </span>
           </h1>
           <p class="hero-subtitle">
-            Быстрая доставка по всей России и удобные способы оплаты
+            <EditorEditableText
+              v-if="isEditMode"
+              element-id="hero_subtitle"
+              default-value="Быстрая доставка по всей России и удобные способы оплаты"
+              tag="span"
+            />
+            <template v-else>{{ getElementValue('hero_subtitle', 'Быстрая доставка по всей России и удобные способы оплаты') }}</template>
           </p>
         </div>
       </div>
@@ -267,6 +303,36 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, watch } from 'vue';
+
+const route = useRoute();
+const router = useRouter();
+
+// Page Editor
+const { isEditMode, getElementValue, enableEditMode, disableEditMode } = usePageEditor();
+
+// Check for edit mode from query param
+onMounted(async () => {
+  if (route.query.edit === 'true') {
+    await enableEditMode('delivery');
+  }
+});
+
+// Watch for route changes to disable edit mode
+watch(() => route.query.edit, (newVal) => {
+  if (newVal !== 'true' && isEditMode.value) {
+    disableEditMode();
+  }
+});
+
+const handleSave = () => {
+  // Page saved successfully
+};
+
+const handleExitEdit = () => {
+  router.push('/admin/pages');
+};
+
 useHead({
   title: 'Доставка и оплата',
   meta: [

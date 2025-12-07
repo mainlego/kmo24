@@ -1,11 +1,27 @@
 <template>
   <div class="contacts-page">
+    <!-- Editor Toolbar -->
+    <EditorEditorToolbar
+      v-if="isEditMode"
+      page-name="Контакты"
+      @save="handleSave"
+      @exit="handleExitEdit"
+    />
+
     <!-- Hero Section -->
     <section class="contacts-hero">
       <!-- Background Image -->
       <div class="hero-background">
+        <EditorEditableImage
+          v-if="isEditMode"
+          element-id="hero_image"
+          default-value="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1920&q=80"
+          alt="Контакты"
+          img-class="hero-bg-image"
+        />
         <img
-          src="https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1920&q=80"
+          v-else
+          :src="getElementValue('hero_image', 'https://images.unsplash.com/photo-1423666639041-f56000c27a9a?w=1920&q=80')"
           alt="Контакты"
           class="hero-bg-image"
         />
@@ -15,11 +31,31 @@
       <div class="container">
         <div class="hero-content">
           <h1 class="hero-title">
-            Свяжитесь с
-            <span class="gradient-text">нами</span>
+            <EditorEditableText
+              v-if="isEditMode"
+              element-id="hero_title_1"
+              default-value="Свяжитесь с"
+              tag="span"
+            />
+            <template v-else>{{ getElementValue('hero_title_1', 'Свяжитесь с') }}</template>
+            <span class="gradient-text">
+              <EditorEditableText
+                v-if="isEditMode"
+                element-id="hero_title_2"
+                default-value="нами"
+                tag="span"
+              />
+              <template v-else>{{ getElementValue('hero_title_2', 'нами') }}</template>
+            </span>
           </h1>
           <p class="hero-subtitle">
-            Мы всегда рады помочь вам с любыми вопросами
+            <EditorEditableText
+              v-if="isEditMode"
+              element-id="hero_subtitle"
+              default-value="Мы всегда рады помочь вам с любыми вопросами"
+              tag="span"
+            />
+            <template v-else>{{ getElementValue('hero_subtitle', 'Мы всегда рады помочь вам с любыми вопросами') }}</template>
           </p>
         </div>
       </div>
@@ -253,7 +289,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
+
+const route = useRoute();
+const router = useRouter();
+
+// Page Editor
+const { isEditMode, getElementValue, enableEditMode, disableEditMode } = usePageEditor();
+
+// Check for edit mode from query param
+onMounted(async () => {
+  if (route.query.edit === 'true') {
+    await enableEditMode('contacts');
+  }
+});
+
+// Watch for route changes to disable edit mode
+watch(() => route.query.edit, (newVal) => {
+  if (newVal !== 'true' && isEditMode.value) {
+    disableEditMode();
+  }
+});
+
+const handleSave = () => {
+  // Page saved successfully
+};
+
+const handleExitEdit = () => {
+  router.push('/admin/pages');
+};
 
 useHead({
   title: 'Контакты',
