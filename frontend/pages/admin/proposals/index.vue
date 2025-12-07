@@ -29,7 +29,7 @@
               class="search-result-item"
               @click="addProduct(product)"
             >
-              <img :src="product.images?.[0]?.url || 'https://via.placeholder.com/50'" :alt="product.name" />
+              <img :src="getProductImageUrl(product.images?.[0]?.url)" :alt="product.name" />
               <div class="result-info">
                 <span class="result-name">{{ product.name }}</span>
                 <span class="result-sku">{{ product.sku }}</span>
@@ -51,7 +51,7 @@
                 :key="item.product._id"
                 class="selected-item"
               >
-                <img :src="item.product.images?.[0]?.url || 'https://via.placeholder.com/40'" :alt="item.product.name" />
+                <img :src="getProductImageUrl(item.product.images?.[0]?.url)" :alt="item.product.name" />
                 <div class="selected-info">
                   <span class="selected-name">{{ item.product.name }}</span>
                   <span class="selected-sku">{{ item.product.sku }}</span>
@@ -179,6 +179,9 @@ import {
   printProposal,
   type ProposalData,
 } from '~/utils/commercialProposal'
+import { useMediaUrl } from '../../../composables/useMediaUrl'
+
+const { getProductImageUrl } = useMediaUrl()
 
 definePageMeta({
   layout: 'admin',

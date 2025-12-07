@@ -178,7 +178,7 @@
           <div v-else class="products-list">
             <div v-for="product in topProducts" :key="product._id" class="product-item">
               <img
-                :src="product.images?.[0]?.url || 'https://via.placeholder.com/50'"
+                :src="getProductImageUrl(product.images?.[0]?.url)"
                 :alt="product.name"
                 class="product-image"
               />
@@ -244,6 +244,9 @@ import { useCRMStore } from '../../stores/crm';
 import { useOrders } from '../../composables/useOrders';
 import { useProducts } from '../../composables/useProducts';
 import { useUsers } from '../../composables/useUsers';
+import { useMediaUrl } from '../../composables/useMediaUrl';
+
+const { getProductImageUrl } = useMediaUrl();
 
 definePageMeta({
   layout: 'admin',

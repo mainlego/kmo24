@@ -87,7 +87,7 @@
           <h3 class="section-title">Обложка</h3>
           <div class="cover-upload">
             <div v-if="form.coverImage" class="cover-preview">
-              <img :src="form.coverImage" alt="Cover" />
+              <img :src="getMediaUrl(form.coverImage)" alt="Cover" />
               <button class="remove-cover" @click="form.coverImage = ''">
                 <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -152,6 +152,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useToast } from '~/composables/useToast';
+import { useMediaUrl } from '../../../composables/useMediaUrl';
 
 definePageMeta({
   layout: 'admin',
@@ -161,6 +162,7 @@ definePageMeta({
 const route = useRoute();
 const { apiFetch } = useApi();
 const { success, error } = useToast();
+const { getMediaUrl } = useMediaUrl();
 
 const loading = ref(false);
 const tagInput = ref('');
