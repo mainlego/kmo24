@@ -26,39 +26,38 @@
             <AdminEditableElement
               element-id="hero-title"
               tag="h1"
+              type="html"
+              label="Hero - Заголовок"
               class="hero-title animate-fade-in delay-1"
               :class="{ 'is-visible': isVisible }"
-              :default-value="heroTitle"
+              :default-value="heroTitleHtml"
             >
-              <template v-if="!pageEditor.isEditMode.value || !pageEditor.getElementValue('hero-title', '')">
-                Профессиональное<br>
-                <span class="gradient-text">кухонное оборудование</span><br>
-                для вашего бизнеса
-              </template>
-              <template v-else>
-                <span v-html="pageEditor.getElementValue('hero-title', heroTitle)"></span>
-              </template>
+              <span v-html="pageEditor.getElementValue('hero-title', heroTitleHtml)"></span>
             </AdminEditableElement>
 
             <AdminEditableElement
               element-id="hero-subtitle"
               tag="p"
+              type="html"
+              label="Hero - Подзаголовок"
               class="hero-subtitle animate-fade-in delay-2"
               :class="{ 'is-visible': isVisible }"
-              :default-value="heroSubtitle"
+              :default-value="heroSubtitleHtml"
             >
-              <template v-if="!pageEditor.isEditMode.value || !pageEditor.getElementValue('hero-subtitle', '')">
-                Крупнейший выбор б/у оборудования для HoReCa в Красноярске.<br>
-                Гарантия качества, техническая поддержка, выгодный обмен вашей техники.
-              </template>
-              <template v-else>
-                <span v-html="pageEditor.getElementValue('hero-subtitle', heroSubtitle)"></span>
-              </template>
+              <span v-html="pageEditor.getElementValue('hero-subtitle', heroSubtitleHtml)"></span>
             </AdminEditableElement>
 
             <div class="hero-actions animate-fade-in delay-3" :class="{ 'is-visible': isVisible }">
               <NuxtLink to="/products" class="btn btn-primary">
-                <span>Смотреть каталог</span>
+                <AdminEditableElement
+                  element-id="hero-btn-catalog"
+                  tag="span"
+                  type="text"
+                  label="Кнопка - Каталог"
+                  default-value="Смотреть каталог"
+                >
+                  {{ pageEditor.getElementValue('hero-btn-catalog', 'Смотреть каталог') }}
+                </AdminEditableElement>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
@@ -67,7 +66,15 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" stroke-width="2"/>
                 </svg>
-                <span>Получить консультацию</span>
+                <AdminEditableElement
+                  element-id="hero-btn-consult"
+                  tag="span"
+                  type="text"
+                  label="Кнопка - Консультация"
+                  default-value="Получить консультацию"
+                >
+                  {{ pageEditor.getElementValue('hero-btn-consult', 'Получить консультацию') }}
+                </AdminEditableElement>
               </NuxtLink>
             </div>
           </div>
@@ -81,8 +88,12 @@
                 </svg>
               </div>
               <div class="action-content">
-                <h3 class="action-title">Купить оборудование</h3>
-                <p class="action-desc">Большой выбор проверенной техники для вашего бизнеса</p>
+                <AdminEditableElement element-id="action-buy-title" tag="h3" type="text" label="Карточка Купить - Заголовок" default-value="Купить оборудование" class="action-title">
+                  {{ pageEditor.getElementValue('action-buy-title', 'Купить оборудование') }}
+                </AdminEditableElement>
+                <AdminEditableElement element-id="action-buy-desc" tag="p" type="text" label="Карточка Купить - Описание" default-value="Большой выбор проверенной техники для вашего бизнеса" class="action-desc">
+                  {{ pageEditor.getElementValue('action-buy-desc', 'Большой выбор проверенной техники для вашего бизнеса') }}
+                </AdminEditableElement>
                 <div class="action-arrow">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M5 12h14m0 0l-7-7m7 7l-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -98,8 +109,12 @@
                 </svg>
               </div>
               <div class="action-content">
-                <h3 class="action-title">Продать оборудование</h3>
-                <p class="action-desc">Выкупим вашу технику по выгодной цене</p>
+                <AdminEditableElement element-id="action-sell-title" tag="h3" type="text" label="Карточка Продать - Заголовок" default-value="Продать оборудование" class="action-title">
+                  {{ pageEditor.getElementValue('action-sell-title', 'Продать оборудование') }}
+                </AdminEditableElement>
+                <AdminEditableElement element-id="action-sell-desc" tag="p" type="text" label="Карточка Продать - Описание" default-value="Выкупим вашу технику по выгодной цене" class="action-desc">
+                  {{ pageEditor.getElementValue('action-sell-desc', 'Выкупим вашу технику по выгодной цене') }}
+                </AdminEditableElement>
                 <div class="action-arrow">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M5 12h14m0 0l-7-7m7 7l-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -115,8 +130,12 @@
                 </svg>
               </div>
               <div class="action-content">
-                <h3 class="action-title">Получить консультацию</h3>
-                <p class="action-desc">Поможем подобрать оборудование под ваши задачи</p>
+                <AdminEditableElement element-id="action-consult-title" tag="h3" type="text" label="Карточка Консультация - Заголовок" default-value="Получить консультацию" class="action-title">
+                  {{ pageEditor.getElementValue('action-consult-title', 'Получить консультацию') }}
+                </AdminEditableElement>
+                <AdminEditableElement element-id="action-consult-desc" tag="p" type="text" label="Карточка Консультация - Описание" default-value="Поможем подобрать оборудование под ваши задачи" class="action-desc">
+                  {{ pageEditor.getElementValue('action-consult-desc', 'Поможем подобрать оборудование под ваши задачи') }}
+                </AdminEditableElement>
                 <div class="action-arrow">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M5 12h14m0 0l-7-7m7 7l-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -135,8 +154,12 @@
                 </svg>
               </div>
               <div class="advantage-content">
-                <div class="advantage-title">100% проверка</div>
-                <div class="advantage-desc">Полная диагностика перед продажей</div>
+                <AdminEditableElement element-id="adv1-title" tag="div" type="text" label="Преимущество 1 - Заголовок" default-value="100% проверка" class="advantage-title">
+                  {{ pageEditor.getElementValue('adv1-title', '100% проверка') }}
+                </AdminEditableElement>
+                <AdminEditableElement element-id="adv1-desc" tag="div" type="text" label="Преимущество 1 - Описание" default-value="Полная диагностика перед продажей" class="advantage-desc">
+                  {{ pageEditor.getElementValue('adv1-desc', 'Полная диагностика перед продажей') }}
+                </AdminEditableElement>
               </div>
             </div>
 
@@ -147,8 +170,12 @@
                 </svg>
               </div>
               <div class="advantage-content">
-                <div class="advantage-title">Широкий ассортимент</div>
-                <div class="advantage-desc">Более 300 единиц техники</div>
+                <AdminEditableElement element-id="adv2-title" tag="div" type="text" label="Преимущество 2 - Заголовок" default-value="Широкий ассортимент" class="advantage-title">
+                  {{ pageEditor.getElementValue('adv2-title', 'Широкий ассортимент') }}
+                </AdminEditableElement>
+                <AdminEditableElement element-id="adv2-desc" tag="div" type="text" label="Преимущество 2 - Описание" default-value="Более 300 единиц техники" class="advantage-desc">
+                  {{ pageEditor.getElementValue('adv2-desc', 'Более 300 единиц техники') }}
+                </AdminEditableElement>
               </div>
             </div>
 
@@ -159,8 +186,12 @@
                 </svg>
               </div>
               <div class="advantage-content">
-                <div class="advantage-title">Быстрая доставка</div>
-                <div class="advantage-desc">По городу за 1-2 дня</div>
+                <AdminEditableElement element-id="adv3-title" tag="div" type="text" label="Преимущество 3 - Заголовок" default-value="Быстрая доставка" class="advantage-title">
+                  {{ pageEditor.getElementValue('adv3-title', 'Быстрая доставка') }}
+                </AdminEditableElement>
+                <AdminEditableElement element-id="adv3-desc" tag="div" type="text" label="Преимущество 3 - Описание" default-value="По городу за 1-2 дня" class="advantage-desc">
+                  {{ pageEditor.getElementValue('adv3-desc', 'По городу за 1-2 дня') }}
+                </AdminEditableElement>
               </div>
             </div>
 
@@ -171,8 +202,12 @@
                 </svg>
               </div>
               <div class="advantage-content">
-                <div class="advantage-title">Выгодные цены</div>
-                <div class="advantage-desc">Экономия до 70%</div>
+                <AdminEditableElement element-id="adv4-title" tag="div" type="text" label="Преимущество 4 - Заголовок" default-value="Выгодные цены" class="advantage-title">
+                  {{ pageEditor.getElementValue('adv4-title', 'Выгодные цены') }}
+                </AdminEditableElement>
+                <AdminEditableElement element-id="adv4-desc" tag="div" type="text" label="Преимущество 4 - Описание" default-value="Экономия до 70%" class="advantage-desc">
+                  {{ pageEditor.getElementValue('adv4-desc', 'Экономия до 70%') }}
+                </AdminEditableElement>
               </div>
             </div>
           </div>
@@ -486,9 +521,9 @@ const apiBase = config.public.apiBaseUrl;
 // Page editor for visual editing
 const pageEditor = usePageEditor();
 
-// Default content values
-const heroTitle = 'Профессиональное кухонное оборудование для вашего бизнеса';
-const heroSubtitle = 'Крупнейший выбор б/у оборудования для HoReCa в Красноярске. Гарантия качества, техническая поддержка, выгодный обмен вашей техники.';
+// Default content values (with HTML)
+const heroTitleHtml = 'Профессиональное<br><span class="gradient-text">кухонное оборудование</span><br>для вашего бизнеса';
+const heroSubtitleHtml = 'Крупнейший выбор б/у оборудования для HoReCa в Красноярске.<br>Гарантия качества, техническая поддержка, выгодный обмен вашей техники.';
 
 // Parallax effect
 const parallaxOffset = ref(0);

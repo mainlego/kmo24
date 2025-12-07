@@ -25,17 +25,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 interface Props {
   elementId: string;
   tag?: string;
   defaultValue?: string;
+  type?: 'text' | 'html' | 'image' | 'icon' | 'link' | 'background';
+  label?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   tag: 'div',
   defaultValue: '',
+  type: 'text',
+  label: '',
 });
 
 const pageEditor = usePageEditor();
@@ -44,7 +48,8 @@ const {
   selectedElement,
   selectElement,
   getElementValue,
-  updateElement,
+  registerElement,
+  unregisterElement,
 } = pageEditor;
 
 const isHovering = ref(false);
@@ -53,6 +58,21 @@ const isSelected = computed(() => selectedElement.value === props.elementId);
 
 const displayValue = computed(() => {
   return getElementValue(props.elementId, props.defaultValue);
+});
+
+// Register element when mounted
+onMounted(() => {
+  registerElement({
+    id: props.elementId,
+    type: props.type,
+    defaultValue: props.defaultValue,
+    label: props.label || props.elementId,
+  });
+});
+
+// Unregister when unmounted
+onUnmounted(() => {
+  unregisterElement(props.elementId);
 });
 
 const handleClick = (e: MouseEvent) => {

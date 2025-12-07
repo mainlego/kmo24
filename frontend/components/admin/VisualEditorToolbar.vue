@@ -64,7 +64,7 @@
       <div v-if="isEditMode && selectedElement" class="element-editor-overlay" @click.self="closeElementEditor">
         <div class="element-editor-modal">
           <div class="modal-header">
-            <h3>Редактирование элемента</h3>
+            <h3>{{ elementLabel }}</h3>
             <button class="close-btn" @click="closeElementEditor">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -72,14 +72,54 @@
             </button>
           </div>
           <div class="modal-body">
-            <div class="form-group">
+            <!-- Text/HTML editor -->
+            <div v-if="elementType === 'text' || elementType === 'html'" class="form-group">
               <label>Содержимое</label>
               <textarea
+                ref="textareaRef"
                 v-model="editingValue"
-                rows="4"
+                :rows="elementType === 'html' ? 8 : 4"
                 class="form-textarea"
                 placeholder="Введите текст..."
               ></textarea>
+              <span v-if="elementType === 'html'" class="form-hint">Поддерживается HTML разметка</span>
+            </div>
+
+            <!-- Image editor -->
+            <div v-else-if="elementType === 'image'" class="form-group">
+              <label>URL изображения</label>
+              <input
+                v-model="editingValue"
+                type="text"
+                class="form-input"
+                placeholder="https://example.com/image.jpg"
+              />
+              <div v-if="editingValue" class="image-preview">
+                <img :src="editingValue" alt="Preview" @error="handleImageError" />
+              </div>
+            </div>
+
+            <!-- Link editor -->
+            <div v-else-if="elementType === 'link'" class="form-group">
+              <label>Текст ссылки</label>
+              <input
+                v-model="editingValue"
+                type="text"
+                class="form-input"
+                placeholder="Текст кнопки или ссылки"
+              />
+            </div>
+
+            <!-- Background editor -->
+            <div v-else-if="elementType === 'background'" class="form-group">
+              <label>Цвет или градиент</label>
+              <input
+                v-model="editingValue"
+                type="text"
+                class="form-input"
+                placeholder="#ffffff или linear-gradient(...)"
+              />
+              <div class="color-preview" :style="{ background: editingValue }"></div>
             </div>
           </div>
           <div class="modal-footer">
@@ -106,16 +146,24 @@ const {
   hasChanges,
   isSaving,
   selectedElement,
+  selectedElementInfo,
   cancelEditMode,
   saveChanges,
   discardChanges,
   selectElement,
   updateElement,
-  getElementValue,
+  getEditingValue,
 } = pageEditor;
 
 const showHint = ref(true);
 const editingValue = ref('');
+const textareaRef = ref<HTMLTextAreaElement | null>(null);
+
+// Handle image load error
+const handleImageError = (e: Event) => {
+  const img = e.target as HTMLImageElement;
+  img.style.display = 'none';
+};
 
 // Page names mapping
 const pageNames: Record<string, string> = {
@@ -130,10 +178,20 @@ const currentPageName = computed(() => {
   return currentPageId.value ? pageNames[currentPageId.value] || currentPageId.value : '';
 });
 
+// Get label for selected element
+const elementLabel = computed(() => {
+  return selectedElementInfo.value?.label || selectedElement.value || 'Элемент';
+});
+
+// Get type for selected element
+const elementType = computed(() => {
+  return selectedElementInfo.value?.type || 'text';
+});
+
 // Watch for selected element changes
 watch(selectedElement, (newValue) => {
   if (newValue) {
-    editingValue.value = getElementValue(newValue, '');
+    editingValue.value = getEditingValue(newValue);
   }
 });
 
@@ -535,6 +593,50 @@ onUnmounted(() => {
     border-color: #f59e0b;
     box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
   }
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+  }
+}
+
+.form-hint {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.image-preview {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  text-align: center;
+
+  img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 4px;
+  }
+}
+
+.color-preview {
+  margin-top: 0.75rem;
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
 }
 
 .modal-footer {

@@ -1,11 +1,10 @@
 import { ref, computed, readonly } from 'vue';
 
-interface EditableElement {
+interface EditableElementInfo {
   id: string;
-  type: 'text' | 'image' | 'block' | 'link';
-  selector: string;
-  value: any;
-  originalValue: any;
+  type: 'text' | 'html' | 'image' | 'icon' | 'link' | 'background';
+  defaultValue: string;
+  label?: string;
 }
 
 interface PageContent {
@@ -20,6 +19,8 @@ const pendingChanges = ref<Record<string, any>>({});
 const isSaving = ref(false);
 const originalContent = ref<PageContent | null>(null);
 const selectedElement = ref<string | null>(null);
+const registeredElements = ref<Record<string, EditableElementInfo>>({});
+const selectedElementInfo = ref<EditableElementInfo | null>(null);
 
 export function usePageEditor() {
   const config = useRuntimeConfig();
@@ -88,9 +89,38 @@ export function usePageEditor() {
   // Check if element has pending changes
   const hasChanges = computed(() => Object.keys(pendingChanges.value).length > 0);
 
+  // Register an editable element with its default value
+  const registerElement = (info: EditableElementInfo) => {
+    registeredElements.value[info.id] = info;
+  };
+
+  // Unregister element
+  const unregisterElement = (elementId: string) => {
+    delete registeredElements.value[elementId];
+  };
+
   // Select element for editing
   const selectElement = (elementId: string | null) => {
     selectedElement.value = elementId;
+    if (elementId && registeredElements.value[elementId]) {
+      selectedElementInfo.value = registeredElements.value[elementId];
+    } else {
+      selectedElementInfo.value = null;
+    }
+  };
+
+  // Get current value for editing (pending > saved > default)
+  const getEditingValue = (elementId: string): string => {
+    if (pendingChanges.value[elementId] !== undefined) {
+      return pendingChanges.value[elementId];
+    }
+    if (originalContent.value?.elements[elementId] !== undefined) {
+      return originalContent.value.elements[elementId];
+    }
+    if (registeredElements.value[elementId]) {
+      return registeredElements.value[elementId].defaultValue;
+    }
+    return '';
   };
 
   // Save all changes
@@ -156,14 +186,19 @@ export function usePageEditor() {
     pendingChanges: readonly(pendingChanges),
     isSaving: readonly(isSaving),
     selectedElement: readonly(selectedElement),
+    selectedElementInfo: readonly(selectedElementInfo),
+    registeredElements: readonly(registeredElements),
     hasChanges,
 
     // Actions
     enableEditMode,
     disableEditMode,
     cancelEditMode,
+    registerElement,
+    unregisterElement,
     updateElement,
     getElementValue,
+    getEditingValue,
     selectElement,
     saveChanges,
     discardChanges,
