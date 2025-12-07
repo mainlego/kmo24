@@ -267,6 +267,9 @@
       <slot />
     </main>
 
+    <!-- Visual Editor Toolbar (for admin edit mode) -->
+    <AdminVisualEditorToolbar />
+
     <!-- Premium Footer -->
     <footer class="footer">
       <div class="footer-gradient"></div>
