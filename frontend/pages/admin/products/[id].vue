@@ -97,41 +97,33 @@
 
         <!-- Pricing -->
         <div class="form-section">
-          <h2 class="section-title">Цены и наличие</h2>
+          <h2 class="section-title">Цены</h2>
 
           <div class="form-row">
             <AdminFormInput
               v-model.number="form.price"
-              label="Цена"
+              label="Наша цена"
               type="number"
               placeholder="0"
               :required="true"
               :error="errors.price"
+              hint="Цена продажи на сайте"
             >
               <template #suffix>₽</template>
             </AdminFormInput>
 
             <AdminFormInput
-              v-model.number="form.oldPrice"
-              label="Старая цена"
+              v-model.number="form.newPrice"
+              label="Цена нового"
               type="number"
               placeholder="0"
-              hint="Для отображения скидки"
+              hint="Рыночная цена нового оборудования"
             >
               <template #suffix>₽</template>
             </AdminFormInput>
           </div>
 
           <div class="form-row">
-            <AdminFormInput
-              v-model.number="form.stock"
-              label="Остаток на складе"
-              type="number"
-              placeholder="0"
-              :required="true"
-              :error="errors.stock"
-            />
-
             <AdminFormSelect
               v-model="form.condition"
               label="Состояние"
@@ -140,14 +132,14 @@
               label-key="label"
               :required="true"
             />
-          </div>
 
-          <AdminFormInput
-            v-model="form.location"
-            label="Местоположение"
-            placeholder="Москва, склад №1"
-            hint="Где находится товар"
-          />
+            <AdminFormInput
+              v-model="form.location"
+              label="Местоположение"
+              placeholder="Москва, склад №1"
+              hint="Где находится товар"
+            />
+          </div>
         </div>
 
         <!-- Technical Specs -->
@@ -351,6 +343,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useToast } from '~/composables/useToast';
 import { useMediaUrl } from '../../../composables/useMediaUrl';
+import { useAuthStore } from '../../../stores/auth';
 
 definePageMeta({
   layout: 'admin',
@@ -360,6 +353,7 @@ definePageMeta({
 const route = useRoute();
 const { success, error } = useToast();
 const { getProductImageUrl } = useMediaUrl();
+const authStore = useAuthStore();
 
 // State
 const loading = ref(false);
@@ -380,8 +374,7 @@ const form = ref({
   description: '',
   fullDescription: '',
   price: 0,
-  oldPrice: 0,
-  stock: 0,
+  newPrice: 0,
   condition: 'good',
   location: '',
   status: 'draft',
@@ -477,10 +470,6 @@ const validateForm = () => {
     errors.value.price = 'Укажите корректную цену';
   }
 
-  if (form.value.stock < 0) {
-    errors.value.stock = 'Остаток не может быть отрицательным';
-  }
-
   return Object.keys(errors.value).length === 0;
 };
 
@@ -505,9 +494,9 @@ const saveProduct = async () => {
       description: form.value.description,
       fullDescription: form.value.fullDescription,
       price: form.value.price,
-      oldPrice: form.value.oldPrice || undefined,
+      oldPrice: form.value.newPrice || undefined,
       stock: {
-        quantity: form.value.stock || 0,
+        quantity: 1,
         reserved: 0,
       },
       condition: form.value.condition,
@@ -561,7 +550,7 @@ const saveDraft = async () => {
       category: form.value.category,
       description: form.value.description,
       price: form.value.price || 0,
-      stock: { quantity: form.value.stock || 0, reserved: 0 },
+      stock: { quantity: 1, reserved: 0 },
       isActive: false, // Draft is inactive
     };
 
@@ -613,14 +602,26 @@ const handleFileUpload = async (event: Event) => {
       const formData = new FormData();
       formData.append('image', file);
 
-      // Загружаем через fetch напрямую (для FormData)
-      const token = localStorage.getItem('accessToken');
+      // Получаем токен из store или localStorage
+      const token = authStore.accessToken || localStorage.getItem('accessToken');
+
+      if (!token) {
+        throw new Error('Необходима авторизация');
+      }
+
       const response = await fetch(`${apiBase}/uploads/image`, {
         method: 'POST',
         body: formData,
         credentials: 'include',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Ошибка сервера: ${response.status}`);
+      }
 
       const result = await response.json();
 
@@ -633,6 +634,7 @@ const handleFileUpload = async (event: Event) => {
 
     success(`Загружено изображений: ${files.length}`);
   } catch (err: any) {
+    console.error('Upload error:', err);
     error(err.message || 'Ошибка при загрузке изображений');
   } finally {
     loading.value = false;
@@ -667,13 +669,26 @@ const handleDocumentUpload = async (event: Event) => {
       const formData = new FormData();
       formData.append('document', file);
 
-      const token = localStorage.getItem('accessToken');
+      // Получаем токен из store или localStorage
+      const token = authStore.accessToken || localStorage.getItem('accessToken');
+
+      if (!token) {
+        throw new Error('Необходима авторизация');
+      }
+
       const response = await fetch(`${apiBase}/uploads/document`, {
         method: 'POST',
         body: formData,
         credentials: 'include',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Ошибка сервера: ${response.status}`);
+      }
 
       const result = await response.json();
 
@@ -689,6 +704,7 @@ const handleDocumentUpload = async (event: Event) => {
 
     success(`Загружено документов: ${files.length}`);
   } catch (err: any) {
+    console.error('Document upload error:', err);
     error(err.message || 'Ошибка при загрузке документов');
   } finally {
     loading.value = false;
@@ -745,8 +761,7 @@ onMounted(async () => {
           description: product.description || '',
           fullDescription: product.fullDescription || '',
           price: product.price || 0,
-          oldPrice: product.oldPrice || 0,
-          stock: product.stock?.quantity || 0,
+          newPrice: product.oldPrice || 0,
           condition: product.condition || 'good',
           location: product.location || '',
           status: product.isActive ? 'active' : 'draft',

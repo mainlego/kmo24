@@ -49,9 +49,10 @@
             <div class="info-price-row">
               <div class="price-block">
                 <span class="price-current">{{ formatPrice(product.price) }}</span>
-                <span v-if="hasDiscount" class="price-old">{{ formatPrice(product.oldPrice) }}</span>
+                <span v-if="hasNewPrice" class="price-new-ref">Новый: {{ formatPrice(product.oldPrice) }}</span>
+                <span v-if="hasNewPrice && savingsPercent >= 20" class="savings-badge">Выгода {{ savingsPercent }}%</span>
               </div>
-              <span v-if="isInStock" class="stock-badge">В наличии: {{ product.stock.quantity }}</span>
+              <span v-if="isInStock" class="stock-badge">В наличии</span>
               <span v-else class="stock-badge stock-badge--out">Нет в наличии</span>
             </div>
 
@@ -252,14 +253,20 @@ const isInStock = computed(() => {
   return product.value && product.value.stock.quantity > 0 && product.value.isActive;
 });
 
-const hasDiscount = computed(() => {
+// oldPrice теперь используется как "Цена нового"
+const hasNewPrice = computed(() => {
   return product.value?.oldPrice && product.value.oldPrice > product.value.price;
 });
 
-const discountPercent = computed(() => {
-  if (!hasDiscount.value || !product.value?.oldPrice) return 0;
+// Процент экономии по сравнению с ценой нового
+const savingsPercent = computed(() => {
+  if (!hasNewPrice.value || !product.value?.oldPrice) return 0;
   return Math.round(((product.value.oldPrice - product.value.price) / product.value.oldPrice) * 100);
 });
+
+// Для обратной совместимости
+const hasDiscount = hasNewPrice;
+const discountPercent = savingsPercent;
 
 const formatPrice = (price: number): string => {
   return new Intl.NumberFormat('ru-RU', {
@@ -533,6 +540,21 @@ onMounted(async () => {
           font-size: 16px;
           color: $gray-500;
           text-decoration: line-through;
+        }
+
+        .price-new-ref {
+          font-size: 13px;
+          color: $gray-500;
+          font-weight: 400;
+        }
+
+        .savings-badge {
+          padding: 2px 8px;
+          background: rgba($success-500, 0.15);
+          color: $success-700;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 600;
         }
       }
 

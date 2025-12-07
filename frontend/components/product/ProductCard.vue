@@ -43,8 +43,8 @@
         <BaseBadge v-if="isNew" variant="primary" size="sm" rounded>
           Новинка
         </BaseBadge>
-        <BaseBadge v-if="hasDiscount" variant="danger" size="sm" rounded>
-          -{{ discountPercent }}%
+        <BaseBadge v-if="hasNewPrice && savingsPercent >= 20" variant="success" size="sm" rounded>
+          Выгода {{ savingsPercent }}%
         </BaseBadge>
         <BaseBadge v-if="!isInStock" variant="warning" size="sm" rounded>
           Нет в наличии
@@ -89,11 +89,11 @@
         </div>
 
         <div class="product-card__price">
-          <span v-if="hasDiscount" class="product-card__old-price">
-            {{ formatPrice(product.oldPrice!) }}
-          </span>
           <span class="product-card__current-price">
             {{ formatPrice(product.price) }}
+          </span>
+          <span v-if="hasNewPrice" class="product-card__new-price">
+            Новый: {{ formatPrice(product.oldPrice) }}
           </span>
         </div>
       </div>
@@ -176,14 +176,20 @@ const isInStock = computed(() => {
   return props.product.stock.quantity > 0 && props.product.isActive;
 });
 
-const hasDiscount = computed(() => {
+// oldPrice теперь используется как "Цена нового"
+const hasNewPrice = computed(() => {
   return props.product.oldPrice && props.product.oldPrice > props.product.price;
 });
 
-const discountPercent = computed(() => {
-  if (!hasDiscount.value || !props.product.oldPrice) return 0;
+// Процент экономии по сравнению с ценой нового
+const savingsPercent = computed(() => {
+  if (!hasNewPrice.value || !props.product.oldPrice) return 0;
   return Math.round(((props.product.oldPrice - props.product.price) / props.product.oldPrice) * 100);
 });
+
+// Для обратной совместимости
+const hasDiscount = hasNewPrice;
+const discountPercent = savingsPercent;
 
 const isNew = computed(() => {
   const createdDate = new Date(props.product.createdAt);
@@ -510,14 +516,21 @@ const openQuickView = () => {
   }
 
   &__old-price {
-    font-size: 12px; // Ultra-compact: Fixed small size
+    font-size: 12px;
     color: $gray-400;
     text-decoration: line-through;
     font-weight: $font-weight-normal;
   }
 
+  &__new-price {
+    font-size: 11px;
+    color: $gray-500;
+    font-weight: $font-weight-normal;
+    white-space: nowrap;
+  }
+
   &__current-price {
-    font-size: 16px; // Ultra-compact: Smaller but readable price
+    font-size: 16px;
     font-weight: $font-weight-bold;
     color: $primary-600;
   }
