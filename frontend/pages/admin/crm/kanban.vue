@@ -54,12 +54,35 @@
 
     <!-- Board Container with Hint -->
     <div class="board-container">
+      <!-- Navigation Arrows -->
+      <button
+        v-show="canScrollLeft"
+        class="scroll-arrow scroll-arrow--left"
+        @click="scrollBoard('left')"
+        aria-label="Прокрутить влево"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </button>
+
+      <button
+        v-show="canScrollRight"
+        class="scroll-arrow scroll-arrow--right"
+        @click="scrollBoard('right')"
+        aria-label="Прокрутить вправо"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </button>
+
       <Transition name="fade">
         <div v-if="!hasInteractedWithBoard" class="drag-hint">
           <svg class="drag-hint-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
           </svg>
-          <span>Перетащите доску для навигации</span>
+          <span>Используйте стрелки или перетащите доску</span>
         </div>
       </Transition>
 
@@ -242,6 +265,14 @@ const { success, error } = useToast();
 // Загружаем лиды при монтировании
 onMounted(async () => {
   await crmStore.fetchLeads();
+
+  // Setup scroll listener for arrows
+  const board = kanbanBoard.value;
+  if (board) {
+    board.addEventListener('scroll', updateScrollArrows);
+    // Initial check
+    setTimeout(updateScrollArrows, 100);
+  }
 });
 
 const stages = [
@@ -262,6 +293,38 @@ const isDraggingBoard = ref(false);
 const boardDragStart = ref({ x: 0, scrollLeft: 0 });
 const hasInteractedWithBoard = ref(false);
 
+// Scroll arrow visibility
+const canScrollLeft = ref(false);
+const canScrollRight = ref(true);
+
+const updateScrollArrows = () => {
+  const board = kanbanBoard.value;
+  if (!board) return;
+
+  canScrollLeft.value = board.scrollLeft > 10;
+  canScrollRight.value = board.scrollLeft < board.scrollWidth - board.clientWidth - 10;
+};
+
+const scrollBoard = (direction: 'left' | 'right') => {
+  const board = kanbanBoard.value;
+  if (!board) return;
+
+  const scrollAmount = 340; // Column width + gap
+  const newScrollLeft = direction === 'left'
+    ? board.scrollLeft - scrollAmount
+    : board.scrollLeft + scrollAmount;
+
+  board.scrollTo({
+    left: newScrollLeft,
+    behavior: 'smooth'
+  });
+
+  hasInteractedWithBoard.value = true;
+
+  // Update arrows after scroll
+  setTimeout(updateScrollArrows, 300);
+};
+
 // Methods
 const startBoardDrag = (e: MouseEvent) => {
   // Don't start board drag if we're dragging a card
@@ -271,6 +334,18 @@ const startBoardDrag = (e: MouseEvent) => {
 
   // Don't start if clicking on buttons or interactive elements
   if ((e.target as HTMLElement).closest('button, a, input, select, textarea')) {
+    return;
+  }
+
+  // Allow drag on board itself, column headers, or empty column areas
+  const isValidDragTarget =
+    (e.target as HTMLElement).classList.contains('kanban-board') ||
+    (e.target as HTMLElement).closest('.column-header') ||
+    (e.target as HTMLElement).closest('.empty-column') ||
+    (e.target as HTMLElement).closest('.column-body') ||
+    (e.target as HTMLElement).closest('.kanban-column');
+
+  if (!isValidDragTarget) {
     return;
   }
 
@@ -672,6 +747,56 @@ const openCardMenu = (lead: Lead) => {
   flex-direction: column;
 }
 
+// Scroll Arrows
+.scroll-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #374151;
+
+  &:hover {
+    background: #f59e0b;
+    border-color: #f59e0b;
+    color: white;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  &--left {
+    left: 0.5rem;
+  }
+
+  &--right {
+    right: 0.5rem;
+  }
+
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
 .drag-hint {
   position: absolute;
   top: 1rem;
@@ -732,26 +857,29 @@ const openCardMenu = (lead: Lead) => {
   padding-bottom: 1rem;
   cursor: grab;
   -webkit-overflow-scrolling: touch;
+  user-select: none;
+  -webkit-user-select: none;
 
   // Custom scrollbar for better UX
   scrollbar-width: thin;
   scrollbar-color: #d1d5db #f3f4f6;
 
   &::-webkit-scrollbar {
-    height: 8px;
+    height: 12px;
   }
 
   &::-webkit-scrollbar-track {
     background: #f3f4f6;
-    border-radius: 4px;
+    border-radius: 6px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #d1d5db;
-    border-radius: 4px;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border-radius: 6px;
+    border: 2px solid #f3f4f6;
 
     &:hover {
-      background: #9ca3af;
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
     }
   }
 
@@ -759,20 +887,28 @@ const openCardMenu = (lead: Lead) => {
     cursor: grabbing;
     scroll-behavior: auto;
 
+    * {
+      cursor: grabbing !important;
+    }
+
     .lead-card {
       pointer-events: none;
     }
   }
 
+  // На мобильных устройствах используем нативный скролл
   @media (max-width: 1024px) {
     padding-bottom: 2rem;
-    cursor: default; // On mobile, let native scroll behavior work
+    cursor: default;
+    user-select: auto;
+    -webkit-user-select: auto;
   }
 
   // Smooth momentum scrolling on mobile
   @media (max-width: 768px) {
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
+    padding: 0 0.5rem 2rem;
 
     .kanban-column {
       scroll-snap-align: start;
