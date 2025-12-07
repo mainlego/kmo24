@@ -74,10 +74,15 @@ export function usePageEditor() {
 
   // Enable edit mode for a specific page
   const enableEditMode = async (pageId: string) => {
-    if (!isAdmin.value) return;
+    console.log(`[PageEditor] enableEditMode('${pageId}') called, isAdmin:`, isAdmin.value);
+    if (!isAdmin.value) {
+      console.log('[PageEditor] Not admin, skipping edit mode');
+      return;
+    }
 
     currentPageId.value = pageId;
     isEditMode.value = true;
+    console.log('[PageEditor] Edit mode ENABLED, isEditMode.value =', isEditMode.value);
     pendingChanges.value = {};
 
     // Load current page content from server
@@ -249,8 +254,8 @@ export function usePageEditor() {
   });
 
   return {
-    // State
-    isEditMode: readonly(isEditMode),
+    // State - isEditMode returned directly for reactivity in components
+    isEditMode,
     isAdmin,
     currentPageId: readonly(currentPageId),
     pendingChanges: readonly(pendingChanges),

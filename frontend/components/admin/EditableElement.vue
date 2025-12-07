@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
 interface Props {
   elementId: string;
@@ -53,6 +53,11 @@ const {
 } = pageEditor;
 
 const isHovering = ref(false);
+
+// Debug: log when edit mode changes
+watch(isEditMode, (newValue: boolean) => {
+  console.log(`[EditableElement ${props.elementId}] isEditMode changed to:`, newValue);
+}, { immediate: true });
 
 const isSelected = computed(() => selectedElement.value === props.elementId);
 
