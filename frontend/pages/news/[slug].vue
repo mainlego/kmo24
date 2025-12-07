@@ -98,7 +98,15 @@
 
         <!-- Image Gallery -->
         <div v-if="newsItem.images?.length > 1" class="news-article__gallery">
-          <h3>Фотогалерея</h3>
+          <AdminEditableElement
+            element-id="news-gallery-title"
+            tag="h3"
+            type="text"
+            label="Заголовок галереи"
+            default-value="Фотогалерея"
+          >
+            {{ pageEditor.getElementValue('news-gallery-title', 'Фотогалерея') }}
+          </AdminEditableElement>
           <div class="gallery-grid">
             <div
               v-for="(image, index) in newsItem.images"
@@ -113,7 +121,15 @@
 
         <!-- Share Section -->
         <div class="news-article__share">
-          <span>Поделиться:</span>
+          <AdminEditableElement
+            element-id="news-share-title"
+            tag="span"
+            type="text"
+            label="Заголовок блока 'Поделиться'"
+            default-value="Поделиться:"
+          >
+            {{ pageEditor.getElementValue('news-share-title', 'Поделиться:') }}
+          </AdminEditableElement>
           <div class="share-buttons">
             <button @click="shareToTelegram" class="share-btn share-btn--telegram" title="Telegram">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -141,7 +157,15 @@
 
         <!-- Related News -->
         <div v-if="relatedNews.length" class="news-article__related">
-          <h3>Похожие новости</h3>
+          <AdminEditableElement
+            element-id="news-related-title"
+            tag="h3"
+            type="text"
+            label="Заголовок похожих новостей"
+            default-value="Похожие новости"
+          >
+            {{ pageEditor.getElementValue('news-related-title', 'Похожие новости') }}
+          </AdminEditableElement>
           <div class="related-grid">
             <NuxtLink
               v-for="item in relatedNews"
@@ -170,7 +194,15 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="m15 18-6-6 6-6"/>
             </svg>
-            Вернуться к новостям
+            <AdminEditableElement
+              element-id="news-back-link"
+              tag="span"
+              type="text"
+              label="Текст ссылки 'Вернуться к новостям'"
+              default-value="Вернуться к новостям"
+            >
+              {{ pageEditor.getElementValue('news-back-link', 'Вернуться к новостям') }}
+            </AdminEditableElement>
           </NuxtLink>
         </div>
       </article>
@@ -214,6 +246,9 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const { apiFetch } = useApi();
+
+// Page Editor для визуального редактирования
+const pageEditor = usePageEditor();
 
 interface NewsImage {
   url: string;
@@ -404,7 +439,10 @@ const fetchNews = async () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  // Загружаем контент страницы для визуального редактора
+  await pageEditor.loadPageContent('news-detail');
+
   fetchNews();
 });
 

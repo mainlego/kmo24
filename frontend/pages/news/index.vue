@@ -5,8 +5,24 @@
     <div class="container">
       <!-- Page Header -->
       <div class="news-page__header">
-        <h1>Новости</h1>
-        <p>Актуальные новости и акции КМО24</p>
+        <AdminEditableElement
+          element-id="news-page-title"
+          tag="h1"
+          type="text"
+          label="Заголовок страницы новостей"
+          default-value="Новости"
+        >
+          {{ pageEditor.getElementValue('news-page-title', 'Новости') }}
+        </AdminEditableElement>
+        <AdminEditableElement
+          element-id="news-page-subtitle"
+          tag="p"
+          type="text"
+          label="Подзаголовок страницы новостей"
+          default-value="Актуальные новости и акции КМО24"
+        >
+          {{ pageEditor.getElementValue('news-page-subtitle', 'Актуальные новости и акции КМО24') }}
+        </AdminEditableElement>
       </div>
 
       <!-- Tags Filter -->
@@ -80,8 +96,24 @@
           <path d="M15 18h-5"/>
           <path d="M10 6h8v4h-8V6Z"/>
         </svg>
-        <h3>Новостей пока нет</h3>
-        <p>Скоро здесь появятся интересные новости и акции</p>
+        <AdminEditableElement
+          element-id="news-empty-title"
+          tag="h3"
+          type="text"
+          label="Заголовок пустого состояния"
+          default-value="Новостей пока нет"
+        >
+          {{ pageEditor.getElementValue('news-empty-title', 'Новостей пока нет') }}
+        </AdminEditableElement>
+        <AdminEditableElement
+          element-id="news-empty-text"
+          tag="p"
+          type="text"
+          label="Текст пустого состояния"
+          default-value="Скоро здесь появятся интересные новости и акции"
+        >
+          {{ pageEditor.getElementValue('news-empty-text', 'Скоро здесь появятся интересные новости и акции') }}
+        </AdminEditableElement>
       </div>
 
       <!-- Pagination -->
@@ -112,6 +144,9 @@
 import { ref, onMounted, watch } from 'vue';
 
 const { apiFetch } = useApi();
+
+// Page Editor для визуального редактирования
+const pageEditor = usePageEditor();
 
 interface NewsItem {
   _id: string;
@@ -242,7 +277,10 @@ watch(selectedTag, () => {
   fetchNews();
 });
 
-onMounted(() => {
+onMounted(async () => {
+  // Загружаем контент страницы для визуального редактора
+  await pageEditor.loadPageContent('news');
+
   fetchNews();
   fetchTags();
 });
