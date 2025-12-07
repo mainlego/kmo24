@@ -225,17 +225,8 @@ async function migrate() {
     // Создаем директории
     await ensureDirectories();
 
-    // Импортируем модель Product после подключения
-    const Product = mongoose.model('Product', new mongoose.Schema({
-      name: String,
-      sku: String,
-      images: [{
-        url: String,
-        alt: String,
-        isPrimary: Boolean,
-        sortOrder: Number,
-      }],
-    }, { strict: false }));
+    // Импортируем модель Product
+    const { default: Product } = await import('../models/Product.js');
 
     // Получаем все товары с изображениями
     const products = await Product.find({ 'images.0': { $exists: true } });
