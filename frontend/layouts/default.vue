@@ -370,6 +370,7 @@
 import { ref, computed, onMounted, onUnmounted, watch, defineAsyncComponent } from 'vue';
 import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
+import { usePageEditor } from '../composables/usePageEditor';
 import { useRoute, useRouter } from 'vue-router';
 
 // Lazy load AuthModal component
@@ -385,6 +386,7 @@ const isUserMenuOpen = ref(false);
 const isCallbackModalOpen = ref(false);
 const cartStore = useCartStore();
 const authStore = useAuthStore();
+const pageEditor = usePageEditor();
 
 // Get cart count from store
 const cartCount = computed(() => cartStore.totalItems);
@@ -463,12 +465,40 @@ const handleEscape = (event: KeyboardEvent) => {
   }
 };
 
+// Map route paths to page IDs for visual editor
+const routeToPageId: Record<string, string> = {
+  '/': 'home',
+  '/delivery': 'delivery',
+  '/contacts': 'contacts',
+  '/warranty': 'warranty',
+  '/about': 'about',
+};
+
+// Check for ?edit=true and activate edit mode
+const checkEditMode = async () => {
+  if (route.query.edit === 'true' && authStore.user?.role === 'admin') {
+    const pageId = routeToPageId[route.path];
+    if (pageId) {
+      console.log('[Layout] Activating edit mode for page:', pageId);
+      await pageEditor.enableEditMode(pageId);
+    }
+  }
+};
+
+// Watch for route changes to handle edit mode
+watch(() => route.fullPath, async () => {
+  await checkEditMode();
+}, { immediate: false });
+
 onMounted(async () => {
   window.addEventListener('scroll', handleScroll);
   window.addEventListener('keydown', handleEscape);
 
   // Инициализация auth store
   await authStore.init();
+
+  // Check edit mode after auth is initialized
+  await checkEditMode();
 });
 
 onUnmounted(() => {

@@ -69,7 +69,8 @@
       "Bash(netstat:*)",
       "Bash(ss:*)",
       "Bash({} ;)",
-      "Bash(npx nuxt prepare:*)"
+      "Bash(npx nuxt prepare:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []
