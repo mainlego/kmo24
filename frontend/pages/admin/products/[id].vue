@@ -186,7 +186,7 @@
 
           <div class="images-grid">
             <div v-for="(image, index) in form.images" :key="index" class="image-item">
-              <img :src="image" :alt="`Image ${index + 1}`" />
+              <img :src="getProductImageUrl(image)" :alt="`Image ${index + 1}`" />
               <button class="remove-image" @click="removeImage(index)">
                 <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -350,6 +350,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useToast } from '~/composables/useToast';
+import { useMediaUrl } from '../../../composables/useMediaUrl';
 
 definePageMeta({
   layout: 'admin',
@@ -358,6 +359,7 @@ definePageMeta({
 
 const route = useRoute();
 const { success, error } = useToast();
+const { getProductImageUrl } = useMediaUrl();
 
 // State
 const loading = ref(false);
