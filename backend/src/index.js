@@ -42,6 +42,7 @@ import apiKeysRoutes from './routes/apiKeys.js';
 import deliveryRoutes from './routes/delivery.js';
 import leadRoutes from './routes/leads.js';
 import uploadsRoutes from './routes/uploads.js';
+import settingsRoutes from './routes/settings.js';
 import { UPLOADS_PATH } from './middleware/upload.js';
 
 const app = express();
@@ -164,6 +165,7 @@ app.use(`${API_PREFIX}/admin/api-keys`, apiKeysRoutes);
 app.use(`${API_PREFIX}/delivery`, deliveryRoutes);
 app.use(`${API_PREFIX}/leads`, leadRoutes);
 app.use(`${API_PREFIX}/uploads`, uploadsRoutes);
+app.use(`${API_PREFIX}/settings`, settingsRoutes);
 
 // Статические файлы - раздаём из UPLOADS_PATH (продакшен: /var/data/uploads)
 app.use('/uploads', express.static(UPLOADS_PATH));

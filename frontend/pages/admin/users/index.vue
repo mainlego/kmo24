@@ -595,10 +595,17 @@ const deleteUser = async (user: any) => {
 };
 
 onMounted(async () => {
-  await Promise.all([
-    fetchUsers(),
-    fetchStats(),
-  ]);
+  // Загружаем данные параллельно, но не блокируем при ошибке stats
+  try {
+    await fetchUsers();
+  } catch (error) {
+    console.error('Error fetching users:', error);
+  }
+
+  // Stats загружаем отдельно, чтобы ошибка не блокировала загрузку пользователей
+  fetchStats().catch(error => {
+    console.error('Error fetching stats:', error);
+  });
 });
 
 // Watch for filter changes

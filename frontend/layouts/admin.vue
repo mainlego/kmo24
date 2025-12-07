@@ -157,6 +157,7 @@ const pageTitle = computed(() => {
   if (path.includes('/users')) return 'Пользователи';
   if (path.includes('/categories')) return 'Категории';
   if (path.includes('/news')) return 'Новости';
+  if (path.includes('/pages')) return 'Страницы';
   if (path.includes('/settings')) return 'Настройки';
   return 'Админ-панель';
 });
@@ -203,6 +204,11 @@ const navigation = computed(() => [
     label: 'Новости',
     path: '/admin/news',
     icon: 'IconNews',
+  },
+  {
+    label: 'Страницы',
+    path: '/admin/pages',
+    icon: 'IconPages',
   },
   {
     label: 'Настройки',
