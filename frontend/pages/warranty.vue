@@ -1,30 +1,11 @@
 <template>
   <div class="warranty-page">
-    <!-- Page Header -->
-    <section class="page-header">
-      <div class="container">
-        <AdminEditableElement
-          element-id="warranty-hero-title"
-          tag="h1"
-          type="text"
-          label="Заголовок страницы"
-          class="page-title"
-          :default-value="'Гарантийные обязательства'"
-        >
-          {{ pageEditor.getElementValue('warranty-hero-title', 'Гарантийные обязательства') }}
-        </AdminEditableElement>
-        <AdminEditableElement
-          element-id="warranty-hero-subtitle"
-          tag="p"
-          type="text"
-          label="Подзаголовок страницы"
-          class="page-subtitle"
-          :default-value="'Надежность и качество каждой единицы оборудования'"
-        >
-          {{ pageEditor.getElementValue('warranty-hero-subtitle', 'Надежность и качество каждой единицы оборудования') }}
-        </AdminEditableElement>
-      </div>
-    </section>
+    <!-- Page Header - как на странице доставки -->
+    <PageHeader
+      title="Гарантийные обязательства"
+      description="Надежность и качество каждой единицы оборудования"
+      :breadcrumbs="[{ text: 'Гарантия' }]"
+    />
 
     <!-- Main Warranty Content -->
     <section class="warranty-content">
@@ -376,28 +357,6 @@ onMounted(async () => {
 .warranty-page {
   min-height: 100vh;
   background: linear-gradient(180deg, $gray-50 0%, $white 100%);
-}
-
-// Page Header
-.page-header {
-  padding: 120px 0 60px;
-  background: linear-gradient(135deg,
-    rgba($primary-500, 0.05) 0%,
-    rgba($primary-light, 0.05) 100%);
-  border-bottom: 1px solid $gray-100;
-  text-align: center;
-}
-
-.page-title {
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: $font-weight-bold;
-  color: $gray-900;
-  margin-bottom: $spacing-md;
-}
-
-.page-subtitle {
-  font-size: $font-size-lg;
-  color: $gray-600;
 }
 
 // Warranty Content

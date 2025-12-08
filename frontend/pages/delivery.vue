@@ -45,7 +45,7 @@
               </div>
             </div>
             <div class="p-6 bg-white rounded-b-2xl">
-              <h3 class="text-2xl font-bold mb-3">До объекта</h3>
+              <h3 class="text-2xl font-bold mb-3">Курьерская доставка</h3>
               <div class="space-y-3 mb-6">
                 <div class="flex items-start">
                   <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
