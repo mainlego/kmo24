@@ -273,6 +273,9 @@ const handleFocus = () => {
 };
 
 const handleBlur = () => {
+  // Если используется в модальном окне, не закрываем по потере фокуса
+  if (props.autoOpen) return;
+
   // Небольшая задержка, чтобы клик по результату успел сработать
   setTimeout(() => {
     isOpen.value = false;
@@ -380,7 +383,11 @@ const highlightMatch = (text: string) => {
 };
 
 // Закрывать поиск при клике вне области
+// НО не закрываем если autoOpen=true (используется в модальном окне)
 const handleClickOutside = (event: MouseEvent) => {
+  // Если используется в модальном окне, не закрываем по клику вне
+  if (props.autoOpen) return;
+
   const target = event.target as HTMLElement;
   if (!target.closest('.smart-search')) {
     closeSearch();
@@ -390,13 +397,14 @@ const handleClickOutside = (event: MouseEvent) => {
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
 
+  // Если autoOpen=true (используется в модальном окне), открываем dropdown сразу
+  if (props.autoOpen) {
+    isOpen.value = true;
+  }
+
   // Auto-focus the search input when mounted
   setTimeout(() => {
     searchInput.value?.focus();
-    // Если autoOpen=true (используется в модальном окне), открываем dropdown сразу
-    if (props.autoOpen) {
-      isOpen.value = true;
-    }
   }, 100);
 });
 
