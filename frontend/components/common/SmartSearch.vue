@@ -174,6 +174,11 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import type { Product } from '~/types';
 
+// Props для управления состоянием извне (например из модального окна)
+const props = defineProps<{
+  autoOpen?: boolean; // Автоматически открывать dropdown при монтировании
+}>();
+
 const { getProductImageUrl } = useMediaUrl();
 
 const searchQuery = ref('');
@@ -388,6 +393,10 @@ onMounted(() => {
   // Auto-focus the search input when mounted
   setTimeout(() => {
     searchInput.value?.focus();
+    // Если autoOpen=true (используется в модальном окне), открываем dropdown сразу
+    if (props.autoOpen) {
+      isOpen.value = true;
+    }
   }, 100);
 });
 
