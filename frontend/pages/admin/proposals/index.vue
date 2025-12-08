@@ -128,6 +128,19 @@
             Сформировать КП
           </button>
 
+          <button
+            type="button"
+            class="btn-print"
+            @click="generateAndPrint"
+            :disabled="!canGenerate"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="6" y="14" width="12" height="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Печать КП
+          </button>
+
           <button type="button" class="btn-secondary" @click="clearAll">
             Очистить
           </button>
@@ -166,6 +179,48 @@
         </div>
       </div>
     </div>
+
+    <!-- Preview Modal -->
+    <Teleport to="body">
+      <div v-if="showPreviewModal" class="modal-overlay" @click.self="closePreviewModal">
+        <div class="modal-content preview-modal">
+          <div class="modal-header">
+            <h3>Коммерческое предложение {{ previewProposalNumber }}</h3>
+            <button class="modal-close" @click="closePreviewModal">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <iframe
+              v-if="previewUrl"
+              :src="previewUrl"
+              class="preview-iframe"
+              title="Превью КП"
+            />
+          </div>
+          <div class="modal-footer">
+            <button class="btn-secondary" @click="closePreviewModal">
+              Закрыть
+            </button>
+            <button class="btn-download" @click="downloadCurrentProposal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Скачать
+            </button>
+            <button class="btn-print-modal" @click="printCurrentProposal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <rect x="6" y="14" width="12" height="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Печать
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -227,6 +282,12 @@ const validUntilDays = ref(14)
 
 // History
 const proposalsHistory = ref<ProposalHistoryItem[]>([])
+
+// Preview Modal
+const showPreviewModal = ref(false)
+const previewUrl = ref('')
+const previewProposalNumber = ref('')
+const previewHtml = ref('')
 
 // Computed
 const totalAmount = computed(() => {
@@ -396,6 +457,77 @@ const viewProposal = (proposal: ProposalHistoryItem) => {
 
 const printProposalFromHistory = (proposal: ProposalHistoryItem) => {
   printProposal(proposal.url)
+}
+
+// Генерация и сразу печать КП
+const generateAndPrint = async () => {
+  if (!canGenerate.value) return
+
+  const validUntil = new Date()
+  validUntil.setDate(validUntil.getDate() + validUntilDays.value)
+
+  const proposalData: ProposalData = {
+    companyName: customerInfo.value.companyName,
+    companyInn: customerInfo.value.companyInn,
+    contactPerson: customerInfo.value.contactPerson,
+    phone: customerInfo.value.phone,
+    email: customerInfo.value.email,
+    products: selectedProducts.value,
+    validUntil,
+    notes: customerInfo.value.notes,
+  }
+
+  try {
+    const result = await generateProposalPDF(proposalData)
+    const html = generateProposalHTML(proposalData, result.proposalNumber)
+
+    // Сохраняем данные для превью
+    previewUrl.value = result.pdfUrl
+    previewProposalNumber.value = result.proposalNumber
+    previewHtml.value = html
+
+    // Add to history
+    proposalsHistory.value.unshift({
+      number: result.proposalNumber,
+      date: new Date(),
+      companyName: customerInfo.value.companyName,
+      amount: totalAmount.value,
+      url: result.pdfUrl,
+    })
+    saveHistory()
+
+    // Показываем модальное окно с превью
+    showPreviewModal.value = true
+  } catch {
+    alert('Ошибка при формировании КП')
+  }
+}
+
+// Закрытие модального окна превью
+const closePreviewModal = () => {
+  showPreviewModal.value = false
+}
+
+// Печать текущего КП из модального окна
+const printCurrentProposal = () => {
+  if (previewUrl.value) {
+    printProposal(previewUrl.value)
+  }
+}
+
+// Скачать текущий КП
+const downloadCurrentProposal = () => {
+  if (previewHtml.value && previewProposalNumber.value) {
+    const blob = new Blob([previewHtml.value], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${previewProposalNumber.value}.html`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
 }
 
 const saveHistory = () => {
@@ -775,6 +907,31 @@ onMounted(() => {
   }
 }
 
+.btn-print {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-xl;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border: none;
+  border-radius: $radius-lg;
+  color: $white;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(#3b82f6, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 .proposals-history {
   background: $white;
   border-radius: $radius-xl;
@@ -857,6 +1014,133 @@ onMounted(() => {
         color: $primary-600;
       }
     }
+  }
+}
+
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: $spacing-lg;
+}
+
+.modal-content {
+  background: $white;
+  border-radius: $radius-xl;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.preview-modal {
+  height: 90vh;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-lg;
+  border-bottom: 1px solid $gray-200;
+
+  h3 {
+    margin: 0;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    color: $gray-900;
+  }
+}
+
+.modal-close {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: $gray-500;
+  border-radius: $radius-lg;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  &:hover {
+    background: $gray-100;
+    color: $gray-900;
+  }
+}
+
+.modal-body {
+  flex: 1;
+  overflow: hidden;
+  padding: 0;
+}
+
+.preview-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  border-top: 1px solid $gray-200;
+}
+
+.btn-download {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-lg;
+  background: $white;
+  border: 2px solid $gray-300;
+  border-radius: $radius-lg;
+  color: $gray-700;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    border-color: $primary-500;
+    color: $primary-600;
+    background: $primary-50;
+  }
+}
+
+.btn-print-modal {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-lg;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border: none;
+  border-radius: $radius-lg;
+  color: $white;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(#3b82f6, 0.4);
   }
 }
 </style>
