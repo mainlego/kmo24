@@ -6,7 +6,7 @@ services:
     region: frankfurt
     plan: starter
     buildCommand: cd backend && npm install --omit=dev --prefer-offline --no-audit
-    startCommand: cd backend && npm run migrate-news-images; npm start
+    startCommand: cd backend && npm start
     healthCheckPath: /health
     autoDeploy: true
     envVars:
@@ -33,10 +33,7 @@ services:
       - key: RATE_LIMIT_MAX_REQUESTS
         value: 100
       - key: CORS_ORIGIN
-        fromService:
-          type: web
-          name: kmo24-frontend
-          envVarKey: RENDER_EXTERNAL_URL
+        value: https://kmo24-frontend.onrender.com
       - key: DL_API_KEY
         value: 6CA4665F-F1F1-40AF-BF06-E3CD2B452599
       - key: MAX_FILE_SIZE
