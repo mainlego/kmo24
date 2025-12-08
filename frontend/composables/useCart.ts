@@ -45,7 +45,7 @@ export const useCart = () => {
   const { error: showError, success: showSuccess } = useToast();
 
   // Генерировать session ID для гостей
-  const getOrCreateSessionId = () => {
+  const getOrCreateSessionId = (): string => {
     if (!process.client) return '';
 
     let sessionId = localStorage.getItem('sessionId');
@@ -56,13 +56,20 @@ export const useCart = () => {
     return sessionId;
   };
 
+  // Получить заголовки с session ID
+  const getSessionHeaders = (): Record<string, string> => {
+    const sessionId = getOrCreateSessionId();
+    return sessionId ? { 'X-Session-ID': sessionId } : {};
+  };
+
   /**
    * Получить корзину
    */
   const getCart = async () => {
     try {
-      getOrCreateSessionId(); // Создаем session ID если его нет
-      const response = await apiFetch<CartResponse>('/cart');
+      const response = await apiFetch<CartResponse>('/cart', {
+        headers: getSessionHeaders(),
+      });
       return response.data;
     } catch (err: any) {
       showError(err.message || 'Ошибка при загрузке корзины');
@@ -75,12 +82,12 @@ export const useCart = () => {
    */
   const addToCart = async (productId: string, quantity: number = 1, variant?: { name: string; value: string }) => {
     try {
-      getOrCreateSessionId();
       const response = await apiFetch<CartResponse>('/cart/items', {
         method: 'POST',
+        headers: getSessionHeaders(),
         body: {
           productId,
-          quantity, // Используем переданное количество
+          quantity,
           variant,
         },
       });
@@ -99,11 +106,29 @@ export const useCart = () => {
     try {
       const response = await apiFetch<CartResponse>(`/cart/items/${itemId}`, {
         method: 'DELETE',
+        headers: getSessionHeaders(),
       });
       showSuccess('Товар удален из корзины');
       return response.data;
     } catch (err: any) {
       showError(err.message || 'Ошибка при удалении товара');
+      throw err;
+    }
+  };
+
+  /**
+   * Обновить количество товара в корзине
+   */
+  const updateQuantity = async (itemId: string, quantity: number) => {
+    try {
+      const response = await apiFetch<CartResponse>(`/cart/items/${itemId}`, {
+        method: 'PUT',
+        headers: getSessionHeaders(),
+        body: { quantity },
+      });
+      return response.data;
+    } catch (err: any) {
+      showError(err.message || 'Ошибка при обновлении количества');
       throw err;
     }
   };
@@ -115,6 +140,7 @@ export const useCart = () => {
     try {
       const response = await apiFetch<CartResponse>('/cart', {
         method: 'DELETE',
+        headers: getSessionHeaders(),
       });
       showSuccess('Корзина очищена');
       return response.data;
@@ -131,6 +157,7 @@ export const useCart = () => {
     try {
       const response = await apiFetch<CartResponse>('/cart/promo', {
         method: 'POST',
+        headers: getSessionHeaders(),
         body: { code },
       });
       showSuccess('Промокод применен');
@@ -148,6 +175,7 @@ export const useCart = () => {
     try {
       const response = await apiFetch<CartResponse>('/cart/promo', {
         method: 'DELETE',
+        headers: getSessionHeaders(),
       });
       showSuccess('Промокод удален');
       return response.data;
@@ -180,6 +208,7 @@ export const useCart = () => {
   return {
     getCart,
     addToCart,
+    updateQuantity,
     removeFromCart,
     clearCart,
     applyPromoCode,

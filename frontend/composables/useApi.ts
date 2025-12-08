@@ -2,6 +2,26 @@ export const useApi = () => {
   const config = useRuntimeConfig();
   const baseURL = config.public.apiBaseUrl;
 
+  // Функция для получения заголовков
+  const getHeaders = (): Record<string, string> => {
+    const headers: Record<string, string> = {};
+
+    if (process.client) {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      // Добавляем session ID для гостевой корзины
+      const sessionId = localStorage.getItem('sessionId');
+      if (sessionId) {
+        headers['X-Session-ID'] = sessionId;
+      }
+    }
+
+    return headers;
+  };
+
   /**
    * Wrapper для $fetch с базовыми настройками
    * ВАЖНО: Используйте только apiFetch из этого composable
@@ -10,25 +30,12 @@ export const useApi = () => {
     baseURL,
     credentials: 'include',
     onRequest({ options }) {
-      // Добавляем токен из localStorage если есть
-      if (process.client) {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-          options.headers = {
-            ...options.headers,
-            Authorization: `Bearer ${token}`,
-          };
-        }
-
-        // Добавляем session ID для гостевой корзины
-        const sessionId = localStorage.getItem('sessionId');
-        if (sessionId) {
-          options.headers = {
-            ...options.headers,
-            'X-Session-ID': sessionId,
-          };
-        }
-      }
+      // Добавляем заголовки
+      const customHeaders = getHeaders();
+      options.headers = {
+        ...options.headers,
+        ...customHeaders,
+      };
     },
     async onResponseError({ response }) {
       // Извлекаем сообщение об ошибке из ответа сервера
