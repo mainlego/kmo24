@@ -244,9 +244,10 @@ export const useOrders = () => {
           cancelled: number;
           totalRevenue: number;
           avgOrderValue: number;
+          revenue: number;
         };
       }>('/orders/stats');
-      return response.data;
+      return response;
     } catch (err: any) {
       showError(err.message || 'Ошибка при загрузке статистики');
       throw err;

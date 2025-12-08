@@ -431,14 +431,19 @@ const fetchOrders = async () => {
 const fetchStats = async () => {
   try {
     const response = await getOrderStats();
-    if (response.success && response.data) {
-      // Update stats structure to match the existing format
+    console.log('Order stats response:', response);
+
+    // Обрабатываем разные форматы ответа
+    const data = response?.data || response;
+
+    if (data) {
       stats.value = {
-        pending: response.data.pending || 0,
-        processing: response.data.processing || 0,
-        shipped: response.data.shipped || 0,
-        revenue: response.data.revenue || 0,
+        pending: data.pending || data.pendingOrders || 0,
+        processing: data.processing || data.processingOrders || 0,
+        shipped: data.shipped || data.shippedOrders || 0,
+        revenue: data.revenue || data.totalRevenue || 0,
       };
+      console.log('Updated stats:', stats.value);
     }
   } catch (error) {
     console.error('Error fetching order stats:', error);

@@ -44,6 +44,20 @@ services:
         value: /var/data/uploads
       - key: LOG_LEVEL
         value: info
+      # Telegram Bot для уведомлений о заказах
+      - key: TELEGRAM_BOT_TOKEN
+        value: "" # Токен бота из @BotFather
+      - key: TELEGRAM_NOTIFY_GROUP_ID
+        value: "" # ID группы для уведомлений (например: -1001234567890)
+      # CRM интеграция
+      - key: CRM_ENABLED
+        value: "false" # Установите "true" для включения CRM
+      - key: CRM_PROVIDER
+        value: "bitrix24" # amocrm, bitrix24 или custom
+      - key: CRM_API_URL
+        value: "" # URL API CRM (webhook для Bitrix24)
+      - key: CRM_API_KEY
+        value: "" # API ключ (для AmoCRM)
     disk:
       name: uploads
       mountPath: /var/data/uploads

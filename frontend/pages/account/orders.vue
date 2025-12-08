@@ -59,22 +59,23 @@
               class="orders-page__order-item"
             >
               <img
-                :src="item.product.images?.[0]?.url || 'https://via.placeholder.com/60'"
-                :alt="item.product.name"
+                :src="getItemImage(item)"
+                :alt="getItemName(item)"
                 class="orders-page__order-item-image"
               />
               <div class="orders-page__order-item-info">
-                <div class="orders-page__order-item-name">{{ item.product.name }}</div>
+                <div class="orders-page__order-item-name">{{ getItemName(item) }}</div>
+                <div class="orders-page__order-item-quantity">{{ item.quantity }} шт. × {{ formatPrice(item.price) }}</div>
               </div>
               <div class="orders-page__order-item-price">
-                {{ formatPrice(item.price) }}
+                {{ formatPrice(item.total || item.price * item.quantity) }}
               </div>
             </div>
           </div>
 
           <div class="orders-page__order-footer">
             <div class="orders-page__order-total">
-              Итого: <strong>{{ formatPrice(order.total) }}</strong>
+              Итого: <strong>{{ formatPrice(getOrderTotal(order)) }}</strong>
             </div>
             <div class="orders-page__order-actions">
               <BaseButton
@@ -97,6 +98,78 @@
         </div>
       </div>
     </div>
+
+    <!-- Order Details Modal -->
+    <Teleport to="body">
+      <div v-if="showOrderModal && selectedOrder" class="modal-overlay" @click.self="closeOrderModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Заказ #{{ selectedOrder.orderNumber }}</h3>
+            <button class="modal-close" @click="closeOrderModal">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="order-detail-section">
+              <h4>Статус заказа</h4>
+              <BaseBadge :variant="getStatusVariant(selectedOrder.status)" size="md">
+                {{ getStatusText(selectedOrder.status) }}
+              </BaseBadge>
+            </div>
+
+            <div class="order-detail-section">
+              <h4>Дата оформления</h4>
+              <p>{{ formatDate(selectedOrder.createdAt) }}</p>
+            </div>
+
+            <div class="order-detail-section">
+              <h4>Товары</h4>
+              <div class="order-items-list">
+                <div v-for="item in selectedOrder.items" :key="item._id" class="order-item-detail">
+                  <img :src="getItemImage(item)" :alt="getItemName(item)" class="item-image" />
+                  <div class="item-info">
+                    <div class="item-name">{{ getItemName(item) }}</div>
+                    <div class="item-meta">{{ item.quantity }} шт. × {{ formatPrice(item.price) }}</div>
+                  </div>
+                  <div class="item-total">{{ formatPrice(item.total || item.price * item.quantity) }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="order-detail-section order-summary">
+              <div class="summary-row" v-if="selectedOrder.pricing?.subtotal">
+                <span>Подытог:</span>
+                <span>{{ formatPrice(selectedOrder.pricing.subtotal) }}</span>
+              </div>
+              <div class="summary-row" v-if="selectedOrder.pricing?.shipping">
+                <span>Доставка:</span>
+                <span>{{ formatPrice(selectedOrder.pricing.shipping) }}</span>
+              </div>
+              <div class="summary-row" v-if="selectedOrder.pricing?.discount">
+                <span>Скидка:</span>
+                <span>-{{ formatPrice(selectedOrder.pricing.discount) }}</span>
+              </div>
+              <div class="summary-row summary-total">
+                <span>Итого:</span>
+                <span>{{ formatPrice(getOrderTotal(selectedOrder)) }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <BaseButton variant="secondary" @click="closeOrderModal">Закрыть</BaseButton>
+            <BaseButton
+              v-if="selectedOrder.status === 'pending'"
+              variant="danger"
+              @click="cancelOrder(selectedOrder._id); closeOrderModal()"
+            >
+              Отменить заказ
+            </BaseButton>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -108,12 +181,32 @@ definePageMeta({
   middleware: 'auth'
 });
 
+interface OrderItem {
+  _id?: string;
+  product?: {
+    _id?: string;
+    name?: string;
+    images?: { url: string }[];
+  };
+  name?: string;
+  image?: string;
+  quantity: number;
+  price: number;
+  total?: number;
+}
+
 interface Order {
   _id: string;
   orderNumber: string;
   status: string;
-  items: any[];
-  total: number;
+  items: OrderItem[];
+  total?: number;
+  pricing?: {
+    subtotal: number;
+    shipping: number;
+    discount: number;
+    total: number;
+  };
   createdAt: string;
 }
 
@@ -162,8 +255,43 @@ const formatDate = (dateString: string): string => {
   }).format(date);
 };
 
-const viewOrder = (_orderId: string) => {
-  // TODO: Navigate to order detail page when page is implemented
+// Вспомогательные функции для получения данных товара
+const getItemName = (item: OrderItem): string => {
+  return item.name || item.product?.name || 'Товар';
+};
+
+const getItemImage = (item: OrderItem): string => {
+  // Сначала проверяем прямое поле image
+  if (item.image) return item.image;
+  // Затем проверяем через product
+  if (item.product?.images?.[0]?.url) return item.product.images[0].url;
+  // Заглушка
+  return '/images/placeholder-product.png';
+};
+
+const getOrderTotal = (order: Order): number => {
+  // Приоритет: pricing.total > total > сумма items
+  if (order.pricing?.total) return order.pricing.total;
+  if (order.total) return order.total;
+  // Fallback: сумма всех товаров
+  return order.items.reduce((sum, item) => sum + (item.total || item.price * item.quantity), 0);
+};
+
+// Показываем детали заказа в модальном окне
+const selectedOrder = ref<Order | null>(null);
+const showOrderModal = ref(false);
+
+const viewOrder = (orderId: string) => {
+  const order = orders.value.find(o => o._id === orderId);
+  if (order) {
+    selectedOrder.value = order;
+    showOrderModal.value = true;
+  }
+};
+
+const closeOrderModal = () => {
+  showOrderModal.value = false;
+  selectedOrder.value = null;
 };
 
 const cancelOrder = async (orderId: string) => {
@@ -402,4 +530,165 @@ useHead({
 }
 
 // Container is defined globally in main.scss
+
+// Modal styles
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: $spacing-md;
+}
+
+.modal-content {
+  background: $white;
+  border-radius: $radius-xl;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: $shadow-2xl;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-lg;
+  border-bottom: 1px solid $gray-200;
+
+  h3 {
+    margin: 0;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    color: $gray-900;
+  }
+}
+
+.modal-close {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: $gray-500;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  &:hover {
+    background: $gray-100;
+    color: $gray-900;
+  }
+}
+
+.modal-body {
+  padding: $spacing-lg;
+}
+
+.order-detail-section {
+  margin-bottom: $spacing-lg;
+
+  h4 {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $gray-500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 $spacing-sm 0;
+  }
+
+  p {
+    margin: 0;
+    color: $gray-900;
+  }
+}
+
+.order-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.order-item-detail {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-sm;
+  background: $gray-50;
+  border-radius: $radius-lg;
+}
+
+.item-image {
+  width: 60px;
+  height: 60px;
+  border-radius: $radius-md;
+  object-fit: cover;
+  background: $white;
+}
+
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-name {
+  font-weight: $font-weight-medium;
+  color: $gray-900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-meta {
+  font-size: $font-size-sm;
+  color: $gray-500;
+}
+
+.item-total {
+  font-weight: $font-weight-semibold;
+  color: $gray-900;
+}
+
+.order-summary {
+  background: $gray-50;
+  padding: $spacing-md;
+  border-radius: $radius-lg;
+  margin-top: $spacing-lg;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: $spacing-xs 0;
+  font-size: $font-size-sm;
+  color: $gray-600;
+
+  &.summary-total {
+    border-top: 1px solid $gray-200;
+    margin-top: $spacing-sm;
+    padding-top: $spacing-sm;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $gray-900;
+  }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  border-top: 1px solid $gray-200;
+}
 </style>

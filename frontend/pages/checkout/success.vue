@@ -24,11 +24,14 @@
         </div>
 
         <div class="success-page__actions">
-          <BaseButton variant="primary" size="lg" @click="navigateTo('/account/orders')">
+          <BaseButton v-if="isAuthenticated" variant="primary" size="lg" @click="navigateTo('/account/orders')">
             Мои заказы
           </BaseButton>
-          <BaseButton variant="outline" size="lg" @click="navigateTo('/products')">
-            Продолжить покупки
+          <BaseButton :variant="isAuthenticated ? 'outline' : 'primary'" size="lg" @click="navigateTo('/products')">
+            {{ isAuthenticated ? 'Продолжить покупки' : 'Перейти в каталог' }}
+          </BaseButton>
+          <BaseButton v-if="!isAuthenticated" variant="outline" size="lg" @click="navigateTo('/')">
+            На главную
           </BaseButton>
         </div>
 
@@ -67,6 +70,7 @@
 import { computed } from 'vue';
 
 const route = useRoute();
+const { isAuthenticated } = useAuth();
 
 // Получаем номер заказа напрямую из query параметра (без API запроса)
 const orderNumber = computed(() => {

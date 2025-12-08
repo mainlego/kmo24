@@ -250,7 +250,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useCRMStore, type Lead } from '~/stores/crm';
 import { useToast } from '~/composables/useToast';
 
@@ -270,9 +270,19 @@ onMounted(async () => {
   const board = kanbanBoard.value;
   if (board) {
     board.addEventListener('scroll', updateScrollArrows);
-    // Initial check
+    // Initial check - повторяем несколько раз для уверенности
     setTimeout(updateScrollArrows, 100);
+    setTimeout(updateScrollArrows, 500);
+    setTimeout(updateScrollArrows, 1000);
   }
+
+  // Update arrows on window resize
+  window.addEventListener('resize', updateScrollArrows);
+});
+
+// Cleanup on unmount
+onUnmounted(() => {
+  window.removeEventListener('resize', updateScrollArrows);
 });
 
 const stages = [
@@ -745,6 +755,7 @@ const openCardMenu = (lead: Lead) => {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden; // Важно для ограничения стрелок
 }
 
 // Scroll Arrows
@@ -854,32 +865,40 @@ const openCardMenu = (lead: Lead) => {
   overflow-y: hidden;
   flex: 1;
   min-height: 0;
-  padding-bottom: 1rem;
+  padding: 0.5rem 3.5rem 1rem; // Отступы для стрелок навигации
   cursor: grab;
   -webkit-overflow-scrolling: touch;
   user-select: none;
   -webkit-user-select: none;
+  scroll-behavior: smooth;
 
-  // Custom scrollbar for better UX
-  scrollbar-width: thin;
-  scrollbar-color: #d1d5db #f3f4f6;
+  // Custom scrollbar for better UX - всегда видимый
+  scrollbar-width: auto;
+  scrollbar-color: #f59e0b #f3f4f6;
 
   &::-webkit-scrollbar {
-    height: 12px;
+    height: 14px;
+    display: block !important;
   }
 
   &::-webkit-scrollbar-track {
     background: #f3f4f6;
-    border-radius: 6px;
+    border-radius: 7px;
+    margin: 0 3rem; // Отступы для стрелок
   }
 
   &::-webkit-scrollbar-thumb {
     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    border-radius: 6px;
-    border: 2px solid #f3f4f6;
+    border-radius: 7px;
+    border: 3px solid #f3f4f6;
+    min-width: 60px; // Минимальная ширина для удобного захвата
 
     &:hover {
       background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+    }
+
+    &:active {
+      background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
     }
   }
 
@@ -898,7 +917,7 @@ const openCardMenu = (lead: Lead) => {
 
   // На мобильных устройствах используем нативный скролл
   @media (max-width: 1024px) {
-    padding-bottom: 2rem;
+    padding: 0.5rem 1rem 2rem;
     cursor: default;
     user-select: auto;
     -webkit-user-select: auto;
@@ -909,6 +928,14 @@ const openCardMenu = (lead: Lead) => {
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
     padding: 0 0.5rem 2rem;
+
+    &::-webkit-scrollbar {
+      height: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      margin: 0;
+    }
 
     .kanban-column {
       scroll-snap-align: start;

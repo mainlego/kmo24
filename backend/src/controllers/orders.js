@@ -557,31 +557,77 @@ export const getOrderStats = async (req, res, next) => {
       if (endDate) dateFilter.createdAt.$lte = new Date(endDate);
     }
 
+    // Статистика за месяц для выручки
+    const monthAgo = new Date();
+    monthAgo.setMonth(monthAgo.getMonth() - 1);
+
     const stats = await Order.aggregate([
       { $match: dateFilter },
       {
         $group: {
           _id: null,
-          totalOrders: { $sum: 1 },
+          total: { $sum: 1 },
           totalRevenue: { $sum: '$pricing.total' },
           avgOrderValue: { $avg: '$pricing.total' },
-          pendingOrders: {
+          pending: {
             $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] },
           },
-          processingOrders: {
+          confirmed: {
+            $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] },
+          },
+          processing: {
             $sum: { $cond: [{ $eq: ['$status', 'processing'] }, 1, 0] },
           },
-          completedOrders: {
-            $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] },
+          shipped: {
+            $sum: { $cond: [{ $eq: ['$status', 'shipped'] }, 1, 0] },
           },
-          cancelledOrders: {
+          delivered: {
+            $sum: { $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0] },
+          },
+          cancelled: {
             $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] },
           },
         },
       },
     ]);
 
-    return successResponse(res, stats[0] || {});
+    // Выручка за месяц
+    const monthlyRevenue = await Order.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: monthAgo },
+          status: { $nin: ['cancelled', 'refunded'] },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          revenue: { $sum: '$pricing.total' },
+        },
+      },
+    ]);
+
+    const result = stats[0] || {
+      total: 0,
+      pending: 0,
+      confirmed: 0,
+      processing: 0,
+      shipped: 0,
+      delivered: 0,
+      cancelled: 0,
+      totalRevenue: 0,
+      avgOrderValue: 0,
+    };
+
+    // Добавляем выручку за месяц
+    result.revenue = monthlyRevenue[0]?.revenue || 0;
+
+    // Удаляем _id из результата (не нужен на фронтенде)
+    delete result._id;
+
+    logger.info('Order stats:', result);
+
+    return successResponse(res, result);
   } catch (error) {
     next(error);
   }
