@@ -12,8 +12,18 @@ export const sendOrderNotificationToTelegram = async (order) => {
     const botToken = config.telegram?.botToken;
     const groupId = config.telegram?.notifyGroupId;
 
+    // Детальное логирование для отладки
+    logger.info(`Telegram config check - botToken exists: ${!!botToken}, groupId exists: ${!!groupId}`);
+    if (botToken) {
+      logger.info(`Bot token length: ${botToken.length}, starts with: ${botToken.substring(0, 10)}...`);
+    }
+    if (groupId) {
+      logger.info(`Group ID: ${groupId}`);
+    }
+
     if (!botToken || !groupId) {
       logger.warn('Telegram notifications not configured (missing bot token or group ID)');
+      logger.warn(`botToken: ${botToken ? 'SET' : 'NOT SET'}, groupId: ${groupId ? 'SET' : 'NOT SET'}`);
       return { success: false, error: 'Telegram not configured' };
     }
 
@@ -75,7 +85,10 @@ ${order.customerComment ? `📝 Комментарий: ${order.customerComment}
 ${order.isGuest ? '👤 Гостевой заказ' : ''}
 `;
 
-    const response = await fetch(`${TELEGRAM_API_URL}${botToken}/sendMessage`, {
+    const telegramUrl = `${TELEGRAM_API_URL}${botToken}/sendMessage`;
+    logger.info(`Sending Telegram message to: ${telegramUrl.replace(botToken, 'BOT_TOKEN_HIDDEN')}`);
+
+    const response = await fetch(telegramUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -86,7 +99,9 @@ ${order.isGuest ? '👤 Гостевой заказ' : ''}
       }),
     });
 
+    logger.info(`Telegram API response status: ${response.status}`);
     const result = await response.json();
+    logger.info(`Telegram API response: ${JSON.stringify(result)}`);
 
     if (!result.ok) {
       logger.error('Telegram notification error:', result);
