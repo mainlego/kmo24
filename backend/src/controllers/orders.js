@@ -123,6 +123,33 @@ export const createOrder = async (req, res, next) => {
       };
     }
 
+    // Генерируем номер заказа вручную (pre-save не работает с create([...], {session}))
+    const date = new Date();
+    const year = date.getFullYear().toString().slice(-2);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    const todayStart = new Date(date);
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(date);
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const lastOrder = await Order.findOne(
+      { createdAt: { $gte: todayStart, $lt: todayEnd } },
+      { orderNumber: 1 },
+      { sort: { createdAt: -1 } }
+    ).session(session);
+
+    let sequence = 1;
+    if (lastOrder && lastOrder.orderNumber) {
+      const lastSequence = parseInt(lastOrder.orderNumber.slice(-4), 10);
+      if (!isNaN(lastSequence)) {
+        sequence = lastSequence + 1;
+      }
+    }
+
+    orderData.orderNumber = `${year}${month}${day}-${String(sequence).padStart(4, '0')}`;
+
     // Создание заказа в рамках транзакции
     const order = await Order.create([orderData], { session });
 
