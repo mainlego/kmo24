@@ -483,37 +483,51 @@ const saveProduct = async () => {
     loading.value = true;
     const { apiFetch } = useApi();
 
+    // Генерация slug из названия
+    const generateSlug = (name: string) => {
+      const translitMap: Record<string, string> = {
+        'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo',
+        'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
+        'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+        'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'sch', 'ъ': '',
+        'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya',
+      };
+      return name.toLowerCase()
+        .split('')
+        .map(char => translitMap[char] || char)
+        .join('')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+    };
+
     const productData = {
       name: form.value.name,
       sku: form.value.sku,
-      slug: form.value.slug || form.value.name.toLowerCase().replace(/\s+/g, '-'),
+      slug: form.value.slug || generateSlug(form.value.name),
       category: form.value.category,
-      manufacturer: form.value.manufacturer,
-      model: form.value.model,
-      year: form.value.year ? parseInt(form.value.year) : undefined,
-      description: form.value.description,
-      fullDescription: form.value.fullDescription,
       price: form.value.price,
       oldPrice: form.value.newPrice || undefined,
+      description: {
+        short: form.value.description || '',
+        full: form.value.fullDescription || '',
+      },
       stock: {
         quantity: 1,
         reserved: 0,
       },
-      condition: form.value.condition,
-      location: form.value.location,
       isActive: true,
       isFeatured: form.value.featured,
-      tags: form.value.tags,
-      specifications: form.value.specifications,
+      isNew: form.value.newArrival,
+      specifications: form.value.specifications.filter(s => s.name && s.value),
       images: form.value.images.map((url: string, index: number) => ({
         url,
         alt: form.value.name,
-        isMain: index === 0,
-        order: index,
+        isPrimary: index === 0,
+        sortOrder: index,
       })),
       seo: {
-        metaTitle: form.value.metaTitle,
-        metaDescription: form.value.metaDescription,
+        title: form.value.metaTitle || form.value.name,
+        description: form.value.metaDescription || form.value.description,
       },
     };
 
@@ -758,8 +772,13 @@ onMounted(async () => {
           manufacturer: product.manufacturer || '',
           model: product.model || '',
           year: product.year?.toString() || '',
-          description: product.description || '',
-          fullDescription: product.fullDescription || '',
+          // description может быть объектом или строкой
+          description: typeof product.description === 'object'
+            ? (product.description?.short || '')
+            : (product.description || ''),
+          fullDescription: typeof product.description === 'object'
+            ? (product.description?.full || '')
+            : '',
           price: product.price || 0,
           newPrice: product.oldPrice || 0,
           condition: product.condition || 'good',
@@ -767,13 +786,13 @@ onMounted(async () => {
           status: product.isActive ? 'active' : 'draft',
           featured: product.isFeatured || false,
           onSale: product.oldPrice > product.price,
-          newArrival: false,
-          metaTitle: product.seo?.metaTitle || '',
-          metaDescription: product.seo?.metaDescription || '',
+          newArrival: product.isNew || false,
+          metaTitle: product.seo?.title || product.seo?.metaTitle || '',
+          metaDescription: product.seo?.description || product.seo?.metaDescription || '',
           slug: product.slug || '',
           tags: product.tags || [],
           specifications: product.specifications || [],
-          images: product.images?.map((img: any) => img.url) || [],
+          images: product.images?.map((img: any) => img.url || img) || [],
           documents: product.documents || [],
           createdAt: product.createdAt || '',
           updatedAt: product.updatedAt || '',
