@@ -70,7 +70,11 @@
       "Bash(ss:*)",
       "Bash({} ;)",
       "Bash(npx nuxt prepare:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npx vue-tsc:*)",
+      "Bash(npx nuxi typecheck:*)",
+      "Bash(npx nuxi prepare)",
+      "Bash(git diff:*)"
     ],
     "deny": [],
     "ask": []
