@@ -109,7 +109,7 @@ export const useOrders = () => {
   const { error: showError, success: showSuccess } = useToast();
 
   /**
-   * Получить список заказов
+   * Получить список всех заказов (admin)
    */
   const getOrders = async (filters: OrderFilters = {}) => {
     try {
@@ -121,7 +121,7 @@ export const useOrders = () => {
         }
       });
 
-      const response = await apiFetch<OrdersResponse>(`/orders?${query.toString()}`);
+      const response = await apiFetch<OrdersResponse>(`/orders/all/list?${query.toString()}`);
       return response;
     } catch (err: any) {
       showError(err.message || 'Ошибка при загрузке заказов');

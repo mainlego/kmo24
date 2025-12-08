@@ -139,7 +139,7 @@
 
       <template #cell-customer="{ item }">
         <div class="customer-cell">
-          <div class="name">{{ item.customer.name }}</div>
+          <div class="name">{{ item.customer.firstName }} {{ item.customer.lastName }}</div>
           <div class="email">{{ item.customer.email }}</div>
           <div v-if="item.customer.phone" class="phone">{{ item.customer.phone }}</div>
         </div>
@@ -157,7 +157,7 @@
 
       <template #cell-total="{ item }">
         <div class="total-cell">
-          {{ formatPrice(item.total) }}
+          {{ formatPrice(item.pricing?.total || 0) }}
         </div>
       </template>
 
@@ -168,8 +168,8 @@
       </template>
 
       <template #cell-paymentStatus="{ item }">
-        <span class="payment-badge" :class="`payment-${item.paymentStatus}`">
-          {{ getPaymentStatusLabel(item.paymentStatus) }}
+        <span class="payment-badge" :class="`payment-${item.payment?.status}`">
+          {{ getPaymentStatusLabel(item.payment?.status) }}
         </span>
       </template>
 
@@ -214,7 +214,7 @@
             <div class="info-grid">
               <div class="info-item">
                 <span class="info-label">Имя:</span>
-                <span class="info-value">{{ selectedOrder.customer.name }}</span>
+                <span class="info-value">{{ selectedOrder.customer.firstName }} {{ selectedOrder.customer.lastName }}</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Email:</span>
@@ -265,19 +265,19 @@
             <div class="order-summary">
               <div class="summary-row">
                 <span>Сумма товаров:</span>
-                <span>{{ formatPrice(selectedOrder.subtotal) }}</span>
+                <span>{{ formatPrice(selectedOrder.pricing?.subtotal || 0) }}</span>
               </div>
               <div class="summary-row">
                 <span>Доставка:</span>
-                <span>{{ formatPrice(selectedOrder.deliveryPrice) }}</span>
+                <span>{{ formatPrice(selectedOrder.pricing?.shipping || 0) }}</span>
               </div>
-              <div v-if="selectedOrder.discount" class="summary-row discount">
+              <div v-if="selectedOrder.pricing?.discount" class="summary-row discount">
                 <span>Скидка:</span>
-                <span>-{{ formatPrice(selectedOrder.discount) }}</span>
+                <span>-{{ formatPrice(selectedOrder.pricing.discount) }}</span>
               </div>
               <div class="summary-row total">
                 <span>Итого:</span>
-                <span>{{ formatPrice(selectedOrder.total) }}</span>
+                <span>{{ formatPrice(selectedOrder.pricing?.total || 0) }}</span>
               </div>
             </div>
           </div>
@@ -294,7 +294,7 @@
                 label-key="label"
               />
               <AdminFormSelect
-                v-model="selectedOrder.paymentStatus"
+                v-model="selectedOrder.payment.status"
                 label="Статус оплаты"
                 :options="paymentStatusOptions"
                 value-key="value"
@@ -409,12 +409,16 @@ const fetchOrders = async () => {
 
     if (response.success && response.data) {
       orders.value = response.data;
-      pagination.value = response.pagination || {
-        page: 1,
+      // Обновляем только total и pages, не трогая page чтобы избежать цикла watch
+      const newPagination = response.pagination || {
+        page: pagination.value.page,
         limit: 20,
         total: response.data.length,
         pages: Math.ceil(response.data.length / 20),
       };
+      pagination.value.total = newPagination.total;
+      pagination.value.pages = newPagination.pages;
+      pagination.value.limit = newPagination.limit;
     }
   } catch (error) {
     console.error('Error fetching orders:', error);
@@ -617,11 +621,27 @@ onMounted(async () => {
 
 // Watch for filter changes
 watch(
-  [() => filters.value, () => pagination.value.page],
+  [
+    () => filters.value.search,
+    () => filters.value.status,
+    () => filters.value.paymentStatus,
+    () => filters.value.dateRange,
+  ],
   () => {
+    // При изменении фильтров сбрасываем на первую страницу
+    pagination.value.page = 1;
     fetchOrders();
-  },
-  { deep: true }
+  }
+);
+
+// Watch for page changes
+watch(
+  () => pagination.value.page,
+  (newPage, oldPage) => {
+    if (newPage !== oldPage) {
+      fetchOrders();
+    }
+  }
 );
 </script>
 

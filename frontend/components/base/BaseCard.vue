@@ -16,6 +16,10 @@
       <slot name="badge" />
     </div>
 
+    <div v-if="$slots.header" class="base-card__header">
+      <slot name="header" />
+    </div>
+
     <div class="base-card__body">
       <slot />
     </div>
@@ -85,6 +89,13 @@ const handleClick = (event: MouseEvent) => {
     z-index: 10;
   }
 
+  &__header {
+    padding: $spacing-md;
+    padding-bottom: 0;
+    border-bottom: 1px solid $gray-100;
+    margin-bottom: $spacing-sm;
+  }
+
   &__body {
     padding: $spacing-md;
     flex: 1;
@@ -94,6 +105,7 @@ const handleClick = (event: MouseEvent) => {
     padding: $spacing-md;
     padding-top: 0;
     display: flex;
+    flex-direction: column;
     gap: $spacing-sm;
   }
 }

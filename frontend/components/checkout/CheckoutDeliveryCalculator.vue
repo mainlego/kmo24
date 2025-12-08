@@ -46,22 +46,37 @@
     <div v-if="deliveryResult" class="delivery-result">
       <div class="result-header">
         <h4>Результат расчета</h4>
+        <span v-if="deliveryResult.provider === 'estimate'" class="result-badge estimate">Примерный</span>
+        <span v-else class="result-badge official">Деловые Линии</span>
       </div>
 
       <div class="result-details">
-        <div class="result-row">
+        <div class="result-row result-row--price">
           <span>Стоимость доставки:</span>
           <strong>{{ formatPrice(deliveryResult.price) }}</strong>
         </div>
         <div class="result-row">
           <span>Срок доставки:</span>
-          <strong>{{ deliveryResult.deliveryTime }} дн.</strong>
+          <strong v-if="deliveryResult.minDeliveryTime && deliveryResult.maxDeliveryTime">
+            {{ deliveryResult.minDeliveryTime }}-{{ deliveryResult.maxDeliveryTime }} дн.
+          </strong>
+          <strong v-else>
+            {{ deliveryResult.deliveryTime }} дн.
+          </strong>
         </div>
-        <div v-if="deliveryResult.distance" class="result-row">
-          <span>Расстояние:</span>
-          <strong>{{ deliveryResult.distance }} км</strong>
+        <div v-if="deliveryResult.details?.weight" class="result-row">
+          <span>Вес груза:</span>
+          <strong>{{ deliveryResult.details.weight }} кг</strong>
+        </div>
+        <div v-if="deliveryResult.details?.volume" class="result-row">
+          <span>Объем груза:</span>
+          <strong>{{ deliveryResult.details.volume }} м³</strong>
         </div>
       </div>
+
+      <p v-if="deliveryResult.details?.note" class="result-note">
+        {{ deliveryResult.details.note }}
+      </p>
 
       <button class="apply-btn" @click="applyDelivery">
         Выбрать этот вариант
@@ -86,7 +101,15 @@ interface City {
 interface DeliveryResult {
   price: number;
   deliveryTime: number;
+  minDeliveryTime?: number;
+  maxDeliveryTime?: number;
   distance?: number;
+  provider?: string;
+  details?: {
+    note?: string;
+    weight?: number;
+    volume?: number;
+  };
 }
 
 interface CartItem {
@@ -207,9 +230,19 @@ const calculateDelivery = async () => {
     const data = await response.json();
 
     if (data.success) {
-      deliveryResult.value = data.data;
+      // Нормализуем данные от API
+      const result = data.data;
+      deliveryResult.value = {
+        price: result.price || 0,
+        deliveryTime: result.deliveryTime || result.minDeliveryTime || 0,
+        minDeliveryTime: result.minDeliveryTime,
+        maxDeliveryTime: result.maxDeliveryTime,
+        distance: result.distance,
+        provider: result.provider,
+        details: result.details,
+      };
     } else {
-      error.value = 'Не удалось рассчитать доставку';
+      error.value = data.error || 'Не удалось рассчитать доставку';
     }
   } catch (err: any) {
     console.error('Error calculating delivery:', err);
@@ -420,12 +453,45 @@ onMounted(() => {
 }
 
 .result-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+
   h4 {
     font-size: 1rem;
     font-weight: 600;
     color: #1f2937;
-    margin-bottom: 0.75rem;
+    margin: 0;
   }
+}
+
+.result-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+
+  &.estimate {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  &.official {
+    background: #d1fae5;
+    color: #065f46;
+  }
+}
+
+.result-note {
+  font-size: 0.8rem;
+  color: #6b7280;
+  background: #f9fafb;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  line-height: 1.4;
 }
 
 .result-details {
@@ -449,6 +515,13 @@ onMounted(() => {
 
   strong {
     color: #1f2937;
+  }
+
+  &--price {
+    strong {
+      font-size: 1.125rem;
+      color: #059669;
+    }
   }
 }
 

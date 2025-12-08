@@ -351,12 +351,16 @@ const fetchUsers = async () => {
 
     if (response.success && response.data) {
       users.value = response.data;
-      pagination.value = response.pagination || {
-        page: 1,
+      // Обновляем только total и pages, не трогая page чтобы избежать цикла watch
+      const newPagination = response.pagination || {
+        page: pagination.value.page,
         limit: 20,
         total: response.data.length,
         pages: Math.ceil(response.data.length / 20),
       };
+      pagination.value.total = newPagination.total;
+      pagination.value.pages = newPagination.pages;
+      pagination.value.limit = newPagination.limit;
     }
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -610,11 +614,26 @@ onMounted(async () => {
 
 // Watch for filter changes
 watch(
-  [() => filters.value, () => pagination.value.page],
+  [
+    () => filters.value.search,
+    () => filters.value.role,
+    () => filters.value.status,
+  ],
   () => {
+    // При изменении фильтров сбрасываем на первую страницу
+    pagination.value.page = 1;
     fetchUsers();
-  },
-  { deep: true }
+  }
+);
+
+// Watch for page changes
+watch(
+  () => pagination.value.page,
+  (newPage, oldPage) => {
+    if (newPage !== oldPage) {
+      fetchUsers();
+    }
+  }
 );
 </script>
 

@@ -353,8 +353,11 @@ const fetchProducts = async () => {
 
     if (response.success) {
       products.value = response.data || [];
+      // Обновляем только total и pages, не трогая page чтобы избежать цикла watch
       if (response.pagination) {
-        pagination.value = response.pagination;
+        pagination.value.total = response.pagination.total;
+        pagination.value.pages = response.pagination.pages;
+        pagination.value.limit = response.pagination.limit;
       }
     }
   } catch {
@@ -567,17 +570,26 @@ const bulkDelete = async () => {
 
 // Watch filters
 watch(
-  filters,
+  [
+    () => filters.value.search,
+    () => filters.value.category,
+    () => filters.value.condition,
+    () => filters.value.status,
+    () => filters.value.availability,
+  ],
   () => {
+    // При изменении фильтров сбрасываем на первую страницу
+    pagination.value.page = 1;
     fetchProducts();
-  },
-  { deep: true }
+  }
 );
 
 watch(
   () => pagination.value.page,
-  () => {
-    fetchProducts();
+  (newPage, oldPage) => {
+    if (newPage !== oldPage) {
+      fetchProducts();
+    }
   }
 );
 

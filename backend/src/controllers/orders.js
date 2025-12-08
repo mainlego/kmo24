@@ -6,6 +6,7 @@ import PromoCode from '../models/PromoCode.js';
 import { successResponse, errorResponse, paginatedResponse, createPagination } from '../utils/response.js';
 import { getCache, setCache, deleteCache, deleteCachePattern } from '../config/redis-mock.js';
 import logger from '../utils/logger.js';
+import { sendNewOrderNotifications } from '../services/notifications.js';
 
 /**
  * Создание заказа из корзины с использованием транзакций
@@ -184,6 +185,11 @@ export const createOrder = async (req, res, next) => {
     await deleteCachePattern(`orders:user:${userId}*`);
 
     logger.info(`Order created: ${order[0].orderNumber} by user ${userId || 'guest'}`);
+
+    // Отправка уведомлений (асинхронно, не блокируем ответ)
+    sendNewOrderNotifications(order[0]).catch(err => {
+      logger.error('Failed to send order notifications:', err);
+    });
 
     return successResponse(
       res,

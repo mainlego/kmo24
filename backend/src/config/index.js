@@ -88,7 +88,19 @@ const config = {
   telegram: {
     botToken: process.env.TELEGRAM_BOT_TOKEN,
     channelId: process.env.TELEGRAM_CHANNEL_ID,
+    notifyGroupId: process.env.TELEGRAM_NOTIFY_GROUP_ID, // Группа для уведомлений о заказах
     syncInterval: parseInt(process.env.TELEGRAM_SYNC_INTERVAL, 10) || 900000, // 15 minutes
+  },
+
+  // CRM Integration (AmoCRM, Bitrix24, etc.)
+  crm: {
+    enabled: process.env.CRM_ENABLED === 'true',
+    provider: process.env.CRM_PROVIDER || 'amocrm', // amocrm, bitrix24, custom
+    apiUrl: process.env.CRM_API_URL,
+    apiKey: process.env.CRM_API_KEY,
+    secretKey: process.env.CRM_SECRET_KEY,
+    pipelineId: process.env.CRM_PIPELINE_ID,
+    statusId: process.env.CRM_STATUS_ID,
   },
 
   // Email
