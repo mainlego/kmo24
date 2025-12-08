@@ -1,5 +1,6 @@
 import config from '../config/index.js';
 import logger from '../utils/logger.js';
+import Lead from '../models/Lead.js';
 
 const TELEGRAM_API_URL = 'https://api.telegram.org/bot';
 
@@ -255,6 +256,66 @@ const createBitrix24Lead = async (order) => {
 };
 
 /**
+ * Создание лида во внутренней CRM (модель Lead)
+ * Это для Kanban-доски в админ-панели
+ */
+export const createInternalLead = async (order) => {
+  try {
+    // Форматирование товаров для сообщения
+    const itemsList = order.items.map((item, i) =>
+      `${i + 1}. ${item.name} × ${item.quantity} шт`
+    ).join('\n');
+
+    // Способы доставки
+    const deliveryMethods = {
+      pickup: 'Самовывоз',
+      dellin: 'Деловые Линии',
+      pek: 'ПЭК',
+      courier: 'Курьер',
+    };
+    const deliveryMethod = deliveryMethods[order.shipping?.method] || order.shipping?.method || 'Не указан';
+
+    // Формируем сообщение с деталями заказа
+    const message = `Заказ #${order.orderNumber}
+
+Товары:
+${itemsList}
+
+Доставка: ${deliveryMethod}
+${order.shippingAddress?.city ? `Город: ${order.shippingAddress.city}` : ''}
+${order.shippingAddress?.street ? `Адрес: ${order.shippingAddress.street}, д.${order.shippingAddress.building || ''}${order.shippingAddress.apartment ? `, кв.${order.shippingAddress.apartment}` : ''}` : ''}
+
+${order.customerComment ? `Комментарий: ${order.customerComment}` : ''}`.trim();
+
+    // Создаём Lead
+    const lead = new Lead({
+      name: `${order.customer.firstName} ${order.customer.lastName}`.trim(),
+      phone: order.customer.phone,
+      email: order.customer.email || '',
+      source: 'website',
+      status: 'new',
+      message: message,
+      budget: order.pricing?.total || 0,
+      tags: ['заказ', `#${order.orderNumber}`],
+      priority: 'high', // Заказы имеют высокий приоритет
+      metadata: {
+        orderId: order._id?.toString(),
+        orderNumber: order.orderNumber,
+        isGuest: order.isGuest || false,
+      },
+    });
+
+    await lead.save();
+
+    logger.info(`Internal lead created for order ${order.orderNumber}, lead ID: ${lead._id}`);
+    return { success: true, leadId: lead._id, provider: 'internal' };
+  } catch (error) {
+    logger.error('Error creating internal lead:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
  * Custom CRM (универсальный webhook)
  */
 const createCustomCRMLead = async (order) => {
@@ -331,6 +392,7 @@ export const sendNewOrderNotifications = async (order) => {
   const results = {
     telegram: null,
     crm: null,
+    internalLead: null,
   };
 
   // Отправка в Telegram (асинхронно, не блокируем основной процесс)
@@ -341,11 +403,19 @@ export const sendNewOrderNotifications = async (order) => {
     results.telegram = { success: false, error: error.message };
   }
 
-  // Создание лида в CRM
+  // Создание лида во внутренней CRM (Kanban)
+  try {
+    results.internalLead = await createInternalLead(order);
+  } catch (error) {
+    logger.error('Internal lead creation failed:', error);
+    results.internalLead = { success: false, error: error.message };
+  }
+
+  // Создание лида во внешней CRM (если настроена)
   try {
     results.crm = await createLeadInCRM(order);
   } catch (error) {
-    logger.error('CRM lead creation failed:', error);
+    logger.error('External CRM lead creation failed:', error);
     results.crm = { success: false, error: error.message };
   }
 
@@ -355,5 +425,6 @@ export const sendNewOrderNotifications = async (order) => {
 export default {
   sendOrderNotificationToTelegram,
   createLeadInCRM,
+  createInternalLead,
   sendNewOrderNotifications,
 };
