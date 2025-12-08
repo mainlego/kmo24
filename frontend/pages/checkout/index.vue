@@ -674,13 +674,13 @@ const submitOrder = async () => {
     });
 
     if (response.success && response.data) {
-      const orderId = response.data._id || response.data.orderNumber;
+      const orderNumber = response.data.orderNumber;
 
       // Clear cart
       await cartStore.clearCart();
 
-      // Redirect to success
-      router.push(`/checkout/success?orderId=${orderId}`);
+      // Redirect to success with orderNumber
+      router.push(`/checkout/success?orderNumber=${orderNumber}`);
     } else {
       throw new Error('Не удалось создать заказ');
     }
