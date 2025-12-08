@@ -83,11 +83,19 @@ const orderSchema = new mongoose.Schema(
       comment: String,
     },
 
+    // Данные юр. лица (если заказ от организации)
+    legalEntity: {
+      companyName: String,
+      inn: String,
+      kpp: String,
+      legalAddress: String,
+    },
+
     // Доставка
     shipping: {
       method: {
         type: String,
-        enum: ['pickup', 'dellin', 'pek', 'courier'],
+        enum: ['pickup', 'dellin', 'pek', 'courier', 'transport'],
         required: true,
       },
       company: String,

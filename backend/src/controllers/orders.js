@@ -9,7 +9,7 @@ import logger from '../utils/logger.js';
 import { sendNewOrderNotifications } from '../services/notifications.js';
 
 /**
- * Создание заказа из корзины с использованием транзакций
+ * Создание заказа с товарами напрямую (без корзины в БД)
  * POST /api/v1/orders
  */
 export const createOrder = async (req, res, next) => {
@@ -20,37 +20,39 @@ export const createOrder = async (req, res, next) => {
     // Начинаем транзакцию
     session.startTransaction();
     const {
+      items: requestItems,
       shippingAddress,
-      billingAddress,
       paymentMethod,
       deliveryMethod,
       deliveryPrice,
       notes,
+      legalEntity,
     } = req.body;
 
     const userId = req.user?._id;
-    const sessionId = req.headers['x-session-id'];
 
-    // Получение корзины с блокировкой (для предотвращения race conditions)
-    const cart = userId
-      ? await Cart.findOne({ user: userId }).populate('items.product').session(session)
-      : await Cart.findOne({ sessionId }).populate('items.product').session(session);
-
-    if (!cart || cart.items.length === 0) {
+    // Проверяем наличие товаров
+    if (!requestItems || requestItems.length === 0) {
+      await session.abortTransaction();
       return errorResponse(res, 'Корзина пуста', 400);
     }
 
-    // Проверка наличия всех товаров с блокировкой
-    for (const item of cart.items) {
-      const product = await Product.findById(item.product._id).session(session);
+    // Проверка и загрузка данных товаров
+    const orderItems = [];
+    let subtotal = 0;
+
+    for (const item of requestItems) {
+      const product = await Product.findById(item.productId).session(session);
+
       if (!product || !product.isActive) {
         await session.abortTransaction();
         return errorResponse(
           res,
-          `Товар "${item.product.name}" больше не доступен`,
+          `Товар "${item.name}" больше не доступен`,
           400
         );
       }
+
       if (product.stock.available < item.quantity) {
         await session.abortTransaction();
         return errorResponse(
@@ -59,6 +61,19 @@ export const createOrder = async (req, res, next) => {
           400
         );
       }
+
+      const itemTotal = product.price * item.quantity;
+      subtotal += itemTotal;
+
+      orderItems.push({
+        product: product._id,
+        name: product.name,
+        sku: product.sku || '',
+        image: product.images?.[0]?.url || '',
+        quantity: item.quantity,
+        price: product.price,
+        total: itemTotal,
+      });
     }
 
     // Подготовка данных заказа
@@ -71,24 +86,15 @@ export const createOrder = async (req, res, next) => {
         email: shippingAddress.email,
         phone: shippingAddress.phone,
       },
-      items: cart.items.map((item) => ({
-        product: item.product._id,
-        name: item.product.name,
-        sku: item.product.sku || '',
-        image: item.product.images?.[0]?.url || '',
-        quantity: item.quantity,
-        price: item.price,
-        variant: item.variant,
-        total: item.price * item.quantity,
-      })),
+      items: orderItems,
       shippingAddress: {
         country: shippingAddress.country || 'Россия',
         city: shippingAddress.city,
-        street: shippingAddress.street,
-        building: shippingAddress.building,
-        apartment: shippingAddress.apartment,
-        postalCode: shippingAddress.postalCode,
-        comment: shippingAddress.comment,
+        street: shippingAddress.street || '',
+        building: shippingAddress.building || '',
+        apartment: shippingAddress.apartment || '',
+        postalCode: shippingAddress.postalCode || '',
+        comment: shippingAddress.comment || '',
       },
       shipping: {
         method: deliveryMethod,
@@ -99,19 +105,21 @@ export const createOrder = async (req, res, next) => {
         status: 'pending',
       },
       pricing: {
-        subtotal: cart.subtotal,
+        subtotal: subtotal,
         shipping: deliveryPrice || 0,
-        discount: cart.discount?.amount || 0,
-        total: cart.total + (deliveryPrice || 0),
+        discount: 0,
+        total: subtotal + (deliveryPrice || 0),
       },
       customerComment: notes,
     };
 
-    // Применение промокода если есть
-    if (cart.discount?.code) {
-      orderData.promoCode = {
-        code: cart.discount.code,
-        discount: cart.discount.amount,
+    // Добавляем данные юр. лица если есть
+    if (legalEntity) {
+      orderData.legalEntity = {
+        companyName: legalEntity.companyName,
+        inn: legalEntity.inn,
+        kpp: legalEntity.kpp || '',
+        legalAddress: legalEntity.legalAddress || '',
       };
     }
 
@@ -119,70 +127,38 @@ export const createOrder = async (req, res, next) => {
     const order = await Order.create([orderData], { session });
 
     // Резервирование товаров в рамках транзакции
-    for (const item of cart.items) {
-      const product = await Product.findById(item.product._id).session(session);
-      if (product) {
-        // Атомарное обновление с проверкой наличия
-        const result = await Product.findOneAndUpdate(
-          {
-            _id: item.product._id,
-            'stock.available': { $gte: item.quantity }
-          },
-          {
-            $inc: {
-              'stock.available': -item.quantity,
-              'stock.reserved': item.quantity
-            }
-          },
-          { session, new: true }
+    for (const item of orderItems) {
+      const result = await Product.findOneAndUpdate(
+        {
+          _id: item.product,
+          'stock.available': { $gte: item.quantity }
+        },
+        {
+          $inc: {
+            'stock.available': -item.quantity,
+            'stock.reserved': item.quantity
+          }
+        },
+        { session, new: true }
+      );
+
+      if (!result) {
+        await session.abortTransaction();
+        return errorResponse(
+          res,
+          `Недостаточно товара "${item.name}" в наличии`,
+          400
         );
-
-        if (!result) {
-          await session.abortTransaction();
-          return errorResponse(
-            res,
-            `Недостаточно товара "${item.product.name}" в наличии`,
-            400
-          );
-        }
       }
     }
-
-    // Регистрация использования промокода в рамках транзакции
-    if (cart.discount?.code) {
-      try {
-        const promoCode = await PromoCode.findOne({
-          code: cart.discount.code,
-          isActive: true,
-        }).session(session);
-
-        if (promoCode) {
-          promoCode.usageCount += 1;
-          promoCode.usedBy.push({
-            user: userId,
-            email: shippingAddress.email,
-            order: order[0]._id,
-            usedAt: new Date(),
-            discountAmount: cart.discount.amount,
-          });
-          await promoCode.save({ session });
-        }
-      } catch (promoError) {
-        logger.error(`Error applying promo code ${cart.discount.code}:`, promoError);
-        // Не прерываем создание заказа из-за ошибки промокода
-      }
-    }
-
-    // Очистка корзины в рамках транзакции
-    cart.items = [];
-    cart.discount = null;
-    await cart.save({ session });
 
     // Завершаем транзакцию
     await session.commitTransaction();
 
     // Очистка кэша
-    await deleteCachePattern(`orders:user:${userId}*`);
+    if (userId) {
+      await deleteCachePattern(`orders:user:${userId}*`);
+    }
 
     logger.info(`Order created: ${order[0].orderNumber} by user ${userId || 'guest'}`);
 

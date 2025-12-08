@@ -628,20 +628,19 @@ const submitOrder = async () => {
   try {
     const { apiFetch } = useApi();
 
+    // Подготавливаем товары из корзины
+    const items = cartStore.items.map(item => ({
+      productId: item.productId,
+      name: item.product.name,
+      sku: item.product.sku || '',
+      image: item.product.images?.[0]?.url || '',
+      quantity: item.quantity,
+      price: item.product.price,
+    }));
+
     const orderData: Record<string, any> = {
+      items, // Передаём товары напрямую
       shippingAddress: {
-        firstName: form.value.firstName,
-        lastName: form.value.lastName,
-        phone: form.value.phone,
-        email: form.value.email,
-        city: form.value.deliveryMethod === 'transport' ? selectedCity.value?.name : 'Красноярск',
-        street: '',
-        house: '',
-        apartment: '',
-        postalCode: '',
-        country: 'Россия',
-      },
-      billingAddress: {
         firstName: form.value.firstName,
         lastName: form.value.lastName,
         phone: form.value.phone,
