@@ -10,15 +10,20 @@ const TELEGRAM_API_URL = 'https://api.telegram.org/bot';
 export const sendOrderNotificationToTelegram = async (order) => {
   try {
     const botToken = config.telegram?.botToken;
-    const groupId = config.telegram?.notifyGroupId;
+    // Используем notifyGroupId, или TELEGRAM_LEADS_CHAT_ID, или channelId как fallback
+    // Это обеспечивает совместимость если настроена только одна переменная
+    const groupId = config.telegram?.notifyGroupId
+      || process.env.TELEGRAM_LEADS_CHAT_ID
+      || config.telegram?.channelId;
 
     // Детальное логирование для отладки
     logger.info(`Telegram config check - botToken exists: ${!!botToken}, groupId exists: ${!!groupId}`);
+    logger.info(`Telegram env check: NOTIFY_GROUP_ID=${config.telegram?.notifyGroupId || 'not set'}, LEADS_CHAT_ID=${process.env.TELEGRAM_LEADS_CHAT_ID || 'not set'}, CHANNEL_ID=${config.telegram?.channelId || 'not set'}`);
     if (botToken) {
       logger.info(`Bot token length: ${botToken.length}, starts with: ${botToken.substring(0, 10)}...`);
     }
     if (groupId) {
-      logger.info(`Group ID: ${groupId}`);
+      logger.info(`Using Group ID: ${groupId}`);
     }
 
     if (!botToken || !groupId) {
