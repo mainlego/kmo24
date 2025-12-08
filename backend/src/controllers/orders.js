@@ -190,7 +190,14 @@ export const createOrder = async (req, res, next) => {
     logger.info(`Order created: ${order[0].orderNumber} by user ${userId || 'guest'}`);
 
     // Отправка уведомлений (асинхронно, не блокируем ответ)
-    sendNewOrderNotifications(order[0]).catch(err => {
+    // Преобразуем в plain object для логирования
+    const orderForNotification = order[0].toObject ? order[0].toObject() : order[0];
+    logger.info(`Sending notifications for order: ${orderForNotification.orderNumber}`);
+    logger.info(`Order data for notifications: customer=${JSON.stringify(orderForNotification.customer)}, items=${orderForNotification.items?.length || 0}`);
+
+    sendNewOrderNotifications(orderForNotification).then(result => {
+      logger.info(`Notification results: ${JSON.stringify(result)}`);
+    }).catch(err => {
       logger.error('Failed to send order notifications:', err);
     });
 
