@@ -89,6 +89,19 @@
                   </div>
                 </label>
 
+                <!-- Курьерская доставка -->
+                <label class="delivery-option" :class="{ active: form.deliveryMethod === 'courier' }">
+                  <input v-model="form.deliveryMethod" type="radio" value="courier" />
+                  <div class="option-content">
+                    <div class="option-icon">🚗</div>
+                    <div class="option-info">
+                      <strong>До объекта</strong>
+                      <span class="option-desc">Доставка в пределах г. Красноярска, 1 день</span>
+                      <span class="option-price">от 1 000 ₽</span>
+                    </div>
+                  </div>
+                </label>
+
                 <!-- Транспортная компания -->
                 <label class="delivery-option" :class="{ active: form.deliveryMethod === 'transport' }">
                   <input v-model="form.deliveryMethod" type="radio" value="transport" />
@@ -206,7 +219,7 @@
                     <div class="option-icon">💳</div>
                     <div class="option-info">
                       <strong>Картой онлайн</strong>
-                      <span class="option-desc">Visa, MasterCard, МИР</span>
+                      <span class="option-desc">МИР</span>
                     </div>
                   </div>
                 </label>
