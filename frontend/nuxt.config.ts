@@ -42,6 +42,7 @@ export default defineNuxtConfig({
         return baseUrl.includes('/api/') ? baseUrl : `${baseUrl}/api/v1`;
       })(),
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+      telegramBotUsername: process.env.NUXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'kmo24_bot',
     },
   },
 

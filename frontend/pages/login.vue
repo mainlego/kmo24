@@ -64,14 +64,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '~/stores/auth';
 
 definePageMeta({
   layout: false,
 });
 
 const router = useRouter();
-const authStore = useAuthStore();
+const { login, user } = useAuth();
 
 const credentials = ref({
   email: '',
@@ -86,24 +85,20 @@ const handleLogin = async () => {
   loading.value = true;
 
   try {
-    await authStore.login({
+    await login({
       email: credentials.value.email,
       password: credentials.value.password,
     });
 
     // Redirect based on user role and redirect parameter
     const redirectParam = router.currentRoute.value.query.redirect as string;
-
     let redirectPath = '/';
 
     if (redirectParam) {
-      // Если есть параметр redirect, идем туда
       redirectPath = redirectParam;
-    } else if (authStore.user?.role === 'admin') {
-      // Если админ - в админку
+    } else if (user.value?.role === 'admin') {
       redirectPath = '/admin';
     } else {
-      // Обычный пользователь - в личный кабинет
       redirectPath = '/account';
     }
 
@@ -275,4 +270,5 @@ const handleLogin = async () => {
     color: #667eea;
   }
 }
+
 </style>

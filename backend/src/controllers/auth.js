@@ -1,8 +1,10 @@
+import crypto from 'crypto';
 import User from '../models/User.js';
 import { generateTokenPair, verifyRefreshToken } from '../utils/jwt.js';
 import { successResponse, errorResponse } from '../utils/response.js';
 import { deleteCache } from '../config/redis-mock.js';
 import logger from '../utils/logger.js';
+import config from '../config/index.js';
 
 /**
  * Регистрация нового пользователя
@@ -454,6 +456,99 @@ export const setDefaultAddress = async (req, res, next) => {
   }
 };
 
+/**
+ * Авторизация через Telegram
+ * POST /api/v1/auth/telegram
+ */
+export const telegramAuth = async (req, res, next) => {
+  try {
+    const { id, first_name, last_name, username, photo_url, auth_date, hash } = req.body;
+
+    // Проверка обязательных полей
+    if (!id || !first_name || !auth_date || !hash) {
+      return errorResponse(res, 'Недостаточно данных для авторизации', 400);
+    }
+
+    // Получение токена бота из конфигурации
+    const botToken = config.telegram?.botToken || process.env.TELEGRAM_BOT_TOKEN;
+    if (!botToken) {
+      logger.error('TELEGRAM_BOT_TOKEN not configured');
+      return errorResponse(res, 'Telegram авторизация не настроена', 500);
+    }
+
+    // Проверка подлинности данных от Telegram
+    const checkString = Object.keys(req.body)
+      .filter(key => key !== 'hash')
+      .sort()
+      .map(key => `${key}=${req.body[key]}`)
+      .join('\n');
+
+    const secretKey = crypto.createHash('sha256').update(botToken).digest();
+    const hmac = crypto.createHmac('sha256', secretKey).update(checkString).digest('hex');
+
+    if (hmac !== hash) {
+      logger.warn(`Telegram auth failed: invalid hash for user ${id}`);
+      return errorResponse(res, 'Неверная подпись данных', 401);
+    }
+
+    // Проверка срока действия данных (не старше 1 часа)
+    const authTimestamp = parseInt(auth_date);
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    if (currentTimestamp - authTimestamp > 3600) {
+      return errorResponse(res, 'Данные авторизации устарели', 401);
+    }
+
+    // Поиск существующего пользователя по telegramId
+    let user = await User.findOne({ telegramId: String(id) });
+
+    if (!user) {
+      // Создание нового пользователя
+      user = await User.create({
+        telegramId: String(id),
+        telegramUsername: username || null,
+        firstName: first_name,
+        lastName: last_name || '',
+        avatar: photo_url || null,
+        isEmailVerified: false, // Email не подтвержден, так как его нет
+      });
+
+      logger.info(`New Telegram user registered: ${first_name} (${id})`);
+    } else {
+      // Обновление данных существующего пользователя
+      user.firstName = first_name;
+      if (last_name) user.lastName = last_name;
+      if (username) user.telegramUsername = username;
+      if (photo_url) user.avatar = photo_url;
+      user.lastLogin = new Date();
+      await user.save();
+
+      logger.info(`Telegram user logged in: ${first_name} (${id})`);
+    }
+
+    // Проверка активности аккаунта
+    if (!user.isActive) {
+      return errorResponse(res, 'Аккаунт деактивирован', 401);
+    }
+
+    // Генерация токенов
+    const { accessToken, refreshToken } = generateTokenPair(user._id);
+
+    // Сохранение refresh token
+    await user.addRefreshToken(
+      refreshToken,
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 дней
+    );
+
+    return successResponse(res, {
+      user: user.toPublicJSON(),
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   register,
   login,
@@ -467,4 +562,5 @@ export default {
   updateMyAddress,
   deleteMyAddress,
   setDefaultAddress,
+  telegramAuth,
 };

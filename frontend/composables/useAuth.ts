@@ -38,6 +38,42 @@ export const useAuth = () => {
   };
 
   /**
+   * Вход через Telegram
+   */
+  const loginWithTelegram = async (telegramUser: {
+    id: number;
+    first_name: string;
+    last_name?: string;
+    username?: string;
+    photo_url?: string;
+    auth_date: number;
+    hash: string;
+  }) => {
+    try {
+      const response = await apiFetch<AuthResponse>('/auth/telegram', {
+        method: 'POST',
+        body: telegramUser,
+      });
+
+      if (process.client) {
+        localStorage.setItem('accessToken', response.data.accessToken);
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+      }
+
+      user.value = response.data.user;
+      showSuccess(`Добро пожаловать, ${response.data.user.firstName}!`);
+
+      // Слияние гостевой корзины с пользовательской
+      await mergeCart();
+
+      return response.data;
+    } catch (err: any) {
+      showError(err.message || 'Ошибка при входе через Telegram');
+      throw err;
+    }
+  };
+
+  /**
    * Регистрация
    */
   const register = async (data: RegisterData) => {
@@ -224,6 +260,7 @@ export const useAuth = () => {
     isAuthenticated,
     isAdmin,
     login,
+    loginWithTelegram,
     register,
     logout,
     fetchCurrentUser,

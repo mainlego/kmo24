@@ -12,6 +12,7 @@ import {
   updateMyAddress,
   deleteMyAddress,
   setDefaultAddress,
+  telegramAuth,
 } from '../controllers/auth.js';
 import { protect } from '../middleware/auth.js';
 import { validate, authSchemas } from '../utils/validation.js';
@@ -40,6 +41,13 @@ router.post('/login', authLimiter, validate(authSchemas.login), asyncHandler(log
  * @access  Public
  */
 router.post('/refresh', validate(authSchemas.refreshToken), asyncHandler(refresh));
+
+/**
+ * @route   POST /api/v1/auth/telegram
+ * @desc    Авторизация через Telegram
+ * @access  Public
+ */
+router.post('/telegram', authLimiter, asyncHandler(telegramAuth));
 
 /**
  * @route   POST /api/v1/auth/logout

@@ -6,15 +6,22 @@ const userSchema = new mongoose.Schema(
   {
     email: {
       type: String,
-      required: [true, 'Email обязателен'],
+      required: function() {
+        // Email не обязателен для пользователей с Telegram авторизацией
+        return !this.telegramId;
+      },
       unique: true,
+      sparse: true, // Позволяет null/undefined значения при unique
       lowercase: true,
       trim: true,
       match: [/^\S+@\S+\.\S+$/, 'Некорректный email'],
     },
     password: {
       type: String,
-      required: [true, 'Пароль обязателен'],
+      required: function() {
+        // Пароль не обязателен для пользователей с Telegram авторизацией
+        return !this.telegramId;
+      },
       minlength: [6, 'Пароль должен содержать минимум 6 символов'],
       select: false, // Не возвращать по умолчанию
     },
@@ -52,6 +59,16 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       default: null,
+    },
+    // Telegram авторизация
+    telegramId: {
+      type: String,
+      unique: true,
+      sparse: true, // Позволяет null значения
+    },
+    telegramUsername: {
+      type: String,
+      trim: true,
     },
     isEmailVerified: {
       type: Boolean,
@@ -150,6 +167,7 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ isActive: 1 });
+userSchema.index({ telegramId: 1 });
 
 // Виртуальные поля
 userSchema.virtual('fullName').get(function () {
@@ -194,6 +212,8 @@ userSchema.methods.toPublicJSON = function () {
     gender: this.gender,
     role: this.role,
     avatar: this.avatar,
+    telegramId: this.telegramId,
+    telegramUsername: this.telegramUsername,
     isEmailVerified: this.isEmailVerified,
     addresses: this.addresses,
     notifications: this.notifications,
