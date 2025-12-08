@@ -1,5 +1,5 @@
 <template>
-  <div class="smart-search" :class="{ 'smart-search--open': isOpen }">
+  <div class="smart-search" :class="{ 'smart-search--open': isOpen, 'smart-search--modal': props.autoOpen }">
     <div class="smart-search__input-wrapper">
       <svg class="smart-search__icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -430,28 +430,43 @@ watch(searchResults, () => {
   max-width: 500px;
   z-index: 1;
 
+  // В модальном окне - full width
+  &--modal {
+    max-width: 100%;
+  }
+
   &__input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
     gap: $spacing-sm;
     padding: $spacing-sm $spacing-lg;
-    background: rgba($white, 0.95);
-    border: 2px solid transparent;
-    border-radius: $radius-full;
+    background: $gray-50;
+    border: 2px solid $gray-200;
+    border-radius: $radius-xl;
     transition: all $transition-base $transition-ease;
-    backdrop-filter: blur(10px);
     z-index: 2;
     pointer-events: auto;
 
     .smart-search--open & {
       border-color: $primary;
-      box-shadow: 0 0 0 4px rgba($primary, 0.1), $shadow-xl;
+      box-shadow: 0 0 0 4px rgba($primary, 0.1);
+      background: $white;
     }
 
     &:hover {
       background: $white;
-      box-shadow: $shadow-md;
+      border-color: $gray-300;
+    }
+
+    // В модальном окне - более крупный input
+    .smart-search--modal & {
+      padding: $spacing-md $spacing-lg;
+      border-radius: $radius-xl;
+
+      @media (max-width: $breakpoint-md) {
+        padding: $spacing-sm $spacing-md;
+      }
     }
   }
 
@@ -517,6 +532,22 @@ watch(searchResults, () => {
     max-height: 500px;
     overflow-y: auto;
     pointer-events: auto;
+
+    // В модальном окне - не абсолютная позиция, а обычный блок
+    .smart-search--modal & {
+      position: relative;
+      top: 0;
+      margin-top: $spacing-lg;
+      box-shadow: none;
+      border: none;
+      border-radius: 0;
+      max-height: none;
+      background: transparent;
+
+      @media (max-width: $breakpoint-md) {
+        margin-top: $spacing-md;
+      }
+    }
   }
 
   &__loading {
@@ -659,6 +690,18 @@ watch(searchResults, () => {
 
     &:last-child {
       border-bottom: none;
+    }
+
+    // В модальном окне - фоновые карточки
+    .smart-search--modal & {
+      background: $gray-50;
+      border-radius: $radius-xl;
+      border-bottom: none;
+      margin-bottom: $spacing-md;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
   }
 
@@ -824,15 +867,18 @@ watch(searchResults, () => {
     color: $gray-800;
   }
 
+  // Мобильные стили для обычного режима (не модальное окно)
   @media (max-width: $breakpoint-md) {
     max-width: none;
 
-    &__dropdown {
-      position: fixed;
-      top: 60px;
-      left: $spacing-md;
-      right: $spacing-md;
-      max-height: calc(100vh - 80px);
+    &:not(.smart-search--modal) {
+      .smart-search__dropdown {
+        position: fixed;
+        top: 60px;
+        left: $spacing-md;
+        right: $spacing-md;
+        max-height: calc(100vh - 80px);
+      }
     }
   }
 }

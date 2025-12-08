@@ -33,6 +33,15 @@
           </div>
 
           <div class="nav-actions">
+            <!-- Mobile Search Button -->
+            <button class="mobile-search-btn" @click="isSearchOpen = true" aria-label="Поиск">
+              <div class="nav-icon-wrapper">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </button>
+
             <!-- Mobile Menu Button -->
             <button class="mobile-menu-btn" @click="isMobileMenuOpen = !isMobileMenuOpen" aria-label="Меню">
               <div class="nav-icon-wrapper">
@@ -238,12 +247,24 @@
       <Transition name="modal-fade">
         <div v-if="isSearchOpen" class="search-modal" @click.self="closeSearchModal">
           <div class="search-modal__content" @click.stop>
-            <button class="search-modal__close" @click="closeSearchModal" aria-label="Закрыть">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
-            <CommonSmartSearch :auto-open="true" @close="closeSearchModal" />
+            <!-- Header -->
+            <div class="search-modal__header">
+              <h2 class="search-modal__title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Поиск товаров
+              </h2>
+              <button class="search-modal__close" @click="closeSearchModal" aria-label="Закрыть">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <!-- Body -->
+            <div class="search-modal__body">
+              <CommonSmartSearch :auto-open="true" @close="closeSearchModal" />
+            </div>
           </div>
         </div>
       </Transition>
@@ -688,6 +709,30 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: $spacing-xs;
+}
+
+.mobile-search-btn {
+  display: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: $gray-700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+  }
+
+  &:hover, &:active {
+    color: $primary;
+
+    .nav-icon-wrapper {
+      background: linear-gradient($white, $white) padding-box,
+                  $gradient-primary border-box;
+      box-shadow: $shadow-colored;
+    }
+  }
 }
 
 .mobile-menu-btn {
@@ -1444,72 +1489,162 @@ onUnmounted(() => {
   }
 }
 
-// Search Modal
+// Search Modal - Premium Design
 .search-modal {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba($gray-900, 0.75);
-  backdrop-filter: blur(8px);
+  background: rgba($gray-900, 0.6);
+  backdrop-filter: blur(12px);
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding: $spacing-2xl;
   overflow-y: auto;
+  animation: modalBackdropFadeIn 0.2s ease-out;
 
+  // Desktop - модальное окно сверху
+  @media (min-width: $breakpoint-md) {
+    padding-top: 8vh;
+  }
+
+  // Mobile - fullscreen
   @media (max-width: $breakpoint-md) {
-    padding: $spacing-md;
-    align-items: center;
+    padding: 0;
+    align-items: stretch;
+    background: $white;
+    backdrop-filter: none;
   }
 
   &__content {
     position: relative;
     width: 100%;
-    max-width: 700px;
-    margin-top: 10vh;
+    max-width: 640px;
     background: $white;
     border-radius: $radius-2xl;
-    padding: $spacing-2xl;
-    box-shadow: $shadow-2xl;
-    animation: slideDown 0.3s ease-out;
+    box-shadow:
+      0 25px 50px -12px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba(0, 0, 0, 0.05);
+    animation: searchModalSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: auto;
     z-index: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+
+    // Mobile - fullscreen
+    @media (max-width: $breakpoint-md) {
+      max-width: 100%;
+      max-height: 100%;
+      height: 100%;
+      border-radius: 0;
+      box-shadow: none;
+      animation: searchModalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+
+  // Header с заголовком и кнопкой закрытия
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-lg $spacing-xl;
+    border-bottom: 1px solid $gray-100;
+    background: linear-gradient(180deg, $white 0%, rgba($gray-50, 0.5) 100%);
 
     @media (max-width: $breakpoint-md) {
-      margin-top: 0;
-      padding: $spacing-lg;
-      max-width: 100%;
+      padding: $spacing-md $spacing-lg;
+      padding-top: env(safe-area-inset-top, $spacing-md);
+    }
+  }
+
+  &__title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $gray-900;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+
+    svg {
+      color: $primary;
     }
   }
 
   &__close {
-    position: absolute;
-    top: $spacing-lg;
-    right: $spacing-lg;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba($gray-100, 0.8);
+    background: $gray-100;
     border: none;
-    border-radius: $radius-full;
+    border-radius: $radius-lg;
     color: $gray-600;
     cursor: pointer;
-    transition: all $transition-base $transition-ease;
-    z-index: 2;
-    pointer-events: auto;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
 
     &:hover {
       background: $gray-200;
       color: $gray-900;
-      transform: scale(1.1);
+    }
+
+    &:active {
+      transform: scale(0.95);
     }
 
     @media (max-width: $breakpoint-md) {
-      top: $spacing-sm;
-      right: $spacing-sm;
+      width: 40px;
+      height: 40px;
     }
+  }
+
+  // Body с поиском
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: $spacing-lg $spacing-xl;
+    -webkit-overflow-scrolling: touch;
+
+    @media (max-width: $breakpoint-md) {
+      padding: $spacing-md $spacing-lg;
+      padding-bottom: env(safe-area-inset-bottom, $spacing-lg);
+    }
+  }
+}
+
+// Animations
+@keyframes modalBackdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes searchModalSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes searchModalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
