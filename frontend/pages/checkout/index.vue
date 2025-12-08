@@ -66,6 +66,55 @@
                   <span v-if="errors.email" class="error-text">{{ errors.email }}</span>
                 </div>
               </div>
+
+              <!-- Галочка для юр. лица -->
+              <label class="legal-entity-toggle">
+                <input v-model="form.isLegalEntity" type="checkbox" />
+                <span>Юридическое лицо / ИП</span>
+              </label>
+
+              <!-- Поля для юр. лица -->
+              <div v-if="form.isLegalEntity" class="legal-entity-fields">
+                <h4>Реквизиты организации</h4>
+                <div class="form-grid">
+                  <div class="form-group form-group--full">
+                    <label>Наименование организации <span class="required">*</span></label>
+                    <input
+                      v-model="form.companyName"
+                      type="text"
+                      placeholder="ООО «Название компании»"
+                      :class="{ 'has-error': errors.companyName }"
+                    />
+                    <span v-if="errors.companyName" class="error-text">{{ errors.companyName }}</span>
+                  </div>
+                  <div class="form-group">
+                    <label>ИНН <span class="required">*</span></label>
+                    <input
+                      v-model="form.inn"
+                      type="text"
+                      placeholder="1234567890"
+                      :class="{ 'has-error': errors.inn }"
+                    />
+                    <span v-if="errors.inn" class="error-text">{{ errors.inn }}</span>
+                  </div>
+                  <div class="form-group">
+                    <label>КПП</label>
+                    <input
+                      v-model="form.kpp"
+                      type="text"
+                      placeholder="123456789"
+                    />
+                  </div>
+                  <div class="form-group form-group--full">
+                    <label>Юридический адрес</label>
+                    <input
+                      v-model="form.legalAddress"
+                      type="text"
+                      placeholder="г. Москва, ул. Примерная, д. 1"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Шаг 2: Способ доставки -->
@@ -348,6 +397,11 @@ const form = ref({
   lastName: '',
   phone: '',
   email: '',
+  isLegalEntity: false,
+  companyName: '',
+  inn: '',
+  kpp: '',
+  legalAddress: '',
   deliveryMethod: 'pickup',
   paymentMethod: 'bank_transfer',
   comment: '',
@@ -537,6 +591,21 @@ const validateForm = (): boolean => {
     isValid = false;
   }
 
+  // Валидация для юр. лица
+  if (form.value.isLegalEntity) {
+    if (!form.value.companyName.trim()) {
+      errors.value.companyName = 'Введите наименование организации';
+      isValid = false;
+    }
+    if (!form.value.inn.trim()) {
+      errors.value.inn = 'Введите ИНН';
+      isValid = false;
+    } else if (!/^\d{10,12}$/.test(form.value.inn)) {
+      errors.value.inn = 'ИНН должен содержать 10 или 12 цифр';
+      isValid = false;
+    }
+  }
+
   if (form.value.deliveryMethod === 'transport' && !deliveryResult.value) {
     errors.value.city = 'Рассчитайте стоимость доставки';
     isValid = false;
@@ -559,7 +628,7 @@ const submitOrder = async () => {
   try {
     const { apiFetch } = useApi();
 
-    const orderData = {
+    const orderData: Record<string, any> = {
       shippingAddress: {
         firstName: form.value.firstName,
         lastName: form.value.lastName,
@@ -589,6 +658,16 @@ const submitOrder = async () => {
       deliveryPrice: deliveryPrice.value,
       notes: form.value.comment || '',
     };
+
+    // Добавляем данные юр. лица если выбрано
+    if (form.value.isLegalEntity) {
+      orderData.legalEntity = {
+        companyName: form.value.companyName,
+        inn: form.value.inn,
+        kpp: form.value.kpp || '',
+        legalAddress: form.value.legalAddress || '',
+      };
+    }
 
     const response = await apiFetch<{ success: boolean; data: any }>('/orders', {
       method: 'POST',
@@ -801,6 +880,49 @@ useHead({
 .error-text {
   font-size: 0.75rem;
   color: #ef4444;
+}
+
+// Legal entity toggle
+.legal-entity-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  color: #374151;
+
+  input {
+    accent-color: #f59e0b;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background: #f3f4f6;
+  }
+}
+
+.legal-entity-fields {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+
+  h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #92400e;
+    margin: 0 0 1rem 0;
+  }
+}
+
+.form-group--full {
+  grid-column: 1 / -1;
 }
 
 // Delivery & Payment Options
