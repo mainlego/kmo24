@@ -45,13 +45,19 @@
               </div>
             </div>
             <div class="p-6 bg-white rounded-b-2xl">
-              <h3 class="text-2xl font-bold mb-3">Курьерская доставка</h3>
+              <h3 class="text-2xl font-bold mb-3">До объекта</h3>
               <div class="space-y-3 mb-6">
                 <div class="flex items-start">
                   <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
-                  <span class="text-gray-600">Доставка до двери</span>
+                  <span class="text-gray-600">Доставка до объекта</span>
+                </div>
+                <div class="flex items-start">
+                  <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  <span class="text-gray-600">В пределах г. Красноярска</span>
                 </div>
                 <div class="flex items-start">
                   <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,21 +65,15 @@
                   </svg>
                   <span class="text-gray-600">Удобное время доставки</span>
                 </div>
-                <div class="flex items-start">
-                  <svg class="w-5 h-5 text-primary-500 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  <span class="text-gray-600">Подъем на этаж</span>
-                </div>
               </div>
               <div class="pt-4 border-t border-gray-100">
                 <div class="flex justify-between items-center mb-2">
                   <span class="text-gray-500">Срок доставки:</span>
-                  <span class="font-semibold">1-3 дня</span>
+                  <span class="font-semibold">1 день</span>
                 </div>
                 <div class="flex justify-between items-center">
                   <span class="text-gray-500">Стоимость:</span>
-                  <span class="font-bold text-2xl text-primary-600">от 500₽</span>
+                  <span class="font-bold text-2xl text-primary-600">от 1 000₽</span>
                 </div>
               </div>
             </div>
@@ -192,7 +192,7 @@
               </svg>
             </div>
             <h3 class="text-xl font-bold mb-2">Банковской картой</h3>
-            <p class="text-gray-600 text-sm">Visa, Mastercard, МИР</p>
+            <p class="text-gray-600 text-sm">МИР</p>
           </div>
 
           <!-- Payment Method 2 -->

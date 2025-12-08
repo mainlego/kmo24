@@ -9,7 +9,7 @@ import {
   cancelOrder,
   getOrderStats,
 } from '../controllers/orders.js';
-import { protect, authorize } from '../middleware/auth.js';
+import { protect, authorize, optionalAuth } from '../middleware/auth.js';
 import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
@@ -21,7 +21,7 @@ router.get('/stats/summary', protect, authorize('admin', 'manager'), asyncHandle
 router.get('/all/list', protect, authorize('admin', 'manager'), asyncHandler(getAllOrders));
 
 // Публичные/защищенные маршруты
-router.post('/', protect, asyncHandler(createOrder));
+router.post('/', optionalAuth, asyncHandler(createOrder)); // Гости тоже могут создавать заказы
 router.get('/', protect, asyncHandler(getMyOrders));
 router.get('/my', protect, asyncHandler(getMyOrders)); // Alias for /orders
 
