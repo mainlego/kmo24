@@ -8,13 +8,15 @@
       <div class="absolute top-1/2 left-1/2 w-64 h-64 bg-primary-100/30 rounded-full filter blur-3xl animate-float animation-delay-4"></div>
 
       <!-- Floating Icons -->
-      <div v-for="i in 12" :key="`icon-${i}`"
-        class="floating-icon absolute"
-        :style="`left: ${Math.random() * 100}%; top: ${Math.random() * 100}%; animation-delay: ${Math.random() * 5}s`">
-        <svg class="w-8 h-8 text-gray-300/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getRandomIcon()"></path>
-        </svg>
-      </div>
+      <ClientOnly>
+        <div v-for="i in 12" :key="`icon-${i}`"
+          class="floating-icon absolute"
+          :style="floatingIconStyles[i - 1]">
+          <svg class="w-8 h-8 text-gray-300/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="floatingIconPaths[i - 1]"></path>
+          </svg>
+        </div>
+      </ClientOnly>
     </div>
 
     <!-- Content -->
@@ -133,7 +135,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const props = defineProps({
   error: {
@@ -189,9 +191,18 @@ const iconPaths = [
   'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
 ]
 
-const getRandomIcon = () => {
-  return iconPaths[Math.floor(Math.random() * iconPaths.length)]
-}
+// Pre-generate random values for floating icons (client-only)
+const floatingIconStyles = ref<string[]>([])
+const floatingIconPaths = ref<string[]>([])
+
+onMounted(() => {
+  floatingIconStyles.value = Array.from({ length: 12 }, () =>
+    `left: ${Math.random() * 100}%; top: ${Math.random() * 100}%; animation-delay: ${Math.random() * 5}s`
+  )
+  floatingIconPaths.value = Array.from({ length: 12 }, () =>
+    iconPaths[Math.floor(Math.random() * iconPaths.length)]
+  )
+})
 
 const goBack = () => {
   if (window.history.length > 1) {

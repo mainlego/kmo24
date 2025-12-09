@@ -14,13 +14,15 @@
       </div>
 
       <!-- Question Mark Animation -->
-      <div class="absolute inset-0 z-20">
-        <div v-for="i in 8" :key="`q-${i}`"
-          class="question-mark-float absolute text-white/10 font-bold text-6xl"
-          :style="`left: ${Math.random() * 100}%; top: ${Math.random() * 100}%; animation-delay: ${i * 0.3}s`">
-          ?
+      <ClientOnly>
+        <div class="absolute inset-0 z-20">
+          <div v-for="i in 8" :key="`q-${i}`"
+            class="question-mark-float absolute text-white/10 font-bold text-6xl"
+            :style="questionMarkStyles[i - 1]">
+            ?
+          </div>
         </div>
-      </div>
+      </ClientOnly>
 
       <div class="relative z-30 h-full flex items-center justify-center text-center px-4">
         <div class="max-w-4xl mx-auto">
@@ -206,7 +208,16 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+
+// Pre-generate question mark styles on client
+const questionMarkStyles = ref([]);
+
+onMounted(() => {
+  questionMarkStyles.value = Array.from({ length: 8 }, (_, i) =>
+    `left: ${Math.random() * 100}%; top: ${Math.random() * 100}%; animation-delay: ${i * 0.3}s`
+  );
+});
 
 // SEO
 useHead({

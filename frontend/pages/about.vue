@@ -15,12 +15,14 @@
       </div>
 
       <!-- Floating Particles -->
-      <div class="absolute inset-0 overflow-hidden">
-        <div v-for="i in 15" :key="`particle-${i}`"
-          class="floating-particle absolute w-2 h-2 bg-white/20 rounded-full"
-          :style="`left: ${Math.random() * 100}%; top: ${Math.random() * 100}%; animation-delay: ${Math.random() * 5}s; animation-duration: ${15 + Math.random() * 10}s`">
+      <ClientOnly>
+        <div class="absolute inset-0 overflow-hidden">
+          <div v-for="i in 15" :key="`particle-${i}`"
+            class="floating-particle absolute w-2 h-2 bg-white/20 rounded-full"
+            :style="particleStyles[i - 1]">
+          </div>
         </div>
-      </div>
+      </ClientOnly>
 
       <!-- Content -->
       <div class="relative h-full flex items-center justify-center text-center px-4">
@@ -413,10 +415,19 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 // Page Editor для визуального редактирования
 const pageEditor = usePageEditor();
+
+// Pre-generate particle styles on client
+const particleStyles = ref([]);
+
+onMounted(() => {
+  particleStyles.value = Array.from({ length: 15 }, () =>
+    `left: ${Math.random() * 100}%; top: ${Math.random() * 100}%; animation-delay: ${Math.random() * 5}s; animation-duration: ${15 + Math.random() * 10}s`
+  );
+});
 
 // Загружаем контент страницы
 onMounted(async () => {
