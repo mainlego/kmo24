@@ -464,8 +464,12 @@ export const telegramAuth = async (req, res, next) => {
   try {
     const { id, first_name, last_name, username, photo_url, auth_date, hash } = req.body;
 
+    // Логирование для диагностики
+    logger.info('Telegram auth request:', { id, first_name, username, auth_date, hasHash: !!hash });
+
     // Проверка обязательных полей
     if (!id || !first_name || !auth_date || !hash) {
+      logger.warn('Telegram auth missing fields:', { id: !!id, first_name: !!first_name, auth_date: !!auth_date, hash: !!hash });
       return errorResponse(res, 'Недостаточно данных для авторизации', 400);
     }
 
