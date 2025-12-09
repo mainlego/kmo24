@@ -160,7 +160,27 @@ const emit = defineEmits<{
   'update:filters': [filters: Filters];
 }>();
 
-const localFilters = ref<Filters>({ ...props.filters });
+// Маппинг API sort -> UI sort
+const apiToUiSortMap: Record<string, string> = {
+  'price': 'price_asc',
+  '-price': 'price_desc',
+  'name': 'name_asc',
+  '-name': 'name_desc',
+  '-createdAt': 'newest',
+  '-rating': 'popular',
+  'rating': 'rating',
+};
+
+// Преобразуем значение sort из API формата в UI формат
+const convertApiSortToUi = (apiSort?: string): string => {
+  if (!apiSort) return 'popular';
+  return apiToUiSortMap[apiSort] || 'popular';
+};
+
+const localFilters = ref<Filters>({
+  ...props.filters,
+  sort: convertApiSortToUi(props.filters.sort),
+});
 let searchTimeout: NodeJS.Timeout | null = null;
 
 const sortOptions = [
@@ -280,7 +300,10 @@ const clearInStock = () => {
 watch(
   () => props.filters,
   (newFilters) => {
-    localFilters.value = { ...newFilters };
+    localFilters.value = {
+      ...newFilters,
+      sort: convertApiSortToUi(newFilters.sort),
+    };
   },
   { deep: true }
 );

@@ -123,9 +123,18 @@ const handleChange = (event: Event) => {
     font-family: $font-family-base;
     font-size: $font-size-base;
     color: $gray-900;
-    background: transparent;
+    background: $white;
     cursor: pointer;
     appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    // Ensure option text is visible
+    option {
+      color: $gray-900;
+      background: $white;
+      padding: $spacing-xs $spacing-sm;
+    }
 
     &:disabled {
       cursor: not-allowed;
