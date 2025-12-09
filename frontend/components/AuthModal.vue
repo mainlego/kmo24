@@ -453,6 +453,15 @@ const handleTelegramAuth = async (telegramUser: any) => {
   loading.value = true;
   message.value = '';
 
+  // Debug: логируем данные от Telegram
+  console.log('Telegram auth data received:', telegramUser);
+  console.log('Fields:', {
+    id: telegramUser?.id,
+    first_name: telegramUser?.first_name,
+    auth_date: telegramUser?.auth_date,
+    hash: telegramUser?.hash ? 'present' : 'missing'
+  });
+
   try {
     const { loginWithTelegram } = useAuth();
     await loginWithTelegram(telegramUser);
