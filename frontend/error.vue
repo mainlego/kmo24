@@ -192,8 +192,8 @@ const iconPaths = [
 ]
 
 // Pre-generate random values for floating icons (client-only)
-const floatingIconStyles = ref<string[]>([])
-const floatingIconPaths = ref<string[]>([])
+const floatingIconStyles = ref([])
+const floatingIconPaths = ref([])
 
 onMounted(() => {
   floatingIconStyles.value = Array.from({ length: 12 }, () =>
