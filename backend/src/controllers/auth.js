@@ -507,11 +507,12 @@ export const telegramAuth = async (req, res, next) => {
 
     if (!user) {
       // Создание нового пользователя
+      // Telegram может не предоставлять last_name, используем значение по умолчанию
       user = await User.create({
         telegramId: String(id),
         telegramUsername: username || null,
         firstName: first_name,
-        lastName: last_name || '',
+        lastName: last_name || 'Не указана', // Обязательное поле в модели User
         avatar: photo_url || null,
         isEmailVerified: false, // Email не подтвержден, так как его нет
       });
