@@ -314,6 +314,91 @@ export const removePromoCode = async (req, res, next) => {
   }
 };
 
+/**
+ * Слияние гостевой корзины с корзиной пользователя
+ * POST /api/v1/cart/merge
+ */
+export const mergeCart = async (req, res, next) => {
+  try {
+    const userId = req.user?._id;
+    const { sessionId } = req.body;
+
+    if (!userId) {
+      return errorResponse(res, 'Требуется авторизация', 401);
+    }
+
+    if (!sessionId) {
+      // Нет гостевой корзины для слияния - просто возвращаем корзину пользователя
+      const userCart = await getOrCreateCart(userId, null);
+      return successResponse(res, {
+        ...userCart.toObject(),
+        totalItems: userCart.totalItems,
+        subtotal: userCart.subtotal,
+        total: userCart.total,
+      });
+    }
+
+    // Находим гостевую корзину
+    const guestCart = await Cart.findOne({ sessionId }).populate('items.product');
+
+    if (!guestCart || guestCart.items.length === 0) {
+      // Нет товаров в гостевой корзине
+      const userCart = await getOrCreateCart(userId, null);
+      return successResponse(res, {
+        ...userCart.toObject(),
+        totalItems: userCart.totalItems,
+        subtotal: userCart.subtotal,
+        total: userCart.total,
+      });
+    }
+
+    // Получаем или создаём корзину пользователя
+    let userCart = await Cart.findOne({ user: userId }).populate('items.product');
+    if (!userCart) {
+      userCart = await Cart.create({ user: userId, items: [] });
+    }
+
+    // Переносим товары из гостевой корзины
+    for (const guestItem of guestCart.items) {
+      const existingItem = userCart.items.find(
+        item => item.product._id.toString() === guestItem.product._id.toString()
+      );
+
+      if (existingItem) {
+        // Товар уже есть - увеличиваем количество
+        existingItem.quantity += guestItem.quantity;
+      } else {
+        // Добавляем новый товар
+        userCart.items.push({
+          product: guestItem.product._id,
+          quantity: guestItem.quantity,
+          price: guestItem.price,
+          variant: guestItem.variant,
+        });
+      }
+    }
+
+    await userCart.save();
+
+    // Удаляем гостевую корзину
+    await Cart.deleteOne({ sessionId });
+
+    // Обновляем корзину с populate
+    userCart = await Cart.findById(userCart._id).populate('items.product');
+
+    logger.info(`Cart merged: session ${sessionId} -> user ${userId}`);
+
+    return successResponse(res, {
+      ...userCart.toObject(),
+      totalItems: userCart.totalItems,
+      subtotal: userCart.subtotal,
+      total: userCart.total,
+    }, 'Корзины объединены');
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   getCart,
   addItem,
@@ -322,4 +407,5 @@ export default {
   clearCart,
   applyPromoCode,
   removePromoCode,
+  mergeCart,
 };

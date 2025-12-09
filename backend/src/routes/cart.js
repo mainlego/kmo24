@@ -7,8 +7,9 @@ import {
   clearCart,
   applyPromoCode,
   removePromoCode,
+  mergeCart,
 } from '../controllers/cart.js';
-import { optionalAuth } from '../middleware/auth.js';
+import { optionalAuth, protect } from '../middleware/auth.js';
 import { validate, cartSchemas } from '../utils/validation.js';
 import asyncHandler from '../middleware/asyncHandler.js';
 
@@ -62,5 +63,12 @@ router.post('/promo-code', optionalAuth, validate(cartSchemas.applyPromoCode), a
  * @access  Public (с session ID) / Private
  */
 router.delete('/promo-code', optionalAuth, asyncHandler(removePromoCode));
+
+/**
+ * @route   POST /api/v1/cart/merge
+ * @desc    Слияние гостевой корзины с корзиной пользователя
+ * @access  Private
+ */
+router.post('/merge', protect, asyncHandler(mergeCart));
 
 export default router;
