@@ -264,6 +264,8 @@
                       type="text"
                       class="form-input"
                       placeholder="123456"
+                      minlength="5"
+                      maxlength="10"
                       required
                     />
                   </div>
@@ -513,22 +515,40 @@ const resetForm = () => {
   form.isDefault = false
 }
 
+// Нормализация телефона (удаление скобок, пробелов, дефисов)
+const normalizePhone = (phone: string): string => {
+  return phone.replace(/[\s\-\(\)]/g, '')
+}
+
 const saveAddress = async () => {
+  // Валидация на фронте
+  const postalCode = form.postalCode.trim()
+  if (postalCode.length < 5) {
+    toast.error('Индекс должен содержать минимум 5 символов')
+    return
+  }
+
+  const phone = normalizePhone(form.phone)
+  if (!/^\+?[1-9]\d{1,14}$/.test(phone)) {
+    toast.error('Некорректный формат телефона. Используйте формат: +79991234567')
+    return
+  }
+
   isSaving.value = true
 
   try {
     const addressData = {
-      label: form.label,
-      recipientName: form.recipientName,
-      phone: form.phone,
-      city: form.city,
-      postalCode: form.postalCode,
-      street: form.street,
-      building: form.building,
-      apartment: form.apartment || undefined,
-      entrance: form.entrance || undefined,
-      floor: form.floor || undefined,
-      notes: form.notes || undefined,
+      label: form.label.trim(),
+      recipientName: form.recipientName.trim(),
+      phone: phone, // Нормализованный телефон
+      city: form.city.trim(),
+      postalCode: postalCode,
+      street: form.street.trim(),
+      building: form.building.trim(),
+      apartment: form.apartment?.trim() || undefined,
+      entrance: form.entrance?.trim() || undefined,
+      floor: form.floor?.trim() || undefined,
+      notes: form.notes?.trim() || undefined,
       isDefault: form.isDefault
     }
 

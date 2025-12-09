@@ -24,6 +24,49 @@
                 <span class="section-number">1</span>
                 <h2>Контактные данные</h2>
               </div>
+
+              <!-- Выбор сохранённого адреса (для авторизованных пользователей) -->
+              <div v-if="savedAddresses.length > 0" class="saved-addresses">
+                <label class="form-label-main">Выберите сохранённый адрес</label>
+                <div class="address-selector">
+                  <label
+                    v-for="address in savedAddresses"
+                    :key="address._id"
+                    class="address-option"
+                    :class="{ active: selectedAddressId === address._id }"
+                  >
+                    <input
+                      type="radio"
+                      :value="address._id"
+                      v-model="selectedAddressId"
+                      @change="selectSavedAddress(address._id)"
+                    />
+                    <div class="address-option-content">
+                      <div class="address-option-header">
+                        <strong>{{ address.label }}</strong>
+                        <span v-if="address.isDefault" class="default-badge">По умолчанию</span>
+                      </div>
+                      <div class="address-option-details">
+                        <span>{{ address.recipientName }}</span>
+                        <span>{{ address.phone }}</span>
+                        <span>{{ address.city }}, {{ address.street }}, д. {{ address.building }}</span>
+                      </div>
+                    </div>
+                  </label>
+                  <label class="address-option" :class="{ active: selectedAddressId === '' }">
+                    <input
+                      type="radio"
+                      value=""
+                      v-model="selectedAddressId"
+                      @change="selectSavedAddress('')"
+                    />
+                    <div class="address-option-content">
+                      <strong>+ Ввести новые данные</strong>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
               <div class="form-grid">
                 <div class="form-group">
                   <label>Имя <span class="required">*</span></label>
@@ -382,6 +425,8 @@
 <script setup lang="ts">
 const router = useRouter();
 const cartStore = useCartStore();
+const { user, isAuthenticated } = useAuth();
+const { apiFetch } = useApi();
 const config = useRuntimeConfig();
 const apiBase = config.public.apiBaseUrl as string;
 
@@ -390,6 +435,25 @@ const isLoading = ref(true);
 const isSubmitting = ref(false);
 const isCalculating = ref(false);
 const isSearchingCities = ref(false);
+
+// Сохранённые адреса пользователя
+interface SavedAddress {
+  _id: string;
+  label: string;
+  recipientName: string;
+  phone: string;
+  city: string;
+  postalCode: string;
+  street: string;
+  building: string;
+  apartment?: string;
+  entrance?: string;
+  floor?: string;
+  notes?: string;
+  isDefault: boolean;
+}
+const savedAddresses = ref<SavedAddress[]>([]);
+const selectedAddressId = ref<string>('');
 
 // Form data
 const form = ref({
@@ -705,6 +769,52 @@ watch(() => form.value.deliveryMethod, () => {
   deliveryError.value = '';
 });
 
+// Загрузка сохранённых адресов пользователя
+const loadSavedAddresses = async () => {
+  if (!isAuthenticated.value) return;
+
+  try {
+    const response = await apiFetch<{ data: SavedAddress[] }>('/auth/addresses');
+    if (response.data) {
+      savedAddresses.value = response.data;
+
+      // Автоматически выбираем адрес по умолчанию
+      const defaultAddress = savedAddresses.value.find(a => a.isDefault);
+      if (defaultAddress) {
+        selectSavedAddress(defaultAddress._id);
+      }
+    }
+  } catch (err) {
+    console.error('Error loading saved addresses:', err);
+  }
+};
+
+// Выбор сохранённого адреса
+const selectSavedAddress = (addressId: string) => {
+  selectedAddressId.value = addressId;
+
+  if (!addressId) {
+    // Очистка формы при выборе "Новый адрес"
+    return;
+  }
+
+  const address = savedAddresses.value.find(a => a._id === addressId);
+  if (address) {
+    // Заполняем контактные данные из адреса
+    const nameParts = address.recipientName.split(' ');
+    form.value.firstName = nameParts[0] || '';
+    form.value.lastName = nameParts.slice(1).join(' ') || '';
+    form.value.phone = address.phone;
+
+    // Если выбрана доставка транспортной компанией, устанавливаем город
+    if (form.value.deliveryMethod === 'transport') {
+      citySearch.value = address.city;
+      // Для упрощения создаём объект города из адреса
+      selectedCity.value = { code: address.city, name: address.city };
+    }
+  }
+};
+
 // Lifecycle
 onMounted(async () => {
   document.addEventListener('click', handleClickOutside);
@@ -714,6 +824,18 @@ onMounted(async () => {
 
     if (cartStore.isEmpty) {
       router.push('/products');
+      return;
+    }
+
+    // Загружаем сохранённые адреса для авторизованных пользователей
+    await loadSavedAddresses();
+
+    // Предзаполняем данные из профиля пользователя
+    if (user.value) {
+      form.value.firstName = user.value.firstName || '';
+      form.value.lastName = user.value.lastName || '';
+      form.value.phone = user.value.phone || '';
+      form.value.email = user.value.email || '';
     }
   } catch (err) {
     console.error('Error loading cart:', err);
@@ -817,6 +939,82 @@ useHead({
     font-weight: 600;
     margin: 0;
   }
+}
+
+// Saved addresses selector
+.saved-addresses {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.form-label-main {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.75rem;
+}
+
+.address-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.address-option {
+  display: block;
+  cursor: pointer;
+
+  input {
+    display: none;
+  }
+
+  .address-option-content {
+    padding: 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    transition: all 0.2s;
+  }
+
+  &:hover .address-option-content {
+    border-color: #fbbf24;
+    background: #fffbeb;
+  }
+
+  &.active .address-option-content {
+    border-color: #f59e0b;
+    background: #fffbeb;
+  }
+
+  .address-option-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+
+    strong {
+      font-size: 0.9375rem;
+      color: #1f2937;
+    }
+  }
+
+  .address-option-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    font-size: 0.8125rem;
+    color: #6b7280;
+  }
+}
+
+.default-badge {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 0.125rem 0.5rem;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 4px;
 }
 
 .section-number {
