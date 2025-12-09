@@ -2,8 +2,8 @@
   <div class="favorites-page">
     <div class="container">
       <div class="favorites-page__header">
-        <NuxtLink to="/account" class="favorites-page__back">
-          ← Назад в личный кабинет
+        <NuxtLink to="/products" class="favorites-page__back">
+          ← В каталог
         </NuxtLink>
         <div class="favorites-page__header-content">
           <h1>Избранное</h1>
@@ -82,10 +82,7 @@ import { storeToRefs } from 'pinia';
 import { useWishlistStore } from '~/stores/wishlist';
 import { useCartStore } from '~/stores/cart';
 
-// Защита страницы авторизацией
-definePageMeta({
-  middleware: 'auth'
-});
+// Страница избранного доступна без авторизации (данные хранятся в localStorage)
 
 const wishlistStore = useWishlistStore();
 const cartStore = useCartStore();
