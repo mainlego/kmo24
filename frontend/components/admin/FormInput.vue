@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, useId } from 'vue';
 
 interface Props {
   modelValue?: string | number;
@@ -79,8 +79,9 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(['update:modelValue', 'blur', 'focus']);
 
 const isFocused = ref(false);
+const generatedId = useId();
 
-const id = computed(() => props.id || `input-${Math.random().toString(36).substr(2, 9)}`);
+const id = computed(() => props.id || generatedId);
 
 const inputClasses = computed(() => ({
   'has-prefix': !!props.icon,

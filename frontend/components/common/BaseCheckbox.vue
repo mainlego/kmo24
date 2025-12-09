@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, useId } from 'vue';
 
 interface Props {
   modelValue: boolean | unknown[];
@@ -65,7 +65,7 @@ const emit = defineEmits<{
   change: [checked: boolean];
 }>();
 
-const checkboxId = `checkbox-${Math.random().toString(36).substr(2, 9)}`;
+const checkboxId = useId();
 
 const localValue = computed({
   get: () => props.modelValue,

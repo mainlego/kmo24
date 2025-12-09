@@ -39,6 +39,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed, useId } from 'vue';
+
 interface Props {
   modelValue: string | number;
   type?: string;
@@ -66,7 +68,7 @@ const emit = defineEmits<{
   focus: [event: FocusEvent];
 }>();
 
-const inputId = `input-${Math.random().toString(36).substr(2, 9)}`;
+const inputId = useId();
 
 const localValue = computed({
   get: () => props.modelValue,

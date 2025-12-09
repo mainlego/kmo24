@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { useId } from 'vue';
 
 interface Props {
   modelValue?: boolean;
@@ -33,7 +33,7 @@ const emit = defineEmits<{
   change: [event: Event];
 }>();
 
-const checkboxId = computed(() => `checkbox-${Math.random().toString(36).substr(2, 9)}`);
+const checkboxId = useId();
 
 const handleChange = (event: Event) => {
   const target = event.target as HTMLInputElement;

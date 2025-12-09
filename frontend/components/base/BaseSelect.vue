@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, useId } from 'vue';
 
 interface Option {
   label: string;
@@ -41,6 +41,7 @@ interface Option {
 interface Props {
   modelValue?: string | number;
   label?: string;
+  name?: string;
   placeholder?: string;
   options: Option[];
   error?: string;
@@ -60,7 +61,7 @@ const emit = defineEmits<{
   change: [event: Event];
 }>();
 
-const selectId = computed(() => `select-${Math.random().toString(36).substr(2, 9)}`);
+const selectId = useId();
 
 const handleChange = (event: Event) => {
   const target = event.target as HTMLSelectElement;

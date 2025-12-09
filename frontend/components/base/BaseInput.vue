@@ -12,6 +12,7 @@
 
       <input
         :id="inputId"
+        :name="name || inputId"
         class="base-input__field"
         :type="type"
         :value="modelValue"
@@ -20,6 +21,7 @@
         :required="required"
         :min="min"
         :max="max"
+        :autocomplete="autocomplete"
         @input="handleInput"
         @blur="emit('blur', $event)"
         @focus="emit('focus', $event)"
@@ -36,11 +38,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, useId } from 'vue';
 
 interface Props {
   modelValue?: string | number;
   label?: string;
+  name?: string;
   type?: string;
   placeholder?: string;
   error?: string;
@@ -49,6 +52,7 @@ interface Props {
   required?: boolean;
   min?: number;
   max?: number;
+  autocomplete?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -65,7 +69,7 @@ const emit = defineEmits<{
   input: [event: Event];
 }>();
 
-const inputId = computed(() => `input-${Math.random().toString(36).substr(2, 9)}`);
+const inputId = useId();
 
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement;

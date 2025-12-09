@@ -145,7 +145,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, getCurrentInstance } from 'vue';
+import { ref, computed, useId } from 'vue';
 
 interface ChartData {
   label: string;
@@ -169,8 +169,7 @@ const props = withDefaults(defineProps<Props>(), {
   showArea: true,
 });
 
-const instance = getCurrentInstance();
-const _uid = instance?.uid || Math.random();
+const _uid = useId();
 
 // Chart dimensions
 const svgWidth = 600;

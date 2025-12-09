@@ -118,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, useId } from 'vue';
 
 interface ImageFile {
   id: string;
@@ -165,6 +165,8 @@ const emit = defineEmits<{
 }>();
 
 // State
+const componentId = useId();
+let imageCounter = 0;
 const fileInput = ref<HTMLInputElement | null>(null);
 const previewImages = ref<ImageFile[]>([]);
 const isDragging = ref(false);
@@ -245,7 +247,7 @@ const processFiles = (files: File[]) => {
 
   // Create preview images
   validFiles.forEach(file => {
-    const id = `${Date.now()}-${Math.random()}`;
+    const id = `${componentId}-${Date.now()}-${++imageCounter}`;
     const url = URL.createObjectURL(file);
 
     previewImages.value.push({

@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, useId } from 'vue';
 
 type OptionValue = string | number;
 
@@ -93,7 +93,7 @@ const emit = defineEmits<{
   focus: [event: FocusEvent];
 }>();
 
-const selectId = `select-${Math.random().toString(36).substr(2, 9)}`;
+const selectId = useId();
 
 const localValue = computed({
   get: () => props.modelValue,

@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, useId } from 'vue';
 
 interface Props {
   modelValue?: string;
@@ -49,7 +49,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits(['update:modelValue', 'blur', 'focus']);
 
-const id = computed(() => props.id || `textarea-${Math.random().toString(36).substr(2, 9)}`);
+const generatedId = useId();
+const id = computed(() => props.id || generatedId);
 
 const characterCount = computed(() => (props.modelValue || '').length);
 

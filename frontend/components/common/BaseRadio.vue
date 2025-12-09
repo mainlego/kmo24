@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, useId } from 'vue';
 
 interface Props {
   modelValue: unknown;
@@ -51,7 +51,7 @@ const emit = defineEmits<{
   change: [value: unknown];
 }>();
 
-const radioId = `radio-${Math.random().toString(36).substr(2, 9)}`;
+const radioId = useId();
 
 const localValue = computed({
   get: () => props.modelValue,

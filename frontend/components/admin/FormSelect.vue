@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, useId } from 'vue';
 
 interface SelectOption {
   value: string | number;
@@ -65,7 +65,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits(['update:modelValue', 'change', 'blur', 'focus']);
 
-const id = computed(() => props.id || `select-${Math.random().toString(36).substr(2, 9)}`);
+const generatedId = useId();
+const id = computed(() => props.id || generatedId);
 
 const getOptionValue = (option: any) => {
   if (typeof option === 'object') {
