@@ -530,7 +530,7 @@ const openQuickView = () => {
   }
 
   &__current-price {
-    font-size: 16px;
+    font-size: 21px;
     font-weight: $font-weight-bold;
     color: $primary-600;
   }

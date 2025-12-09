@@ -220,6 +220,7 @@ const route = useRoute();
 const router = useRouter();
 const { addToCart } = useCart();
 const productsStore = useProductsStore();
+const wishlistStore = useWishlistStore();
 
 const slug = computed(() => route.params.slug as string);
 
@@ -228,7 +229,12 @@ const error = ref('');
 const product = ref<Product | null>(null);
 const relatedProducts = ref<Product[]>([]);
 const isAddingToCart = ref(false);
-const isFavorite = ref(false);
+
+// Проверка наличия товара в избранном через store
+const isFavorite = computed(() => {
+  if (!product.value) return false;
+  return wishlistStore.hasItem(product.value._id);
+});
 const currentImageIndex = ref(0);
 const activeTab = ref('description');
 const isLightboxOpen = ref(false);
@@ -301,8 +307,9 @@ const quickAddToCart = async (item: Product) => {
   }
 };
 
-const toggleFavorite = () => {
-  isFavorite.value = !isFavorite.value;
+const toggleFavorite = async () => {
+  if (!product.value) return;
+  await wishlistStore.toggleItem(product.value as any);
 };
 
 const selectImage = (index: number) => {
@@ -355,6 +362,9 @@ const handleImageZoom = (event: MouseEvent) => {
 onMounted(async () => {
   try {
     isLoading.value = true;
+
+    // Загружаем wishlist из localStorage
+    wishlistStore.fetchWishlist();
 
     // Fetch product from store/API
     const result = await productsStore.fetchProduct(slug.value);
@@ -540,7 +550,7 @@ onUnmounted(() => {
         gap: 8px;
 
         .price-current {
-          font-size: 24px;
+          font-size: 31px;
           font-weight: 700;
           color: $primary-600;
         }
@@ -905,7 +915,7 @@ onUnmounted(() => {
       .info-price-row {
         .price-block {
           .price-current {
-            font-size: 20px;
+            font-size: 26px;
           }
         }
       }

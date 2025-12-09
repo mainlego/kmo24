@@ -63,6 +63,15 @@
                 </div>
               </button>
 
+              <NuxtLink to="/account/favorites" class="nav-icon nav-icon--wishlist" aria-label="Избранное">
+                <div class="nav-icon-wrapper">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="badge" v-if="wishlistCount > 0">{{ wishlistCount }}</span>
+                </div>
+              </NuxtLink>
+
               <!-- Для авторизованных - меню пользователя -->
               <div v-if="isAuthenticated" class="user-menu" @mouseenter="isUserMenuOpen = true" @mouseleave="isUserMenuOpen = false">
                 <button class="nav-icon nav-icon--user" aria-label="Меню пользователя">
@@ -212,6 +221,13 @@
                 </svg>
                 <span>Войти</span>
               </button>
+              <NuxtLink to="/account/favorites" class="mobile-nav-link" @click="isMobileMenuOpen = false">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Избранное</span>
+                <span class="mobile-badge" v-if="wishlistCount > 0">{{ wishlistCount }}</span>
+              </NuxtLink>
               <NuxtLink to="/cart" class="mobile-nav-link" @click="isMobileMenuOpen = false">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M9 2L7 6M17 2L19 6M3.5 6H20.5L19 20H5L3.5 6ZM10 11V17M14 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -391,6 +407,7 @@
 import { ref, computed, onMounted, onUnmounted, watch, defineAsyncComponent } from 'vue';
 import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
+import { useWishlistStore } from '../stores/wishlist';
 import { usePageEditor } from '../composables/usePageEditor';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -407,10 +424,14 @@ const isUserMenuOpen = ref(false);
 const isCallbackModalOpen = ref(false);
 const cartStore = useCartStore();
 const authStore = useAuthStore();
+const wishlistStore = useWishlistStore();
 const pageEditor = usePageEditor();
 
 // Get cart count from store
 const cartCount = computed(() => cartStore.totalItems);
+
+// Get wishlist count from store
+const wishlistCount = computed(() => wishlistStore.count);
 
 // Check if user is authenticated
 const isAuthenticated = computed(() => authStore.isAuthenticated);
@@ -804,9 +825,20 @@ onUnmounted(() => {
     }
   }
 
-  &.nav-icon--cart:hover {
+  &.nav-icon--cart:hover,
+  &.nav-icon--wishlist:hover {
     .badge {
       transform: scale(1.15) rotate(-5deg);
+    }
+  }
+
+  &.nav-icon--wishlist {
+    &:hover {
+      .nav-icon-wrapper {
+        svg path {
+          fill: rgba($primary, 0.1);
+        }
+      }
     }
   }
 
