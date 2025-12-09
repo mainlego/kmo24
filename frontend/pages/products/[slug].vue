@@ -281,13 +281,36 @@ const formatPrice = (price: number): string => {
 };
 
 const handleAddToCart = async () => {
-  if (!product.value || !isInStock.value || isAddingToCart.value) return;
+  console.log('handleAddToCart called', {
+    hasProduct: !!product.value,
+    isInStock: isInStock.value,
+    isAddingToCart: isAddingToCart.value,
+    productId: product.value?._id,
+    stock: product.value?.stock,
+    isActive: product.value?.isActive,
+  });
+
+  if (!product.value) {
+    console.error('No product loaded');
+    return;
+  }
+
+  if (!isInStock.value) {
+    console.error('Product not in stock');
+    return;
+  }
+
+  if (isAddingToCart.value) {
+    console.log('Already adding to cart');
+    return;
+  }
 
   isAddingToCart.value = true;
   try {
     await addToCart(product.value._id, 1);
-  } catch {
-    // Error adding to cart
+    console.log('Product added to cart successfully');
+  } catch (error) {
+    console.error('Error adding to cart:', error);
   } finally {
     isAddingToCart.value = false;
   }
