@@ -3,11 +3,23 @@
     <div v-if="error" class="telegram-error">
       {{ error }}
     </div>
-    <div v-else ref="telegramContainer" class="telegram-button-container"></div>
+
+    <!-- Loading индикатор пока виджет загружается -->
+    <div v-else-if="isLoading" class="telegram-loading">
+      <span class="loading-spinner"></span>
+      <span>Загрузка...</span>
+    </div>
+
+    <!-- Контейнер для Telegram виджета (показываем только когда загрузился) -->
+    <div
+      v-show="!isLoading && !showFallback && !error"
+      ref="telegramContainer"
+      class="telegram-button-container"
+    ></div>
 
     <!-- Fallback кнопка если виджет не загрузился -->
     <button
-      v-if="showFallback && !error"
+      v-if="showFallback && !isLoading && !error"
       type="button"
       class="telegram-fallback-btn"
       @click="openTelegramBot"
@@ -39,7 +51,8 @@ interface TelegramUser {
 
 const config = useRuntimeConfig();
 const telegramContainer = ref<HTMLDivElement | null>(null);
-const showFallback = ref(true);
+const showFallback = ref(false);
+const isLoading = ref(true);
 const error = ref('');
 
 // Telegram Bot username из конфига
@@ -71,15 +84,18 @@ const loadTelegramWidget = () => {
   script.onload = () => {
     // Проверяем, появился ли iframe виджета
     setTimeout(() => {
+      isLoading.value = false;
       const iframe = telegramContainer.value?.querySelector('iframe');
-      if (iframe) {
-        showFallback.value = false;
+      if (!iframe) {
+        // Виджет не загрузился - показываем fallback
+        showFallback.value = true;
       }
-    }, 1000);
+    }, 1500);
   };
 
   script.onerror = () => {
     console.error('Failed to load Telegram widget');
+    isLoading.value = false;
     showFallback.value = true;
   };
 
@@ -122,6 +138,31 @@ onUnmounted(() => {
   font-size: 0.875rem;
   text-align: center;
   padding: 0.5rem;
+}
+
+.telegram-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  min-height: 40px;
+}
+
+.loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #0088cc;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .telegram-fallback-btn {
