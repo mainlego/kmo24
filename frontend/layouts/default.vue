@@ -561,8 +561,10 @@ onUnmounted(() => {
 
 // Premium Header
 .header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: $z-index-sticky;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -579,7 +581,7 @@ onUnmounted(() => {
 
   &--scrolled {
     &::before {
-      background: rgba($white, 0.95);
+      background: rgba($white, 0.92);
       box-shadow: $shadow-lg;
       border-bottom-color: $gray-200;
     }
@@ -1015,6 +1017,11 @@ onUnmounted(() => {
 // Main Content
 .main-content {
   flex: 1;
+  padding-top: 80px; // Отступ для фиксированной шапки
+
+  @media (max-width: $breakpoint-md) {
+    padding-top: 70px;
+  }
 }
 
 // Premium Footer
