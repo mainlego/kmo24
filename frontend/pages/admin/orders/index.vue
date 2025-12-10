@@ -186,7 +186,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
           </button>
-          <button class="btn-icon" @click.stop="printInvoice(item.id)" title="Печать">
+          <button class="btn-icon" @click.stop="printInvoice(item._id)" title="Печать">
             <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
@@ -583,9 +583,148 @@ const updateStatus = (order: any) => {
   viewOrder(order);
 };
 
-const printInvoice = async (_orderId: string) => {
-  // Функционал печати накладной будет реализован позже
-  showSuccess('Накладная отправлена на печать');
+const printInvoice = async (orderId: string) => {
+  // Находим заказ по ID
+  const order = orders.value.find(o => o._id === orderId);
+  if (!order) {
+    showError('Заказ не найден');
+    return;
+  }
+
+  // Формируем HTML для печати
+  const printContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Заказ #${order.orderNumber}</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #333; }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 2px solid #f59e0b; padding-bottom: 20px; }
+        .logo { font-size: 28px; font-weight: bold; color: #f59e0b; }
+        .logo span { color: #333; }
+        .order-info { text-align: right; }
+        .order-number { font-size: 24px; font-weight: bold; color: #333; }
+        .order-date { color: #666; margin-top: 5px; }
+        .section { margin-bottom: 30px; }
+        .section-title { font-size: 14px; font-weight: 600; color: #666; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .info-block p { margin: 5px 0; }
+        .info-block strong { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .summary { margin-top: 20px; margin-left: auto; width: 300px; }
+        .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .summary-row.total { font-size: 18px; font-weight: bold; border-bottom: none; border-top: 2px solid #333; margin-top: 10px; padding-top: 15px; }
+        .footer { margin-top: 50px; text-align: center; color: #999; font-size: 12px; }
+        .status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-confirmed { background: #d1fae5; color: #065f46; }
+        .status-processing { background: #dbeafe; color: #1e40af; }
+        .status-shipped { background: #e0e7ff; color: #3730a3; }
+        .status-delivered { background: #d1fae5; color: #065f46; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+        @media print { body { padding: 20px; } }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="logo">КМО<span>24</span></div>
+        <div class="order-info">
+          <div class="order-number">Заказ #${order.orderNumber}</div>
+          <div class="order-date">${formatDate(order.createdAt)}</div>
+          <div style="margin-top: 10px;">
+            <span class="status status-${order.status}">${getStatusLabel(order.status)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Информация о заказе</div>
+        <div class="info-grid">
+          <div class="info-block">
+            <p><strong>Покупатель:</strong></p>
+            <p>${order.customer?.firstName || ''} ${order.customer?.lastName || ''}</p>
+            <p>${order.customer?.email || ''}</p>
+            <p>${order.customer?.phone || ''}</p>
+          </div>
+          <div class="info-block">
+            <p><strong>Адрес доставки:</strong></p>
+            <p>${formatAddress(order.shippingAddress)}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Товары</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Наименование</th>
+              <th>Артикул</th>
+              <th class="text-center">Кол-во</th>
+              <th class="text-right">Цена</th>
+              <th class="text-right">Сумма</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${order.items?.map((item: any) => `
+              <tr>
+                <td>${item.name || 'Товар'}</td>
+                <td>${item.sku || '—'}</td>
+                <td class="text-center">${item.quantity || 1}</td>
+                <td class="text-right">${formatPrice(item.price || 0)}</td>
+                <td class="text-right">${formatPrice((item.price || 0) * (item.quantity || 1))}</td>
+              </tr>
+            `).join('') || ''}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="summary">
+        <div class="summary-row">
+          <span>Сумма товаров:</span>
+          <span>${formatPrice(order.pricing?.subtotal || 0)}</span>
+        </div>
+        <div class="summary-row">
+          <span>Доставка:</span>
+          <span>${formatPrice(order.pricing?.shipping || order.shipping?.cost || 0)}</span>
+        </div>
+        ${order.pricing?.discount ? `
+          <div class="summary-row">
+            <span>Скидка:</span>
+            <span>-${formatPrice(order.pricing.discount)}</span>
+          </div>
+        ` : ''}
+        <div class="summary-row total">
+          <span>Итого к оплате:</span>
+          <span>${formatPrice(order.pricing?.total || 0)}</span>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>Документ сформирован ${new Date().toLocaleString('ru-RU')}</p>
+        <p>КМО24 - Промышленное оборудование | kmo24.ru</p>
+      </div>
+    </body>
+    </html>
+  `;
+
+  // Открываем окно печати
+  const printWindow = window.open('', '_blank');
+  if (printWindow) {
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.onload = () => {
+      printWindow.print();
+    };
+  } else {
+    showError('Не удалось открыть окно печати. Проверьте блокировщик всплывающих окон.');
+  }
 };
 
 const exportOrders = async () => {
