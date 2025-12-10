@@ -691,6 +691,68 @@ export const getOrderStats = async (req, res, next) => {
   }
 };
 
+/**
+ * Получение данных для графика продаж по дням
+ * GET /api/v1/orders/stats/chart
+ */
+export const getOrdersChart = async (req, res, next) => {
+  try {
+    const { days = 30 } = req.query;
+    const daysCount = parseInt(days) || 30;
+
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - daysCount);
+    startDate.setHours(0, 0, 0, 0);
+
+    // Агрегация по дням
+    const chartData = await Order.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate },
+          status: { $nin: ['cancelled', 'refunded'] },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
+          },
+          orders: { $sum: 1 },
+          revenue: { $sum: '$pricing.total' },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+    ]);
+
+    // Заполняем пропущенные дни нулями
+    const result = [];
+    const chartDataMap = new Map(chartData.map(d => [d._id, d]));
+
+    for (let i = daysCount - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayData = chartDataMap.get(dateStr);
+
+      result.push({
+        date: dateStr,
+        label: new Date(dateStr).toLocaleDateString('ru-RU', {
+          day: 'numeric',
+          month: 'short',
+        }),
+        orders: dayData?.orders || 0,
+        revenue: dayData?.revenue || 0,
+      });
+    }
+
+    return successResponse(res, result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   createOrder,
   getMyOrders,
@@ -700,4 +762,5 @@ export default {
   updatePaymentStatus,
   cancelOrder,
   getOrderStats,
+  getOrdersChart,
 };

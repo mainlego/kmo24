@@ -388,8 +388,8 @@ const form = ref({
   specifications: [] as Array<{ name: string; value: string }>,
   images: [] as string[],
   documents: [] as Array<{ name: string; url: string }>,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
+  createdAt: '',
+  updatedAt: '',
 });
 
 const errors = ref<Record<string, string>>({});
@@ -743,14 +743,21 @@ const removeTag = (index: number) => {
   form.value.tags.splice(index, 1);
 };
 
-const formatDate = (date: string) => {
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(date));
+const formatDate = (date: string | undefined | null) => {
+  if (!date) return '—';
+  try {
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) return '—';
+    return new Intl.DateTimeFormat('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(dateObj);
+  } catch {
+    return '—';
+  }
 };
 
 onMounted(async () => {

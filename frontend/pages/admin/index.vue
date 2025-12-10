@@ -36,15 +36,43 @@
           </select>
         </div>
         <div class="card-body">
-          <div class="chart-placeholder">
+          <div v-if="loadingChart" class="loading-state">
+            <div class="spinner"></div>
+            <p>Загрузка графика...</p>
+          </div>
+          <div v-else-if="chartData.length === 0" class="chart-placeholder">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
-            <p>График продаж</p>
-            <p v-if="ordersStats" class="chart-stats">
-              Всего заказов: {{ ordersStats.totalOrders || 0 }} |
-              Сумма: {{ formatPrice(ordersStats.totalRevenue || 0) }}
-            </p>
+            <p>Нет данных для отображения</p>
+          </div>
+          <div v-else class="chart-container">
+            <div class="chart-summary">
+              <div class="summary-item">
+                <span class="summary-label">Заказов за период:</span>
+                <span class="summary-value">{{ chartData.reduce((sum, d) => sum + d.orders, 0) }}</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Выручка:</span>
+                <span class="summary-value">{{ formatPrice(chartData.reduce((sum, d) => sum + d.revenue, 0)) }}</span>
+              </div>
+            </div>
+            <div class="bar-chart">
+              <div
+                v-for="(item, index) in chartData"
+                :key="item.date"
+                class="bar-item"
+                :title="`${item.label}: ${item.orders} заказов, ${formatPrice(item.revenue)}`"
+              >
+                <div
+                  class="bar"
+                  :style="{
+                    height: `${Math.max(4, (item.revenue / Math.max(...chartData.map(d => d.revenue), 1)) * 100)}%`
+                  }"
+                ></div>
+                <span v-if="index % Math.ceil(chartData.length / 7) === 0" class="bar-label">{{ item.label }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -239,7 +267,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useCRMStore } from '../../stores/crm';
 import { useOrders } from '../../composables/useOrders';
 import { useProducts } from '../../composables/useProducts';
@@ -277,9 +305,13 @@ const productsStats = ref<any>(null);
 const crmStore = useCRMStore();
 
 // Composables
-const { getOrders, getOrderStats } = useOrders();
+const { getOrders, getOrderStats, getOrdersChart } = useOrders();
 const { getProducts, getProductStats } = useProducts();
 const { getUserStats } = useUsers();
+
+// Chart data
+const chartData = ref<Array<{ date: string; label: string; orders: number; revenue: number }>>([]);
+const loadingChart = ref(false);
 
 // Stats with real data
 const stats = computed(() => {
@@ -337,6 +369,8 @@ onMounted(async () => {
     fetchProducts(),
     fetchReviews(),
     fetchStats(),
+    fetchChart(),
+    crmStore.fetchLeads(),
   ]);
 });
 
@@ -412,6 +446,26 @@ async function fetchStats() {
     loadingStats.value = false;
   }
 }
+
+async function fetchChart() {
+  loadingChart.value = true;
+  try {
+    const days = parseInt(chartPeriod.value) || 30;
+    const response = await getOrdersChart(days);
+    if (response.success && response.data) {
+      chartData.value = response.data;
+    }
+  } catch (error) {
+    console.error('Error fetching chart:', error);
+  } finally {
+    loadingChart.value = false;
+  }
+}
+
+// Watch chart period changes
+watch(chartPeriod, () => {
+  fetchChart();
+});
 
 // Helper functions
 function formatPrice(price: number): string {
@@ -668,6 +722,77 @@ function getInitials(name: string): string {
   .chart-stats {
     color: $gray-600;
     font-weight: $font-weight-medium;
+  }
+}
+
+.chart-container {
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-summary {
+  display: flex;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-sm;
+  border-bottom: 1px solid $gray-200;
+
+  .summary-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+  }
+
+  .summary-label {
+    font-size: $font-size-sm;
+    color: $gray-500;
+  }
+
+  .summary-value {
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $gray-900;
+  }
+}
+
+.bar-chart {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding-top: $spacing-sm;
+}
+
+.bar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  min-width: 0;
+
+  .bar {
+    width: 100%;
+    max-width: 20px;
+    background: linear-gradient(180deg, $primary 0%, darken($primary, 10%) 100%);
+    border-radius: 2px 2px 0 0;
+    transition: height 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+      background: linear-gradient(180deg, lighten($primary, 5%) 0%, $primary 100%);
+    }
+  }
+
+  .bar-label {
+    font-size: 10px;
+    color: $gray-500;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 }
 

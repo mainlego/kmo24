@@ -8,6 +8,7 @@ import {
   updatePaymentStatus,
   cancelOrder,
   getOrderStats,
+  getOrdersChart,
 } from '../controllers/orders.js';
 import { protect, authorize, optionalAuth } from '../middleware/auth.js';
 import asyncHandler from '../middleware/asyncHandler.js';
@@ -18,6 +19,7 @@ const router = express.Router();
 // Маршруты только для администраторов
 router.get('/stats', protect, authorize('admin', 'manager'), asyncHandler(getOrderStats));
 router.get('/stats/summary', protect, authorize('admin', 'manager'), asyncHandler(getOrderStats));
+router.get('/stats/chart', protect, authorize('admin', 'manager'), asyncHandler(getOrdersChart));
 router.get('/all/list', protect, authorize('admin', 'manager'), asyncHandler(getAllOrders));
 
 // Публичные/защищенные маршруты

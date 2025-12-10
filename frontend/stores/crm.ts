@@ -43,9 +43,17 @@ export const useCRMStore = defineStore('crm', {
     },
 
     salesFunnel: (state) => {
-      const statuses = ['new', 'contacted', 'qualified', 'negotiation', 'won'];
-      return statuses.map(status => ({
+      const statusConfig = [
+        { status: 'new', name: 'Новые' },
+        { status: 'contacted', name: 'Контакт' },
+        { status: 'qualified', name: 'Квалифицированы' },
+        { status: 'negotiation', name: 'Переговоры' },
+        { status: 'won', name: 'Успешно' },
+      ];
+      return statusConfig.map(({ status, name }) => ({
+        id: status,
         stage: status,
+        name,
         count: state.leads.filter(l => l.status === status).length,
         value: state.leads
           .filter(l => l.status === status)

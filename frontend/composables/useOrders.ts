@@ -278,6 +278,27 @@ export const useOrders = () => {
     }
   };
 
+  /**
+   * Получить данные для графика продаж по дням (admin)
+   */
+  const getOrdersChart = async (days: number = 30) => {
+    try {
+      const response = await apiFetch<{
+        success: boolean;
+        data: Array<{
+          date: string;
+          label: string;
+          orders: number;
+          revenue: number;
+        }>;
+      }>(`/orders/stats/chart?days=${days}`);
+      return response;
+    } catch (err: any) {
+      showError(err.message || 'Ошибка при загрузке графика');
+      throw err;
+    }
+  };
+
   return {
     getOrders,
     getOrderById,
@@ -288,5 +309,6 @@ export const useOrders = () => {
     confirmPayment,
     getOrderStats,
     getMyOrders,
+    getOrdersChart,
   };
 };
