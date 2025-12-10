@@ -525,6 +525,7 @@ const saveProduct = async () => {
         isPrimary: index === 0,
         sortOrder: index,
       })),
+      documents: form.value.documents,
       seo: {
         title: form.value.metaTitle || form.value.name,
         description: form.value.metaDescription || form.value.description,
