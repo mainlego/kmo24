@@ -589,10 +589,13 @@ const openCardMenu = (lead: Lead) => {
   height: calc(100vh - 4rem);
   display: flex;
   flex-direction: column;
+  min-width: 0; // Критично для flex - позволяет сжиматься
+  overflow: hidden; // Скрываем overflow на уровне страницы
 
   @media (max-width: 768px) {
     padding: 1rem;
     height: auto;
+    min-height: calc(100vh - 4rem);
   }
 }
 
@@ -753,10 +756,11 @@ const openCardMenu = (lead: Lead) => {
   position: relative;
   flex: 1;
   min-height: 0;
-  min-width: 0; // Важно для flex-контейнера чтобы разрешить сжатие
+  min-width: 0; // Критично для flex - разрешает сжатие
+  width: 100%;
   display: flex;
   flex-direction: column;
-  overflow: visible; // Разрешаем overflow чтобы скроллбар был виден
+  overflow: hidden; // Скрываем на этом уровне, скролл внутри kanban-board
 }
 
 // Scroll Arrows
@@ -862,11 +866,13 @@ const openCardMenu = (lead: Lead) => {
 .kanban-board {
   display: flex;
   gap: 1rem;
-  overflow-x: scroll !important; // Принудительно показываем скроллбар
+  overflow-x: auto !important; // Горизонтальный скролл
   overflow-y: hidden;
-  flex: 1;
+  flex: 1 1 0; // Позволяет flex-элементу сжиматься
   min-height: 0;
-  min-width: 0; // Важно для flex-контейнера
+  min-width: 0; // Критично - разрешает сжатие ниже content-size
+  width: 100%;
+  max-width: 100%;
   padding: 0.5rem 3.5rem 1rem; // Отступы для стрелок навигации
   cursor: grab;
   -webkit-overflow-scrolling: touch;

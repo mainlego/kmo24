@@ -705,6 +705,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-width: 0; // Критично для flex - разрешает сжатие
+  overflow: hidden; // Предотвращает переполнение
 
   @media (min-width: 1024px) {
     margin-left: 280px;
@@ -852,8 +854,9 @@ onMounted(() => {
 .admin-content {
   flex: 1;
   padding: 2rem;
-  overflow-y: auto;
+  overflow: auto; // Разрешаем скролл в обоих направлениях
   background: #f8f9fc;
+  min-width: 0; // Важно для flex - разрешает сжатие контента
 
   @media (max-width: 1023px) {
     padding: 1.5rem;
