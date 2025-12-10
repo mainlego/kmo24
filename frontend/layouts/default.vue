@@ -570,8 +570,9 @@ onUnmounted(() => {
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba($white, 0.8);
-    backdrop-filter: blur(12px);
+    background: rgba($white, 0.75);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba($gray-200, 0.5);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
