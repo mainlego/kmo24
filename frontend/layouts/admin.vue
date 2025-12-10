@@ -155,7 +155,6 @@ const pageTitle = computed(() => {
   if (path.includes('/orders')) return 'Заказы';
   if (path.includes('/proposals')) return 'Коммерческие предложения';
   if (path.includes('/users')) return 'Пользователи';
-  if (path.includes('/categories')) return 'Категории';
   if (path.includes('/news')) return 'Новости';
   if (path.includes('/pages')) return 'Страницы';
   if (path.includes('/settings')) return 'Настройки';
@@ -194,11 +193,6 @@ const navigation = computed(() => [
     label: 'Пользователи',
     path: '/admin/users',
     icon: 'IconUsers',
-  },
-  {
-    label: 'Категории',
-    path: '/admin/categories',
-    icon: 'IconCategories',
   },
   {
     label: 'Новости',
