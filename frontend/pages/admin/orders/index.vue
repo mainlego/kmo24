@@ -602,8 +602,8 @@ const printInvoice = async (orderId: string) => {
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #333; }
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 2px solid #f59e0b; padding-bottom: 20px; }
-        .logo { font-size: 28px; font-weight: bold; color: #f59e0b; }
-        .logo span { color: #333; }
+        .logo { display: flex; align-items: center; }
+        .logo img { height: 50px; width: auto; }
         .order-info { text-align: right; }
         .order-number { font-size: 24px; font-weight: bold; color: #333; }
         .order-date { color: #666; margin-top: 5px; }
@@ -633,7 +633,7 @@ const printInvoice = async (orderId: string) => {
     </head>
     <body>
       <div class="header">
-        <div class="logo">КМО<span>24</span></div>
+        <div class="logo"><img src="${window.location.origin}/assets/logo.png" alt="КМО24" /></div>
         <div class="order-info">
           <div class="order-number">Заказ #${order.orderNumber}</div>
           <div class="order-date">${formatDate(order.createdAt)}</div>
