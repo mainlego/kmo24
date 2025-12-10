@@ -280,6 +280,12 @@ export const getRelatedProducts = async (req, res, next) => {
  */
 export const getProductStats = async (req, res, next) => {
   try {
+    // Даты для сравнения
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const sixtyDaysAgo = new Date();
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
     const [
       totalProducts,
       activeProducts,
@@ -287,6 +293,8 @@ export const getProductStats = async (req, res, next) => {
       lowStock,
       featuredProducts,
       newProducts,
+      productsAddedCurrentMonth,
+      productsAddedPreviousMonth,
     ] = await Promise.all([
       Product.countDocuments(),
       Product.countDocuments({ isActive: true }),
@@ -294,7 +302,17 @@ export const getProductStats = async (req, res, next) => {
       Product.countDocuments({ 'stock.available': { $gt: 0, $lte: 5 } }),
       Product.countDocuments({ isFeatured: true }),
       Product.countDocuments({ isNew: true }),
+      Product.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
+      Product.countDocuments({ createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo } }),
     ]);
+
+    // Вычисляем прирост активных товаров (%)
+    let activeGrowth = 0;
+    if (productsAddedPreviousMonth > 0) {
+      activeGrowth = Math.round(((productsAddedCurrentMonth - productsAddedPreviousMonth) / productsAddedPreviousMonth) * 100);
+    } else {
+      activeGrowth = productsAddedCurrentMonth > 0 ? 100 : 0;
+    }
 
     return successResponse(res, {
       totalProducts,
@@ -305,6 +323,7 @@ export const getProductStats = async (req, res, next) => {
       featuredProducts,
       newProducts,
       draftProducts: 0, // Товары без статуса draft в текущей схеме
+      activeGrowth,
     });
   } catch (error) {
     next(error);

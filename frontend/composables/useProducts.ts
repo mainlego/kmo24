@@ -293,16 +293,17 @@ export const useProducts = () => {
       const response = await apiFetch<{
         success: boolean;
         data: {
-          total: number;
-          active: number;
-          inactive: number;
+          totalProducts: number;
+          activeProducts: number;
+          inactiveProducts: number;
           outOfStock: number;
           lowStock: number;
-          featured: number;
-          new: number;
+          featuredProducts: number;
+          newProducts: number;
+          activeGrowth: number;
         };
       }>('/products/stats');
-      return response.data;
+      return response;
     } catch (err: any) {
       showError(err.message || 'Ошибка при загрузке статистики');
       throw err;

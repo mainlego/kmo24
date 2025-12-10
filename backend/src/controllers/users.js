@@ -385,14 +385,34 @@ export const getUserStats = async (req, res, next) => {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const newUsers = await User.countDocuments({
+    // Пользователи за прошлый месяц (30-60 дней назад)
+    const sixtyDaysAgo = new Date();
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+    const newUsersCurrentMonth = await User.countDocuments({
       createdAt: { $gte: thirtyDaysAgo },
     });
 
+    const newUsersPreviousMonth = await User.countDocuments({
+      createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo },
+    });
+
+    // Вычисляем прирост пользователей (%)
+    let monthlyGrowth = 0;
+    if (newUsersPreviousMonth > 0) {
+      monthlyGrowth = Math.round(((newUsersCurrentMonth - newUsersPreviousMonth) / newUsersPreviousMonth) * 100);
+    } else {
+      monthlyGrowth = newUsersCurrentMonth > 0 ? 100 : 0;
+    }
+
     const result = {
       ...(stats[0] || {}),
-      newUsersLast30Days: newUsers,
+      newUsersLast30Days: newUsersCurrentMonth,
+      monthlyGrowth,
     };
+
+    // Удаляем _id из результата
+    delete result._id;
 
     return successResponse(res, result);
   } catch (error) {

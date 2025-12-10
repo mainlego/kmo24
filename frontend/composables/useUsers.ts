@@ -104,9 +104,10 @@ export const useUsers = () => {
           managerUsers: number;
           regularUsers: number;
           newUsersLast30Days: number;
+          monthlyGrowth: number;
         };
       }>('/users/stats');
-      return response.data;
+      return response;
     } catch (err: any) {
       showError(err.message || 'Ошибка при загрузке статистики');
       throw err;

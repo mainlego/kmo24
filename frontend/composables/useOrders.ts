@@ -236,6 +236,7 @@ export const useOrders = () => {
         success: boolean;
         data: {
           total: number;
+          totalOrders: number;
           pending: number;
           confirmed: number;
           processing: number;
@@ -245,6 +246,8 @@ export const useOrders = () => {
           totalRevenue: number;
           avgOrderValue: number;
           revenue: number;
+          monthlyGrowth: number;
+          revenueGrowth: number;
         };
       }>('/orders/stats');
       return response;

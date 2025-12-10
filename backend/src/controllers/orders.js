@@ -564,9 +564,12 @@ export const getOrderStats = async (req, res, next) => {
       if (endDate) dateFilter.createdAt.$lte = new Date(endDate);
     }
 
-    // Статистика за месяц для выручки
+    // Даты для сравнения
+    const now = new Date();
     const monthAgo = new Date();
     monthAgo.setMonth(monthAgo.getMonth() - 1);
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
 
     const stats = await Order.aggregate([
       { $match: dateFilter },
@@ -598,11 +601,39 @@ export const getOrderStats = async (req, res, next) => {
       },
     ]);
 
-    // Выручка за месяц
-    const monthlyRevenue = await Order.aggregate([
+    // Заказы за текущий месяц
+    const currentMonthOrders = await Order.countDocuments({
+      createdAt: { $gte: monthAgo },
+      status: { $nin: ['cancelled', 'refunded'] },
+    });
+
+    // Заказы за прошлый месяц
+    const previousMonthOrders = await Order.countDocuments({
+      createdAt: { $gte: twoMonthsAgo, $lt: monthAgo },
+      status: { $nin: ['cancelled', 'refunded'] },
+    });
+
+    // Выручка за текущий месяц
+    const currentMonthRevenue = await Order.aggregate([
       {
         $match: {
           createdAt: { $gte: monthAgo },
+          status: { $nin: ['cancelled', 'refunded'] },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          revenue: { $sum: '$pricing.total' },
+        },
+      },
+    ]);
+
+    // Выручка за прошлый месяц
+    const previousMonthRevenue = await Order.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: twoMonthsAgo, $lt: monthAgo },
           status: { $nin: ['cancelled', 'refunded'] },
         },
       },
@@ -626,8 +657,28 @@ export const getOrderStats = async (req, res, next) => {
       avgOrderValue: 0,
     };
 
+    // Добавляем totalOrders для совместимости с фронтендом
+    result.totalOrders = result.total;
+
     // Добавляем выручку за месяц
-    result.revenue = monthlyRevenue[0]?.revenue || 0;
+    result.revenue = currentMonthRevenue[0]?.revenue || 0;
+
+    // Вычисляем прирост заказов (%)
+    const prevOrders = previousMonthOrders || 0;
+    if (prevOrders > 0) {
+      result.monthlyGrowth = Math.round(((currentMonthOrders - prevOrders) / prevOrders) * 100);
+    } else {
+      result.monthlyGrowth = currentMonthOrders > 0 ? 100 : 0;
+    }
+
+    // Вычисляем прирост выручки (%)
+    const prevRevenue = previousMonthRevenue[0]?.revenue || 0;
+    const currRevenue = currentMonthRevenue[0]?.revenue || 0;
+    if (prevRevenue > 0) {
+      result.revenueGrowth = Math.round(((currRevenue - prevRevenue) / prevRevenue) * 100);
+    } else {
+      result.revenueGrowth = currRevenue > 0 ? 100 : 0;
+    }
 
     // Удаляем _id из результата (не нужен на фронтенде)
     delete result._id;
