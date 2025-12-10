@@ -78,6 +78,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useWishlistStore } from '~/stores/wishlist';
 import { useCartStore } from '~/stores/cart';
@@ -86,6 +87,9 @@ import { useCartStore } from '~/stores/cart';
 
 const wishlistStore = useWishlistStore();
 const cartStore = useCartStore();
+const toast = useToast();
+
+const isAddingAll = ref(false);
 
 const { items, isLoading, count, isEmpty } = storeToRefs(wishlistStore);
 
@@ -111,9 +115,10 @@ const getItemsWord = (count: number): string => {
 const removeFromFavorites = async (productId: string) => {
   try {
     await wishlistStore.removeItem(productId);
+    toast.success('Товар удалён из избранного');
   } catch (error) {
     console.error('Error removing from favorites:', error);
-    alert('Ошибка при удалении из избранного');
+    toast.error('Ошибка при удалении из избранного');
   }
 };
 
@@ -122,30 +127,46 @@ const clearAllFavorites = async () => {
 
   try {
     await wishlistStore.clearWishlist();
+    toast.success('Избранное очищено');
   } catch (error) {
     console.error('Error clearing favorites:', error);
-    alert('Ошибка при очистке избранного');
+    toast.error('Ошибка при очистке избранного');
   }
 };
 
 const addAllToCart = async () => {
+  if (isAddingAll.value) return;
+  isAddingAll.value = true;
+
   try {
     let added = 0;
+    let unavailable = 0;
+
     for (const product of items.value) {
-      if (product.stock.available > 0) {
+      // Проверяем наличие товара (может быть stock.available или stock.quantity)
+      const available = product.stock?.available ?? product.stock?.quantity ?? 0;
+      if (available > 0) {
         await cartStore.addItem(product._id, 1);
         added++;
+      } else {
+        unavailable++;
       }
     }
 
     if (added > 0) {
-      alert(`${added} ${getItemsWord(added)} добавлено в корзину`);
-    } else {
-      alert('Нет доступных товаров для добавления в корзину');
+      toast.success(`${added} ${getItemsWord(added)} добавлено в корзину`);
+    }
+
+    if (unavailable > 0 && added === 0) {
+      toast.warning('Нет доступных товаров для добавления в корзину');
+    } else if (unavailable > 0) {
+      toast.info(`${unavailable} ${getItemsWord(unavailable)} нет в наличии`);
     }
   } catch (error) {
     console.error('Error adding all to cart:', error);
-    alert('Ошибка при добавлении в корзину');
+    toast.error('Ошибка при добавлении в корзину');
+  } finally {
+    isAddingAll.value = false;
   }
 };
 
