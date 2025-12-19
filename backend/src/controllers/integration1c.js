@@ -2,9 +2,328 @@ import Product from '../models/Product.js';
 import Category from '../models/Category.js';
 import Order from '../models/Order.js';
 import IntegrationLog from '../models/IntegrationLog.js';
+import integration1CService from '../services/integration1cService.js';
+import logger from '../utils/logger.js';
 
 /**
- * Sync products from 1C
+ * Получить статус интеграции с 1С
+ * GET /api/integration/1c/status
+ */
+const getIntegrationStatus = async (req, res) => {
+  try {
+    const status = integration1CService.getStatus();
+
+    // Пробуем подключиться, если интеграция включена
+    let connectionStatus = null;
+    if (status.enabled && status.configured) {
+      connectionStatus = await integration1CService.checkConnection();
+    }
+
+    res.json({
+      success: true,
+      data: {
+        ...status,
+        connection: connectionStatus,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Синхронизировать товары из 1С (запрос к 1С)
+ * POST /api/integration/1c/sync/products
+ */
+const fetchAndSyncProducts = async (req, res) => {
+  const startTime = Date.now();
+
+  try {
+    const { modifiedAfter, categoryId, limit = 100 } = req.body;
+
+    logger.info('Starting product sync from 1C...');
+
+    // Получаем товары из 1С
+    const response = await integration1CService.getProducts({
+      modifiedAfter,
+      categoryId,
+      limit,
+    });
+
+    if (!response.success || !Array.isArray(response.data)) {
+      throw new Error(response.error || 'Некорректный ответ от 1С');
+    }
+
+    const products1C = response.data;
+    const results = {
+      total: products1C.length,
+      created: 0,
+      updated: 0,
+      failed: 0,
+      errors: [],
+    };
+
+    // Обрабатываем каждый товар
+    for (const product1C of products1C) {
+      try {
+        const productData = integration1CService.transformProduct(product1C);
+
+        // Ищем существующий товар по externalId
+        let product = await Product.findOne({
+          'metadata.externalId': product1C.id,
+        });
+
+        if (product) {
+          // Обновляем существующий товар
+          Object.assign(product, productData);
+          await product.save();
+          results.updated++;
+        } else {
+          // Создаём новый товар
+          product = await Product.create(productData);
+          results.created++;
+        }
+      } catch (error) {
+        results.failed++;
+        results.errors.push({
+          productId: product1C.id,
+          name: product1C.name,
+          error: error.message,
+        });
+        logger.error(`Error syncing product ${product1C.id}:`, error.message);
+      }
+    }
+
+    const duration = Date.now() - startTime;
+
+    logger.info(`Product sync completed: ${results.created} created, ${results.updated} updated, ${results.failed} failed in ${duration}ms`);
+
+    res.json({
+      success: true,
+      data: results,
+      duration: `${duration}ms`,
+    });
+  } catch (error) {
+    logger.error('Product sync failed:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Синхронизировать категории из 1С
+ * POST /api/integration/1c/sync/categories
+ */
+const fetchAndSyncCategories = async (req, res) => {
+  const startTime = Date.now();
+
+  try {
+    logger.info('Starting category sync from 1C...');
+
+    const response = await integration1CService.getCategories();
+
+    if (!response.success || !Array.isArray(response.data)) {
+      throw new Error(response.error || 'Некорректный ответ от 1С');
+    }
+
+    const categories1C = response.data;
+    const results = {
+      total: categories1C.length,
+      created: 0,
+      updated: 0,
+      failed: 0,
+      errors: [],
+    };
+
+    // Обрабатываем каждую категорию
+    for (const category1C of categories1C) {
+      try {
+        const categoryData = integration1CService.transformCategory(category1C);
+
+        let category = await Category.findOne({
+          'metadata.externalId': category1C.id,
+        });
+
+        if (category) {
+          Object.assign(category, categoryData);
+          await category.save();
+          results.updated++;
+        } else {
+          category = await Category.create(categoryData);
+          results.created++;
+        }
+      } catch (error) {
+        results.failed++;
+        results.errors.push({
+          categoryId: category1C.id,
+          name: category1C.name,
+          error: error.message,
+        });
+      }
+    }
+
+    const duration = Date.now() - startTime;
+
+    logger.info(`Category sync completed in ${duration}ms`);
+
+    res.json({
+      success: true,
+      data: results,
+      duration: `${duration}ms`,
+    });
+  } catch (error) {
+    logger.error('Category sync failed:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Полная синхронизация (категории + товары)
+ * POST /api/integration/1c/sync/full
+ */
+const fullSync = async (req, res) => {
+  const startTime = Date.now();
+
+  try {
+    logger.info('Starting full sync from 1C...');
+
+    const results = {
+      categories: null,
+      products: null,
+    };
+
+    // 1. Синхронизируем категории
+    try {
+      const categoriesResponse = await integration1CService.getCategories();
+      if (categoriesResponse.success && Array.isArray(categoriesResponse.data)) {
+        results.categories = { total: categoriesResponse.data.length, created: 0, updated: 0, failed: 0 };
+
+        for (const category1C of categoriesResponse.data) {
+          try {
+            const categoryData = integration1CService.transformCategory(category1C);
+            let category = await Category.findOne({ 'metadata.externalId': category1C.id });
+
+            if (category) {
+              Object.assign(category, categoryData);
+              await category.save();
+              results.categories.updated++;
+            } else {
+              await Category.create(categoryData);
+              results.categories.created++;
+            }
+          } catch (e) {
+            results.categories.failed++;
+          }
+        }
+      }
+    } catch (error) {
+      results.categories = { error: error.message };
+    }
+
+    // 2. Синхронизируем товары
+    try {
+      const productsResponse = await integration1CService.getProducts({ limit: 1000 });
+      if (productsResponse.success && Array.isArray(productsResponse.data)) {
+        results.products = { total: productsResponse.data.length, created: 0, updated: 0, failed: 0 };
+
+        for (const product1C of productsResponse.data) {
+          try {
+            const productData = integration1CService.transformProduct(product1C);
+            let product = await Product.findOne({ 'metadata.externalId': product1C.id });
+
+            if (product) {
+              Object.assign(product, productData);
+              await product.save();
+              results.products.updated++;
+            } else {
+              await Product.create(productData);
+              results.products.created++;
+            }
+          } catch (e) {
+            results.products.failed++;
+          }
+        }
+      }
+    } catch (error) {
+      results.products = { error: error.message };
+    }
+
+    const duration = Date.now() - startTime;
+
+    logger.info(`Full sync completed in ${duration}ms`);
+
+    res.json({
+      success: true,
+      data: results,
+      duration: `${duration}ms`,
+    });
+  } catch (error) {
+    logger.error('Full sync failed:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Отправить заказ в 1С
+ * POST /api/integration/1c/orders/:id/send
+ */
+const sendOrderTo1C = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate('items.product');
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        error: 'Заказ не найден',
+      });
+    }
+
+    // Преобразуем заказ в формат 1С
+    const orderData = integration1CService.transformOrderFor1C(order);
+
+    // Отправляем в 1С
+    const response = await integration1CService.sendOrder(orderData);
+
+    // Обновляем заказ
+    order.metadata = {
+      ...order.metadata,
+      exportedTo1C: true,
+      external1CId: response.data?.orderId || response.orderId,
+      lastSyncAt: new Date(),
+    };
+    await order.save();
+
+    res.json({
+      success: true,
+      data: {
+        orderId: order._id,
+        external1CId: order.metadata.external1CId,
+        response,
+      },
+    });
+  } catch (error) {
+    logger.error('Error sending order to 1C:', error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Sync products from 1C (webhook - 1С отправляет данные к нам)
  * POST /api/integration/1c/products/sync
  *
  * Expected body: { products: [...] }
@@ -506,6 +825,14 @@ const getStats = async (req, res) => {
 };
 
 export default {
+  // Новые методы - запрос данных ИЗ 1С
+  getIntegrationStatus,
+  fetchAndSyncProducts,
+  fetchAndSyncCategories,
+  fullSync,
+  sendOrderTo1C,
+
+  // Старые методы - приём данных ОТ 1С (webhooks)
   syncProducts,
   syncCategories,
   updateStock,

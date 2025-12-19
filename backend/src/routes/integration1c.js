@@ -1,14 +1,41 @@
 import express from 'express';
 import integration1cController from '../controllers/integration1c.js';
 import { apiAuth, requirePermissions } from '../middleware/apiAuth.js';
+import { protect, authorize } from '../middleware/auth.js';
 import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
 /**
  * 1C Integration Routes
- * All routes require API key authentication
+ *
+ * Два типа маршрутов:
+ * 1. Для админки (protect + authorize) - запросы ИЗ сайта К 1С
+ * 2. Для API (apiAuth) - webhook'и ОТ 1С К сайту
  */
+
+// ==========================================
+// МАРШРУТЫ ДЛЯ АДМИНКИ (запросы к 1С)
+// ==========================================
+
+// Статус интеграции
+router.get('/status', protect, authorize('admin'), asyncHandler(integration1cController.getIntegrationStatus));
+
+// Синхронизация товаров из 1С
+router.post('/sync/products', protect, authorize('admin'), asyncHandler(integration1cController.fetchAndSyncProducts));
+
+// Синхронизация категорий из 1С
+router.post('/sync/categories', protect, authorize('admin'), asyncHandler(integration1cController.fetchAndSyncCategories));
+
+// Полная синхронизация (категории + товары)
+router.post('/sync/full', protect, authorize('admin'), asyncHandler(integration1cController.fullSync));
+
+// Отправить заказ в 1С
+router.post('/orders/:id/send', protect, authorize('admin', 'manager'), asyncHandler(integration1cController.sendOrderTo1C));
+
+// ==========================================
+// МАРШРУТЫ ДЛЯ WEBHOOK'ов (данные от 1С)
+// ==========================================
 
 // Health check - minimal permissions required
 router.get('/health', apiAuth([]), asyncHandler(integration1cController.healthCheck));
