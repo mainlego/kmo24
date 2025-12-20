@@ -76,7 +76,8 @@
       "Bash(npx nuxi prepare)",
       "Bash(git diff:*)",
       "Bash(git push)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: Добавлена функция ПолучитьИлиСоздатьКонтрагента в инструкцию 1С\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: Добавлена функция ПолучитьИлиСоздатьКонтрагента в инструкцию 1С\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: Добавлена полная реализация функции GetProduct в инструкцию 1С\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ],
     "deny": [],
     "ask": []
