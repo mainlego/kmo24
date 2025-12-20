@@ -231,19 +231,84 @@ class Integration1CService {
 
   /**
    * Получение списка товаров из 1С
+   * Сначала пробует HTTP-сервис, если не работает - OData
    */
   async getProducts(options = {}) {
-    const params = new URLSearchParams();
+    // Пробуем HTTP-сервис
+    try {
+      const params = new URLSearchParams();
+      if (options.page) params.append('page', options.page);
+      if (options.limit) params.append('limit', options.limit);
+      if (options.modifiedAfter) params.append('modified_after', options.modifiedAfter);
+      if (options.categoryId) params.append('category_id', options.categoryId);
 
-    if (options.page) params.append('page', options.page);
-    if (options.limit) params.append('limit', options.limit);
-    if (options.modifiedAfter) params.append('modified_after', options.modifiedAfter);
-    if (options.categoryId) params.append('category_id', options.categoryId);
+      const queryString = params.toString();
+      const endpoint = `/products${queryString ? `?${queryString}` : ''}`;
 
-    const queryString = params.toString();
-    const endpoint = `/products${queryString ? `?${queryString}` : ''}`;
+      return await this.request(endpoint, { method: 'GET' });
+    } catch (httpError) {
+      logger.info('HTTP-сервис недоступен, пробуем OData...');
 
-    return this.request(endpoint, { method: 'GET' });
+      // Fallback на OData
+      try {
+        const odataResult = await this.getProductsViaOData(options);
+        return { success: true, data: odataResult };
+      } catch (odataError) {
+        // Возвращаем оригинальную ошибку HTTP
+        throw httpError;
+      }
+    }
+  }
+
+  /**
+   * Получение товаров через OData
+   */
+  async getProductsViaOData(options = {}) {
+    const limit = options.limit || 100;
+
+    // Пробуем разные названия справочника номенклатуры
+    const possibleEntities = [
+      'Catalog_Номенклатура',
+      'Catalog_Товары',
+      'Catalog_Products',
+    ];
+
+    for (const entity of possibleEntities) {
+      try {
+        const result = await this.odataRequest(entity, {
+          top: limit,
+          skip: options.page ? (options.page - 1) * limit : 0,
+        });
+
+        if (result.value) {
+          return result.value.map(item => this.transformODataProduct(item));
+        }
+      } catch (e) {
+        logger.debug(`OData entity ${entity} not found, trying next...`);
+      }
+    }
+
+    throw new Error('Не удалось получить товары через OData. Проверьте публикацию справочников.');
+  }
+
+  /**
+   * Преобразование товара из формата OData в формат сайта
+   */
+  transformODataProduct(odataItem) {
+    return {
+      id: odataItem.Ref_Key || odataItem.Ссылка,
+      sku: odataItem.Артикул || odataItem.Code || odataItem.Код || '',
+      name: odataItem.Description || odataItem.Наименование || '',
+      description: {
+        short: odataItem.Описание || odataItem.Description || '',
+        full: odataItem.ПолноеОписание || odataItem.FullDescription || '',
+      },
+      price: odataItem.Цена || odataItem.Price || 0,
+      isActive: !odataItem.DeletionMark && !odataItem.ПометкаУдаления,
+      category: {
+        id: odataItem.ВидНоменклатуры_Key || odataItem.Категория_Key || null,
+      },
+    };
   }
 
   /**
@@ -255,9 +320,63 @@ class Integration1CService {
 
   /**
    * Получение категорий из 1С
+   * Сначала пробует HTTP-сервис, если не работает - OData
    */
   async getCategories() {
-    return this.request('/categories', { method: 'GET' });
+    // Пробуем HTTP-сервис
+    try {
+      return await this.request('/categories', { method: 'GET' });
+    } catch (httpError) {
+      logger.info('HTTP-сервис недоступен для категорий, пробуем OData...');
+
+      // Fallback на OData
+      try {
+        const odataResult = await this.getCategoriesViaOData();
+        return { success: true, data: odataResult };
+      } catch (odataError) {
+        throw httpError;
+      }
+    }
+  }
+
+  /**
+   * Получение категорий через OData
+   */
+  async getCategoriesViaOData() {
+    // Пробуем разные названия справочника категорий
+    const possibleEntities = [
+      'Catalog_ВидыНоменклатуры',
+      'Catalog_КатегорииНоменклатуры',
+      'Catalog_Categories',
+      'Catalog_ГруппыНоменклатуры',
+    ];
+
+    for (const entity of possibleEntities) {
+      try {
+        const result = await this.odataRequest(entity, { top: 1000 });
+
+        if (result.value) {
+          return result.value.map(item => this.transformODataCategory(item));
+        }
+      } catch (e) {
+        logger.debug(`OData entity ${entity} not found, trying next...`);
+      }
+    }
+
+    throw new Error('Не удалось получить категории через OData. Проверьте публикацию справочников.');
+  }
+
+  /**
+   * Преобразование категории из формата OData в формат сайта
+   */
+  transformODataCategory(odataItem) {
+    return {
+      id: odataItem.Ref_Key || odataItem.Ссылка,
+      name: odataItem.Description || odataItem.Наименование || '',
+      description: odataItem.Описание || '',
+      parentId: odataItem.Parent_Key || odataItem.Родитель_Key || null,
+      isActive: !odataItem.DeletionMark && !odataItem.ПометкаУдаления,
+    };
   }
 
   /**
