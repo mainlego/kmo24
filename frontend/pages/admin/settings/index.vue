@@ -249,6 +249,122 @@
           </button>
         </form>
       </div>
+
+      <!-- 1C Integration Tab -->
+      <div v-if="activeTab === 'integration'" class="settings-section">
+        <h2 class="section-title">Интеграция с 1С</h2>
+        <p class="section-description">Настройки подключения к 1С для синхронизации товаров</p>
+
+        <!-- Connection Status -->
+        <div class="integration-status" :class="{ connected: integration1c.connected, checking: integration1c.checking }">
+          <div class="status-header">
+            <div class="status-indicator">
+              <span class="status-dot"></span>
+              <span class="status-text">
+                {{ integration1c.checking ? 'Проверка подключения...' : (integration1c.connected ? 'Подключено' : 'Не подключено') }}
+              </span>
+            </div>
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              @click="checkConnection"
+              :disabled="integration1c.checking"
+            >
+              {{ integration1c.checking ? 'Проверка...' : 'Проверить подключение' }}
+            </button>
+          </div>
+
+          <div v-if="integration1c.lastCheck" class="status-details">
+            <div class="status-row">
+              <span class="status-label">HTTP-сервис:</span>
+              <span class="status-value" :class="{ success: integration1c.httpService?.success, error: !integration1c.httpService?.success }">
+                {{ integration1c.httpService?.message || 'Не проверено' }}
+                <span v-if="integration1c.httpService?.responseTime" class="response-time">({{ integration1c.httpService.responseTime }})</span>
+              </span>
+            </div>
+            <div class="status-row">
+              <span class="status-label">OData:</span>
+              <span class="status-value" :class="{ success: integration1c.odata?.success, error: !integration1c.odata?.success }">
+                {{ integration1c.odata?.message || 'Не проверено' }}
+                <span v-if="integration1c.odata?.responseTime" class="response-time">({{ integration1c.odata.responseTime }})</span>
+              </span>
+            </div>
+            <div v-if="integration1c.odata?.entities?.length > 0" class="status-row">
+              <span class="status-label">Сущности OData:</span>
+              <span class="status-value entities-list">
+                {{ integration1c.odata.entities.slice(0, 5).join(', ') }}
+                <span v-if="integration1c.odata.entities.length > 5">и еще {{ integration1c.odata.entities.length - 5 }}</span>
+              </span>
+            </div>
+            <div class="status-row">
+              <span class="status-label">Последняя проверка:</span>
+              <span class="status-value">{{ formatDate(integration1c.lastCheck) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sync Actions -->
+        <div class="sync-actions">
+          <h3 class="subsection-title">Синхронизация</h3>
+
+          <div class="action-buttons">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              @click="syncCategories"
+              :disabled="syncing.categories || !integration1c.connected"
+            >
+              <component :is="IconRefresh" class="btn-icon" :class="{ spinning: syncing.categories }" />
+              {{ syncing.categories ? 'Синхронизация...' : 'Синхронизировать категории' }}
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-secondary"
+              @click="syncProducts"
+              :disabled="syncing.products || !integration1c.connected"
+            >
+              <component :is="IconRefresh" class="btn-icon" :class="{ spinning: syncing.products }" />
+              {{ syncing.products ? 'Синхронизация...' : 'Синхронизировать товары' }}
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-primary"
+              @click="fullSync"
+              :disabled="syncing.full || !integration1c.connected"
+            >
+              <component :is="IconRefresh" class="btn-icon" :class="{ spinning: syncing.full }" />
+              {{ syncing.full ? 'Синхронизация...' : 'Полная синхронизация' }}
+            </button>
+          </div>
+
+          <div v-if="syncResult" class="sync-result" :class="{ success: syncResult.success, error: !syncResult.success }">
+            <strong>{{ syncResult.success ? 'Успешно' : 'Ошибка' }}:</strong>
+            {{ syncResult.message }}
+            <div v-if="syncResult.stats" class="sync-stats">
+              <span v-if="syncResult.stats.created">Создано: {{ syncResult.stats.created }}</span>
+              <span v-if="syncResult.stats.updated">Обновлено: {{ syncResult.stats.updated }}</span>
+              <span v-if="syncResult.stats.errors">Ошибок: {{ syncResult.stats.errors }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div class="integration-info">
+          <h3 class="subsection-title">Информация</h3>
+          <p class="info-text">
+            Для настройки интеграции с 1С необходимо указать переменные окружения на сервере:
+          </p>
+          <ul class="info-list">
+            <li><code>INTEGRATION_1C_ENABLED</code> - включить интеграцию (true/false)</li>
+            <li><code>INTEGRATION_1C_URL</code> - URL HTTP-сервиса 1С</li>
+            <li><code>INTEGRATION_1C_USER</code> - имя пользователя</li>
+            <li><code>INTEGRATION_1C_PASSWORD</code> - пароль</li>
+            <li><code>INTEGRATION_1C_TIMEOUT</code> - таймаут запросов (мс)</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -292,12 +408,25 @@ const IconCog = {
   </svg>`
 };
 
+const IconDatabase = {
+  template: `<svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+  </svg>`
+};
+
+const IconRefresh = {
+  template: `<svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+  </svg>`
+};
+
 // Tabs
 const tabs = [
   { id: 'password', name: 'Пароль', icon: IconLock },
   { id: 'contacts', name: 'Контакты', icon: IconPhone },
   { id: 'seo', name: 'SEO', icon: IconSearch },
   { id: 'general', name: 'Общие', icon: IconCog },
+  { id: 'integration', name: '1С', icon: IconDatabase },
 ];
 
 const activeTab = ref('password');
@@ -320,6 +449,27 @@ const passwordForm = ref({
 const contacts = ref<Record<string, string>>({});
 const seo = ref<Record<string, string>>({});
 const general = ref<Record<string, string>>({});
+
+// 1C Integration state
+const integration1c = ref({
+  checking: false,
+  connected: false,
+  lastCheck: null as Date | null,
+  httpService: null as any,
+  odata: null as any,
+});
+
+const syncing = ref({
+  categories: false,
+  products: false,
+  full: false,
+});
+
+const syncResult = ref<{
+  success: boolean;
+  message: string;
+  stats?: { created?: number; updated?: number; errors?: number };
+} | null>(null);
 
 // Fetch settings
 const fetchSettings = async () => {
@@ -432,6 +582,94 @@ const saveGeneral = async () => {
   } finally {
     savingGeneral.value = false;
   }
+};
+
+// 1C Integration functions
+const checkConnection = async () => {
+  integration1c.value.checking = true;
+  syncResult.value = null;
+  try {
+    const response = await apiFetch<any>('/integration/1c/status');
+    if (response.success && response.data) {
+      integration1c.value.connected = response.data.success;
+      integration1c.value.httpService = response.data.httpService;
+      integration1c.value.odata = response.data.odata;
+      integration1c.value.lastCheck = new Date();
+    }
+  } catch (error: any) {
+    integration1c.value.connected = false;
+    showError(error.message || 'Ошибка проверки подключения');
+  } finally {
+    integration1c.value.checking = false;
+  }
+};
+
+const syncCategories = async () => {
+  syncing.value.categories = true;
+  syncResult.value = null;
+  try {
+    const response = await apiFetch<any>('/integration/1c/sync/categories', { method: 'POST' });
+    syncResult.value = {
+      success: response.success,
+      message: response.message || 'Категории синхронизированы',
+      stats: response.data?.stats,
+    };
+    if (response.success) showSuccess('Категории синхронизированы');
+  } catch (error: any) {
+    syncResult.value = { success: false, message: error.message || 'Ошибка синхронизации' };
+    showError(error.message || 'Ошибка синхронизации категорий');
+  } finally {
+    syncing.value.categories = false;
+  }
+};
+
+const syncProducts = async () => {
+  syncing.value.products = true;
+  syncResult.value = null;
+  try {
+    const response = await apiFetch<any>('/integration/1c/sync/products', { method: 'POST' });
+    syncResult.value = {
+      success: response.success,
+      message: response.message || 'Товары синхронизированы',
+      stats: response.data?.stats,
+    };
+    if (response.success) showSuccess('Товары синхронизированы');
+  } catch (error: any) {
+    syncResult.value = { success: false, message: error.message || 'Ошибка синхронизации' };
+    showError(error.message || 'Ошибка синхронизации товаров');
+  } finally {
+    syncing.value.products = false;
+  }
+};
+
+const fullSync = async () => {
+  syncing.value.full = true;
+  syncResult.value = null;
+  try {
+    const response = await apiFetch<any>('/integration/1c/sync/full', { method: 'POST' });
+    syncResult.value = {
+      success: response.success,
+      message: response.message || 'Полная синхронизация завершена',
+      stats: response.data?.stats,
+    };
+    if (response.success) showSuccess('Полная синхронизация завершена');
+  } catch (error: any) {
+    syncResult.value = { success: false, message: error.message || 'Ошибка синхронизации' };
+    showError(error.message || 'Ошибка полной синхронизации');
+  } finally {
+    syncing.value.full = false;
+  }
+};
+
+const formatDate = (date: Date | null) => {
+  if (!date) return '';
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
 };
 
 onMounted(() => {
@@ -639,6 +877,223 @@ onMounted(() => {
     &:hover:not(:disabled) {
       background: #2563eb;
     }
+  }
+
+  &.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+
+    &:hover:not(:disabled) {
+      background: #e5e7eb;
+    }
+  }
+
+  &.btn-outline {
+    background: transparent;
+    border: 1px solid #d1d5db;
+    color: #374151;
+
+    &:hover:not(:disabled) {
+      background: #f9fafb;
+    }
+  }
+
+  &.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .btn-icon {
+    width: 1rem;
+    height: 1rem;
+
+    &.spinning {
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+// 1C Integration styles
+.integration-status {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+
+  &.connected {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+  }
+
+  &.checking {
+    background: #fefce8;
+    border-color: #fef08a;
+  }
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: #ef4444;
+
+  .connected & {
+    background: #22c55e;
+  }
+
+  .checking & {
+    background: #eab308;
+    animation: pulse 1s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.status-text {
+  font-weight: 500;
+  color: #991b1b;
+
+  .connected & {
+    color: #166534;
+  }
+
+  .checking & {
+    color: #854d0e;
+  }
+}
+
+.status-details {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.status-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.status-label {
+  color: #6b7280;
+  min-width: 120px;
+}
+
+.status-value {
+  color: #374151;
+
+  &.success {
+    color: #166534;
+  }
+
+  &.error {
+    color: #991b1b;
+  }
+
+  .response-time {
+    color: #6b7280;
+    font-size: 0.75rem;
+  }
+}
+
+.entities-list {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+.sync-actions {
+  margin-bottom: 2rem;
+}
+
+.subsection-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 1rem 0;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.sync-result {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+
+  &.success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+  }
+
+  &.error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+  }
+}
+
+.sync-stats {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8125rem;
+}
+
+.integration-info {
+  background: #f9fafb;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+.info-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 0.75rem 0;
+}
+
+.info-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+  color: #374151;
+
+  li {
+    margin-bottom: 0.375rem;
+  }
+
+  code {
+    background: #e5e7eb;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.8125rem;
   }
 }
 </style>

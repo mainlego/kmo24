@@ -1,17 +1,22 @@
 /**
  * Сервис интеграции с 1С
- * Выполняет запросы к HTTP-сервису 1С для получения товаров, категорий и отправки заказов
+ * Выполняет запросы к HTTP-сервису 1С или OData для получения товаров, категорий и отправки заказов
  */
 
 import logger from '../utils/logger.js';
 
 class Integration1CService {
   constructor() {
-    this.baseUrl = process.env.INTEGRATION_1C_URL || '';
+    // Базовый URL 1C (без /hs/ или /odata/)
+    this.baseUrl = (process.env.INTEGRATION_1C_URL || '').replace(/\/(hs|odata).*$/, '');
     this.username = process.env.INTEGRATION_1C_USER || '';
     this.password = process.env.INTEGRATION_1C_PASSWORD || '';
     this.enabled = process.env.INTEGRATION_1C_ENABLED === 'true';
     this.timeout = parseInt(process.env.INTEGRATION_1C_TIMEOUT) || 30000;
+    // URL для OData
+    this.odataUrl = this.baseUrl + '/odata/standard.odata';
+    // URL для HTTP-сервиса (если настроен)
+    this.hsUrl = this.baseUrl + '/hs/api';
   }
 
   /**
@@ -27,18 +32,18 @@ class Integration1CService {
   }
 
   /**
-   * Выполнение HTTP запроса к 1С
+   * Выполнение HTTP запроса к 1С (HTTP-сервис)
    */
   async request(endpoint, options = {}) {
     if (!this.enabled) {
       throw new Error('Интеграция с 1С отключена');
     }
 
-    if (!this.baseUrl) {
+    if (!this.hsUrl) {
       throw new Error('URL для 1С не настроен');
     }
 
-    const url = `${this.baseUrl}${endpoint}`;
+    const url = `${this.hsUrl}${endpoint}`;
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
@@ -79,30 +84,149 @@ class Integration1CService {
   }
 
   /**
-   * Проверка доступности 1С
+   * Выполнение OData запроса к 1С
+   */
+  async odataRequest(entity, options = {}) {
+    if (!this.enabled) {
+      throw new Error('Интеграция с 1С отключена');
+    }
+
+    const params = new URLSearchParams();
+    params.append('$format', 'json');
+    if (options.top) params.append('$top', options.top);
+    if (options.skip) params.append('$skip', options.skip);
+    if (options.filter) params.append('$filter', options.filter);
+    if (options.select) params.append('$select', options.select);
+    if (options.orderby) params.append('$orderby', options.orderby);
+
+    const url = `${this.odataUrl}/${entity}?${params.toString()}`;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+    try {
+      logger.info(`1C OData Request: GET ${url}`);
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`1C OData Error: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      logger.info(`1C OData Response: ${response.status}, items: ${data.value?.length || 0}`);
+
+      return data;
+    } catch (error) {
+      clearTimeout(timeoutId);
+
+      if (error.name === 'AbortError') {
+        throw new Error(`Timeout при подключении к 1С (${this.timeout}ms)`);
+      }
+
+      throw error;
+    }
+  }
+
+  /**
+   * Проверка доступности 1С (проверяет HTTP-сервис и OData)
    */
   async checkConnection() {
+    const results = {
+      httpService: { success: false, message: '', responseTime: null },
+      odata: { success: false, message: '', responseTime: null, entities: [] },
+    };
+
+    // Проверка HTTP-сервиса
     try {
       const startTime = Date.now();
-
-      // Пробуем простой запрос
       const response = await this.request('/ping', { method: 'GET' });
-
-      const duration = Date.now() - startTime;
-
-      return {
+      results.httpService = {
         success: true,
-        message: 'Подключение к 1С успешно',
-        responseTime: `${duration}ms`,
+        message: 'HTTP-сервис доступен',
+        responseTime: `${Date.now() - startTime}ms`,
         data: response,
       };
     } catch (error) {
-      return {
+      results.httpService = {
         success: false,
         message: error.message,
-        error: error.toString(),
+        responseTime: null,
       };
     }
+
+    // Проверка OData
+    try {
+      const startTime = Date.now();
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+      const response = await fetch(this.odataUrl + '/', {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      const responseTime = `${Date.now() - startTime}ms`;
+
+      if (response.ok) {
+        // Попробуем получить список сущностей из metadata
+        try {
+          const metaResponse = await fetch(this.odataUrl + '/$metadata', {
+            method: 'GET',
+            headers: this.getAuthHeaders(),
+          });
+          if (metaResponse.ok) {
+            const metaText = await metaResponse.text();
+            // Извлекаем имена EntitySet из XML
+            const entitySets = metaText.match(/EntitySet Name="([^"]+)"/g) || [];
+            results.odata.entities = entitySets.map(e => e.match(/Name="([^"]+)"/)[1]);
+          }
+        } catch (e) {
+          // Игнорируем ошибки получения метаданных
+        }
+
+        results.odata = {
+          success: true,
+          message: 'OData доступен',
+          responseTime,
+          entities: results.odata.entities,
+        };
+      } else {
+        results.odata = {
+          success: false,
+          message: `OData вернул ${response.status}`,
+          responseTime,
+          entities: [],
+        };
+      }
+    } catch (error) {
+      results.odata = {
+        success: false,
+        message: error.name === 'AbortError' ? 'Timeout' : error.message,
+        responseTime: null,
+        entities: [],
+      };
+    }
+
+    return {
+      success: results.httpService.success || results.odata.success,
+      httpService: results.httpService,
+      odata: results.odata,
+      config: {
+        baseUrl: this.baseUrl ? this.baseUrl.replace(/\/\/[^:]+:[^@]+@/, '//***:***@') : null,
+        odataUrl: this.odataUrl ? this.odataUrl.replace(/\/\/[^:]+:[^@]+@/, '//***:***@') : null,
+        timeout: this.timeout,
+      },
+    };
   }
 
   /**

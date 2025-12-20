@@ -14,18 +14,25 @@ const getIntegrationStatus = async (req, res) => {
     const status = integration1CService.getStatus();
 
     // Пробуем подключиться, если интеграция включена
-    let connectionStatus = null;
     if (status.enabled && status.configured) {
-      connectionStatus = await integration1CService.checkConnection();
+      const connectionResult = await integration1CService.checkConnection();
+      res.json({
+        success: true,
+        data: {
+          ...status,
+          ...connectionResult,
+        },
+      });
+    } else {
+      res.json({
+        success: true,
+        data: {
+          ...status,
+          success: false,
+          message: !status.enabled ? 'Интеграция отключена' : 'Интеграция не настроена',
+        },
+      });
     }
-
-    res.json({
-      success: true,
-      data: {
-        ...status,
-        connection: connectionStatus,
-      },
-    });
   } catch (error) {
     res.status(500).json({
       success: false,
