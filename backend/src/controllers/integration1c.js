@@ -49,7 +49,7 @@ const fetchAndSyncProducts = async (req, res) => {
   const startTime = Date.now();
 
   try {
-    const { modifiedAfter, categoryId, limit = 100 } = req.body;
+    const { modifiedAfter, categoryId, limit = 10000 } = req.body;
 
     logger.info('Starting product sync from 1C...');
 
@@ -73,14 +73,31 @@ const fetchAndSyncProducts = async (req, res) => {
       errors: [],
     };
 
+    // Получаем все категории для маппинга externalId -> MongoDB _id
+    const allCategories = await Category.find({ externalId: { $exists: true, $ne: null } });
+    const categoryMap = new Map();
+    for (const cat of allCategories) {
+      categoryMap.set(cat.externalId, cat._id);
+    }
+
+    logger.info(`Loaded ${categoryMap.size} categories for mapping`);
+
     // Обрабатываем каждый товар
     for (const product1C of products1C) {
       try {
         const productData = integration1CService.transformProduct(product1C);
 
+        // Находим MongoDB категорию по externalId из 1С
+        const categoryExternalId = product1C.category?.id || product1C.categoryId;
+        if (categoryExternalId && categoryMap.has(categoryExternalId)) {
+          productData.category = categoryMap.get(categoryExternalId);
+        } else {
+          productData.category = null;
+        }
+
         // Ищем существующий товар по externalId
         let product = await Product.findOne({
-          'metadata.externalId': product1C.id,
+          externalId: product1C.id,
         });
 
         if (product) {
@@ -144,16 +161,20 @@ const fetchAndSyncCategories = async (req, res) => {
       created: 0,
       updated: 0,
       failed: 0,
+      linked: 0,
       errors: [],
     };
 
-    // Обрабатываем каждую категорию
+    // Карта externalId -> MongoDB _id для связывания родительских категорий
+    const externalIdMap = new Map();
+
+    // Первый проход: создаём/обновляем все категории
     for (const category1C of categories1C) {
       try {
         const categoryData = integration1CService.transformCategory(category1C);
 
         let category = await Category.findOne({
-          'metadata.externalId': category1C.id,
+          externalId: category1C.id,
         });
 
         if (category) {
@@ -164,6 +185,8 @@ const fetchAndSyncCategories = async (req, res) => {
           category = await Category.create(categoryData);
           results.created++;
         }
+
+        externalIdMap.set(category1C.id, category._id);
       } catch (error) {
         results.failed++;
         results.errors.push({
@@ -171,6 +194,24 @@ const fetchAndSyncCategories = async (req, res) => {
           name: category1C.name,
           error: error.message,
         });
+      }
+    }
+
+    // Второй проход: связываем родительские категории
+    for (const category1C of categories1C) {
+      if (category1C.parentId) {
+        try {
+          const parentMongoId = externalIdMap.get(category1C.parentId);
+          if (parentMongoId) {
+            await Category.updateOne(
+              { externalId: category1C.id },
+              { parent: parentMongoId, level: 1 }
+            );
+            results.linked++;
+          }
+        } catch (e) {
+          // Игнорируем ошибки связывания
+        }
       }
     }
 
@@ -207,27 +248,50 @@ const fullSync = async (req, res) => {
       products: null,
     };
 
+    // Карта externalId -> MongoDB _id для связывания
+    const categoryMap = new Map();
+
     // 1. Синхронизируем категории
     try {
       const categoriesResponse = await integration1CService.getCategories();
       if (categoriesResponse.success && Array.isArray(categoriesResponse.data)) {
-        results.categories = { total: categoriesResponse.data.length, created: 0, updated: 0, failed: 0 };
+        results.categories = { total: categoriesResponse.data.length, created: 0, updated: 0, failed: 0, linked: 0 };
 
+        // Первый проход: создаём/обновляем все категории
         for (const category1C of categoriesResponse.data) {
           try {
             const categoryData = integration1CService.transformCategory(category1C);
-            let category = await Category.findOne({ 'metadata.externalId': category1C.id });
+            let category = await Category.findOne({ externalId: category1C.id });
 
             if (category) {
               Object.assign(category, categoryData);
               await category.save();
               results.categories.updated++;
             } else {
-              await Category.create(categoryData);
+              category = await Category.create(categoryData);
               results.categories.created++;
             }
+            categoryMap.set(category1C.id, category._id);
           } catch (e) {
             results.categories.failed++;
+          }
+        }
+
+        // Второй проход: связываем родительские категории
+        for (const category1C of categoriesResponse.data) {
+          if (category1C.parentId) {
+            try {
+              const parentMongoId = categoryMap.get(category1C.parentId);
+              if (parentMongoId) {
+                await Category.updateOne(
+                  { externalId: category1C.id },
+                  { parent: parentMongoId, level: 1 }
+                );
+                results.categories.linked++;
+              }
+            } catch (e) {
+              // Игнорируем ошибки связывания
+            }
           }
         }
       }
@@ -237,14 +301,23 @@ const fullSync = async (req, res) => {
 
     // 2. Синхронизируем товары
     try {
-      const productsResponse = await integration1CService.getProducts({ limit: 1000 });
+      const productsResponse = await integration1CService.getProducts({ limit: 10000 });
       if (productsResponse.success && Array.isArray(productsResponse.data)) {
         results.products = { total: productsResponse.data.length, created: 0, updated: 0, failed: 0 };
 
         for (const product1C of productsResponse.data) {
           try {
             const productData = integration1CService.transformProduct(product1C);
-            let product = await Product.findOne({ 'metadata.externalId': product1C.id });
+
+            // Находим MongoDB категорию по externalId из 1С
+            const categoryExternalId = product1C.category?.id || product1C.categoryId;
+            if (categoryExternalId && categoryMap.has(categoryExternalId)) {
+              productData.category = categoryMap.get(categoryExternalId);
+            } else {
+              productData.category = null;
+            }
+
+            let product = await Product.findOne({ externalId: product1C.id });
 
             if (product) {
               Object.assign(product, productData);
@@ -364,7 +437,7 @@ const syncProducts = async (req, res) => {
 
         // Find existing product by external ID (1C ID)
         let product = await Product.findOne({
-          'metadata.externalId': productData.externalId
+          externalId: productData.externalId
         });
 
         const productFields = {
@@ -379,8 +452,8 @@ const syncProducts = async (req, res) => {
           isAvailable: productData.isAvailable !== false,
           weight: productData.weight,
           dimensions: productData.dimensions,
-          'metadata.externalId': productData.externalId,
-          'metadata.lastSyncAt': new Date(),
+          externalId: productData.externalId,
+          lastSyncedAt: new Date(),
         };
 
         if (product) {
@@ -513,7 +586,7 @@ const updateStock = async (req, res) => {
     for (const item of items) {
       try {
         const product = await Product.findOne({
-          'metadata.externalId': item.externalId
+          externalId: item.externalId
         });
 
         if (!product) {
@@ -521,9 +594,9 @@ const updateStock = async (req, res) => {
           continue;
         }
 
-        product.stock = item.stock;
+        product.stock = { quantity: item.stock, reserved: 0 };
         product.isAvailable = item.stock > 0;
-        product.metadata.lastStockUpdate = new Date();
+        product.lastSyncedAt = new Date();
 
         await product.save();
         results.updated++;
@@ -569,7 +642,7 @@ const updatePrices = async (req, res) => {
     for (const item of items) {
       try {
         const product = await Product.findOne({
-          'metadata.externalId': item.externalId
+          externalId: item.externalId
         });
 
         if (!product) {
@@ -579,9 +652,9 @@ const updatePrices = async (req, res) => {
 
         product.price = item.price;
         if (item.compareAtPrice) {
-          product.compareAtPrice = item.compareAtPrice;
+          product.oldPrice = item.compareAtPrice;
         }
-        product.metadata.lastPriceUpdate = new Date();
+        product.lastSyncedAt = new Date();
 
         await product.save();
         results.updated++;
@@ -802,7 +875,7 @@ const getStats = async (req, res) => {
     const stats = {
       products: {
         total: await Product.countDocuments(),
-        synced: await Product.countDocuments({ 'metadata.externalId': { $exists: true } }),
+        synced: await Product.countDocuments({ externalId: { $exists: true, $ne: null } }),
         available: await Product.countDocuments({ isAvailable: true }),
       },
       orders: {

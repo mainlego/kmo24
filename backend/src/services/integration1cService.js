@@ -456,11 +456,8 @@ class Integration1CService {
         title: product1C.seo?.title || product1C.name,
         description: product1C.seo?.description || product1C.description?.short || '',
       },
-      metadata: {
-        externalId: product1C.id,
-        source: '1c',
-        lastSyncAt: new Date(),
-      },
+      externalId: product1C.id,
+      lastSyncedAt: new Date(),
     };
   }
 
@@ -472,14 +469,10 @@ class Integration1CService {
       name: category1C.name || '',
       slug: this.generateSlug(category1C.name),
       description: category1C.description || '',
-      parentId: category1C.parentId || null,
+      externalParentId: category1C.parentId || null,
       isActive: category1C.isActive !== false,
       sortOrder: category1C.sortOrder || 0,
-      metadata: {
-        externalId: category1C.id,
-        source: '1c',
-        lastSyncAt: new Date(),
-      },
+      externalId: category1C.id,
     };
   }
 
