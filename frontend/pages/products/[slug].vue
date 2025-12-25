@@ -25,11 +25,19 @@
         <div class="product-compact__grid">
           <!-- Gallery Column -->
           <div class="product-compact__gallery">
-            <div class="gallery-main" @click="toggleLightbox">
-              <img :src="currentImage.url" :alt="product.name" />
+            <div class="gallery-main" @click="currentImage && toggleLightbox()">
+              <img v-if="currentImage" :src="currentImage.url" :alt="product.name" />
+              <div v-else class="gallery-placeholder">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                <span>Нет изображения</span>
+              </div>
               <div v-if="hasDiscount" class="gallery-badge">-{{ discountPercent }}%</div>
             </div>
-            <div v-if="product.images.length > 1" class="gallery-thumbs">
+            <div v-if="product.images?.length > 1" class="gallery-thumbs">
               <button
                 v-for="(image, index) in product.images.slice(0, 4)"
                 :key="index"
@@ -138,7 +146,7 @@
           price: product.price,
           oldPrice: product.oldPrice,
           stock: product.stock.quantity,
-          images: product.images
+          images: product.images || []
         }"
         :scroll-threshold="400"
       />
@@ -151,19 +159,19 @@
               <path d="M18 6L6 18M6 6l12 12"/>
             </svg>
           </button>
-          <button v-if="product.images.length > 1" class="lightbox__prev" @click.stop="previousImage">
+          <button v-if="product.images?.length > 1" class="lightbox__prev" @click.stop="previousImage">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M15 18l-6-6 6-6"/>
             </svg>
           </button>
-          <button v-if="product.images.length > 1" class="lightbox__next" @click.stop="nextImage">
+          <button v-if="product.images?.length > 1" class="lightbox__next" @click.stop="nextImage">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 18l6-6-6-6"/>
             </svg>
           </button>
           <div class="lightbox__content" @click.stop>
-            <img :src="currentImage.url" :alt="currentImage.alt || product.name" />
-            <div class="lightbox__counter">{{ currentImageIndex + 1 }} / {{ product.images.length }}</div>
+            <img v-if="currentImage" :src="currentImage.url" :alt="currentImage.alt || product.name" />
+            <div v-if="product.images?.length" class="lightbox__counter">{{ currentImageIndex + 1 }} / {{ product.images.length }}</div>
           </div>
         </div>
       </Transition>
@@ -488,6 +496,26 @@ onUnmounted(() => {
         border-radius: 4px;
         font-size: 12px;
         font-weight: 600;
+      }
+
+      .gallery-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        color: $gray-400;
+        background: $gray-100;
+
+        svg {
+          opacity: 0.5;
+        }
+
+        span {
+          font-size: 14px;
+        }
       }
     }
 
