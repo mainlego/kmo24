@@ -421,10 +421,12 @@ class Integration1CService {
    * Преобразование товара из формата 1С в формат сайта
    */
   transformProduct(product1C) {
+    // Добавляем часть id к slug для уникальности
+    const idSuffix = product1C.id ? '-' + product1C.id.substring(0, 8) : '';
     return {
       name: product1C.name || '',
       sku: product1C.sku || product1C.id || '',
-      slug: this.generateSlug(product1C.name),
+      slug: this.generateSlug(product1C.name) + idSuffix,
       price: product1C.price || 0,
       oldPrice: product1C.oldPrice || null,
       description: {
