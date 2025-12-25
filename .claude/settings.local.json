@@ -77,7 +77,18 @@
       "Bash(git diff:*)",
       "Bash(git push)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: Добавлена функция ПолучитьИлиСоздатьКонтрагента в инструкцию 1С\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: Добавлена полная реализация функции GetProduct в инструкцию 1С\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: Добавлена полная реализация функции GetProduct в инструкцию 1С\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(apt list:*)",
+      "Bash(make)",
+      "Bash(sudo apt-get install:*)",
+      "Bash(ss -tlnp:*)",
+      "Bash(fuser:*)",
+      "Bash(git push origin main)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MjdmMWQ1NmZkYWIzNGFhODdkNTU0MSIsImlhdCI6MTc2NjYwMzIzMywiZXhwIjoxNzY2NjA0MTMzfQ.Onj0vzh37Upnu3YI2XenUEPcmuYqiUud1pu7KXvOycc\" curl -s https://kmo24-backend.onrender.com/api/v1/integration/1c/status  -H \"Authorization: Bearer $TOKEN\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MjdmMWQ1NmZkYWIzNGFhODdkNTU0MSIsImlhdCI6MTc2NjYwMzIzMywiZXhwIjoxNzY2NjA0MTMzfQ.Onj0vzh37Upnu3YI2XenUEPcmuYqiUud1pu7KXvOycc\")",
+      "Bash(__NEW_LINE__ curl -s https://kmo24-backend.onrender.com/api/v1/integration/1c/status )",
+      "Bash(for i in 1 2 3)",
+      "Bash(do echo \"Attempt $i:\")"
     ],
     "deny": [],
     "ask": []

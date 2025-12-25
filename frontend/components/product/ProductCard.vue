@@ -10,9 +10,9 @@
     <template #image>
       <div class="product-card__image-wrapper">
         <img
-          v-if="product.images?.length"
-          :src="getProductImageUrl(product.images[0]?.url)"
-          :alt="product.images[0].alt || product.name"
+          v-if="product.images?.length && product.images[0]?.url"
+          :src="getProductImageUrl(product.images[0].url)"
+          :alt="product.images[0]?.alt || product.name"
           class="product-card__image"
         />
         <div v-else class="product-card__image-placeholder">

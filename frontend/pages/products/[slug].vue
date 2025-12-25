@@ -249,11 +249,11 @@ const tabs = [
 ];
 
 const currentImage = computed(() => {
-  const img = product.value?.images[currentImageIndex.value] || product.value?.images[0];
-  if (img) {
+  const img = product.value?.images?.[currentImageIndex.value] || product.value?.images?.[0];
+  if (img?.url) {
     return { ...img, url: getProductImageUrl(img.url) };
   }
-  return img;
+  return null;
 });
 
 const isInStock = computed(() => {

@@ -221,7 +221,7 @@ const getProductName = (product: any): string => {
 };
 
 const getProductImage = (product: any): string | null => {
-  if (typeof product === 'object' && product.images && product.images.length > 0) {
+  if (typeof product === 'object' && product.images && product.images.length > 0 && product.images[0]?.url) {
     return getProductImageUrl(product.images[0].url);
   }
   return null;

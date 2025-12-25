@@ -21,7 +21,7 @@
             <!-- Product Info -->
             <div v-if="product" class="product-info">
               <img
-                v-if="product.images?.length"
+                v-if="product.images?.length && product.images[0]?.url"
                 :src="getProductImageUrl(product.images[0].url)"
                 :alt="product.name"
                 class="product-image"

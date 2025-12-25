@@ -174,7 +174,7 @@ const selectedImage = ref('');
 
 // Initialize selected image when product changes
 watch(() => props.product, (newProduct) => {
-  if (newProduct && newProduct.images && newProduct.images.length > 0) {
+  if (newProduct && newProduct.images && newProduct.images.length > 0 && newProduct.images[0]?.url) {
     selectedImage.value = getProductImageUrl(newProduct.images[0].url);
   }
   quantity.value = 1;
