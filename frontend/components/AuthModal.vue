@@ -455,12 +455,24 @@ const handleTelegramAuth = async (telegramUser: any) => {
 
   // Debug: логируем данные от Telegram
   console.log('Telegram auth data received:', telegramUser);
+  console.log('Telegram user type:', typeof telegramUser);
+  console.log('Telegram user keys:', telegramUser ? Object.keys(telegramUser) : 'null');
   console.log('Fields:', {
     id: telegramUser?.id,
     first_name: telegramUser?.first_name,
     auth_date: telegramUser?.auth_date,
-    hash: telegramUser?.hash ? 'present' : 'missing'
+    hash: telegramUser?.hash ? `present (${telegramUser.hash.substring(0, 10)}...)` : 'missing'
   });
+
+  // Проверка наличия обязательных полей
+  if (!telegramUser?.id || !telegramUser?.first_name || !telegramUser?.auth_date || !telegramUser?.hash) {
+    console.error('Missing required Telegram auth fields!', {
+      hasId: !!telegramUser?.id,
+      hasFirstName: !!telegramUser?.first_name,
+      hasAuthDate: !!telegramUser?.auth_date,
+      hasHash: !!telegramUser?.hash
+    });
+  }
 
   try {
     const { loginWithTelegram } = useAuth();

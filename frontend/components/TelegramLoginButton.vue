@@ -60,12 +60,17 @@ const botUsername = config.public.telegramBotUsername || 'kmo24_bot';
 
 // Callback для Telegram Login Widget
 const handleTelegramAuth = (user: TelegramUser) => {
+  console.log('TelegramLoginButton: received user data:', JSON.stringify(user));
   emit('auth', user);
 };
 
 // Делаем callback глобально доступным
+// Используем уникальное имя чтобы избежать конфликтов
 if (process.client) {
-  (window as any).onTelegramAuth = handleTelegramAuth;
+  (window as any).onTelegramAuth = (user: TelegramUser) => {
+    console.log('Global onTelegramAuth called with:', JSON.stringify(user));
+    handleTelegramAuth(user);
+  };
 }
 
 const loadTelegramWidget = () => {
@@ -77,7 +82,7 @@ const loadTelegramWidget = () => {
   script.setAttribute('data-telegram-login', botUsername);
   script.setAttribute('data-size', 'large');
   script.setAttribute('data-radius', '8');
-  script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+  script.setAttribute('data-onauth', 'window.onTelegramAuth(user)');
   script.setAttribute('data-request-access', 'write');
   script.async = true;
 
