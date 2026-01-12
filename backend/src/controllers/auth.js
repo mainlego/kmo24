@@ -465,7 +465,8 @@ export const telegramAuth = async (req, res, next) => {
     const { id, first_name, last_name, username, photo_url, auth_date, hash } = req.body;
 
     // Логирование для диагностики
-    logger.info('Telegram auth request:', { id, first_name, username, auth_date, hasHash: !!hash });
+    logger.info('Telegram auth request body:', JSON.stringify(req.body));
+    logger.info('Telegram auth extracted:', { id, first_name, username, auth_date, hasHash: !!hash });
 
     // Проверка обязательных полей
     if (!id || !first_name || !auth_date || !hash) {
@@ -487,8 +488,13 @@ export const telegramAuth = async (req, res, next) => {
       .map(key => `${key}=${req.body[key]}`)
       .join('\n');
 
+    logger.info('Telegram check string:', checkString);
+    logger.info('Bot token length:', botToken?.length || 0);
+
     const secretKey = crypto.createHash('sha256').update(botToken).digest();
     const hmac = crypto.createHmac('sha256', secretKey).update(checkString).digest('hex');
+
+    logger.info('Telegram hash comparison:', { expected: hash, calculated: hmac, match: hmac === hash });
 
     if (hmac !== hash) {
       logger.warn(`Telegram auth failed: invalid hash for user ${id}`);
