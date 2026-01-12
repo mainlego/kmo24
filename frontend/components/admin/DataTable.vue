@@ -100,7 +100,8 @@
             v-for="(item, index) in items"
             :key="getRowKey(item, index)"
             class="data-row"
-            :class="{ selected: selectedItems.includes(getRowKey(item, index)) }"
+            :class="{ selected: selectedItems.includes(getRowKey(item, index)), clickable: !!$attrs['onRow-click'] }"
+            @click="$emit('row-click', item)"
           >
             <td v-if="selectable" class="checkbox-cell">
               <input
@@ -199,7 +200,7 @@ const props = withDefaults(defineProps<Props>(), {
   rowKey: 'id',
 });
 
-const emit = defineEmits(['update:currentPage', 'sort', 'search', 'selection-change']);
+const emit = defineEmits(['update:currentPage', 'sort', 'search', 'selection-change', 'row-click']);
 
 const searchQuery = ref('');
 const currentSort = ref('');
@@ -398,6 +399,10 @@ const goToPage = (page: number) => {
 
       &.selected {
         background: #eff6ff;
+      }
+
+      &.clickable {
+        cursor: pointer;
       }
 
       td {

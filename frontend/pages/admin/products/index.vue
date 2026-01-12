@@ -145,7 +145,13 @@
       :loading="loading"
       :selectable="true"
       :searchable="false"
+      :pagination="true"
+      :current-page="pagination.page"
+      :per-page="pagination.limit"
+      :total="pagination.total"
+      row-key="_id"
       v-model:selected="selectedProducts"
+      @update:current-page="handlePageChange"
       @row-click="handleRowClick"
     >
       <template #cell-image="{ item }">
@@ -350,6 +356,8 @@ const fetchProducts = async () => {
       search: filters.value.search || undefined,
       category: filters.value.category || undefined,
       status: filters.value.status || undefined,
+      condition: filters.value.condition || undefined,
+      availability: filters.value.availability || undefined,
       sort: '-createdAt',
     };
 
@@ -366,9 +374,9 @@ const fetchProducts = async () => {
       products.value = response.data || [];
       // Обновляем только total и pages, не трогая page чтобы избежать цикла watch
       if (response.pagination) {
-        pagination.value.total = response.pagination.total;
-        pagination.value.pages = response.pagination.pages;
-        pagination.value.limit = response.pagination.limit;
+        pagination.value.total = response.pagination.totalItems || response.pagination.total || 0;
+        pagination.value.pages = response.pagination.totalPages || response.pagination.pages || 0;
+        pagination.value.limit = response.pagination.itemsPerPage || response.pagination.limit || 20;
       }
     }
   } catch {
@@ -499,6 +507,10 @@ const getStatusLabel = (status: string) => {
 
 const handleRowClick = (item: any) => {
   navigateTo(`/admin/products/${item._id}`);
+};
+
+const handlePageChange = (page: number) => {
+  pagination.value.page = page;
 };
 
 const editProduct = (id: string) => {

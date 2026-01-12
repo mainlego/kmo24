@@ -21,19 +21,34 @@ export const getProducts = async (req, res, next) => {
       search,
       inStock,
       sort = '-createdAt',
+      // Дополнительные фильтры для админки
+      source,
+      condition,
+      status,
+      availability,
+      isActive,
     } = req.query;
 
     // Создание кэш ключа
     const cacheKey = `products:${JSON.stringify(req.query)}`;
 
-    // Проверка кэша
-    const cachedData = await getCache(cacheKey);
-    if (cachedData) {
-      return res.json(cachedData);
+    // Проверка кэша (только для публичных запросов без фильтров админки)
+    if (!source && !condition && !status && !availability && isActive === undefined) {
+      const cachedData = await getCache(cacheKey);
+      if (cachedData) {
+        return res.json(cachedData);
+      }
     }
 
     // Построение фильтра
-    const filter = { isActive: true };
+    const filter = {};
+
+    // По умолчанию показываем только активные для публичного API
+    if (isActive === undefined && !source) {
+      filter.isActive = true;
+    } else if (isActive !== undefined) {
+      filter.isActive = isActive === 'true';
+    }
 
     if (category) {
       filter.category = category;
@@ -46,11 +61,42 @@ export const getProducts = async (req, res, next) => {
     }
 
     if (search) {
-      filter.$text = { $search: search };
+      // Поддержка поиска по названию, артикулу, описанию
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { sku: { $regex: search, $options: 'i' } },
+        { 'description.short': { $regex: search, $options: 'i' } },
+      ];
     }
 
     if (inStock === 'true') {
       filter['stock.available'] = { $gt: 0 };
+    }
+
+    // Фильтр по источнику (1С или вручную)
+    if (source === '1c') {
+      filter.externalId = { $exists: true, $ne: null };
+    } else if (source === 'manual') {
+      filter.externalId = { $exists: false };
+    }
+
+    // Фильтр по состоянию товара
+    if (condition) {
+      filter.condition = condition;
+    }
+
+    // Фильтр по статусу
+    if (status) {
+      filter.status = status;
+    }
+
+    // Фильтр по наличию
+    if (availability === 'in-stock') {
+      filter['stock.quantity'] = { $gt: 5 };
+    } else if (availability === 'low-stock') {
+      filter['stock.quantity'] = { $gt: 0, $lte: 5 };
+    } else if (availability === 'out-of-stock') {
+      filter['stock.quantity'] = { $lte: 0 };
     }
 
     // Подсчет общего количества
