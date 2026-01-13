@@ -241,4 +241,15 @@ userSchema.methods.removeRefreshToken = async function (token) {
 
 const User = mongoose.model('User', userSchema);
 
+// Исправление индекса email - делаем его sparse для поддержки Telegram авторизации
+// Это нужно выполнить один раз при старте, чтобы заменить старый не-sparse индекс
+User.collection.dropIndex('email_1').catch(() => {
+  // Индекс не существует или уже удалён - игнорируем
+}).then(() => {
+  // Mongoose автоматически создаст новый sparse индекс при следующем использовании
+  User.syncIndexes().catch(err => {
+    console.error('Error syncing User indexes:', err.message);
+  });
+});
+
 export default User;
