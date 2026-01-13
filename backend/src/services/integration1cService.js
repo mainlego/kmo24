@@ -421,6 +421,11 @@ class Integration1CService {
    * Преобразование товара из формата 1С в формат сайта
    */
   transformProduct(product1C) {
+    // Логируем данные изображений от 1С для диагностики
+    if (product1C.images && product1C.images.length > 0) {
+      logger.info(`Product ${product1C.name} has ${product1C.images.length} images from 1C`);
+    }
+
     // Добавляем часть id к slug для уникальности
     const idSuffix = product1C.id ? '-' + product1C.id.substring(0, 8) : '';
     return {

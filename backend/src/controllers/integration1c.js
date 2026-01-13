@@ -73,6 +73,13 @@ const fetchAndSyncProducts = async (req, res) => {
       errors: [],
     };
 
+    // Логируем первые 3 товара для диагностики структуры данных
+    if (products1C.length > 0) {
+      logger.info('Sample product from 1C:', JSON.stringify(products1C[0], null, 2).substring(0, 1000));
+      const withImages = products1C.filter(p => p.images && p.images.length > 0);
+      logger.info(`Products with images: ${withImages.length} of ${products1C.length}`);
+    }
+
     // Получаем все категории для маппинга externalId -> MongoDB _id
     const allCategories = await Category.find({ externalId: { $exists: true, $ne: null } });
     const categoryMap = new Map();
