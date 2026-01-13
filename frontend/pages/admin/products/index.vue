@@ -391,12 +391,11 @@ const sync1CProducts = async () => {
   syncing.value = true;
   try {
     const { apiFetch } = useApi();
-    // Запрос на синхронизацию - отправляем пустой массив для тестирования соединения
-    await apiFetch('/integration/1c/products/sync', {
+    // Запрос на синхронизацию - админский эндпоинт, который сам запрашивает данные из 1С
+    await apiFetch('/integration/1c/sync/products', {
       method: 'POST',
-      body: { products: [] },
     });
-    success('Синхронизация запущена. Данные будут обновлены.');
+    success('Синхронизация завершена. Данные обновлены.');
     // Обновляем список товаров
     await fetchProducts();
     await fetch1CStats();
