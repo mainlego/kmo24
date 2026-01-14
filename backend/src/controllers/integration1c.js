@@ -1131,52 +1131,109 @@ const syncProductsStream = async (req, res) => {
     const categoriesResponse = await integration1CService.getCategories();
     const categories1C = categoriesResponse.success ? categoriesResponse.data : [];
 
-    // Добавляем null для товаров без категории
-    const categoryIds = [null, ...categories1C.map(c => c.id)];
+    logger.info(`Loaded ${categories1C.length} categories from 1C`);
 
-    logger.info(`Will load products from ${categoryIds.length} categories`);
+    // Создаём мапу категорий для быстрого поиска подкатегорий
+    const categoryById = new Map(categories1C.map(c => [c.id, c]));
+
+    // Находим подкатегории для каждой категории
+    const getSubcategories = (parentId) => {
+      return categories1C.filter(c => c.parentId === parentId);
+    };
 
     // Собираем все товары из всех категорий
     const allProducts = [];
     const processedIds = new Set();
-    let categoryNum = 0;
+    const truncatedCategories = []; // Категории достигшие лимита
+    const LIMIT_THRESHOLD = 490; // Если >= этого числа, считаем что достигли лимита
 
-    for (const categoryId of categoryIds) {
+    // Функция загрузки товаров из категории
+    const loadCategoryProducts = async (categoryId, categoryName, depth = 0) => {
+      const response = await integration1CService.getProducts({
+        categoryId,
+        limit: PRODUCTS_LIMIT,
+      });
+
+      if (response.success && Array.isArray(response.data)) {
+        const productsCount = response.data.length;
+
+        // Фильтруем дубликаты (товар может быть в нескольких категориях)
+        let newProducts = 0;
+        for (const product of response.data) {
+          if (!processedIds.has(product.id)) {
+            processedIds.add(product.id);
+            allProducts.push(product);
+            newProducts++;
+          }
+        }
+
+        const prefix = '  '.repeat(depth);
+        logger.info(`${prefix}Category "${categoryName}": ${productsCount} products (${newProducts} new), total: ${allProducts.length}`);
+
+        // Если достигли лимита, пробуем загрузить по подкатегориям
+        if (productsCount >= LIMIT_THRESHOLD) {
+          truncatedCategories.push({ name: categoryName, count: productsCount });
+          logger.warn(`${prefix}⚠️ Category "${categoryName}" may have reached 1C limit (${productsCount} products)`);
+
+          // Ищем подкатегории этой категории
+          const subcategories = getSubcategories(categoryId);
+          if (subcategories.length > 0) {
+            logger.info(`${prefix}  → Loading ${subcategories.length} subcategories of "${categoryName}"...`);
+            for (const subcat of subcategories) {
+              await loadCategoryProducts(subcat.id, subcat.name, depth + 1);
+            }
+          }
+        }
+      }
+    };
+
+    // Загружаем товары без категории
+    sendEvent('progress', {
+      phase: 'fetch',
+      message: 'Загрузка товаров без категории...',
+      categoryNum: 0,
+      totalCategories: categories1C.length + 1,
+    });
+
+    try {
+      await loadCategoryProducts(null, 'Без категории');
+    } catch (error) {
+      logger.warn(`Failed to load products without category: ${error.message}`);
+    }
+
+    // Загружаем товары по корневым категориям (без parentId или parentId === null)
+    const rootCategories = categories1C.filter(c => !c.parentId);
+    logger.info(`Found ${rootCategories.length} root categories`);
+
+    let categoryNum = 0;
+    for (const category of rootCategories) {
       if (activeSyncConnections.get(syncId)?.aborted) {
         break;
       }
 
       categoryNum++;
-      const categoryName = categoryId
-        ? categories1C.find(c => c.id === categoryId)?.name || categoryId
-        : 'Без категории';
 
       sendEvent('progress', {
         phase: 'fetch',
-        message: `Загрузка категории ${categoryNum}/${categoryIds.length}: ${categoryName.substring(0, 40)}...`,
+        message: `Загрузка категории ${categoryNum}/${rootCategories.length}: ${category.name.substring(0, 40)}...`,
         categoryNum,
-        totalCategories: categoryIds.length,
+        totalCategories: rootCategories.length,
       });
 
       try {
-        const response = await integration1CService.getProducts({
-          categoryId,
-          limit: PRODUCTS_LIMIT,
-        });
-
-        if (response.success && Array.isArray(response.data)) {
-          // Фильтруем дубликаты (товар может быть в нескольких категориях)
-          for (const product of response.data) {
-            if (!processedIds.has(product.id)) {
-              processedIds.add(product.id);
-              allProducts.push(product);
-            }
-          }
-          logger.info(`Category "${categoryName}": ${response.data.length} products, total unique: ${allProducts.length}`);
-        }
+        await loadCategoryProducts(category.id, category.name);
       } catch (error) {
-        logger.warn(`Failed to load category ${categoryName}: ${error.message}`);
+        logger.warn(`Failed to load category ${category.name}: ${error.message}`);
       }
+    }
+
+    // Логируем категории достигшие лимита
+    if (truncatedCategories.length > 0) {
+      logger.warn(`\n⚠️ CATEGORIES THAT MAY HAVE REACHED 1C LIMIT (500 products):`);
+      truncatedCategories.forEach(({ name, count }) => {
+        logger.warn(`   - "${name}": ${count} products`);
+      });
+      logger.warn(`Consider asking 1C developer to increase the limit or add pagination support.\n`);
     }
 
     results.total = allProducts.length;
