@@ -253,6 +253,12 @@ class Integration1CService {
       if (result.success && Array.isArray(result.data) && result.data.length > 0) {
         const withImages = result.data.filter(p => p.images && p.images.length > 0);
         logger.info(`1C returned ${result.data.length} products, ${withImages.length} with images`);
+
+        // Логируем первый товар целиком для диагностики структуры данных
+        const firstProduct = result.data[0];
+        logger.info(`Sample product keys from 1C: ${Object.keys(firstProduct).join(', ')}`);
+        logger.info(`Sample product from 1C: ${JSON.stringify(firstProduct).substring(0, 1500)}`);
+
         // Логируем первый товар с изображениями для диагностики
         if (withImages.length > 0) {
           logger.info(`Sample product with images: ${JSON.stringify(withImages[0].images).substring(0, 500)}`);
