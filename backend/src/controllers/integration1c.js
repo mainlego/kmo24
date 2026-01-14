@@ -977,7 +977,7 @@ const getStats = async (req, res) => {
 const activeSyncConnections = new Map();
 
 // Размер батча для загрузки товаров из 1С
-const BATCH_SIZE = 100;
+const BATCH_SIZE = 500;
 
 /**
  * Обработка одного товара из 1С
@@ -1052,7 +1052,7 @@ const processProduct = async (product1C, categoryMap, results) => {
 
 /**
  * Синхронизация товаров с SSE стримингом прогресса
- * Загружает товары из 1С по категориям для обхода таймаута
+ * Загружает товары из 1С пагинацией через offset
  * GET /api/integration/1c/sync/products/stream
  */
 const syncProductsStream = async (req, res) => {
@@ -1102,16 +1102,14 @@ const syncProductsStream = async (req, res) => {
   try {
     sendEvent('start', { message: 'Начинаем синхронизацию...', syncId });
 
-    // Загружаем категории для маппинга и для загрузки товаров по категориям
+    // Загружаем категории для маппинга
     const allCategories = await Category.find({ externalId: { $exists: true, $ne: null } });
     const categoryMap = new Map();
-    const categoryList = [];
     for (const cat of allCategories) {
       categoryMap.set(cat.externalId, cat._id);
-      categoryList.push({ id: cat.externalId, name: cat.name });
     }
 
-    logger.info(`Found ${categoryList.length} categories for sync`);
+    logger.info(`Found ${categoryMap.size} categories for mapping`);
 
     const results = {
       total: 0,
@@ -1119,46 +1117,62 @@ const syncProductsStream = async (req, res) => {
       updated: 0,
       skipped: 0,
       failed: 0,
+      withImages: 0, // Счетчик товаров с изображениями
     };
 
     let totalProcessed = 0;
-    const processedExternalIds = new Set(); // Для отслеживания уже обработанных товаров
+    const processedExternalIds = new Set();
+    let offset = 0;
+    let hasMore = true;
+    let batchNum = 0;
 
-    // Загружаем товары по категориям
-    for (let catIndex = 0; catIndex < categoryList.length; catIndex++) {
-      if (activeSyncConnections.get(syncId)?.aborted) {
-        sendEvent('cancelled', { message: 'Синхронизация отменена', results });
-        clearInterval(keepAliveInterval);
-        res.end();
-        return;
-      }
-
-      const category = categoryList[catIndex];
+    // Загружаем товары порциями через offset
+    while (hasMore && !activeSyncConnections.get(syncId)?.aborted) {
+      batchNum++;
 
       sendEvent('progress', {
         phase: 'fetch',
-        message: `Загрузка категории ${catIndex + 1}/${categoryList.length}: ${category.name}...`,
-        categoryIndex: catIndex + 1,
-        totalCategories: categoryList.length,
+        message: `Загрузка товаров из 1С (партия ${batchNum}, offset: ${offset})...`,
+        batch: batchNum,
+        offset,
       });
 
       try {
         const response = await integration1CService.getProducts({
-          categoryId: category.id,
-          limit: 1000, // Лимит на категорию
+          offset,
+          limit: BATCH_SIZE,
         });
 
         if (!response.success || !Array.isArray(response.data)) {
-          logger.warn(`Failed to load products for category ${category.name}: ${response.error}`);
+          logger.warn(`Failed to load products batch ${batchNum}: ${response.error}`);
+          // Если первый запрос не удался - критичная ошибка
+          if (batchNum === 1) {
+            throw new Error(response.error || 'Некорректный ответ от 1С');
+          }
+          hasMore = false;
           continue;
         }
 
         const products1C = response.data;
+        logger.info(`Batch ${batchNum}: received ${products1C.length} products from 1C`);
 
-        // Фильтруем уже обработанные товары (один товар может быть в нескольких категориях)
+        // Если получили меньше чем запрашивали или пустой ответ - закончили
+        if (products1C.length === 0) {
+          hasMore = false;
+          continue;
+        }
+
+        if (products1C.length < BATCH_SIZE) {
+          hasMore = false;
+        }
+
+        // Фильтруем уже обработанные товары
         const newProducts = products1C.filter(p => !processedExternalIds.has(p.id));
 
-        if (newProducts.length === 0) {
+        // Если все товары уже были обработаны - значит API не поддерживает offset
+        if (newProducts.length === 0 && products1C.length > 0) {
+          logger.warn('All products in batch already processed - API may not support offset pagination');
+          hasMore = false;
           continue;
         }
 
@@ -1166,13 +1180,13 @@ const syncProductsStream = async (req, res) => {
 
         sendEvent('progress', {
           phase: 'sync',
-          message: `Обработка ${newProducts.length} товаров из категории "${category.name}"...`,
-          categoryName: category.name,
+          message: `Обработка ${newProducts.length} товаров (партия ${batchNum})...`,
+          batch: batchNum,
           batchSize: newProducts.length,
         });
 
         // Обрабатываем товары
-        for (let i = 0; i < newProducts.length; i++) {
+        for (const product1C of newProducts) {
           if (activeSyncConnections.get(syncId)?.aborted) {
             sendEvent('cancelled', { message: 'Синхронизация отменена', results });
             clearInterval(keepAliveInterval);
@@ -1180,9 +1194,13 @@ const syncProductsStream = async (req, res) => {
             return;
           }
 
-          const product1C = newProducts[i];
           totalProcessed++;
           processedExternalIds.add(product1C.id);
+
+          // Считаем товары с изображениями
+          if (product1C.images && product1C.images.length > 0) {
+            results.withImages++;
+          }
 
           try {
             const { action, productData } = await processProduct(product1C, categoryMap, results);
@@ -1194,6 +1212,7 @@ const syncProductsStream = async (req, res) => {
                 name: (productData.name || 'Без названия').substring(0, 80),
                 sku: productData.sku || '',
                 index: totalProcessed,
+                hasImages: productData.images && productData.images.length > 0,
               });
             }
           } catch (error) {
@@ -1208,78 +1227,39 @@ const syncProductsStream = async (req, res) => {
           }
         }
 
-        // Прогресс после каждой категории
+        // Прогресс после каждой порции
         sendEvent('progress', {
           phase: 'sync',
-          message: `Обработано ${totalProcessed} товаров (${catIndex + 1}/${categoryList.length} категорий)`,
+          message: `Обработано ${totalProcessed} товаров`,
           current: totalProcessed,
           total: results.total,
-          percent: Math.round(((catIndex + 1) / categoryList.length) * 100),
+          percent: hasMore ? Math.min(99, Math.round((totalProcessed / 7500) * 100)) : 100,
           created: results.created,
           updated: results.updated,
           skipped: results.skipped,
           failed: results.failed,
+          withImages: results.withImages,
         });
 
+        offset += BATCH_SIZE;
+
       } catch (error) {
-        logger.error(`Error loading category ${category.name}:`, error.message);
-        // Продолжаем со следующей категорией
-      }
-    }
-
-    // Также загружаем товары без категории
-    sendEvent('progress', {
-      phase: 'fetch',
-      message: 'Загрузка товаров без категории...',
-    });
-
-    try {
-      const response = await integration1CService.getProducts({
-        limit: 1000,
-      });
-
-      if (response.success && Array.isArray(response.data)) {
-        const newProducts = response.data.filter(p => !processedExternalIds.has(p.id));
-
-        if (newProducts.length > 0) {
-          results.total += newProducts.length;
-
-          sendEvent('progress', {
-            phase: 'sync',
-            message: `Обработка ${newProducts.length} товаров без категории...`,
-            batchSize: newProducts.length,
-          });
-
-          for (const product1C of newProducts) {
-            if (activeSyncConnections.get(syncId)?.aborted) break;
-
-            totalProcessed++;
-            processedExternalIds.add(product1C.id);
-
-            try {
-              const { action, productData } = await processProduct(product1C, categoryMap, results);
-              if (action !== 'skipped') {
-                sendEvent('item', {
-                  action,
-                  name: (productData.name || 'Без названия').substring(0, 80),
-                  sku: productData.sku || '',
-                  index: totalProcessed,
-                });
-              }
-            } catch (error) {
-              results.failed++;
-            }
-          }
+        logger.error(`Error loading batch ${batchNum}:`, error.message);
+        // Если первая партия - критичная ошибка
+        if (batchNum === 1) {
+          throw error;
         }
+        // Иначе просто заканчиваем
+        hasMore = false;
       }
-    } catch (error) {
-      logger.warn('Failed to load products without category:', error.message);
     }
 
     clearInterval(keepAliveInterval);
 
     const duration = Date.now() - startTime;
     const durationSec = Math.round(duration / 1000);
+
+    logger.info(`Sync completed: ${results.created} created, ${results.updated} updated, ${results.skipped} skipped, ${results.failed} failed, ${results.withImages} with images`);
 
     sendEvent('complete', {
       message: 'Синхронизация завершена',

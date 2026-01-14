@@ -237,6 +237,8 @@ class Integration1CService {
     // Пробуем HTTP-сервис
     try {
       const params = new URLSearchParams();
+      // Поддержка разных форматов пагинации
+      if (options.offset !== undefined) params.append('offset', options.offset);
       if (options.page) params.append('page', options.page);
       if (options.limit) params.append('limit', options.limit);
       if (options.modifiedAfter) params.append('modified_after', options.modifiedAfter);
@@ -245,7 +247,19 @@ class Integration1CService {
       const queryString = params.toString();
       const endpoint = `/products${queryString ? `?${queryString}` : ''}`;
 
-      return await this.request(endpoint, { method: 'GET' });
+      const result = await this.request(endpoint, { method: 'GET' });
+
+      // Логируем информацию о полученных данных
+      if (result.success && Array.isArray(result.data) && result.data.length > 0) {
+        const withImages = result.data.filter(p => p.images && p.images.length > 0);
+        logger.info(`1C returned ${result.data.length} products, ${withImages.length} with images`);
+        // Логируем первый товар с изображениями для диагностики
+        if (withImages.length > 0) {
+          logger.info(`Sample product with images: ${JSON.stringify(withImages[0].images).substring(0, 500)}`);
+        }
+      }
+
+      return result;
     } catch (httpError) {
       logger.info('HTTP-сервис недоступен, пробуем OData...');
 
