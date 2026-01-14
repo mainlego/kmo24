@@ -88,7 +88,10 @@
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MjdmMWQ1NmZkYWIzNGFhODdkNTU0MSIsImlhdCI6MTc2NjYwMzIzMywiZXhwIjoxNzY2NjA0MTMzfQ.Onj0vzh37Upnu3YI2XenUEPcmuYqiUud1pu7KXvOycc\")",
       "Bash(__NEW_LINE__ curl -s https://kmo24-backend.onrender.com/api/v1/integration/1c/status )",
       "Bash(for i in 1 2 3)",
-      "Bash(do echo \"Attempt $i:\")"
+      "Bash(do echo \"Attempt $i:\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: Исправлена ошибка отображения товаров без изображений\n\n- Добавлена проверка v-if для currentImage перед доступом к .url\n- Добавлен плейсхолдер при отсутствии изображения товара\n- Добавлена безопасная проверка ?. для product.images\n- Лайтбокс теперь не открывается если нет изображений\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(for path in \"kmo_api/hs/api/ping\" \"kmo_api/api/ping\" \"kmo_api/hs/WebAPI/ping\" \"hs/api/ping\" \"api/ping\")",
+      "Bash(for path in \"kmo_api/api/ping\" \"kmo_api/api/products\" \"kmo_api/api/categories\" \"kmo_api/api/stock\" \"kmo_api/hs/api/ping\" \"kmo_api/ping\" \"kmo_api/products\")"
     ],
     "deny": [],
     "ask": []

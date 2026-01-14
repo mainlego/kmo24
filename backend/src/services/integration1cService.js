@@ -15,7 +15,7 @@ class Integration1CService {
     this.timeout = parseInt(process.env.INTEGRATION_1C_TIMEOUT) || 30000;
     // URL для OData
     this.odataUrl = this.baseUrl + '/odata/standard.odata';
-    // URL для HTTP-сервиса (если настроен)
+    // URL для HTTP-сервиса (стандартный путь /hs/{корневой_url})
     this.hsUrl = this.baseUrl + '/hs/api';
   }
 
