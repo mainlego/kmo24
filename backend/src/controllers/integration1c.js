@@ -1,9 +1,25 @@
+import crypto from 'crypto';
 import Product from '../models/Product.js';
 import Category from '../models/Category.js';
 import Order from '../models/Order.js';
 import IntegrationLog from '../models/IntegrationLog.js';
 import integration1CService from '../services/integration1cService.js';
 import logger from '../utils/logger.js';
+
+/**
+ * Создаёт хеш данных товара для определения изменений
+ */
+const createProductHash = (productData) => {
+  const dataToHash = {
+    name: productData.name,
+    sku: productData.sku,
+    price: productData.price,
+    description: productData.description,
+    images: productData.images,
+    isActive: productData.isActive,
+  };
+  return crypto.createHash('md5').update(JSON.stringify(dataToHash)).digest('hex');
+};
 
 /**
  * Получить статус интеграции с 1С
@@ -960,8 +976,12 @@ const getStats = async (req, res) => {
 // Хранилище активных SSE соединений для синхронизации
 const activeSyncConnections = new Map();
 
+// Размер батча для загрузки товаров из 1С
+const BATCH_SIZE = 50;
+
 /**
  * Синхронизация товаров с SSE стримингом прогресса
+ * Загружает товары порциями по BATCH_SIZE и проверяет изменения
  * GET /api/integration/1c/sync/products/stream
  */
 const syncProductsStream = async (req, res) => {
@@ -969,10 +989,8 @@ const syncProductsStream = async (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('Connection', 'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no'); // Отключает буферизацию nginx/proxy
-  res.setHeader('Content-Encoding', 'identity'); // Отключает сжатие
-
-  // Отправляем заголовки сразу, чтобы начать стрим
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.setHeader('Content-Encoding', 'identity');
   res.flushHeaders();
 
   const syncId = Date.now().toString();
@@ -1001,51 +1019,17 @@ const syncProductsStream = async (req, res) => {
 
   const startTime = Date.now();
 
-  // Keep-alive интервал для предотвращения timeout на Render
+  // Keep-alive интервал
   const keepAliveInterval = setInterval(() => {
     if (!activeSyncConnections.get(syncId)?.aborted) {
       try {
-        // Отправляем комментарий SSE для поддержания соединения
         res.write(': keep-alive\n\n');
-      } catch (e) {
-        // Игнорируем
-      }
+      } catch (e) {}
     }
-  }, 15000); // каждые 15 секунд
+  }, 10000);
 
   try {
     sendEvent('start', { message: 'Начинаем синхронизацию...', syncId });
-
-    // Получаем товары из 1С
-    sendEvent('progress', { phase: 'fetch', message: 'Загрузка товаров из 1С...' });
-
-    const response = await integration1CService.getProducts({ limit: 10000 });
-
-    clearInterval(keepAliveInterval);
-
-    if (!response.success || !Array.isArray(response.data)) {
-      sendEvent('error', { message: response.error || 'Некорректный ответ от 1С' });
-      res.end();
-      return;
-    }
-
-    const products1C = response.data;
-    const total = products1C.length;
-
-    sendEvent('progress', {
-      phase: 'sync',
-      message: `Загружено ${total} товаров из 1С`,
-      total,
-      current: 0,
-      percent: 0,
-    });
-
-    const results = {
-      total,
-      created: 0,
-      updated: 0,
-      failed: 0,
-    };
 
     // Загружаем категории для маппинга
     const allCategories = await Category.find({ externalId: { $exists: true, $ne: null } });
@@ -1054,109 +1038,201 @@ const syncProductsStream = async (req, res) => {
       categoryMap.set(cat.externalId, cat._id);
     }
 
-    // Обрабатываем товары
-    for (let i = 0; i < products1C.length; i++) {
-      // Проверяем, не была ли отменена синхронизация
-      if (activeSyncConnections.get(syncId)?.aborted) {
-        sendEvent('cancelled', {
-          message: 'Синхронизация отменена пользователем',
-          results,
-          processed: i,
-        });
-        res.end();
-        return;
-      }
+    const results = {
+      total: 0,
+      created: 0,
+      updated: 0,
+      skipped: 0, // Пропущено без изменений
+      failed: 0,
+    };
 
-      const product1C = products1C[i];
+    let page = 1;
+    let hasMore = true;
+    let totalProcessed = 0;
+
+    // Загружаем товары порциями
+    while (hasMore && !activeSyncConnections.get(syncId)?.aborted) {
+      sendEvent('progress', {
+        phase: 'fetch',
+        message: `Загрузка товаров из 1С (страница ${page})...`,
+        page,
+      });
+
+      let products1C = [];
 
       try {
-        const productData = integration1CService.transformProduct(product1C);
+        const response = await integration1CService.getProducts({
+          page,
+          limit: BATCH_SIZE,
+        });
 
-        // Находим категорию
-        const categoryExternalId = product1C.category?.id || product1C.categoryId;
-        if (categoryExternalId && categoryMap.has(categoryExternalId)) {
-          productData.category = categoryMap.get(categoryExternalId);
-        } else {
-          productData.category = null;
+        if (!response.success || !Array.isArray(response.data)) {
+          // Если это не первая страница и нет данных - закончили
+          if (page > 1) {
+            hasMore = false;
+            continue;
+          }
+          throw new Error(response.error || 'Некорректный ответ от 1С');
         }
 
-        // Ищем существующий товар
-        let product = await Product.findOne({ externalId: product1C.id });
-        let action = 'updated';
+        products1C = response.data;
 
-        if (product) {
-          Object.assign(product, productData);
-          await product.save();
-          results.updated++;
-        } else {
-          if (productData.sku) {
-            product = await Product.findOne({ sku: productData.sku });
+        // Если получили меньше чем запрашивали - это последняя страница
+        if (products1C.length < BATCH_SIZE) {
+          hasMore = false;
+        }
+
+        // Если пустой ответ - закончили
+        if (products1C.length === 0) {
+          hasMore = false;
+          continue;
+        }
+      } catch (fetchError) {
+        // На первой странице ошибка критична
+        if (page === 1) {
+          throw fetchError;
+        }
+        // На других страницах просто заканчиваем
+        hasMore = false;
+        continue;
+      }
+
+      results.total += products1C.length;
+
+      sendEvent('progress', {
+        phase: 'sync',
+        message: `Обработка ${products1C.length} товаров (страница ${page})...`,
+        page,
+        batchSize: products1C.length,
+        totalProcessed,
+      });
+
+      // Обрабатываем товары текущей порции
+      for (let i = 0; i < products1C.length; i++) {
+        if (activeSyncConnections.get(syncId)?.aborted) {
+          sendEvent('cancelled', { message: 'Синхронизация отменена', results });
+          clearInterval(keepAliveInterval);
+          res.end();
+          return;
+        }
+
+        const product1C = products1C[i];
+        totalProcessed++;
+
+        try {
+          const productData = integration1CService.transformProduct(product1C);
+
+          // Находим категорию
+          const categoryExternalId = product1C.category?.id || product1C.categoryId;
+          if (categoryExternalId && categoryMap.has(categoryExternalId)) {
+            productData.category = categoryMap.get(categoryExternalId);
+          } else {
+            productData.category = null;
           }
 
+          // Создаём хеш данных для проверки изменений
+          const newHash = createProductHash(productData);
+
+          // Ищем существующий товар
+          let product = await Product.findOne({ externalId: product1C.id });
+          let action = '';
+
           if (product) {
-            Object.assign(product, productData);
-            await product.save();
-            results.updated++;
+            // Проверяем, изменились ли данные
+            if (product.syncHash === newHash) {
+              // Данные не изменились - пропускаем
+              results.skipped++;
+              action = 'skipped';
+            } else {
+              // Данные изменились - обновляем
+              Object.assign(product, productData);
+              product.syncHash = newHash;
+              product.lastSyncedAt = new Date();
+              await product.save();
+              results.updated++;
+              action = 'updated';
+            }
           } else {
-            try {
-              product = await Product.create(productData);
-              results.created++;
-              action = 'created';
-            } catch (createError) {
-              if (createError.code === 11000 && createError.keyPattern?.sku) {
-                productData.sku = `${productData.sku}-${product1C.id.substring(0, 8)}`;
+            // Ищем по SKU (для миграции старых товаров)
+            if (productData.sku) {
+              product = await Product.findOne({ sku: productData.sku });
+            }
+
+            if (product) {
+              Object.assign(product, productData);
+              product.syncHash = newHash;
+              product.lastSyncedAt = new Date();
+              await product.save();
+              results.updated++;
+              action = 'updated';
+            } else {
+              // Создаём новый товар
+              try {
+                productData.syncHash = newHash;
+                productData.lastSyncedAt = new Date();
                 product = await Product.create(productData);
                 results.created++;
                 action = 'created';
-              } else {
-                throw createError;
+              } catch (createError) {
+                if (createError.code === 11000 && createError.keyPattern?.sku) {
+                  productData.sku = `${productData.sku}-${product1C.id.substring(0, 8)}`;
+                  product = await Product.create(productData);
+                  results.created++;
+                  action = 'created';
+                } else {
+                  throw createError;
+                }
               }
             }
           }
-        }
 
-        // Отправляем прогресс и информацию о товаре каждые 10 товаров или на последнем
-        const shouldSendProgress = (i + 1) % 10 === 0 || i === products1C.length - 1;
+          // Отправляем информацию о товаре (кроме skipped чтобы не засорять лог)
+          if (action !== 'skipped') {
+            sendEvent('item', {
+              action,
+              name: (productData.name || 'Без названия').substring(0, 80),
+              sku: productData.sku || '',
+              index: totalProcessed,
+            });
+          }
 
-        if (shouldSendProgress) {
-          const percent = Math.round(((i + 1) / total) * 100);
-          sendEvent('progress', {
-            phase: 'sync',
-            current: i + 1,
-            total,
-            percent,
-            created: results.created,
-            updated: results.updated,
-            failed: results.failed,
+        } catch (error) {
+          results.failed++;
+          sendEvent('item', {
+            action: 'failed',
+            name: (product1C.name || 'Без названия').substring(0, 80),
+            sku: product1C.sku || '',
+            error: (error.message || 'Ошибка').substring(0, 80),
+            index: totalProcessed,
           });
         }
-
-        // Отправляем информацию о каждом товаре для лога
-        sendEvent('item', {
-          action,
-          name: productData.name?.substring(0, 100) || 'Без названия',
-          sku: productData.sku || '',
-          index: i + 1,
-        });
-
-      } catch (error) {
-        results.failed++;
-        sendEvent('item', {
-          action: 'failed',
-          name: (product1C.name || 'Без названия').substring(0, 100),
-          sku: product1C.sku || '',
-          error: (error.message || 'Неизвестная ошибка').substring(0, 100),
-          index: i + 1,
-        });
       }
+
+      // Отправляем прогресс после каждой порции
+      sendEvent('progress', {
+        phase: 'sync',
+        message: `Обработано ${totalProcessed} товаров`,
+        current: totalProcessed,
+        total: results.total,
+        created: results.created,
+        updated: results.updated,
+        skipped: results.skipped,
+        failed: results.failed,
+        page,
+      });
+
+      page++;
     }
 
+    clearInterval(keepAliveInterval);
+
     const duration = Date.now() - startTime;
+    const durationSec = Math.round(duration / 1000);
 
     sendEvent('complete', {
       message: 'Синхронизация завершена',
       results,
-      duration: `${duration}ms`,
+      duration: durationSec > 60 ? `${Math.floor(durationSec / 60)}м ${durationSec % 60}с` : `${durationSec}с`,
     });
 
     activeSyncConnections.delete(syncId);

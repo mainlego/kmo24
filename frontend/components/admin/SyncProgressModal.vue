@@ -57,6 +57,10 @@
           <span class="sync-progress__stat-value">{{ results.updated }}</span>
           <span class="sync-progress__stat-label">Обновлено</span>
         </div>
+        <div class="sync-progress__stat sync-progress__stat--skipped">
+          <span class="sync-progress__stat-value">{{ results.skipped }}</span>
+          <span class="sync-progress__stat-label">Без изменений</span>
+        </div>
         <div class="sync-progress__stat sync-progress__stat--failed">
           <span class="sync-progress__stat-value">{{ results.failed }}</span>
           <span class="sync-progress__stat-label">Ошибки</span>
@@ -131,7 +135,7 @@ const syncId = ref<string | null>(null);
 const total = ref(0);
 const current = ref(0);
 const percent = ref(0);
-const results = ref({ created: 0, updated: 0, failed: 0 });
+const results = ref({ created: 0, updated: 0, skipped: 0, failed: 0 });
 const logEntries = ref<Array<{ time: string; type: string; message: string }>>([]);
 const duration = ref<string | null>(null);
 const logContainer = ref<HTMLElement | null>(null);
@@ -177,7 +181,7 @@ const startSync = async () => {
   total.value = 0;
   current.value = 0;
   percent.value = 0;
-  results.value = { created: 0, updated: 0, failed: 0 };
+  results.value = { created: 0, updated: 0, skipped: 0, failed: 0 };
   logEntries.value = [];
   duration.value = null;
 
@@ -291,9 +295,10 @@ const handleEvent = (eventType: string, data: any) => {
         total.value = data.total || total.value;
         current.value = data.current || current.value;
         percent.value = data.percent || percent.value;
-        results.value.created = data.created || results.value.created;
-        results.value.updated = data.updated || results.value.updated;
-        results.value.failed = data.failed || results.value.failed;
+        results.value.created = data.created ?? results.value.created;
+        results.value.updated = data.updated ?? results.value.updated;
+        results.value.skipped = data.skipped ?? results.value.skipped;
+        results.value.failed = data.failed ?? results.value.failed;
       }
       break;
 
@@ -310,7 +315,7 @@ const handleEvent = (eventType: string, data: any) => {
     case 'complete':
       status.value = 'complete';
       duration.value = data.duration;
-      addLog('info', `Синхронизация завершена: создано ${data.results.created}, обновлено ${data.results.updated}, ошибок ${data.results.failed}`);
+      addLog('info', `Завершено: создано ${data.results.created}, обновлено ${data.results.updated}, без изменений ${data.results.skipped}, ошибок ${data.results.failed}`);
       emit('sync-complete', data.results);
       break;
 
@@ -461,7 +466,7 @@ onUnmounted(() => {
 
   &__stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: $spacing-md;
   }
 
@@ -486,6 +491,14 @@ onUnmounted(() => {
 
       .sync-progress__stat-value {
         color: $primary-600;
+      }
+    }
+
+    &--skipped {
+      background: $gray-100;
+
+      .sync-progress__stat-value {
+        color: $gray-600;
       }
     }
 

@@ -198,7 +198,10 @@ const productSchema = new mongoose.Schema(
       sparse: true,
       unique: true,
     },
+    // Дата последней синхронизации
     lastSyncedAt: Date,
+    // Хеш данных из 1С для определения изменений
+    syncHash: String,
   },
   {
     timestamps: true,
