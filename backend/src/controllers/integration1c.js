@@ -977,7 +977,8 @@ const getStats = async (req, res) => {
 const activeSyncConnections = new Map();
 
 // Размер батча для загрузки товаров из 1С
-const BATCH_SIZE = 500;
+// Уменьшено до 100 из-за таймаутов Render (~60 сек) и долгого ответа 1С
+const BATCH_SIZE = 100;
 
 /**
  * Обработка одного товара из 1С

@@ -12,7 +12,7 @@ class Integration1CService {
     this.username = process.env.INTEGRATION_1C_USER || '';
     this.password = process.env.INTEGRATION_1C_PASSWORD || '';
     this.enabled = process.env.INTEGRATION_1C_ENABLED === 'true';
-    this.timeout = parseInt(process.env.INTEGRATION_1C_TIMEOUT) || 120000; // 2 минуты на запрос
+    this.timeout = parseInt(process.env.INTEGRATION_1C_TIMEOUT) || 55000; // 55 сек - меньше чем таймаут Render
     // URL для OData
     this.odataUrl = this.baseUrl + '/odata/standard.odata';
     // URL для HTTP-сервиса (стандартный путь /hs/{корневой_url})
@@ -47,9 +47,10 @@ class Integration1CService {
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    const startTime = Date.now();
 
     try {
-      logger.info(`1C API Request: ${options.method || 'GET'} ${url}`);
+      logger.info(`1C API Request: ${options.method || 'GET'} ${url} (timeout: ${this.timeout}ms)`);
 
       const response = await fetch(url, {
         ...options,
@@ -61,6 +62,7 @@ class Integration1CService {
       });
 
       clearTimeout(timeoutId);
+      const duration = Date.now() - startTime;
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -68,17 +70,18 @@ class Integration1CService {
       }
 
       const data = await response.json();
-      logger.info(`1C API Response: ${response.status}, items: ${data.data?.length || 0}`);
+      logger.info(`1C API Response: ${response.status}, items: ${data.data?.length || 0}, time: ${duration}ms`);
 
       return data;
     } catch (error) {
       clearTimeout(timeoutId);
+      const duration = Date.now() - startTime;
 
       if (error.name === 'AbortError') {
-        throw new Error(`Timeout при подключении к 1С (${this.timeout}ms)`);
+        throw new Error(`Timeout при подключении к 1С после ${duration}ms (лимит: ${this.timeout}ms)`);
       }
 
-      logger.error('1C API Error:', error.message);
+      logger.error(`1C API Error after ${duration}ms:`, error.message);
       throw error;
     }
   }
