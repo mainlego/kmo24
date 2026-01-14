@@ -965,23 +965,25 @@ const activeSyncConnections = new Map();
  * GET /api/integration/1c/sync/products/stream
  */
 const syncProductsStream = async (req, res) => {
-  // Настройка SSE
+  // Настройка SSE - критично для real-time стриминга
   res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('Connection', 'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no');
+  res.setHeader('X-Accel-Buffering', 'no'); // Отключает буферизацию nginx/proxy
+  res.setHeader('Content-Encoding', 'identity'); // Отключает сжатие
+
+  // Отправляем заголовки сразу, чтобы начать стрим
+  res.flushHeaders();
 
   const syncId = Date.now().toString();
   activeSyncConnections.set(syncId, { res, aborted: false });
 
-  // Отправка события клиенту с принудительным flush
+  // Отправка события клиенту
   const sendEvent = (event, data) => {
     if (activeSyncConnections.get(syncId)?.aborted) return;
     try {
-      res.write(`event: ${event}\n`);
-      res.write(`data: ${JSON.stringify(data)}\n\n`);
-      // Принудительно отправляем данные клиенту
-      if (res.flush) res.flush();
+      const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+      res.write(message);
     } catch (e) {
       // Игнорируем ошибки записи при закрытом соединении
     }

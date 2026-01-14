@@ -117,8 +117,20 @@ app.use(mongoSanitize());
 // Защита от HTTP Parameter Pollution
 app.use(hpp());
 
-// Сжатие ответов
-app.use(compression());
+// Сжатие ответов (отключаем для SSE endpoints)
+app.use(compression({
+  filter: (req, res) => {
+    // Не сжимаем SSE потоки - это мешает реальному времени
+    if (req.headers.accept === 'text/event-stream') {
+      return false;
+    }
+    if (req.path.includes('/stream')) {
+      return false;
+    }
+    // Используем стандартную логику для остальных запросов
+    return compression.filter(req, res);
+  }
+}));
 
 // Логирование HTTP запросов
 if (config.env === 'development') {
