@@ -26,19 +26,20 @@ const productSchema = new mongoose.Schema(
     description: {
       short: {
         type: String,
-        maxlength: [500, 'Краткое описание не может быть длиннее 500 символов'],
+        maxlength: [2000, 'Краткое описание не может быть длиннее 2000 символов'],
       },
       full: {
         type: String,
-        maxlength: [5000, 'Полное описание не может быть длиннее 5000 символов'],
+        maxlength: [10000, 'Полное описание не может быть длиннее 10000 символов'],
       },
     },
 
-    // Категория
+    // Категория (необязательна - товары из 1С могут быть без категории)
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Category',
-      required: [true, 'Категория обязательна'],
+      required: false,
+      default: null,
     },
 
     // Цены
