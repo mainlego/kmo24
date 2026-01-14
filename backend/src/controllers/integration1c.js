@@ -974,11 +974,17 @@ const syncProductsStream = async (req, res) => {
   const syncId = Date.now().toString();
   activeSyncConnections.set(syncId, { res, aborted: false });
 
-  // Отправка события клиенту
+  // Отправка события клиенту с принудительным flush
   const sendEvent = (event, data) => {
     if (activeSyncConnections.get(syncId)?.aborted) return;
-    res.write(`event: ${event}\n`);
-    res.write(`data: ${JSON.stringify(data)}\n\n`);
+    try {
+      res.write(`event: ${event}\n`);
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+      // Принудительно отправляем данные клиенту
+      if (res.flush) res.flush();
+    } catch (e) {
+      // Игнорируем ошибки записи при закрытом соединении
+    }
   };
 
   // Обработка отмены соединения
@@ -1093,8 +1099,10 @@ const syncProductsStream = async (req, res) => {
           }
         }
 
-        // Отправляем прогресс каждые 5 товаров или на последнем
-        if ((i + 1) % 5 === 0 || i === products1C.length - 1) {
+        // Отправляем прогресс и информацию о товаре каждые 10 товаров или на последнем
+        const shouldSendProgress = (i + 1) % 10 === 0 || i === products1C.length - 1;
+
+        if (shouldSendProgress) {
           const percent = Math.round(((i + 1) / total) * 100);
           sendEvent('progress', {
             phase: 'sync',
@@ -1107,11 +1115,11 @@ const syncProductsStream = async (req, res) => {
           });
         }
 
-        // Отправляем информацию о товаре
+        // Отправляем информацию о каждом товаре для лога
         sendEvent('item', {
           action,
-          name: productData.name,
-          sku: productData.sku,
+          name: productData.name?.substring(0, 100) || 'Без названия',
+          sku: productData.sku || '',
           index: i + 1,
         });
 
@@ -1119,9 +1127,9 @@ const syncProductsStream = async (req, res) => {
         results.failed++;
         sendEvent('item', {
           action: 'failed',
-          name: product1C.name,
-          sku: product1C.sku,
-          error: error.message,
+          name: (product1C.name || 'Без названия').substring(0, 100),
+          sku: product1C.sku || '',
+          error: (error.message || 'Неизвестная ошибка').substring(0, 100),
           index: i + 1,
         });
       }

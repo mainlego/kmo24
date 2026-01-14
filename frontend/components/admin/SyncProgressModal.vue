@@ -222,17 +222,14 @@ const startSync = async () => {
       throw new Error('Не удалось создать reader');
     }
 
-    let buffer = '';
+    let textBuffer = '';
 
-    const processLine = (line: string) => {
-      if (line.startsWith('event: ')) {
-        // Сохраняем тип события
-        buffer = line.substring(7);
-      } else if (line.startsWith('data: ')) {
-        const eventType = buffer;
-        const data = JSON.parse(line.substring(6));
+    const processSSEMessage = (eventType: string, dataStr: string) => {
+      try {
+        const data = JSON.parse(dataStr);
         handleEvent(eventType, data);
-        buffer = '';
+      } catch (e) {
+        console.error('SSE parse error:', e, 'Data:', dataStr);
       }
     };
 
@@ -241,12 +238,31 @@ const startSync = async () => {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const text = decoder.decode(value, { stream: true });
-        const lines = text.split('\n');
+        textBuffer += decoder.decode(value, { stream: true });
 
-        for (const line of lines) {
-          if (line.trim()) {
-            processLine(line);
+        // Разбиваем на сообщения по двойному переводу строки
+        const messages = textBuffer.split('\n\n');
+
+        // Последний элемент может быть неполным - сохраняем в буфер
+        textBuffer = messages.pop() || '';
+
+        for (const message of messages) {
+          if (!message.trim()) continue;
+
+          const lines = message.split('\n');
+          let eventType = '';
+          let dataStr = '';
+
+          for (const line of lines) {
+            if (line.startsWith('event: ')) {
+              eventType = line.substring(7).trim();
+            } else if (line.startsWith('data: ')) {
+              dataStr = line.substring(6);
+            }
+          }
+
+          if (eventType && dataStr) {
+            processSSEMessage(eventType, dataStr);
           }
         }
       }
