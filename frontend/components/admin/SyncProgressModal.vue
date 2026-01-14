@@ -184,8 +184,8 @@ const startSync = async () => {
   addLog('info', 'Начинаем синхронизацию...');
 
   try {
-    // Получаем токен
-    const token = useCookie('token').value;
+    // Получаем токен из localStorage
+    const token = localStorage.getItem('accessToken');
     if (!token) {
       throw new Error('Не авторизован');
     }
