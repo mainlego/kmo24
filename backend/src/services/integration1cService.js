@@ -12,7 +12,7 @@ class Integration1CService {
     this.username = process.env.INTEGRATION_1C_USER || '';
     this.password = process.env.INTEGRATION_1C_PASSWORD || '';
     this.enabled = process.env.INTEGRATION_1C_ENABLED === 'true';
-    this.timeout = parseInt(process.env.INTEGRATION_1C_TIMEOUT) || 120000; // 2 минуты для больших запросов
+    this.timeout = parseInt(process.env.INTEGRATION_1C_TIMEOUT) || 300000; // 5 минут для загрузки всех товаров
     // URL для OData
     this.odataUrl = this.baseUrl + '/odata/standard.odata';
     // URL для HTTP-сервиса (стандартный путь /hs/{корневой_url})

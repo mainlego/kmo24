@@ -976,12 +976,12 @@ const getStats = async (req, res) => {
 // Хранилище активных SSE соединений для синхронизации
 const activeSyncConnections = new Map();
 
-// Размер батча для загрузки товаров из 1С
+// Размер батча для обработки товаров (сколько товаров обрабатываем за раз)
 const BATCH_SIZE = 50;
 
 /**
  * Синхронизация товаров с SSE стримингом прогресса
- * Загружает товары порциями по BATCH_SIZE и проверяет изменения
+ * Загружает все товары из 1С одним запросом, затем обрабатывает порциями
  * GET /api/integration/1c/sync/products/stream
  */
 const syncProductsStream = async (req, res) => {
@@ -1019,7 +1019,7 @@ const syncProductsStream = async (req, res) => {
 
   const startTime = Date.now();
 
-  // Keep-alive интервал
+  // Keep-alive интервал (каждые 10 секунд)
   const keepAliveInterval = setInterval(() => {
     if (!activeSyncConnections.get(syncId)?.aborted) {
       try {
@@ -1038,77 +1038,63 @@ const syncProductsStream = async (req, res) => {
       categoryMap.set(cat.externalId, cat._id);
     }
 
+    // Загружаем ВСЕ товары из 1С одним запросом
+    sendEvent('progress', {
+      phase: 'fetch',
+      message: 'Загрузка товаров из 1С...',
+    });
+
+    const response = await integration1CService.getProducts({
+      limit: 50000, // Большой лимит для получения всех товаров
+    });
+
+    if (!response.success || !Array.isArray(response.data)) {
+      throw new Error(response.error || 'Некорректный ответ от 1С');
+    }
+
+    const products1C = response.data;
+    const totalProducts = products1C.length;
+
+    sendEvent('progress', {
+      phase: 'fetch',
+      message: `Загружено ${totalProducts} товаров из 1С`,
+      total: totalProducts,
+    });
+
+    logger.info(`Loaded ${totalProducts} products from 1C`);
+
     const results = {
-      total: 0,
+      total: totalProducts,
       created: 0,
       updated: 0,
-      skipped: 0, // Пропущено без изменений
+      skipped: 0,
       failed: 0,
     };
 
-    let page = 1;
-    let hasMore = true;
-    let totalProcessed = 0;
-
-    // Загружаем товары порциями
-    while (hasMore && !activeSyncConnections.get(syncId)?.aborted) {
-      sendEvent('progress', {
-        phase: 'fetch',
-        message: `Загрузка товаров из 1С (страница ${page})...`,
-        page,
-      });
-
-      let products1C = [];
-
-      try {
-        const response = await integration1CService.getProducts({
-          page,
-          limit: BATCH_SIZE,
-        });
-
-        if (!response.success || !Array.isArray(response.data)) {
-          // Если это не первая страница и нет данных - закончили
-          if (page > 1) {
-            hasMore = false;
-            continue;
-          }
-          throw new Error(response.error || 'Некорректный ответ от 1С');
-        }
-
-        products1C = response.data;
-
-        // Если получили меньше чем запрашивали - это последняя страница
-        if (products1C.length < BATCH_SIZE) {
-          hasMore = false;
-        }
-
-        // Если пустой ответ - закончили
-        if (products1C.length === 0) {
-          hasMore = false;
-          continue;
-        }
-      } catch (fetchError) {
-        // На первой странице ошибка критична
-        if (page === 1) {
-          throw fetchError;
-        }
-        // На других страницах просто заканчиваем
-        hasMore = false;
-        continue;
+    // Обрабатываем товары порциями по BATCH_SIZE
+    for (let batchStart = 0; batchStart < totalProducts; batchStart += BATCH_SIZE) {
+      if (activeSyncConnections.get(syncId)?.aborted) {
+        sendEvent('cancelled', { message: 'Синхронизация отменена', results });
+        clearInterval(keepAliveInterval);
+        res.end();
+        return;
       }
 
-      results.total += products1C.length;
+      const batchEnd = Math.min(batchStart + BATCH_SIZE, totalProducts);
+      const batchProducts = products1C.slice(batchStart, batchEnd);
+      const batchNum = Math.floor(batchStart / BATCH_SIZE) + 1;
 
       sendEvent('progress', {
         phase: 'sync',
-        message: `Обработка ${products1C.length} товаров (страница ${page})...`,
-        page,
-        batchSize: products1C.length,
-        totalProcessed,
+        message: `Обработка товаров ${batchStart + 1}-${batchEnd} из ${totalProducts}...`,
+        batch: batchNum,
+        current: batchStart,
+        total: totalProducts,
+        percent: Math.round((batchStart / totalProducts) * 100),
       });
 
       // Обрабатываем товары текущей порции
-      for (let i = 0; i < products1C.length; i++) {
+      for (let i = 0; i < batchProducts.length; i++) {
         if (activeSyncConnections.get(syncId)?.aborted) {
           sendEvent('cancelled', { message: 'Синхронизация отменена', results });
           clearInterval(keepAliveInterval);
@@ -1116,8 +1102,8 @@ const syncProductsStream = async (req, res) => {
           return;
         }
 
-        const product1C = products1C[i];
-        totalProcessed++;
+        const product1C = batchProducts[i];
+        const globalIndex = batchStart + i + 1;
 
         try {
           const productData = integration1CService.transformProduct(product1C);
@@ -1192,7 +1178,7 @@ const syncProductsStream = async (req, res) => {
               action,
               name: (productData.name || 'Без названия').substring(0, 80),
               sku: productData.sku || '',
-              index: totalProcessed,
+              index: globalIndex,
             });
           }
 
@@ -1203,25 +1189,24 @@ const syncProductsStream = async (req, res) => {
             name: (product1C.name || 'Без названия').substring(0, 80),
             sku: product1C.sku || '',
             error: (error.message || 'Ошибка').substring(0, 80),
-            index: totalProcessed,
+            index: globalIndex,
           });
         }
       }
 
       // Отправляем прогресс после каждой порции
+      const processedCount = batchEnd;
       sendEvent('progress', {
         phase: 'sync',
-        message: `Обработано ${totalProcessed} товаров`,
-        current: totalProcessed,
-        total: results.total,
+        message: `Обработано ${processedCount} из ${totalProducts} товаров`,
+        current: processedCount,
+        total: totalProducts,
+        percent: Math.round((processedCount / totalProducts) * 100),
         created: results.created,
         updated: results.updated,
         skipped: results.skipped,
         failed: results.failed,
-        page,
       });
-
-      page++;
     }
 
     clearInterval(keepAliveInterval);
