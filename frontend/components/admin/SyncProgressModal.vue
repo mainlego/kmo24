@@ -191,7 +191,7 @@ const startSync = async () => {
     }
 
     // Создаём SSE соединение
-    const apiUrl = config.public.apiUrl || '';
+    const apiUrl = config.public.apiBaseUrl || '';
     const url = `${apiUrl}/integration/1c/sync/products/stream`;
 
     eventSource = new EventSource(`${url}?token=${token}`, {
