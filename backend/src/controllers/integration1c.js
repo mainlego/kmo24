@@ -1121,35 +1121,77 @@ const syncProductsStream = async (req, res) => {
       withImages: 0,
     };
 
-    // Загружаем все товары одним запросом (1С не поддерживает offset пагинацию)
+    // Получаем список категорий из 1С для загрузки товаров по категориям
+    // (1С ограничивает количество товаров в одном запросе до ~500)
     sendEvent('progress', {
       phase: 'fetch',
-      message: `Загрузка товаров из 1С (лимит: ${PRODUCTS_LIMIT})...`,
+      message: 'Загрузка списка категорий из 1С...',
     });
 
-    const response = await integration1CService.getProducts({
-      limit: PRODUCTS_LIMIT,
-    });
+    const categoriesResponse = await integration1CService.getCategories();
+    const categories1C = categoriesResponse.success ? categoriesResponse.data : [];
 
-    if (!response.success || !Array.isArray(response.data)) {
-      throw new Error(response.error || 'Некорректный ответ от 1С');
+    // Добавляем null для товаров без категории
+    const categoryIds = [null, ...categories1C.map(c => c.id)];
+
+    logger.info(`Will load products from ${categoryIds.length} categories`);
+
+    // Собираем все товары из всех категорий
+    const allProducts = [];
+    const processedIds = new Set();
+    let categoryNum = 0;
+
+    for (const categoryId of categoryIds) {
+      if (activeSyncConnections.get(syncId)?.aborted) {
+        break;
+      }
+
+      categoryNum++;
+      const categoryName = categoryId
+        ? categories1C.find(c => c.id === categoryId)?.name || categoryId
+        : 'Без категории';
+
+      sendEvent('progress', {
+        phase: 'fetch',
+        message: `Загрузка категории ${categoryNum}/${categoryIds.length}: ${categoryName.substring(0, 40)}...`,
+        categoryNum,
+        totalCategories: categoryIds.length,
+      });
+
+      try {
+        const response = await integration1CService.getProducts({
+          categoryId,
+          limit: PRODUCTS_LIMIT,
+        });
+
+        if (response.success && Array.isArray(response.data)) {
+          // Фильтруем дубликаты (товар может быть в нескольких категориях)
+          for (const product of response.data) {
+            if (!processedIds.has(product.id)) {
+              processedIds.add(product.id);
+              allProducts.push(product);
+            }
+          }
+          logger.info(`Category "${categoryName}": ${response.data.length} products, total unique: ${allProducts.length}`);
+        }
+      } catch (error) {
+        logger.warn(`Failed to load category ${categoryName}: ${error.message}`);
+      }
     }
 
-    const products1C = response.data;
-    results.total = products1C.length;
-
-    logger.info(`Received ${products1C.length} products from 1C`);
+    results.total = allProducts.length;
+    logger.info(`Total unique products from all categories: ${allProducts.length}`);
 
     sendEvent('progress', {
       phase: 'sync',
-      message: `Получено ${products1C.length} товаров, начинаем обработку...`,
-      total: products1C.length,
+      message: `Получено ${allProducts.length} уникальных товаров, начинаем обработку...`,
+      total: allProducts.length,
     });
 
     // Обрабатываем товары
     let totalProcessed = 0;
 
-    for (const product1C of products1C) {
+    for (const product1C of allProducts) {
       if (activeSyncConnections.get(syncId)?.aborted) {
         sendEvent('cancelled', { message: 'Синхронизация отменена', results });
         clearInterval(keepAliveInterval);
@@ -1178,8 +1220,8 @@ const syncProductsStream = async (req, res) => {
           });
         }
 
-        // Прогресс каждые 50 товаров
-        if (totalProcessed % 50 === 0) {
+        // Прогресс каждые 100 товаров
+        if (totalProcessed % 100 === 0) {
           sendEvent('progress', {
             phase: 'sync',
             message: `Обработано ${totalProcessed} из ${results.total} товаров`,
