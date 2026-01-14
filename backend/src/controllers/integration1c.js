@@ -1001,6 +1001,18 @@ const syncProductsStream = async (req, res) => {
 
   const startTime = Date.now();
 
+  // Keep-alive интервал для предотвращения timeout на Render
+  const keepAliveInterval = setInterval(() => {
+    if (!activeSyncConnections.get(syncId)?.aborted) {
+      try {
+        // Отправляем комментарий SSE для поддержания соединения
+        res.write(': keep-alive\n\n');
+      } catch (e) {
+        // Игнорируем
+      }
+    }
+  }, 15000); // каждые 15 секунд
+
   try {
     sendEvent('start', { message: 'Начинаем синхронизацию...', syncId });
 
@@ -1008,6 +1020,8 @@ const syncProductsStream = async (req, res) => {
     sendEvent('progress', { phase: 'fetch', message: 'Загрузка товаров из 1С...' });
 
     const response = await integration1CService.getProducts({ limit: 10000 });
+
+    clearInterval(keepAliveInterval);
 
     if (!response.success || !Array.isArray(response.data)) {
       sendEvent('error', { message: response.error || 'Некорректный ответ от 1С' });
@@ -1149,6 +1163,7 @@ const syncProductsStream = async (req, res) => {
     res.end();
 
   } catch (error) {
+    clearInterval(keepAliveInterval);
     logger.error('Product sync stream failed:', error.message);
     sendEvent('error', { message: error.message });
     activeSyncConnections.delete(syncId);
