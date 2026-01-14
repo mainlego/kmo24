@@ -33,6 +33,13 @@ router.post('/sync/full', protect, authorize('admin'), asyncHandler(integration1
 // Отправить заказ в 1С
 router.post('/orders/:id/send', protect, authorize('admin', 'manager'), asyncHandler(integration1cController.sendOrderTo1C));
 
+// Синхронизация товаров с SSE стримингом (реальное время)
+// Используем GET для SSE - asyncHandler не нужен, т.к. SSE сам управляет ответом
+router.get('/sync/products/stream', protect, authorize('admin'), integration1cController.syncProductsStream);
+
+// Отмена синхронизации
+router.post('/sync/cancel/:syncId', protect, authorize('admin'), asyncHandler(integration1cController.cancelSync));
+
 // ==========================================
 // МАРШРУТЫ ДЛЯ WEBHOOK'ов (данные от 1С)
 // ==========================================

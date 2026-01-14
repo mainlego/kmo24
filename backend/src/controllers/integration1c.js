@@ -957,6 +957,211 @@ const getStats = async (req, res) => {
   }
 };
 
+// Хранилище активных SSE соединений для синхронизации
+const activeSyncConnections = new Map();
+
+/**
+ * Синхронизация товаров с SSE стримингом прогресса
+ * GET /api/integration/1c/sync/products/stream
+ */
+const syncProductsStream = async (req, res) => {
+  // Настройка SSE
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+
+  const syncId = Date.now().toString();
+  activeSyncConnections.set(syncId, { res, aborted: false });
+
+  // Отправка события клиенту
+  const sendEvent = (event, data) => {
+    if (activeSyncConnections.get(syncId)?.aborted) return;
+    res.write(`event: ${event}\n`);
+    res.write(`data: ${JSON.stringify(data)}\n\n`);
+  };
+
+  // Обработка отмены соединения
+  req.on('close', () => {
+    const conn = activeSyncConnections.get(syncId);
+    if (conn) {
+      conn.aborted = true;
+      activeSyncConnections.delete(syncId);
+    }
+    logger.info(`Sync stream ${syncId} closed by client`);
+  });
+
+  const startTime = Date.now();
+
+  try {
+    sendEvent('start', { message: 'Начинаем синхронизацию...', syncId });
+
+    // Получаем товары из 1С
+    sendEvent('progress', { phase: 'fetch', message: 'Загрузка товаров из 1С...' });
+
+    const response = await integration1CService.getProducts({ limit: 10000 });
+
+    if (!response.success || !Array.isArray(response.data)) {
+      sendEvent('error', { message: response.error || 'Некорректный ответ от 1С' });
+      res.end();
+      return;
+    }
+
+    const products1C = response.data;
+    const total = products1C.length;
+
+    sendEvent('progress', {
+      phase: 'sync',
+      message: `Загружено ${total} товаров из 1С`,
+      total,
+      current: 0,
+      percent: 0,
+    });
+
+    const results = {
+      total,
+      created: 0,
+      updated: 0,
+      failed: 0,
+    };
+
+    // Загружаем категории для маппинга
+    const allCategories = await Category.find({ externalId: { $exists: true, $ne: null } });
+    const categoryMap = new Map();
+    for (const cat of allCategories) {
+      categoryMap.set(cat.externalId, cat._id);
+    }
+
+    // Обрабатываем товары
+    for (let i = 0; i < products1C.length; i++) {
+      // Проверяем, не была ли отменена синхронизация
+      if (activeSyncConnections.get(syncId)?.aborted) {
+        sendEvent('cancelled', {
+          message: 'Синхронизация отменена пользователем',
+          results,
+          processed: i,
+        });
+        res.end();
+        return;
+      }
+
+      const product1C = products1C[i];
+
+      try {
+        const productData = integration1CService.transformProduct(product1C);
+
+        // Находим категорию
+        const categoryExternalId = product1C.category?.id || product1C.categoryId;
+        if (categoryExternalId && categoryMap.has(categoryExternalId)) {
+          productData.category = categoryMap.get(categoryExternalId);
+        } else {
+          productData.category = null;
+        }
+
+        // Ищем существующий товар
+        let product = await Product.findOne({ externalId: product1C.id });
+        let action = 'updated';
+
+        if (product) {
+          Object.assign(product, productData);
+          await product.save();
+          results.updated++;
+        } else {
+          if (productData.sku) {
+            product = await Product.findOne({ sku: productData.sku });
+          }
+
+          if (product) {
+            Object.assign(product, productData);
+            await product.save();
+            results.updated++;
+          } else {
+            try {
+              product = await Product.create(productData);
+              results.created++;
+              action = 'created';
+            } catch (createError) {
+              if (createError.code === 11000 && createError.keyPattern?.sku) {
+                productData.sku = `${productData.sku}-${product1C.id.substring(0, 8)}`;
+                product = await Product.create(productData);
+                results.created++;
+                action = 'created';
+              } else {
+                throw createError;
+              }
+            }
+          }
+        }
+
+        // Отправляем прогресс каждые 5 товаров или на последнем
+        if ((i + 1) % 5 === 0 || i === products1C.length - 1) {
+          const percent = Math.round(((i + 1) / total) * 100);
+          sendEvent('progress', {
+            phase: 'sync',
+            current: i + 1,
+            total,
+            percent,
+            created: results.created,
+            updated: results.updated,
+            failed: results.failed,
+          });
+        }
+
+        // Отправляем информацию о товаре
+        sendEvent('item', {
+          action,
+          name: productData.name,
+          sku: productData.sku,
+          index: i + 1,
+        });
+
+      } catch (error) {
+        results.failed++;
+        sendEvent('item', {
+          action: 'failed',
+          name: product1C.name,
+          sku: product1C.sku,
+          error: error.message,
+          index: i + 1,
+        });
+      }
+    }
+
+    const duration = Date.now() - startTime;
+
+    sendEvent('complete', {
+      message: 'Синхронизация завершена',
+      results,
+      duration: `${duration}ms`,
+    });
+
+    activeSyncConnections.delete(syncId);
+    res.end();
+
+  } catch (error) {
+    logger.error('Product sync stream failed:', error.message);
+    sendEvent('error', { message: error.message });
+    activeSyncConnections.delete(syncId);
+    res.end();
+  }
+};
+
+/**
+ * Отменить активную синхронизацию
+ * POST /api/integration/1c/sync/cancel/:syncId
+ */
+const cancelSync = async (req, res) => {
+  const { syncId } = req.params;
+
+  const conn = activeSyncConnections.get(syncId);
+  if (conn) {
+    conn.aborted = true;
+    res.json({ success: true, message: 'Синхронизация отменена' });
+  } else {
+    res.status(404).json({ success: false, message: 'Синхронизация не найдена' });
+  }
+};
+
 export default {
   // Новые методы - запрос данных ИЗ 1С
   getIntegrationStatus,
@@ -964,6 +1169,8 @@ export default {
   fetchAndSyncCategories,
   fullSync,
   sendOrderTo1C,
+  syncProductsStream,
+  cancelSync,
 
   // Старые методы - приём данных ОТ 1С (webhooks)
   syncProducts,

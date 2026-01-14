@@ -7,11 +7,11 @@
         <p class="page-subtitle">Управление товарами интернет-магазина</p>
       </div>
       <div class="header-actions">
-        <button class="btn btn-secondary" @click="sync1CProducts" :disabled="syncing">
+        <button class="btn btn-secondary" @click="sync1CProducts">
           <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          {{ syncing ? 'Синхронизация...' : 'Синхр. с 1С' }}
+          Синхр. с 1С
         </button>
         <button class="btn btn-primary" @click="navigateTo('/admin/products/create')">
           <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -235,6 +235,12 @@
         </div>
       </template>
     </AdminDataTable>
+
+    <!-- Модальное окно синхронизации -->
+    <AdminSyncProgressModal
+      v-model="showSyncModal"
+      @sync-complete="handleSyncComplete"
+    />
   </div>
 </template>
 
@@ -266,7 +272,7 @@ const { getCategories } = useCategories();
 
 // Data
 const loading = ref(false);
-const syncing = ref(false);
+const showSyncModal = ref(false);
 const activeTab = ref<'all' | '1c' | 'manual'>('all');
 const selectedProducts = ref<string[]>([]);
 const products = ref<Product[]>([]);
@@ -386,24 +392,17 @@ const fetchProducts = async () => {
   }
 };
 
-// Синхронизация с 1С
-const sync1CProducts = async () => {
-  syncing.value = true;
-  try {
-    const { apiFetch } = useApi();
-    // Запрос на синхронизацию - админский эндпоинт, который сам запрашивает данные из 1С
-    await apiFetch('/integration/1c/sync/products', {
-      method: 'POST',
-    });
-    success('Синхронизация завершена. Данные обновлены.');
-    // Обновляем список товаров
-    await fetchProducts();
-    await fetch1CStats();
-  } catch {
-    error('Ошибка синхронизации с 1С. Проверьте настройки интеграции.');
-  } finally {
-    syncing.value = false;
-  }
+// Синхронизация с 1С - открываем модальное окно
+const sync1CProducts = () => {
+  showSyncModal.value = true;
+};
+
+// Обработка завершения синхронизации
+const handleSyncComplete = async (results: any) => {
+  success(`Синхронизация завершена: создано ${results.created}, обновлено ${results.updated}`);
+  // Обновляем список товаров
+  await fetchProducts();
+  await fetch1CStats();
 };
 
 // Загрузка статистики товаров из 1С
