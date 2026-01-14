@@ -102,7 +102,7 @@ const fetchAndSyncProducts = async (req, res) => {
           productData.category = null;
         }
 
-        // Ищем существующий товар по externalId
+        // Ищем существующий товар по externalId (ID из 1С)
         let product = await Product.findOne({
           externalId: product1C.id,
         });
@@ -113,9 +113,33 @@ const fetchAndSyncProducts = async (req, res) => {
           await product.save();
           results.updated++;
         } else {
-          // Создаём новый товар
-          product = await Product.create(productData);
-          results.created++;
+          // Если не нашли по externalId, ищем по SKU (для миграции старых товаров)
+          if (productData.sku) {
+            product = await Product.findOne({ sku: productData.sku });
+          }
+
+          if (product) {
+            // Обновляем найденный по SKU товар и добавляем externalId
+            Object.assign(product, productData);
+            await product.save();
+            results.updated++;
+          } else {
+            // Создаём новый товар
+            try {
+              product = await Product.create(productData);
+              results.created++;
+            } catch (createError) {
+              // Если ошибка дублирования SKU - создаём с уникальным SKU
+              if (createError.code === 11000 && createError.keyPattern?.sku) {
+                productData.sku = `${productData.sku}-${product1C.id.substring(0, 8)}`;
+                product = await Product.create(productData);
+                results.created++;
+                logger.warn(`Created product with modified SKU: ${productData.sku}`);
+              } else {
+                throw createError;
+              }
+            }
+          }
         }
       } catch (error) {
         results.failed++;
@@ -331,8 +355,30 @@ const fullSync = async (req, res) => {
               await product.save();
               results.products.updated++;
             } else {
-              await Product.create(productData);
-              results.products.created++;
+              // Если не нашли по externalId, ищем по SKU
+              if (productData.sku) {
+                product = await Product.findOne({ sku: productData.sku });
+              }
+
+              if (product) {
+                Object.assign(product, productData);
+                await product.save();
+                results.products.updated++;
+              } else {
+                try {
+                  await Product.create(productData);
+                  results.products.created++;
+                } catch (createError) {
+                  // Если ошибка дублирования SKU - создаём с уникальным SKU
+                  if (createError.code === 11000 && createError.keyPattern?.sku) {
+                    productData.sku = `${productData.sku}-${product1C.id.substring(0, 8)}`;
+                    await Product.create(productData);
+                    results.products.created++;
+                  } else {
+                    throw createError;
+                  }
+                }
+              }
             }
           } catch (e) {
             results.products.failed++;
