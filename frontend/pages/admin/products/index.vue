@@ -150,9 +150,10 @@
       :per-page="pagination.limit"
       :total="pagination.total"
       row-key="_id"
-      v-model:selected="selectedProducts"
       @update:current-page="handlePageChange"
       @row-click="handleRowClick"
+      @sort="handleSort"
+      @selection-change="handleSelectionChange"
     >
       <template #cell-image="{ item }">
         <div class="product-image">
@@ -283,6 +284,15 @@ const pagination = ref({
   pages: 0,
 });
 
+// Текущая сортировка
+const currentSort = ref({
+  key: 'createdAt',
+  order: 'desc' as 'asc' | 'desc',
+});
+
+// Debounce таймер для поиска
+let searchTimeout: ReturnType<typeof setTimeout> | null = null;
+
 // Статистика товаров из 1С
 const stats1C = ref({
   total: 0,
@@ -351,10 +361,25 @@ const columns = [
 // Computed
 const filteredProducts = computed(() => products.value);
 
+// Маппинг ключей сортировки фронтенда на поля бэкенда
+const sortKeyMap: Record<string, string> = {
+  name: 'name',
+  category: 'category',
+  price: 'price',
+  stock: 'stock.quantity',
+  condition: 'condition',
+  status: 'status',
+  createdAt: 'createdAt',
+};
+
 // Methods
 const fetchProducts = async () => {
   loading.value = true;
   try {
+    // Формируем строку сортировки для API
+    const sortKey = sortKeyMap[currentSort.value.key] || 'createdAt';
+    const sortString = currentSort.value.order === 'desc' ? `-${sortKey}` : sortKey;
+
     // Формируем параметры запроса
     const params: any = {
       page: pagination.value.page,
@@ -364,7 +389,7 @@ const fetchProducts = async () => {
       status: filters.value.status || undefined,
       condition: filters.value.condition || undefined,
       availability: filters.value.availability || undefined,
-      sort: '-createdAt',
+      sort: sortString,
     };
 
     // Фильтруем по источнику товара
@@ -511,6 +536,18 @@ const handlePageChange = (page: number) => {
   pagination.value.page = page;
 };
 
+// Обработка сортировки из DataTable
+const handleSort = (sortData: { key: string; order: 'asc' | 'desc' }) => {
+  currentSort.value = sortData;
+  pagination.value.page = 1; // Сброс на первую страницу при смене сортировки
+  fetchProducts();
+};
+
+// Обработка выбора строк
+const handleSelectionChange = (selected: string[]) => {
+  selectedProducts.value = selected;
+};
+
 const editProduct = (id: string) => {
   navigateTo(`/admin/products/${id}`);
 };
@@ -589,10 +626,25 @@ const bulkDelete = async () => {
   }
 };
 
-// Watch filters
+// Watch для поиска с debounce
+watch(
+  () => filters.value.search,
+  () => {
+    // Отменяем предыдущий таймаут
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+    // Устанавливаем новый таймаут (300ms задержка)
+    searchTimeout = setTimeout(() => {
+      pagination.value.page = 1;
+      fetchProducts();
+    }, 300);
+  }
+);
+
+// Watch для остальных фильтров (без debounce - мгновенно)
 watch(
   [
-    () => filters.value.search,
     () => filters.value.category,
     () => filters.value.condition,
     () => filters.value.status,

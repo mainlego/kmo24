@@ -124,8 +124,11 @@ export const getProducts = async (req, res, next) => {
       },
     };
 
-    // Кэширование на 10 минут
-    await setCache(cacheKey, response, 600);
+    // Кэширование только для публичных запросов (без админских фильтров)
+    const isAdminRequest = source || condition || status || availability || isActive !== undefined;
+    if (!isAdminRequest) {
+      await setCache(cacheKey, response, 600);
+    }
 
     return res.json(response);
   } catch (error) {
