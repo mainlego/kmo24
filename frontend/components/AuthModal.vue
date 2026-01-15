@@ -431,16 +431,16 @@ const handleForgotPassword = async () => {
   message.value = '';
 
   try {
-    // TODO: Implement password reset API
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    const { forgotPassword } = useAuth();
+    await forgotPassword(forgotForm.value.email);
 
-    message.value = `Инструкции отправлены на ${forgotForm.value.email}`;
+    message.value = `Если email ${forgotForm.value.email} зарегистрирован, инструкции по восстановлению отправлены`;
     messageType.value = 'success';
 
     setTimeout(() => {
       activeTab.value = 'login';
       forgotForm.value = { email: '' };
-    }, 2000);
+    }, 3000);
   } catch (error: any) {
     message.value = error.message || 'Ошибка при восстановлении пароля';
     messageType.value = 'error';

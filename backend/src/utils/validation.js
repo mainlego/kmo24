@@ -113,6 +113,23 @@ export const authSchemas = {
     }),
   }),
 
+  forgotPassword: Joi.object({
+    email: Joi.string().email().required().messages({
+      'string.email': 'Некорректный email',
+      'any.required': 'Email обязателен',
+    }),
+  }),
+
+  resetPassword: Joi.object({
+    token: Joi.string().required().messages({
+      'any.required': 'Токен сброса обязателен',
+    }),
+    password: Joi.string().min(6).required().messages({
+      'string.min': 'Пароль должен содержать минимум 6 символов',
+      'any.required': 'Новый пароль обязателен',
+    }),
+  }),
+
   addAddress: Joi.object({
     label: Joi.string().min(2).max(50).required().messages({
       'string.min': 'Название адреса должно содержать минимум 2 символа',

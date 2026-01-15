@@ -240,15 +240,14 @@ export const useAuth = () => {
   /**
    * Сброс пароля
    */
-  const resetPassword = async (token: string, newPassword: string) => {
+  const resetPassword = async (token: string, password: string) => {
     try {
       await apiFetch('/auth/reset-password', {
         method: 'POST',
-        body: { token, newPassword },
+        body: { token, password },
       });
 
       showSuccess('Пароль успешно изменен');
-      navigateTo('/login');
     } catch (err: any) {
       showError(err.message || 'Ошибка при сбросе пароля');
       throw err;

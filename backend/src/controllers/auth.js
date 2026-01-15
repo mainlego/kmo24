@@ -242,6 +242,95 @@ export const updateProfile = async (req, res, next) => {
 };
 
 /**
+ * Запрос на восстановление пароля
+ * POST /api/v1/auth/forgot-password
+ */
+export const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    // Всегда возвращаем успех, чтобы не раскрывать существование email
+    if (!user) {
+      logger.info(`Password reset requested for non-existing email: ${email}`);
+      return successResponse(res, null, 'Если email зарегистрирован, инструкции по восстановлению отправлены');
+    }
+
+    // Генерируем токен сброса пароля
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    // Сохраняем хеш токена и срок действия (1 час)
+    user.passwordResetToken = resetTokenHash;
+    user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 час
+    await user.save();
+
+    // Формируем URL для сброса пароля
+    const frontendUrl = process.env.FRONTEND_URL || process.env.CORS_ORIGIN || 'http://localhost:3000';
+    const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
+
+    logger.info(`Password reset token generated for user: ${user.email}`);
+    logger.info(`Reset URL: ${resetUrl}`);
+
+    // TODO: Отправка email с ссылкой resetUrl
+    // Для развертывания можно добавить отправку через:
+    // - SendGrid, Mailgun, AWS SES и т.д.
+    // Пока возвращаем токен в логах для тестирования
+
+    return successResponse(
+      res,
+      { resetUrl }, // Убрать в production, оставить только сообщение
+      'Инструкции по восстановлению пароля отправлены на email'
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Сброс пароля по токену
+ * POST /api/v1/auth/reset-password
+ */
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { token, password } = req.body;
+
+    // Хешируем полученный токен для сравнения
+    const resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    // Ищем пользователя с валидным токеном
+    const user = await User.findOne({
+      passwordResetToken: resetTokenHash,
+      passwordResetExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return errorResponse(res, 'Токен недействителен или истек', 400);
+    }
+
+    // Устанавливаем новый пароль
+    user.password = password;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+
+    // Удаляем все refresh tokens (выход со всех устройств)
+    user.refreshTokens = [];
+
+    await user.save();
+
+    // Очистка кэша
+    await deleteCache(`user:${user._id}`);
+
+    logger.info(`Password reset successful for user: ${user.email}`);
+
+    return successResponse(res, null, 'Пароль успешно изменен. Войдите с новым паролем.');
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Изменение пароля
  * PUT /api/v1/auth/change-password
  */
@@ -561,6 +650,8 @@ export default {
   logout,
   getMe,
   updateProfile,
+  forgotPassword,
+  resetPassword,
   changePassword,
   getMyAddresses,
   addMyAddress,

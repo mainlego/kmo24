@@ -6,6 +6,8 @@ import {
   logout,
   getMe,
   updateProfile,
+  forgotPassword,
+  resetPassword,
   changePassword,
   getMyAddresses,
   addMyAddress,
@@ -48,6 +50,20 @@ router.post('/refresh', validate(authSchemas.refreshToken), asyncHandler(refresh
  * @access  Public
  */
 router.post('/telegram', authLimiter, asyncHandler(telegramAuth));
+
+/**
+ * @route   POST /api/v1/auth/forgot-password
+ * @desc    Запрос на восстановление пароля
+ * @access  Public
+ */
+router.post('/forgot-password', authLimiter, validate(authSchemas.forgotPassword), asyncHandler(forgotPassword));
+
+/**
+ * @route   POST /api/v1/auth/reset-password
+ * @desc    Сброс пароля по токену
+ * @access  Public
+ */
+router.post('/reset-password', authLimiter, validate(authSchemas.resetPassword), asyncHandler(resetPassword));
 
 /**
  * @route   POST /api/v1/auth/logout
